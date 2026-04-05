@@ -147,7 +147,10 @@ tr:hover{background:var(--card2)}
 <div style="margin-top:6px;color:var(--t3);font-size:0.7rem"><strong>Key point:</strong> The signal on Apr 26 evening uses zero information from Apr 27 or later. Apr 27's prices are never seen when deciding what to buy. This is verified by the code: <code>eval_data = vol_t.iloc[i-252:i]</code> which in Python excludes index <code>i</code> (the rebalance day).</div>
 </div>
 
-<p style="font-size:0.72rem;color:var(--t3)"><strong>In practice:</strong> On the evening before a rebalance day, check this page for updated allocations. Place your trades at the next morning's open. The strategy rebalances monthly, so a few hours of execution timing has negligible impact on returns.</p>
+<div style="background:var(--card2);border-radius:4px;padding:10px;margin-bottom:4px;font-size:0.76rem;line-height:1.6">
+<strong style="color:var(--t1)">What price do you get?</strong>
+<div style="margin-top:4px;color:var(--t2)">The backtest assumes entry at <strong>T-1's closing price</strong> — the return on rebalance day T is Close(T)/Close(T-1)-1, applied to the new weights. In practice, you'd trade at <strong>T's open</strong>, which differs slightly from T-1's close due to overnight moves. For monthly rebalancing of bond and dividend ETFs, this gap is typically a few basis points and has negligible impact on long-term results. To be conservative, you could assume ~2-3 bps of additional slippage per rebalance (~12 rebalances/year = ~0.25% annual drag).</div>
+</div>
 </div>
 </div>
 
