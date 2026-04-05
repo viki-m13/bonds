@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <style>
-:root{--bg:#0b1120;--card:#111827;--card2:#1a2332;--t1:#f1f5f9;--t2:#94a3b8;--t3:#64748b;--green:#10b981;--red:#ef4444;--blue:#3b82f6;--cyan:#22d3ee;--yellow:#f59e0b;--purple:#a78bfa;--border:#1e293b;--accent:#3b82f6}
+:root{--bg:#000;--card:#0a0a0a;--card2:#141414;--t1:#fff;--t2:#a0a0a0;--t3:#666;--green:#fff;--red:#888;--blue:#fff;--cyan:#ccc;--yellow:#bbb;--purple:#999;--border:#222;--accent:#fff}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t1);line-height:1.5;font-size:14px}
 .page{max-width:1000px;margin:0 auto;padding:16px}
@@ -35,7 +35,7 @@ th:first-child{text-align:left}
 td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--border)}
 td:first-child{text-align:left;font-weight:500}
 tr:hover{background:var(--card2)}
-.pos{color:var(--green)}.neg{color:var(--red)}
+.pos{color:#fff;font-weight:600}.neg{color:#777}
 
 /* Cards */
 .card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px}
@@ -52,7 +52,7 @@ tr:hover{background:var(--card2)}
 
 /* Shopping list */
 .buy-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
-.buy-ticker{font-size:1.05rem;font-weight:800;color:var(--green);min-width:48px}
+.buy-ticker{font-size:1.05rem;font-weight:800;color:#fff;min-width:48px}
 .buy-info{flex:1;min-width:0}
 .buy-info .desc{font-size:0.68rem;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .buy-info .nums{font-size:0.78rem;display:flex;gap:10px;flex-wrap:wrap}
@@ -60,8 +60,8 @@ tr:hover{background:var(--card2)}
 .buy-pct .pct{font-size:0.9rem;font-weight:700}
 
 /* Heatmap */
-.hm{display:grid;grid-template-columns:40px repeat(12,1fr);gap:1px;font-size:0.62rem}
-.hm-c{padding:3px 1px;text-align:center;border-radius:2px}
+.hm{display:grid;grid-template-columns:34px repeat(12,1fr);gap:1px;font-size:0.55rem;overflow-x:auto}
+.hm-c{padding:2px 1px;text-align:center;border-radius:2px;min-width:0}
 
 /* Position cards */
 .pos-card{padding:8px 0;border-bottom:1px solid var(--border)}
@@ -73,6 +73,27 @@ tr:hover{background:var(--card2)}
 
 .badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:0.6rem;font-weight:600}
 .disclaimer{font-size:0.62rem;color:var(--t3);padding:12px;border:1px solid var(--border);border-radius:4px;margin-top:16px;line-height:1.4}
+@media(max-width:500px){
+  .page{padding:10px}
+  .header h1{font-size:1.15rem}
+  .kpi-row{grid-template-columns:repeat(3,1fr);gap:5px}
+  .kpi{padding:7px 4px}
+  .kpi-val{font-size:1rem}
+  .kpi-label{font-size:0.55rem}
+  .chart-wrap{height:200px}
+  .chart-sm{height:150px}
+  table{font-size:0.68rem}
+  th,td{padding:4px 4px}
+  .card{padding:8px}
+  .section-title{font-size:0.72rem}
+  .hm{font-size:0.48rem;grid-template-columns:28px repeat(12,1fr)}
+  .buy-item{gap:6px}
+  .buy-ticker{font-size:0.9rem;min-width:40px}
+  .buy-info .nums{font-size:0.7rem;gap:6px}
+  .pos-head .name{font-size:0.75rem}
+  .pos-buys{font-size:0.68rem}
+  .g2,.g3{gap:6px}
+}
 </style>
 </head>
 <body>
@@ -220,13 +241,13 @@ const eqCtx = document.getElementById("eqChart").getContext("2d");
 new Chart(eqCtx,{type:"line",data:{
   labels:F.equity_curve.map(d=>d.date),
   datasets:[
-    {label:"DICHS",data:F.equity_curve.map(d=>d.DICHS*10000),borderColor:"#3b82f6",backgroundColor:"rgba(59,130,246,0.08)",fill:true,borderWidth:2,pointRadius:0,tension:0.1},
-    {label:"AGG",data:F.equity_curve.map(d=>d.AGG*10000),borderColor:"#f59e0b",borderWidth:1.5,pointRadius:0,borderDash:[4,2]},
-    {label:"SPY",data:F.equity_curve.map(d=>d.SPY*10000),borderColor:"#10b981",borderWidth:1.5,pointRadius:0,borderDash:[4,2]},
+    {label:"DICHS",data:F.equity_curve.map(d=>d.DICHS*10000),borderColor:"#fff",backgroundColor:"rgba(255,255,255,0.05)",fill:true,borderWidth:2,pointRadius:0,tension:0.1},
+    {label:"AGG",data:F.equity_curve.map(d=>d.AGG*10000),borderColor:"#666",borderWidth:1.5,pointRadius:0,borderDash:[4,2]},
+    {label:"SPY",data:F.equity_curve.map(d=>d.SPY*10000),borderColor:"#444",borderWidth:1.5,pointRadius:0,borderDash:[4,2]},
   ]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:"#94a3b8",font:{size:11}}}},
-    scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#64748b",maxTicksLimit:10},grid:{color:"#1e293b"}},
-      y:{type:"logarithmic",ticks:{color:"#64748b",callback:v=>"$"+v.toLocaleString()},grid:{color:"#1e293b"}}},
+    plugins:{legend:{labels:{color:"#888",font:{size:11}}}},
+    scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#555",maxTicksLimit:10},grid:{color:"#1a1a1a"}},
+      y:{type:"logarithmic",ticks:{color:"#555",callback:v=>"$"+v.toLocaleString()},grid:{color:"#1a1a1a"}}},
     interaction:{mode:"index",intersect:false}}});
 
 // Trailing returns
@@ -235,7 +256,7 @@ const periods = ["1M","3M","6M","YTD","1Y","3Y_ann","5Y_ann","10Y_ann","SI_ann"]
 const periodLabels = ["1 Mo","3 Mo","6 Mo","YTD","1 Yr","3 Yr Ann","5 Yr Ann","10 Yr Ann","Since Inception"];
 let trH = `<thead><tr><th></th>${periodLabels.map(p=>`<th>${p}</th>`).join("")}</tr></thead><tbody>`;
 ["DICHS","AGG","SPY"].forEach(n=>{
-  const color = n==="DICHS"?"var(--blue)":n==="AGG"?"var(--yellow)":"var(--green)";
+  const color = n==="DICHS"?"#fff":n==="AGG"?"#888":"#666";
   trH += `<tr><td style="color:${color};font-weight:700">${n}</td>`;
   periods.forEach(p=>{const v=F.trailing[n][p]; trH += `<td class="${pos(v)}">${fmtPct(v)}</td>`;});
   trH += "</tr>";
@@ -307,14 +328,14 @@ if(cn) bl.innerHTML += `<div style="margin-top:6px;font-size:0.65rem;color:var(-
 // Type chart
 const ts = F.allocations.type_summary||{};
 const te = Object.entries(ts).sort((a,b)=>b[1]-a[1]);
-const tc = {"Bond Carry":"#3b82f6","Dividend Equity":"#10b981","CLO / Structured":"#14b8a6",
-  "MLP / Infrastructure":"#f97316","Commodity":"#f59e0b","Vol Decay":"#e879f9",
-  "Crypto/Momentum":"#eab308","REIT":"#fb923c","Intl Bond":"#64748b","Currency":"#06b6d4"};
+const tc = {"Bond Carry":"#999","Dividend Equity":"#fff","CLO / Structured":"#ccc",
+  "MLP / Infrastructure":"#888","Commodity":"#bbb","Vol Decay":"#777",
+  "Crypto/Momentum":"#aaa","REIT":"#666","Intl Bond":"#555","Currency":"#444"};
 if(te.length>0){
   new Chart(document.getElementById("typeChart").getContext("2d"),{type:"doughnut",data:{
     labels:te.map(e=>e[0]+" "+e[1].toFixed(0)+"%"),
     datasets:[{data:te.map(e=>e[1]),backgroundColor:te.map(e=>tc[e[0]]||"#475569"),borderColor:"var(--card)",borderWidth:2}]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right",labels:{color:"#94a3b8",font:{size:10},boxWidth:10,padding:5}}}}});
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right",labels:{color:"#888",font:{size:10},boxWidth:10,padding:5}}}}});
 }
 
 // Position details
@@ -334,7 +355,7 @@ const pd = document.getElementById("posDetails");
 // Calendar returns
 const ct = document.getElementById("calTable");
 const years = Object.keys(F.calendar_returns).sort();
-let ctH = `<thead><tr><th>Year</th><th style="color:var(--blue)">DICHS</th><th style="color:var(--yellow)">AGG</th><th style="color:var(--green)">SPY</th><th>Excess</th></tr></thead><tbody>`;
+let ctH = `<thead><tr><th>Year</th><th style="color:#fff">DICHS</th><th style="color:#888">AGG</th><th style="color:#666">SPY</th><th>Excess</th></tr></thead><tbody>`;
 years.forEach(yr=>{
   const r=F.calendar_returns[yr]; const d=r.DICHS||0; const a=r.AGG||0; const s=r.SPY||0; const ex=d-a;
   ctH += `<tr><td><strong>${yr}</strong></td><td class="${pos(d)}">${fmtPct(d)}</td><td class="${pos(a)}">${fmtPct(a)}</td><td class="${pos(s)}">${fmtPct(s)}</td><td class="${pos(ex)}">${fmtPct(ex)}</td></tr>`;
@@ -352,8 +373,9 @@ mYears.forEach(yr=>{
   for(let m=1;m<=12;m++){
     const e=F.monthly_returns.find(r=>r.year===yr&&r.month===m);
     if(e){const v=e.return;const i=Math.min(1,Math.abs(v)/8);
-      const bg=v>0?`rgba(16,185,129,${0.15+i*0.55})`:`rgba(239,68,68,${0.15+i*0.55})`;
-      hm.innerHTML += `<div class="hm-c" style="background:${bg}">${v>0?"+":""}${v.toFixed(1)}</div>`;
+      const bg=v>0?`rgba(255,255,255,${0.06+i*0.25})`:`rgba(255,255,255,${0.02+i*0.06})`;
+      const tx=v>0?"#fff":"#666";
+      hm.innerHTML += `<div class="hm-c" style="background:${bg};color:${tx}">${v>0?"+":""}${v.toFixed(1)}</div>`;
     } else hm.innerHTML += `<div class="hm-c" style="background:var(--card2);color:var(--t3)">—</div>`;
   }
 });
@@ -362,22 +384,22 @@ mYears.forEach(yr=>{
 new Chart(document.getElementById("ddChart").getContext("2d"),{type:"line",data:{
   labels:F.drawdown.map(d=>d.date),
   datasets:[
-    {label:"DICHS",data:F.drawdown.map(d=>d.DICHS*100),borderColor:"#3b82f6",backgroundColor:"rgba(59,130,246,0.1)",fill:true,borderWidth:1.5,pointRadius:0},
-    {label:"AGG",data:F.drawdown.map(d=>d.AGG*100),borderColor:"#f59e0b",borderWidth:1,pointRadius:0,borderDash:[3,2]},
-    {label:"SPY",data:F.drawdown.map(d=>d.SPY*100),borderColor:"#10b981",borderWidth:1,pointRadius:0,borderDash:[3,2]},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#94a3b8",font:{size:10}}}},
-    scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#64748b",maxTicksLimit:8},grid:{color:"#1e293b"}},
-      y:{ticks:{color:"#64748b",callback:v=>v.toFixed(0)+"%"},grid:{color:"#1e293b"}}}}});
+    {label:"DICHS",data:F.drawdown.map(d=>d.DICHS*100),borderColor:"#fff",backgroundColor:"rgba(255,255,255,0.05)",fill:true,borderWidth:1.5,pointRadius:0},
+    {label:"AGG",data:F.drawdown.map(d=>d.AGG*100),borderColor:"#666",borderWidth:1,pointRadius:0,borderDash:[3,2]},
+    {label:"SPY",data:F.drawdown.map(d=>d.SPY*100),borderColor:"#444",borderWidth:1,pointRadius:0,borderDash:[3,2]},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#888",font:{size:10}}}},
+    scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#555",maxTicksLimit:8},grid:{color:"#1a1a1a"}},
+      y:{ticks:{color:"#555",callback:v=>v.toFixed(0)+"%"},grid:{color:"#1a1a1a"}}}}});
 
 // Rolling Sharpe
 new Chart(document.getElementById("rsChart").getContext("2d"),{type:"line",data:{
   labels:F.rolling_sharpe_ts.map(d=>d.date),
-  datasets:[{label:"Rolling 1Y Sharpe",data:F.rolling_sharpe_ts.map(d=>d.sharpe),borderColor:"#a78bfa",borderWidth:1.5,pointRadius:0,
-    segment:{borderColor:ctx=>ctx.p1.parsed.y<0?"#ef4444":"#a78bfa"}},
-    {label:"Zero",data:F.rolling_sharpe_ts.map(()=>0),borderColor:"#334155",borderWidth:1,borderDash:[3,3],pointRadius:0}]
+  datasets:[{label:"Rolling 1Y Sharpe",data:F.rolling_sharpe_ts.map(d=>d.sharpe),borderColor:"#aaa",borderWidth:1.5,pointRadius:0,
+    segment:{borderColor:ctx=>ctx.p1.parsed.y<0?"#555":"#aaa"}},
+    {label:"Zero",data:F.rolling_sharpe_ts.map(()=>0),borderColor:"#333",borderWidth:1,borderDash:[3,3],pointRadius:0}]
 },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-  scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#64748b",maxTicksLimit:8},grid:{color:"#1e293b"}},
-    y:{ticks:{color:"#64748b"},grid:{color:"#1e293b"}}}}});
+  scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#555",maxTicksLimit:8},grid:{color:"#1a1a1a"}},
+    y:{ticks:{color:"#555"},grid:{color:"#1a1a1a"}}}}});
 
 // Regime info
 const A = F.allocations || {};
