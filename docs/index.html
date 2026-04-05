@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <style>
-:root{--bg:#000;--card:#0a0a0a;--card2:#141414;--t1:#fff;--t2:#a0a0a0;--t3:#666;--green:#fff;--red:#888;--blue:#fff;--cyan:#ccc;--yellow:#bbb;--purple:#999;--border:#222;--accent:#fff}
+:root{--bg:#fff;--card:#f8f9fa;--card2:#f0f1f3;--t1:#1a1a2e;--t2:#4a4a68;--t3:#8888a0;--green:#0d9e6d;--red:#d1344b;--blue:#1a56db;--cyan:#0e7490;--yellow:#b45309;--purple:#7c3aed;--border:#e2e4e8;--accent:#1a56db}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t1);line-height:1.5;font-size:14px}
 .page{max-width:1000px;margin:0 auto;padding:16px}
@@ -35,7 +35,7 @@ th:first-child{text-align:left}
 td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--border)}
 td:first-child{text-align:left;font-weight:500}
 tr:hover{background:var(--card2)}
-.pos{color:#fff;font-weight:600}.neg{color:#777}
+.pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}
 
 /* Cards */
 .card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px}
@@ -52,7 +52,7 @@ tr:hover{background:var(--card2)}
 
 /* Shopping list */
 .buy-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
-.buy-ticker{font-size:1.05rem;font-weight:800;color:#fff;min-width:48px}
+.buy-ticker{font-size:1.05rem;font-weight:800;color:var(--blue);min-width:48px}
 .buy-info{flex:1;min-width:0}
 .buy-info .desc{font-size:0.68rem;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .buy-info .nums{font-size:0.78rem;display:flex;gap:10px;flex-wrap:wrap}
@@ -106,6 +106,34 @@ tr:hover{background:var(--card2)}
 <div class="sub">Cross-Asset Adaptive Carry | Long-Only | Monthly Rebalance</div>
 </div>
 <div class="nav-date" id="dateLabel"></div>
+</div>
+
+<!-- STRATEGY OVERVIEW (at top) -->
+<div class="section">
+<div class="card" style="border-left:4px solid var(--accent);font-size:0.8rem;color:var(--t2);line-height:1.7">
+<h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:6px">Strategy Overview</h3>
+<p><strong style="color:var(--t1)">Objective:</strong> Generate consistent, positive risk-adjusted returns with low correlation to traditional stock and bond indices. The strategy harvests carry (income) premia across multiple asset classes while hedging unwanted market exposures using inverse ETFs.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">How It Works:</strong> Each month, the strategy evaluates 95 candidate "carry streams" — each a long position in a yield-bearing ETF paired with an inverse ETF hedge. The top 5 streams ranked by trailing 1-year Sharpe ratio are selected and weighted proportionally. All positions are long-only ETF purchases — no shorting, no margin, no derivatives.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Asset Classes:</strong> Investment-grade bonds, high-yield bonds, emerging market debt, CLOs, MLPs, dividend equities, REITs, commodities, crypto (BTC/ETH/SOL via ETFs), currencies, and managed futures. Inverse treasury and equity ETFs (TBF, TYO, SH) are used as hedges.</p>
+</div>
+</div>
+
+<!-- HOW REBALANCING WORKS -->
+<div class="section">
+<div class="card" style="border-left:4px solid var(--green);font-size:0.8rem;color:var(--t2);line-height:1.7">
+<h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:6px">How Rebalancing Works</h3>
+<table style="font-size:0.78rem;margin-bottom:8px">
+<tr><td style="font-weight:700;width:140px;border:none;padding:3px 8px">Frequency</td><td style="border:none;padding:3px 8px">Every 21 trading days (approximately monthly)</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Signal Timing</td><td style="border:none;padding:3px 8px">Evaluated at <strong>market close</strong> on the rebalance date using closing prices</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Trade Execution</td><td style="border:none;padding:3px 8px">Trades executed at <strong>next day's market open</strong> (no same-day close prices used for trading)</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Pricing</td><td style="border:none;padding:3px 8px">Returns calculated using <strong>close-to-close</strong> daily prices. Signal uses prior day's close only — no look-ahead.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Selection</td><td style="border:none;padding:3px 8px">Rank all 95 streams by trailing 252-day Sharpe ratio. Select top 5 with Sharpe &gt; 0.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Weighting</td><td style="border:none;padding:3px 8px">Proportional to trailing Sharpe (capped at 90th percentile to limit concentration)</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Vol Targeting</td><td style="border:none;padding:3px 8px">Each stream scaled to 3% ann. vol. Portfolio scaled to 10% ann. vol.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Risk Controls</td><td style="border:none;padding:3px 8px">VIX-based stress scaling (reduce at high VIX) + exponential drawdown pullback</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Transaction Costs</td><td style="border:none;padding:3px 8px">5 bps modeled per trade for standard ETFs, 10-15 bps for leveraged/crypto</td></tr>
+</table>
+</div>
 </div>
 
 <!-- KPIs -->
@@ -175,7 +203,6 @@ tr:hover{background:var(--card2)}
 <div class="card"><div class="chart-wrap chart-sm"><canvas id="rsChart"></canvas></div></div>
 </div>
 
-<!-- STRATEGY OVERVIEW -->
 <!-- REBALANCE & REGIME -->
 <div class="section">
 <div class="section-title">Rebalance & Market Regime</div>
@@ -192,16 +219,6 @@ tr:hover{background:var(--card2)}
 <h3>Portfolio Parameters</h3>
 <div id="paramInfo"></div>
 </div>
-</div>
-</div>
-
-<!-- STRATEGY OVERVIEW -->
-<div class="section">
-<div class="section-title">Strategy Overview</div>
-<div class="card" style="font-size:0.78rem;color:var(--t2);line-height:1.6">
-<p><strong style="color:var(--t1)">Objective:</strong> Generate consistent risk-adjusted returns through diversified carry harvesting across bonds, equities, and alternatives, using a long-only portfolio of ETFs including inverse and leveraged products for hedging.</p>
-<p style="margin-top:6px"><strong style="color:var(--t1)">Process:</strong> 95 candidate alpha streams are generated across 10 engines (bond carry, dividend equity, CLOs, MLPs, commodities, crypto, currencies, managed futures, REITs, momentum). Each stream is vol-targeted to 3% annualized. Monthly, the top 5 streams by trailing 252-day Sharpe ratio are selected and weighted proportionally. Portfolio-level VIX-conditioned stress scaling and exponential drawdown control are applied, targeting 10% annualized volatility.</p>
-<p style="margin-top:6px"><strong style="color:var(--t1)">Universe:</strong> 250+ ETFs including leveraged, inverse, equity, fixed income, commodity, currency, crypto, and alternative ETFs. Positions are implementable with standard brokerage accounts — no shorting required.</p>
 </div>
 </div>
 
@@ -241,13 +258,13 @@ const eqCtx = document.getElementById("eqChart").getContext("2d");
 new Chart(eqCtx,{type:"line",data:{
   labels:F.equity_curve.map(d=>d.date),
   datasets:[
-    {label:"DICHS",data:F.equity_curve.map(d=>d.DICHS*10000),borderColor:"#fff",backgroundColor:"rgba(255,255,255,0.05)",fill:true,borderWidth:2,pointRadius:0,tension:0.1},
-    {label:"AGG",data:F.equity_curve.map(d=>d.AGG*10000),borderColor:"#666",borderWidth:1.5,pointRadius:0,borderDash:[4,2]},
-    {label:"SPY",data:F.equity_curve.map(d=>d.SPY*10000),borderColor:"#444",borderWidth:1.5,pointRadius:0,borderDash:[4,2]},
+    {label:"DICHS",data:F.equity_curve.map(d=>d.DICHS*10000),borderColor:"#1a56db",backgroundColor:"rgba(26,86,219,0.08)",fill:true,borderWidth:2,pointRadius:0,tension:0.1},
+    {label:"AGG",data:F.equity_curve.map(d=>d.AGG*10000),borderColor:"#b45309",borderWidth:1.5,pointRadius:0,borderDash:[4,2]},
+    {label:"SPY",data:F.equity_curve.map(d=>d.SPY*10000),borderColor:"#0d9e6d",borderWidth:1.5,pointRadius:0,borderDash:[4,2]},
   ]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:"#888",font:{size:11}}}},
-    scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#555",maxTicksLimit:10},grid:{color:"#1a1a1a"}},
-      y:{type:"logarithmic",ticks:{color:"#555",callback:v=>"$"+v.toLocaleString()},grid:{color:"#1a1a1a"}}},
+    plugins:{legend:{labels:{color:"#6b7280",font:{size:11}}}},
+    scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#8888a0",maxTicksLimit:10},grid:{color:"#e8e8ee"}},
+      y:{type:"logarithmic",ticks:{color:"#8888a0",callback:v=>"$"+v.toLocaleString()},grid:{color:"#e8e8ee"}}},
     interaction:{mode:"index",intersect:false}}});
 
 // Trailing returns
@@ -256,7 +273,7 @@ const periods = ["1M","3M","6M","YTD","1Y","3Y_ann","5Y_ann","10Y_ann","SI_ann"]
 const periodLabels = ["1 Mo","3 Mo","6 Mo","YTD","1 Yr","3 Yr Ann","5 Yr Ann","10 Yr Ann","Since Inception"];
 let trH = `<thead><tr><th></th>${periodLabels.map(p=>`<th>${p}</th>`).join("")}</tr></thead><tbody>`;
 ["DICHS","AGG","SPY"].forEach(n=>{
-  const color = n==="DICHS"?"#fff":n==="AGG"?"#888":"#666";
+  const color = n==="DICHS"?"#1a56db":n==="AGG"?"#b45309":"#0d9e6d";
   trH += `<tr><td style="color:${color};font-weight:700">${n}</td>`;
   periods.forEach(p=>{const v=F.trailing[n][p]; trH += `<td class="${pos(v)}">${fmtPct(v)}</td>`;});
   trH += "</tr>";
@@ -328,14 +345,14 @@ if(cn) bl.innerHTML += `<div style="margin-top:6px;font-size:0.65rem;color:var(-
 // Type chart
 const ts = F.allocations.type_summary||{};
 const te = Object.entries(ts).sort((a,b)=>b[1]-a[1]);
-const tc = {"Bond Carry":"#999","Dividend Equity":"#fff","CLO / Structured":"#ccc",
-  "MLP / Infrastructure":"#888","Commodity":"#bbb","Vol Decay":"#777",
-  "Crypto/Momentum":"#aaa","REIT":"#666","Intl Bond":"#555","Currency":"#444"};
+const tc = {"Bond Carry":"#1a56db","Dividend Equity":"#0d9e6d","CLO / Structured":"#0e7490",
+  "MLP / Infrastructure":"#b45309","Commodity":"#d97706","Vol Decay":"#7c3aed",
+  "Crypto/Momentum":"#c026d3","REIT":"#dc2626","Intl Bond":"#6b7280","Currency":"#0891b2"};
 if(te.length>0){
   new Chart(document.getElementById("typeChart").getContext("2d"),{type:"doughnut",data:{
     labels:te.map(e=>e[0]+" "+e[1].toFixed(0)+"%"),
     datasets:[{data:te.map(e=>e[1]),backgroundColor:te.map(e=>tc[e[0]]||"#475569"),borderColor:"var(--card)",borderWidth:2}]
-  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right",labels:{color:"#888",font:{size:10},boxWidth:10,padding:5}}}}});
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right",labels:{color:"#6b7280",font:{size:10},boxWidth:10,padding:5}}}}});
 }
 
 // Position details
@@ -355,7 +372,7 @@ const pd = document.getElementById("posDetails");
 // Calendar returns
 const ct = document.getElementById("calTable");
 const years = Object.keys(F.calendar_returns).sort();
-let ctH = `<thead><tr><th>Year</th><th style="color:#fff">DICHS</th><th style="color:#888">AGG</th><th style="color:#666">SPY</th><th>Excess</th></tr></thead><tbody>`;
+let ctH = `<thead><tr><th>Year</th><th style="color:#1a56db">DICHS</th><th style="color:#b45309">AGG</th><th style="color:#0d9e6d">SPY</th><th>Excess</th></tr></thead><tbody>`;
 years.forEach(yr=>{
   const r=F.calendar_returns[yr]; const d=r.DICHS||0; const a=r.AGG||0; const s=r.SPY||0; const ex=d-a;
   ctH += `<tr><td><strong>${yr}</strong></td><td class="${pos(d)}">${fmtPct(d)}</td><td class="${pos(a)}">${fmtPct(a)}</td><td class="${pos(s)}">${fmtPct(s)}</td><td class="${pos(ex)}">${fmtPct(ex)}</td></tr>`;
@@ -373,8 +390,8 @@ mYears.forEach(yr=>{
   for(let m=1;m<=12;m++){
     const e=F.monthly_returns.find(r=>r.year===yr&&r.month===m);
     if(e){const v=e.return;const i=Math.min(1,Math.abs(v)/8);
-      const bg=v>0?`rgba(255,255,255,${0.06+i*0.25})`:`rgba(255,255,255,${0.02+i*0.06})`;
-      const tx=v>0?"#fff":"#666";
+      const bg=v>0?`rgba(13,158,109,${0.1+i*0.45})`:`rgba(209,52,75,${0.08+i*0.35})`;
+      const tx=v>0?(i>0.3?"#fff":"#065f46"):(i>0.3?"#fff":"#9f1239");
       hm.innerHTML += `<div class="hm-c" style="background:${bg};color:${tx}">${v>0?"+":""}${v.toFixed(1)}</div>`;
     } else hm.innerHTML += `<div class="hm-c" style="background:var(--card2);color:var(--t3)">—</div>`;
   }
@@ -384,22 +401,22 @@ mYears.forEach(yr=>{
 new Chart(document.getElementById("ddChart").getContext("2d"),{type:"line",data:{
   labels:F.drawdown.map(d=>d.date),
   datasets:[
-    {label:"DICHS",data:F.drawdown.map(d=>d.DICHS*100),borderColor:"#fff",backgroundColor:"rgba(255,255,255,0.05)",fill:true,borderWidth:1.5,pointRadius:0},
-    {label:"AGG",data:F.drawdown.map(d=>d.AGG*100),borderColor:"#666",borderWidth:1,pointRadius:0,borderDash:[3,2]},
-    {label:"SPY",data:F.drawdown.map(d=>d.SPY*100),borderColor:"#444",borderWidth:1,pointRadius:0,borderDash:[3,2]},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#888",font:{size:10}}}},
-    scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#555",maxTicksLimit:8},grid:{color:"#1a1a1a"}},
-      y:{ticks:{color:"#555",callback:v=>v.toFixed(0)+"%"},grid:{color:"#1a1a1a"}}}}});
+    {label:"DICHS",data:F.drawdown.map(d=>d.DICHS*100),borderColor:"#1a56db",backgroundColor:"rgba(26,86,219,0.08)",fill:true,borderWidth:1.5,pointRadius:0},
+    {label:"AGG",data:F.drawdown.map(d=>d.AGG*100),borderColor:"#b45309",borderWidth:1,pointRadius:0,borderDash:[3,2]},
+    {label:"SPY",data:F.drawdown.map(d=>d.SPY*100),borderColor:"#0d9e6d",borderWidth:1,pointRadius:0,borderDash:[3,2]},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#6b7280",font:{size:10}}}},
+    scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#8888a0",maxTicksLimit:8},grid:{color:"#e8e8ee"}},
+      y:{ticks:{color:"#8888a0",callback:v=>v.toFixed(0)+"%"},grid:{color:"#e8e8ee"}}}}});
 
 // Rolling Sharpe
 new Chart(document.getElementById("rsChart").getContext("2d"),{type:"line",data:{
   labels:F.rolling_sharpe_ts.map(d=>d.date),
-  datasets:[{label:"Rolling 1Y Sharpe",data:F.rolling_sharpe_ts.map(d=>d.sharpe),borderColor:"#aaa",borderWidth:1.5,pointRadius:0,
-    segment:{borderColor:ctx=>ctx.p1.parsed.y<0?"#555":"#aaa"}},
-    {label:"Zero",data:F.rolling_sharpe_ts.map(()=>0),borderColor:"#333",borderWidth:1,borderDash:[3,3],pointRadius:0}]
+  datasets:[{label:"Rolling 1Y Sharpe",data:F.rolling_sharpe_ts.map(d=>d.sharpe),borderColor:"#7c3aed",borderWidth:1.5,pointRadius:0,
+    segment:{borderColor:ctx=>ctx.p1.parsed.y<0?"#d1344b":"#7c3aed"}},
+    {label:"Zero",data:F.rolling_sharpe_ts.map(()=>0),borderColor:"#ccc",borderWidth:1,borderDash:[3,3],pointRadius:0}]
 },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-  scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#555",maxTicksLimit:8},grid:{color:"#1a1a1a"}},
-    y:{ticks:{color:"#555"},grid:{color:"#1a1a1a"}}}}});
+  scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#8888a0",maxTicksLimit:8},grid:{color:"#e8e8ee"}},
+    y:{ticks:{color:"#8888a0"},grid:{color:"#e8e8ee"}}}}});
 
 // Regime info
 const A = F.allocations || {};
