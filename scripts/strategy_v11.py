@@ -182,7 +182,7 @@ def generate_all_streams(ret, fred):
         if len(sr.dropna())>=MIN: streams[f"commom_{cm}"] = sr.dropna()
 
     # ===== ENGINE 6: CROSS-ASSET LONG MOMENTUM =====
-    for a in ["SPY","QQQ","IWM","EFA","EEM","VNQ","GLD","TLT","HYG","EWJ","GBTC","BTC_USD"]:
+    for a in ["SPY","QQQ","IWM","EFA","EEM","VNQ","GLD","TLT","HYG","EWJ","GBTC","BTC_USD","ETH_USD","ETHE"]:
         if a not in ret.columns: continue
         sigs = []
         for lb in [21,63,126,252]:
@@ -221,7 +221,7 @@ def generate_all_streams(ret, fred):
 
     # ===== ENGINE 10: BITCOIN (long-only momentum + carry) =====
     # Use BTC_USD for longest history, GBTC/IBIT/BITO as tradeable proxies
-    for btc in ["BTC_USD","GBTC","IBIT","BITO"]:
+    for btc in ["BTC_USD","GBTC","IBIT","BITO","ETH_USD","ETHE","ETHA"]:
         if btc not in ret.columns: continue
         # Momentum (multi-horizon, long-only)
         sigs = []
