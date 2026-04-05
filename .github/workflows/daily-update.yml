@@ -1,0 +1,97 @@
+name: Daily Dashboard Update
+
+on:
+  schedule:
+    # Run at 6:00 PM ET (23:00 UTC) every weekday (after market close)
+    - cron: '0 23 * * 1-5'
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        pip install pandas numpy yfinance requests
+
+    - name: Download fresh ETF data
+      run: python scripts/download_bond_etfs.py
+      env:
+        PYTHONUNBUFFERED: '1'
+
+    - name: Download fresh FRED data
+      run: python scripts/download_fred_data.py
+
+    - name: Download SPY benchmark
+      run: |
+        python -c "
+        import yfinance as yf
+        import pandas as pd
+        spy = yf.download('SPY', start='2005-01-01', progress=False)
+        if isinstance(spy.columns, pd.MultiIndex):
+            spy.columns = spy.columns.get_level_values(0)
+        spy.index.name = 'Date'
+        spy.to_csv('data/etfs/SPY.csv')
+        print(f'SPY: {len(spy)} rows')
+        "
+
+    - name: Run strategy
+      run: |
+        # Set paths for CI
+        sed -i 's|/home/user/bonds|.|g' scripts/strategy_final.py
+        python scripts/strategy_final.py
+
+    - name: Generate dashboard data
+      run: |
+        sed -i 's|/home/user/bonds|.|g' scripts/generate_dashboard_data.py
+        REPO_ROOT=. python scripts/generate_dashboard_data.py
+
+    - name: Rebuild HTML page
+      run: |
+        python -c "
+        import json
+
+        with open('data/results/dashboard_data.json') as f:
+            data = json.load(f)
+
+        # Read template and inject fresh data
+        with open('docs/index.html') as f:
+            html = f.read()
+
+        # Replace the data blob
+        import re
+        data_json = json.dumps(data)
+        html = re.sub(r'const D = .+?;', f'const D = {data_json};', html, count=1, flags=re.DOTALL)
+
+        with open('docs/index.html', 'w') as f:
+            f.write(html)
+
+        print(f'Updated HTML with {len(data[\"equity_curve\"])} data points')
+        print(f'Last date: {data[\"last_updated\"]}')
+        "
+
+    - name: Commit and push updates
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add data/ docs/
+
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Daily update: $(date +%Y-%m-%d) market data and allocations"
+          git push
+        fi
