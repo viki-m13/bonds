@@ -156,13 +156,14 @@ tr:hover { background:var(--bg3); }
 </div>
 </div>
 <div class="card" style="margin-top:12px;">
-<h3>All Active Positions</h3>
-<div class="alloc-scroll">
-<div style="min-width:700px;">
-<div class="alloc-header alloc-row-v2">
-<span>Stream</span><span>Weight</span><span>Type</span><span>Long</span><span>Hedge</span><span>Beta</span><span>Trail SR</span><span>Signal</span>
+<h3>Net ETF Exposures <span style="font-weight:400;color:var(--text3);font-size:0.8rem;">(aggregate across all streams, per $100K portfolio)</span></h3>
+<div id="netExposures"></div>
 </div>
-<div id="allocTable"></div>
+<div class="card" style="margin-top:12px;">
+<h3>All Active Positions <span style="font-weight:400;color:var(--text3);font-size:0.8rem;">(per $100K portfolio at current stress scale)</span></h3>
+<div class="alloc-scroll">
+<div style="min-width:800px;">
+<table id="allocTable" style="font-size:0.76rem;"></table>
 </div>
 </div>
 </div>
@@ -427,27 +428,92 @@ if (typeEntries.length > 0) {
 const at = document.getElementById("allocTable");
 const positions = A.positions || D.allocations || {};
 const posEntries = Object.entries(positions).sort((a,b) => (b[1].weight_pct||0) - (a[1].weight_pct||0));
-posEntries.forEach(([name, a]) => {
+const portSize = 100000;
+const stressAdj = stressVal;
+
+// Build table header
+let atHtml = `<thead><tr>
+<th style="text-align:left">#</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Action</th>
+<th>Weight</th>
+<th>$ Alloc</th>
+<th>Buy ETF</th>
+<th>Buy $</th>
+<th>Short ETF</th>
+<th>Short $</th>
+<th>Beta</th>
+<th>Trail SR</th>
+</tr></thead><tbody>`;
+
+// Net ETF exposures tracker
+const netLong = {}, netShort = {};
+
+posEntries.forEach(([name, a], idx) => {
   const wt = a.weight_pct || 0;
   const tsr = a.trailing_sharpe || a.recent_63d_sharpe || 0;
   const type = a.type || "";
   const longETF = a.long || "";
   const hedgeETF = a.hedge || "N/A";
-  const beta = a.beta != null ? a.beta.toFixed(3) : "-";
-  const sigColor = tsr > 1.5 ? "var(--green)" : tsr > 0.5 ? "var(--yellow)" : tsr > 0 ? "var(--text3)" : "var(--red)";
-  const sigWidth = Math.min(100, Math.max(5, tsr / 3 * 100));
+  const beta = a.beta != null ? a.beta : 0;
+  const dollarAlloc = portSize * (wt / 100) * stressAdj;
+  const longDollar = dollarAlloc;
+  const shortDollar = hedgeETF !== "N/A" ? dollarAlloc * Math.abs(beta) : 0;
   const typeColor = typeColors[type] || "#475569";
-  at.innerHTML += `<div class="alloc-row-v2">
-    <span><strong>${name}</strong></span>
-    <span style="font-weight:700;color:${wt>2?"var(--green)":wt>1?"var(--text)":"var(--text3)"}">${wt.toFixed(1)}%</span>
-    <span><span class="badge" style="background:${typeColor}22;color:${typeColor};font-size:0.6rem;">${type}</span></span>
-    <span class="positive">${longETF}</span>
-    <span class="negative">${hedgeETF}</span>
-    <span>${beta}</span>
-    <span class="${cls(tsr)}">${tsr > 0 ? "+" : ""}${tsr.toFixed(2)}</span>
-    <span><div class="signal-bar"><div class="signal-fill" style="width:${sigWidth}%;background:${sigColor}"></div></div></span>
+
+  // Track net exposures
+  if (longETF) { netLong[longETF] = (netLong[longETF]||0) + longDollar; }
+  if (hedgeETF && hedgeETF !== "N/A") { netShort[hedgeETF] = (netShort[hedgeETF]||0) + shortDollar; }
+
+  const actionLabel = hedgeETF === "N/A" ? "Long only" : "Long/Short";
+
+  atHtml += `<tr>
+    <td style="text-align:left">${idx+1}</td>
+    <td style="text-align:left"><span class="badge" style="background:${typeColor}22;color:${typeColor};font-size:0.58rem;">${type}</span></td>
+    <td style="text-align:left"><span style="font-size:0.68rem;">${actionLabel}</span></td>
+    <td style="font-weight:700;color:${wt>2.5?"var(--green)":wt>1?"var(--text)":"var(--text3)"}">${wt.toFixed(1)}%</td>
+    <td>$${dollarAlloc.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+    <td class="positive" style="font-weight:600">${longETF}</td>
+    <td class="positive">$${longDollar.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+    <td class="${hedgeETF!=="N/A"?"negative":""}">${hedgeETF!=="N/A"?hedgeETF:"-"}</td>
+    <td class="${shortDollar>0?"negative":""}"> ${shortDollar>0?"-$"+shortDollar.toLocaleString(undefined,{maximumFractionDigits:0}):"-"}</td>
+    <td>${beta?beta.toFixed(2):"-"}</td>
+    <td class="${cls(tsr)}">${tsr>0?"+":""}${tsr.toFixed(2)}</td>
+  </tr>`;
+});
+atHtml += "</tbody>";
+at.innerHTML = atHtml;
+
+// === NET ETF EXPOSURES ===
+const ne = document.getElementById("netExposures");
+// Combine longs and shorts per ETF
+const allETFs = new Set([...Object.keys(netLong), ...Object.keys(netShort)]);
+const netData = [];
+allETFs.forEach(etf => {
+  const l = netLong[etf] || 0;
+  const s = netShort[etf] || 0;
+  const net = l - s;
+  netData.push({etf, long: l, short: s, net});
+});
+netData.sort((a,b) => Math.abs(b.net) - Math.abs(a.net));
+
+let neHtml = `<div style="display:grid;grid-template-columns:60px 80px 80px 90px 100px;gap:4px;font-size:0.78rem;padding:4px 0;border-bottom:1px solid var(--border);font-weight:700;color:var(--text2);">
+  <span>ETF</span><span style="text-align:right">Long $</span><span style="text-align:right">Short $</span><span style="text-align:right">Net $</span><span>Direction</span>
+</div>`;
+netData.forEach(d => {
+  const dir = d.net > 100 ? "NET LONG" : d.net < -100 ? "NET SHORT" : "FLAT";
+  const dirCls = d.net > 100 ? "positive" : d.net < -100 ? "negative" : "neutral";
+  const barW = Math.min(80, Math.abs(d.net) / (portSize * 0.06) * 80);
+  const barColor = d.net > 0 ? "var(--green)" : "var(--red)";
+  neHtml += `<div style="display:grid;grid-template-columns:60px 80px 80px 90px 100px;gap:4px;font-size:0.78rem;padding:3px 0;border-bottom:1px solid var(--border);align-items:center;">
+    <span style="font-weight:600">${d.etf}</span>
+    <span style="text-align:right" class="positive">${d.long>0?"$"+d.long.toLocaleString(undefined,{maximumFractionDigits:0}):"-"}</span>
+    <span style="text-align:right" class="negative">${d.short>0?"-$"+d.short.toLocaleString(undefined,{maximumFractionDigits:0}):"-"}</span>
+    <span style="text-align:right;font-weight:700" class="${dirCls}">${d.net>=0?"+":""}$${d.net.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+    <span><div class="signal-bar" style="width:80px;"><div class="signal-fill" style="width:${barW}px;background:${barColor}"></div></div></span>
   </div>`;
 });
+ne.innerHTML = neHtml;
 
 // === YEARLY TABLE ===
 const yt = document.getElementById("yearlyTable");
