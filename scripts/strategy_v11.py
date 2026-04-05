@@ -207,7 +207,7 @@ def generate_all_streams(ret, fred):
             if len(r)>=MIN: streams[f"intlbd_{intl}"] = r
 
     # ===== ENGINE 9: CURRENCY (long-only FX ETFs) =====
-    for fx in ["FXA","FXB","CEW","FXE","UUP"]:
+    for fx in ["FXA","FXB","CEW","FXE","UUP","DBV","UDN","FXF","FXS","FXC"]:
         if fx not in ret.columns: continue
         sigs = []
         for lb in [21,63,126]:
