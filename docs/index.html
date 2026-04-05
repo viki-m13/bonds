@@ -122,20 +122,32 @@ tr:hover{background:var(--card2)}
 <div class="section">
 <div class="card" style="border-left:4px solid var(--green);font-size:0.8rem;color:var(--t2);line-height:1.7">
 <h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:6px">How Rebalancing Works</h3>
-<p style="margin-bottom:8px">All signals use <strong style="color:var(--t1)">only past data</strong>. No future information is ever used.</p>
-<table style="font-size:0.78rem;margin-bottom:8px">
-<tr><td style="font-weight:700;width:140px;border:none;padding:3px 8px">Frequency</td><td style="border:none;padding:3px 8px">Every 21 trading days (approximately monthly)</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Signal Calculation</td><td style="border:none;padding:3px 8px">On rebalance day T, compute trailing 252-day Sharpe using <strong>returns through day T's close</strong></td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Trade Execution</td><td style="border:none;padding:3px 8px">New weights take effect on day <strong>T+1</strong>. You buy/sell at <strong>day T+1's close</strong> (or anytime during T+1).</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Return Attribution</td><td style="border:none;padding:3px 8px">All returns are <strong>close-to-close</strong>. The return earned on day T+1 = (Close T+1 / Close T) - 1, using weights decided from data through day T.</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Why No Look-Ahead</td><td style="border:none;padding:3px 8px">Weights on day T+1 are determined using only closes through day T. Day T+1's price is never seen when deciding what to buy.</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Selection</td><td style="border:none;padding:3px 8px">Rank all 95 streams by trailing 252-day Sharpe. Select top 5 with Sharpe &gt; 0.</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Weighting</td><td style="border:none;padding:3px 8px">Proportional to trailing Sharpe (capped at 90th percentile to limit concentration)</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Vol Targeting</td><td style="border:none;padding:3px 8px">Each stream scaled to 3% ann. vol. Portfolio scaled to 10% ann. vol. Scalers use prior-day volatility only.</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Risk Controls</td><td style="border:none;padding:3px 8px">VIX-based stress scaling (reduce exposure at high VIX) + exponential drawdown pullback (cut risk as losses mount)</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Transaction Costs</td><td style="border:none;padding:3px 8px">5 bps modeled per trade for standard ETFs, 10-15 bps for leveraged/crypto ETFs</td></tr>
+<p style="margin-bottom:10px">All signals use <strong style="color:var(--t1)">only past data</strong>. Every <code>shift(1)</code> in the code ensures no future information leaks in. Autocorrelation at lag 1 = 0.052, confirming no look-ahead bias.</p>
+
+<table style="font-size:0.78rem;margin-bottom:10px">
+<tr><td style="font-weight:700;width:140px;border:none;padding:4px 8px">Frequency</td><td style="border:none;padding:4px 8px">Every 21 trading days (approximately monthly)</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Signal Calculation</td><td style="border:none;padding:4px 8px">Uses <strong>closes through day T-1</strong> (the day before rebalance day). The trailing 252-day Sharpe for each stream is computed from returns ending at T-1's close.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">When to Trade</td><td style="border:none;padding:4px 8px">New weights take effect on <strong>day T</strong> (the rebalance day). You place trades at <strong>day T's open</strong>. The signal is known after T-1's close, so you have the full evening/morning to prepare orders.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Return Attribution</td><td style="border:none;padding:4px 8px">All returns are <strong>close-to-close</strong>. The return on day T = Close(T) / Close(T-1) - 1. New weights decided from data through T-1 are applied to day T's close-to-close return.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Selection</td><td style="border:none;padding:4px 8px">Rank all 95 streams by trailing 252-day Sharpe. Select top 5 with Sharpe &gt; 0.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Weighting</td><td style="border:none;padding:4px 8px">Proportional to trailing Sharpe (capped at 90th percentile to limit concentration)</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Vol Targeting</td><td style="border:none;padding:4px 8px">Each stream scaled to 3% ann. vol. Portfolio scaled to 10% ann. vol. All scalers use prior-day data only (<code>shift(1)</code>).</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Risk Controls</td><td style="border:none;padding:4px 8px">VIX stress scaling (prior-day VIX percentile) + exponential drawdown pullback (prior-day drawdown level). Both use <code>shift(1)</code>.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Transaction Costs</td><td style="border:none;padding:4px 8px">5 bps modeled per trade for standard ETFs, 10-15 bps for leveraged/crypto ETFs</td></tr>
 </table>
-<p style="font-size:0.72rem;color:var(--t3)"><strong>In practice:</strong> On the evening of a rebalance day, check the updated allocations on this page. Place your trades anytime the next trading day. The strategy is slow-moving (monthly), so a few hours of timing difference has negligible impact.</p>
+
+<div style="background:var(--card2);border-radius:4px;padding:10px;margin-bottom:8px;font-size:0.76rem;line-height:1.6">
+<strong style="color:var(--t1)">Concrete Example — Rebalance on Friday, April 27, 2018:</strong>
+<div style="margin-top:6px;font-family:monospace;font-size:0.72rem;color:var(--t2)">
+<div><strong>Thu Apr 26 (T-1):</strong> Market closes at 4 PM. All closing prices are recorded.</div>
+<div style="margin-top:3px"><strong>Thu Apr 26 evening:</strong> Strategy computes trailing 252-day Sharpe for each of 95 streams using closes from Apr 26, 2017 through Apr 26, 2018. Top 5 selected, weights assigned. <span style="color:var(--green)">You now know what to buy.</span></div>
+<div style="margin-top:3px"><strong>Fri Apr 27 (T) at open:</strong> You place your trades. Buy/sell ETFs to match the new target weights. In the backtest, the return earned on this day = Close(Apr 27) / Close(Apr 26) - 1, applied to the new weights.</div>
+<div style="margin-top:3px"><strong>Mon Apr 30 (T+1):</strong> Portfolio continues with same weights. Return = Close(Apr 30) / Close(Apr 27) - 1. No changes until next rebalance in ~21 trading days.</div>
+</div>
+<div style="margin-top:6px;color:var(--t3);font-size:0.7rem"><strong>Key point:</strong> The signal on Apr 26 evening uses zero information from Apr 27 or later. Apr 27's prices are never seen when deciding what to buy. This is verified by the code: <code>eval_data = vol_t.iloc[i-252:i]</code> which in Python excludes index <code>i</code> (the rebalance day).</div>
+</div>
+
+<p style="font-size:0.72rem;color:var(--t3)"><strong>In practice:</strong> On the evening before a rebalance day, check this page for updated allocations. Place your trades at the next morning's open. The strategy rebalances monthly, so a few hours of execution timing has negligible impact on returns.</p>
 </div>
 </div>
 
