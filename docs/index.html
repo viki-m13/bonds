@@ -26,6 +26,25 @@ h3 { font-size:0.95rem; color:var(--text2); margin:12px 0 8px; }
 .grid-3 { grid-template-columns:1fr 1fr 1fr; }
 .grid-4 { grid-template-columns:1fr 1fr 1fr 1fr; }
 @media (max-width:900px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+@media (max-width:600px) {
+  .container { padding:10px; }
+  h1 { font-size:1.15rem; }
+  h2 { font-size:1rem; }
+  .subtitle { font-size:0.75rem; }
+  .metric-val { font-size:1.2rem; }
+  .chart-container { height:220px; }
+  .chart-sm { height:160px; }
+  .alloc-row { grid-template-columns:90px 55px 45px 55px 50px 60px 50px; gap:2px; font-size:0.65rem; padding:5px 0; }
+  .heatmap { grid-template-columns:36px repeat(12,1fr); gap:1px; font-size:0.55rem; }
+  .heatmap-cell { padding:3px 1px; }
+  table { font-size:0.68rem; }
+  th, td { padding:4px 3px; }
+  .nav a { padding:3px 8px; font-size:0.72rem; }
+  .card { padding:10px; }
+  .metric-card { padding:8px; }
+  .badge { font-size:0.6rem; padding:1px 5px; }
+  .card-header { flex-direction:column; gap:6px; align-items:flex-start; }
+}
 .card { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:16px; }
 .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
 .metric-card { text-align:center; padding:12px; }
@@ -58,6 +77,8 @@ tr:hover { background:var(--bg3); }
 .nav a { color:var(--text2); text-decoration:none; padding:4px 12px; border-radius:4px; font-size:0.8rem; border:1px solid var(--border); }
 .nav a:hover { background:var(--bg3); color:var(--text); }
 .disclaimer { color:var(--text3); font-size:0.7rem; margin-top:24px; padding:12px; border:1px solid var(--border); border-radius:6px; }
+.table-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.alloc-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; min-width:0; }
 </style>
 </head>
 <body>
@@ -121,17 +142,21 @@ tr:hover { background:var(--bg3); }
 </div>
 <div class="card" style="margin-top:12px;">
 <h3>Active Carry Pairs - Recommended Positions</h3>
+<div class="alloc-scroll">
+<div style="min-width:560px;">
 <div class="alloc-header alloc-row">
 <span>Pair Name</span><span>Long</span><span>Hedge</span><span>Beta</span><span>Scale</span><span>63d Sharpe</span><span>Signal</span>
 </div>
 <div id="allocTable"></div>
+</div>
+</div>
 </div>
 </section>
 
 <!-- YEARLY RETURNS -->
 <section id="yearly">
 <h2>Yearly Performance Comparison</h2>
-<div class="card" style="overflow-x:auto;">
+<div class="card table-scroll">
 <table id="yearlyTable"></table>
 </div>
 </section>
@@ -163,7 +188,7 @@ tr:hover { background:var(--bg3); }
 <!-- TRADE LOG -->
 <section id="trades">
 <h2>Historical Allocation Changes (Trade Log)</h2>
-<div class="card" style="overflow-x:auto;max-height:500px;overflow-y:auto;">
+<div class="card table-scroll" style="max-height:500px;overflow-y:auto;">
 <table id="tradeTable"></table>
 </div>
 </section>
