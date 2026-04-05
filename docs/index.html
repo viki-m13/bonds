@@ -395,10 +395,39 @@ rbp.innerHTML = `
 // === TYPE BREAKDOWN ===
 const typeData = A.type_summary || {};
 const typeEntries = Object.entries(typeData).sort((a,b) => b[1]-a[1]);
-const typeColors = {"Bond Carry":"#3b82f6","Dividend Carry":"#10b981","Commodity":"#f59e0b",
-  "Momentum":"#8b5cf6","Preferred/Loan":"#ec4899","Currency":"#06b6d4",
+const typeColors = {"Bond Carry":"#3b82f6","Dividend Carry":"#10b981","Dividend Equity":"#10b981",
+  "Commodity":"#f59e0b","Momentum":"#8b5cf6","Preferred/Loan":"#ec4899","Currency":"#06b6d4",
   "Defensive Equity":"#84cc16","REIT":"#f97316","Intl Bond":"#64748b",
-  "Sector":"#a855f7","Other":"#475569"};
+  "Sector":"#a855f7","CLO / Structured":"#14b8a6","MLP / Infrastructure":"#f97316",
+  "Crypto/Momentum":"#eab308","Vol Decay":"#e879f9","Other":"#475569"};
+
+const etfDesc = {
+  "TBF":"Short 20+Yr Treasury","TBT":"UltraShort 20+Yr Treasury",
+  "TYO":"3x Bear 7-10Yr Treasury","TMV":"3x Bear 20+Yr Treasury",
+  "GLD":"SPDR Gold Trust","GLL":"UltraShort Gold",
+  "SH":"Short S&P 500","SDS":"UltraShort S&P 500",
+  "SQQQ":"3x Short QQQ","SPXU":"3x Short S&P 500",
+  "MBB":"iShares MBS","IGIB":"5-10Yr IG Corp Bond",
+  "VCIT":"Interm-Term Corp Bond","LQD":"Investment Grade Corp",
+  "TIP":"TIPS Bond","EMLC":"EM Local Currency Bond",
+  "HYG":"High Yield Corp Bond","JNK":"High Yield Bond",
+  "EMB":"EM USD Bond","MUB":"National Muni Bond",
+  "PFF":"Preferred Securities","BKLN":"Senior Loan",
+  "SRLN":"Senior Loan","SCHD":"Dividend Equity",
+  "HDV":"Core High Dividend","DVY":"Select Dividend",
+  "VIG":"Dividend Appreciation","XLP":"Consumer Staples",
+  "XLU":"Utilities","XLV":"Health Care",
+  "QQQ":"Nasdaq 100","SPY":"S&P 500",
+  "VNQ":"Real Estate","IYR":"US Real Estate",
+  "EEM":"Emerging Markets","EFA":"MSCI EAFE",
+  "EWJ":"MSCI Japan","BNDX":"Intl Bond",
+  "PCY":"EM Sovereign Debt","FXA":"Australian Dollar",
+  "CEW":"EM Currency","SLV":"Silver Trust",
+  "IWM":"Russell 2000","TLT":"20+Yr Treasury",
+  "JAAA":"AAA CLO","JBBB":"BBB CLO",
+  "IGF":"Global Infrastructure","AMLP":"MLP",
+  "IBIT":"Bitcoin Trust","DBMF":"Managed Futures",
+};
 
 const ttDiv = document.getElementById("typeTable");
 typeEntries.forEach(([type, wt]) => {
@@ -466,34 +495,6 @@ at.innerHTML = atHtml;
 const ne = document.getElementById("netExposures");
 const netETFs = A.net_etf_exposure || [];
 const totalDollar = netETFs.reduce((s,e)=>s+e.dollar, 0);
-
-const etfDesc = {
-  "TBF":"Short 20+Yr Treasury","TBT":"UltraShort 20+Yr Treasury",
-  "TYO":"3x Bear 7-10Yr Treasury","TMV":"3x Bear 20+Yr Treasury",
-  "GLD":"SPDR Gold Trust","GLL":"UltraShort Gold",
-  "SH":"Short S&P 500","SDS":"UltraShort S&P 500",
-  "SQQQ":"3x Short QQQ","SPXU":"3x Short S&P 500",
-  "MBB":"iShares MBS","IGIB":"5-10Yr IG Corp Bond",
-  "VCIT":"Interm-Term Corp Bond","LQD":"Investment Grade Corp",
-  "TIP":"TIPS Bond","EMLC":"EM Local Currency Bond",
-  "HYG":"High Yield Corp Bond","JNK":"High Yield Bond",
-  "EMB":"EM USD Bond","MUB":"National Muni Bond",
-  "PFF":"Preferred Securities","BKLN":"Senior Loan",
-  "SRLN":"Senior Loan","SCHD":"Dividend Equity",
-  "HDV":"Core High Dividend","DVY":"Select Dividend",
-  "VIG":"Dividend Appreciation","XLP":"Consumer Staples",
-  "XLU":"Utilities","XLV":"Health Care",
-  "QQQ":"Nasdaq 100","SPY":"S&P 500",
-  "VNQ":"Real Estate","IYR":"US Real Estate",
-  "EEM":"Emerging Markets","EFA":"MSCI EAFE",
-  "EWJ":"MSCI Japan","BNDX":"Intl Bond",
-  "PCY":"EM Sovereign Debt","FXA":"Australian Dollar",
-  "CEW":"EM Currency","SLV":"Silver Trust",
-  "IWM":"Russell 2000","TLT":"20+Yr Treasury",
-  "JAAA":"AAA CLO","JBBB":"BBB CLO",
-  "IGF":"Global Infrastructure","AMLP":"MLP",
-  "IBIT":"Bitcoin Trust","DBMF":"Managed Futures",
-};
 
 let neHtml = `<div style="margin-bottom:10px;font-size:0.82rem;color:var(--text2);">
   Buy <strong style="color:var(--green)">${netETFs.length} ETFs</strong> — total: <strong style="color:var(--green)">$${totalDollar.toLocaleString(undefined,{maximumFractionDigits:0})}</strong> of $100K
