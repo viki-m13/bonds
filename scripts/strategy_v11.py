@@ -150,6 +150,42 @@ def generate_all_streams(ret, fred):
         r = hedged_long_only(ret, underlying, inv_lev, ratio)
         if r is not None and len(r) >= MIN: streams[f"vdlo_{name}"] = r
 
+    # ===== ENGINE 3b: MLP / INFRASTRUCTURE CARRY =====
+    for mlp, inv, hw, name in [
+        ("AMLP", "TBF", 0.3, "amlp_tbf"),
+        ("AMLP", "SH", 0.3, "amlp_sh"),
+        ("IGF", "SH", 0.3, "igf_sh"),
+    ]:
+        r = hedged_long_only(ret, mlp, inv, hw)
+        if r is not None and len(r) >= MIN: streams[f"mlp_{name}"] = r
+
+    # ===== ENGINE 3c: CLO / STRUCTURED CREDIT CARRY =====
+    for clo, inv, hw, name in [
+        ("JAAA", "SHY", 0.0, "jaaa_solo"),
+        ("JBBB", "TBF", 0.3, "jbbb_tbf"),
+    ]:
+        if hw == 0.0:
+            if clo in ret.columns:
+                r = ret[clo].dropna()
+                if len(r) >= MIN: streams[f"clo_{name}"] = r
+        else:
+            r = hedged_long_only(ret, clo, inv, hw)
+            if r is not None and len(r) >= MIN: streams[f"clo_{name}"] = r
+
+    # ===== ENGINE 3d: FALLEN ANGEL / SHORT HY CARRY =====
+    for fa, inv, hw, name in [
+        ("ANGL", "TBF", 0.4, "angl_tbf"),
+        ("SHYG", "TBF", 0.3, "shyg_tbf"),
+    ]:
+        r = hedged_long_only(ret, fa, inv, hw)
+        if r is not None and len(r) >= MIN: streams[f"fa_{name}"] = r
+
+    # ===== ENGINE 3e: MANAGED FUTURES (trend-following, uncorrelated) =====
+    for mf in ["DBMF", "CTA", "KMLM"]:
+        if mf in ret.columns:
+            r = ret[mf].dropna()
+            if len(r) >= MIN: streams[f"mfut_{mf}"] = r
+
     # ===== ENGINE 4: PURE INVERSE ETF MOMENTUM =====
     # When markets trend down, inverse ETFs trend up
     # Use momentum signals to time when to hold inverse ETFs
@@ -168,7 +204,7 @@ def generate_all_streams(ret, fred):
         if len(sr.dropna())>=MIN: streams[f"invmom_{name}"] = sr.dropna()
 
     # ===== ENGINE 5: COMMODITY CARRY & MOMENTUM (long-only) =====
-    for cm in ["GLD","SLV","DBC","PDBC"]:
+    for cm in ["GLD","SLV","DBC","PDBC","URA","PPLT","GSG","JO","SOYB","GLTR"]:
         if cm not in ret.columns: continue
         # Momentum
         sigs = []
@@ -182,7 +218,9 @@ def generate_all_streams(ret, fred):
         if len(sr.dropna())>=MIN: streams[f"commom_{cm}"] = sr.dropna()
 
     # ===== ENGINE 6: CROSS-ASSET LONG MOMENTUM =====
-    for a in ["SPY","QQQ","IWM","EFA","EEM","VNQ","GLD","TLT","HYG","EWJ","GBTC","BTC_USD","ETH_USD","ETHE"]:
+    for a in ["SPY","QQQ","IWM","EFA","EEM","VNQ","GLD","TLT","HYG","EWJ",
+              "GBTC","BTC_USD","ETH_USD","ETHE","SOL_USD","ADA_USD",
+              "SMH","XBI","XOP","KRE","URA","KWEB","AMLP","DBMF","ARKK"]:
         if a not in ret.columns: continue
         sigs = []
         for lb in [21,63,126,252]:
