@@ -182,7 +182,7 @@ def generate_all_streams(ret, fred):
         if len(sr.dropna())>=MIN: streams[f"commom_{cm}"] = sr.dropna()
 
     # ===== ENGINE 6: CROSS-ASSET LONG MOMENTUM =====
-    for a in ["SPY","QQQ","IWM","EFA","EEM","VNQ","GLD","TLT","HYG","EWJ"]:
+    for a in ["SPY","QQQ","IWM","EFA","EEM","VNQ","GLD","TLT","HYG","EWJ","GBTC","BTC_USD"]:
         if a not in ret.columns: continue
         sigs = []
         for lb in [21,63,126,252]:
@@ -218,6 +218,21 @@ def generate_all_streams(ret, fred):
         pos = cs.clip(0,2)/2
         sr = pos.shift(1)*ret[fx] - pos.diff().abs()*(TC_BPS/10000)
         if len(sr.dropna())>=MIN: streams[f"fxmom_{fx}"] = sr.dropna()
+
+    # ===== ENGINE 10: BITCOIN (long-only momentum + carry) =====
+    # Use BTC_USD for longest history, GBTC/IBIT/BITO as tradeable proxies
+    for btc in ["BTC_USD","GBTC","IBIT","BITO"]:
+        if btc not in ret.columns: continue
+        # Momentum (multi-horizon, long-only)
+        sigs = []
+        for lb in [21,63,126,252]:
+            pr = ret[btc].rolling(lb,min_periods=int(lb*0.7)).mean()*np.sqrt(252)
+            pv = ret[btc].rolling(lb,min_periods=int(lb*0.7)).std()*np.sqrt(252)
+            sigs.append(pr/pv.clip(lower=0.01))
+        cs = pd.concat(sigs,axis=1).mean(axis=1)
+        pos = cs.clip(0,2)/2  # Long-only
+        sr = pos.shift(1)*ret[btc] - pos.diff().abs()*(10/10000)  # 10bps crypto costs
+        if len(sr.dropna())>=MIN: streams[f"btcmom_{btc}"] = sr.dropna()
 
     return streams
 
