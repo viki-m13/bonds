@@ -122,17 +122,20 @@ tr:hover{background:var(--card2)}
 <div class="section">
 <div class="card" style="border-left:4px solid var(--green);font-size:0.8rem;color:var(--t2);line-height:1.7">
 <h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:6px">How Rebalancing Works</h3>
+<p style="margin-bottom:8px">All signals use <strong style="color:var(--t1)">only past data</strong>. No future information is ever used.</p>
 <table style="font-size:0.78rem;margin-bottom:8px">
 <tr><td style="font-weight:700;width:140px;border:none;padding:3px 8px">Frequency</td><td style="border:none;padding:3px 8px">Every 21 trading days (approximately monthly)</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Signal Timing</td><td style="border:none;padding:3px 8px">Evaluated at <strong>market close</strong> on the rebalance date using closing prices</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Trade Execution</td><td style="border:none;padding:3px 8px">Trades executed at <strong>next day's market open</strong> (no same-day close prices used for trading)</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Pricing</td><td style="border:none;padding:3px 8px">Returns calculated using <strong>close-to-close</strong> daily prices. Signal uses prior day's close only — no look-ahead.</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Selection</td><td style="border:none;padding:3px 8px">Rank all 95 streams by trailing 252-day Sharpe ratio. Select top 5 with Sharpe &gt; 0.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Signal Calculation</td><td style="border:none;padding:3px 8px">On rebalance day T, compute trailing 252-day Sharpe using <strong>returns through day T's close</strong></td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Trade Execution</td><td style="border:none;padding:3px 8px">New weights take effect on day <strong>T+1</strong>. You buy/sell at <strong>day T+1's close</strong> (or anytime during T+1).</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Return Attribution</td><td style="border:none;padding:3px 8px">All returns are <strong>close-to-close</strong>. The return earned on day T+1 = (Close T+1 / Close T) - 1, using weights decided from data through day T.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Why No Look-Ahead</td><td style="border:none;padding:3px 8px">Weights on day T+1 are determined using only closes through day T. Day T+1's price is never seen when deciding what to buy.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Selection</td><td style="border:none;padding:3px 8px">Rank all 95 streams by trailing 252-day Sharpe. Select top 5 with Sharpe &gt; 0.</td></tr>
 <tr><td style="font-weight:700;border:none;padding:3px 8px">Weighting</td><td style="border:none;padding:3px 8px">Proportional to trailing Sharpe (capped at 90th percentile to limit concentration)</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Vol Targeting</td><td style="border:none;padding:3px 8px">Each stream scaled to 3% ann. vol. Portfolio scaled to 10% ann. vol.</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Risk Controls</td><td style="border:none;padding:3px 8px">VIX-based stress scaling (reduce at high VIX) + exponential drawdown pullback</td></tr>
-<tr><td style="font-weight:700;border:none;padding:3px 8px">Transaction Costs</td><td style="border:none;padding:3px 8px">5 bps modeled per trade for standard ETFs, 10-15 bps for leveraged/crypto</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Vol Targeting</td><td style="border:none;padding:3px 8px">Each stream scaled to 3% ann. vol. Portfolio scaled to 10% ann. vol. Scalers use prior-day volatility only.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Risk Controls</td><td style="border:none;padding:3px 8px">VIX-based stress scaling (reduce exposure at high VIX) + exponential drawdown pullback (cut risk as losses mount)</td></tr>
+<tr><td style="font-weight:700;border:none;padding:3px 8px">Transaction Costs</td><td style="border:none;padding:3px 8px">5 bps modeled per trade for standard ETFs, 10-15 bps for leveraged/crypto ETFs</td></tr>
 </table>
+<p style="font-size:0.72rem;color:var(--t3)"><strong>In practice:</strong> On the evening of a rebalance day, check the updated allocations on this page. Place your trades anytime the next trading day. The strategy is slow-moving (monthly), so a few hours of timing difference has negligible impact.</p>
 </div>
 </div>
 
