@@ -96,7 +96,7 @@ tr:hover { background:var(--bg3); }
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
 <div>
 <h1>DICHS - Cross-Asset Adaptive Carry Strategy</h1>
-<div class="subtitle">Long-only multi-asset carry using leveraged &amp; inverse ETFs | 9 alpha engines | Adaptive Sharpe-weighted allocation</div>
+<div class="subtitle">Long-only concentrated portfolio | 95 candidate streams | Top 5 adaptive selection | Monthly rebalance</div>
 </div>
 <div class="update-badge" id="updateBadge"></div>
 </div>
@@ -138,7 +138,7 @@ tr:hover { background:var(--bg3); }
 
 <!-- LIVE ALLOCATIONS -->
 <section id="allocations">
-<h2>Current Allocation — Long-Only Concentrated (Top 7)</h2>
+<h2>Current Allocation — Long-Only Concentrated (Top 5)</h2>
 <div class="grid grid-3">
 <div class="card">
 <h3>Market Regime</h3>
@@ -171,12 +171,8 @@ tr:hover { background:var(--bg3); }
 </div>
 
 <div class="card" style="margin-top:12px;">
-<h3>Position Details <span style="font-weight:400;color:var(--text3);font-size:0.8rem;">— 7 carry streams with ETF breakdown</span></h3>
-<div class="alloc-scroll">
-<div style="min-width:700px;">
-<table id="allocTable" style="font-size:0.76rem;"></table>
-</div>
-</div>
+<h3>Position Details <span style="font-weight:400;color:var(--text3);font-size:0.8rem;">— Top 5 streams with ETF breakdown</span></h3>
+<div id="allocTable"></div>
 </div>
 </section>
 
@@ -435,100 +431,104 @@ if (typeEntries.length > 0) {
   });
 }
 
-// === ALLOCATION TABLE (V11 Long-Only) ===
+// === POSITION DETAILS (mobile-friendly cards) ===
 const at = document.getElementById("allocTable");
 const posV11 = A.positions_v11 || [];
 const portSize = 100000;
 
-let atHtml = `<thead><tr>
-<th style="text-align:left">#</th>
-<th style="text-align:left">Strategy</th>
-<th style="text-align:left">Type</th>
-<th>Weight</th>
-<th style="text-align:left">ETFs to Buy</th>
-<th>$ per ETF</th>
-</tr></thead><tbody>`;
-
+let atHtml = "";
 posV11.forEach((p, idx) => {
   const typeColor = typeColors[p.type] || "#475569";
-  const buys = (p.buys || []).map(b => {
+  const totalAlloc = portSize * p.weight_pct / 100;
+  const buysHtml = (p.buys || []).map(b => {
     const shares = b.price > 0 ? Math.floor(b.dollar / b.price) : "?";
-    return `<span class="positive" style="font-weight:600">${b.etf}</span> $${b.dollar.toLocaleString(undefined,{maximumFractionDigits:0})} <span style="color:var(--text3)">(~${shares} sh @ $${b.price.toFixed(0)})</span>`;
-  }).join(" + ");
+    const desc = etfDesc[b.etf] || "";
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;">
+      <span><strong class="positive">${b.etf}</strong> <span style="color:var(--text3);font-size:0.68rem;">${desc}</span></span>
+      <span style="font-weight:600;">$${b.dollar.toLocaleString(undefined,{maximumFractionDigits:0})} <span style="color:var(--text3);font-size:0.68rem;">(${shares} sh)</span></span>
+    </div>`;
+  }).join("");
 
-  atHtml += `<tr>
-    <td style="text-align:left">${idx+1}</td>
-    <td style="text-align:left;font-size:0.7rem;max-width:130px;overflow:hidden;text-overflow:ellipsis;">${p.stream}</td>
-    <td style="text-align:left"><span class="badge" style="background:${typeColor}22;color:${typeColor};font-size:0.58rem;">${p.type}</span></td>
-    <td style="font-weight:700;color:${p.weight_pct>2.5?"var(--green)":p.weight_pct>1?"var(--text)":"var(--text3)"}">${p.weight_pct.toFixed(1)}%</td>
-    <td style="text-align:left;font-size:0.72rem;">${buys}</td>
-    <td>$${(portSize * p.weight_pct / 100).toLocaleString(undefined,{maximumFractionDigits:0})}</td>
-  </tr>`;
+  atHtml += `<div style="padding:10px 0;border-bottom:1px solid var(--border);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <div>
+        <span style="font-size:0.82rem;font-weight:700;color:var(--text);">${idx+1}. ${p.stream.replace(/_/g," ")}</span>
+        <span class="badge" style="background:${typeColor}22;color:${typeColor};margin-left:6px;">${p.type}</span>
+      </div>
+      <span style="font-size:1rem;font-weight:800;color:var(--green);">${p.weight_pct.toFixed(1)}%</span>
+    </div>
+    <div style="font-size:0.78rem;padding-left:16px;">${buysHtml}</div>
+  </div>`;
 });
-atHtml += "</tbody>";
 at.innerHTML = atHtml;
 
-// === ETF SHOPPING LIST (what to actually buy) ===
+// === ETF SHOPPING LIST (mobile-first card layout) ===
 const ne = document.getElementById("netExposures");
 const netETFs = A.net_etf_exposure || [];
 const totalDollar = netETFs.reduce((s,e)=>s+e.dollar, 0);
 
-let neHtml = `<div style="margin-bottom:8px;font-size:0.82rem;color:var(--text2);">
-  Buy these <strong style="color:var(--green)">${netETFs.length} ETFs</strong> — total deployed: <strong style="color:var(--green)">$${totalDollar.toLocaleString(undefined,{maximumFractionDigits:0})}</strong> of $100,000
-  <span style="font-size:0.72rem;color:var(--text3);">(remainder in cash/money market)</span>
-</div>`;
-neHtml += `<table style="width:100%;font-size:0.82rem;"><thead><tr>
-<th style="text-align:left">ETF</th>
-<th style="text-align:left">Description</th>
-<th>Buy $</th>
-<th>Price</th>
-<th>Shares</th>
-<th>% of Portfolio</th>
-</tr></thead><tbody>`;
-
 const etfDesc = {
-  "TBF":"ProShares Short 20+Yr Treasury","TBT":"ProShares UltraShort 20+Yr Treas",
-  "TYO":"Direxion 3x Bear 7-10Yr Treasury","TMV":"Direxion 3x Bear 20+Yr Treasury",
-  "GLD":"SPDR Gold Trust","GLL":"ProShares UltraShort Gold",
-  "SH":"ProShares Short S&P 500","SDS":"ProShares UltraShort S&P 500",
-  "SQQQ":"ProShares UltraPro Short QQQ","SPXU":"ProShares UltraPro Short S&P 500",
-  "MBB":"iShares MBS ETF","IGIB":"iShares 5-10Yr IG Corp Bond",
-  "VCIT":"Vanguard Interm-Term Corp Bond","LQD":"iShares Investment Grade Corp",
-  "TIP":"iShares TIPS Bond","EMLC":"VanEck EM Local Currency Bond",
-  "HYG":"iShares High Yield Corp Bond","JNK":"SPDR High Yield Bond",
-  "EMB":"iShares JP Morgan USD EM Bond","MUB":"iShares National Muni Bond",
-  "PFF":"iShares Preferred Securities","BKLN":"Invesco Senior Loan",
-  "SRLN":"SPDR Senior Loan","SCHD":"Schwab US Dividend Equity",
-  "HDV":"iShares Core High Dividend","DVY":"iShares Select Dividend",
-  "VIG":"Vanguard Dividend Appreciation","XLP":"Consumer Staples Select Sector",
-  "XLU":"Utilities Select Sector","XLV":"Health Care Select Sector",
-  "QQQ":"Invesco QQQ (Nasdaq 100)","SPY":"SPDR S&P 500",
-  "VNQ":"Vanguard Real Estate","IYR":"iShares US Real Estate",
-  "EEM":"iShares MSCI Emerging Markets","EFA":"iShares MSCI EAFE",
-  "EWJ":"iShares MSCI Japan","BNDX":"Vanguard Total Intl Bond",
-  "PCY":"Invesco EM Sovereign Debt","FXA":"CurrencyShares AUD",
-  "CEW":"WisdomTree EM Currency","SLV":"iShares Silver Trust",
-  "IWM":"iShares Russell 2000","TLT":"iShares 20+Yr Treasury",
+  "TBF":"Short 20+Yr Treasury","TBT":"UltraShort 20+Yr Treasury",
+  "TYO":"3x Bear 7-10Yr Treasury","TMV":"3x Bear 20+Yr Treasury",
+  "GLD":"SPDR Gold Trust","GLL":"UltraShort Gold",
+  "SH":"Short S&P 500","SDS":"UltraShort S&P 500",
+  "SQQQ":"3x Short QQQ","SPXU":"3x Short S&P 500",
+  "MBB":"iShares MBS","IGIB":"5-10Yr IG Corp Bond",
+  "VCIT":"Interm-Term Corp Bond","LQD":"Investment Grade Corp",
+  "TIP":"TIPS Bond","EMLC":"EM Local Currency Bond",
+  "HYG":"High Yield Corp Bond","JNK":"High Yield Bond",
+  "EMB":"EM USD Bond","MUB":"National Muni Bond",
+  "PFF":"Preferred Securities","BKLN":"Senior Loan",
+  "SRLN":"Senior Loan","SCHD":"Dividend Equity",
+  "HDV":"Core High Dividend","DVY":"Select Dividend",
+  "VIG":"Dividend Appreciation","XLP":"Consumer Staples",
+  "XLU":"Utilities","XLV":"Health Care",
+  "QQQ":"Nasdaq 100","SPY":"S&P 500",
+  "VNQ":"Real Estate","IYR":"US Real Estate",
+  "EEM":"Emerging Markets","EFA":"MSCI EAFE",
+  "EWJ":"MSCI Japan","BNDX":"Intl Bond",
+  "PCY":"EM Sovereign Debt","FXA":"Australian Dollar",
+  "CEW":"EM Currency","SLV":"Silver Trust",
+  "IWM":"Russell 2000","TLT":"20+Yr Treasury",
+  "JAAA":"AAA CLO","JBBB":"BBB CLO",
+  "IGF":"Global Infrastructure","AMLP":"MLP",
+  "IBIT":"Bitcoin Trust","DBMF":"Managed Futures",
 };
 
-netETFs.forEach(d => {
+let neHtml = `<div style="margin-bottom:10px;font-size:0.82rem;color:var(--text2);">
+  Buy <strong style="color:var(--green)">${netETFs.length} ETFs</strong> — total: <strong style="color:var(--green)">$${totalDollar.toLocaleString(undefined,{maximumFractionDigits:0})}</strong> of $100K
+</div>`;
+
+netETFs.forEach((d,i) => {
   const shares = d.price > 0 ? Math.floor(d.dollar / d.price) : 0;
   const wtPct = totalDollar > 0 ? (d.dollar / totalDollar * 100) : 0;
-  const barW = Math.min(100, wtPct / 20 * 100);
+  const barW = Math.min(100, wtPct / 35 * 100);
   const desc = etfDesc[d.etf] || "";
-  neHtml += `<tr>
-    <td style="text-align:left;font-weight:700" class="positive">${d.etf}</td>
-    <td style="text-align:left;color:var(--text3);font-size:0.72rem;">${desc}</td>
-    <td style="font-weight:700" class="positive">$${d.dollar.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
-    <td style="color:var(--text3)">$${d.price.toFixed(2)}</td>
-    <td style="font-weight:600">${shares}</td>
-    <td><div style="display:flex;align-items:center;gap:4px;justify-content:flex-end;">
-      <div class="signal-bar" style="width:60px;"><div class="signal-fill" style="width:${barW}%;background:var(--green)"></div></div>
-      <span style="font-size:0.7rem;min-width:32px;">${wtPct.toFixed(1)}%</span>
-    </div></td>
-  </tr>`;
+  neHtml += `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;">
+    <div style="min-width:50px;font-size:1.1rem;font-weight:800;" class="positive">${d.etf}</div>
+    <div style="flex:1;min-width:100px;">
+      <div style="font-size:0.72rem;color:var(--text3);">${desc}</div>
+      <div style="display:flex;gap:12px;font-size:0.82rem;margin-top:2px;">
+        <span style="font-weight:700;color:var(--green);">$${d.dollar.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+        <span style="color:var(--text3);">${shares} shares</span>
+        <span style="color:var(--text3);">@$${d.price.toFixed(2)}</span>
+      </div>
+    </div>
+    <div style="min-width:80px;text-align:right;">
+      <div style="font-size:0.85rem;font-weight:700;">${wtPct.toFixed(1)}%</div>
+      <div class="signal-bar" style="width:80px;margin-top:2px;"><div class="signal-fill" style="width:${barW}%;background:var(--green)"></div></div>
+    </div>
+  </div>`;
 });
-neHtml += `</tbody></table>`;
+
+// Crypto note
+const cryptoNote = A.crypto_note || "";
+if (cryptoNote) {
+  neHtml += `<div style="margin-top:8px;font-size:0.7rem;color:var(--text3);padding:6px;background:var(--bg3);border-radius:4px;">
+    <strong style="color:var(--yellow);">Crypto:</strong> ${cryptoNote}
+  </div>`;
+}
+
 ne.innerHTML = neHtml;
 
 // === YEARLY TABLE ===
