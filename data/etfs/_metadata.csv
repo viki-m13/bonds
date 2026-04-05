@@ -1,63 +1,27 @@
-ticker,name,category,rows,start,end,maturity_year
-SHY,iShares 1-3 Year Treasury Bond,treasury_short,5346,2005-01-03,2026-04-02,
-IEI,iShares 3-7 Year Treasury Bond,treasury_medium,4837,2007-01-11,2026-04-02,
-IEF,iShares 7-10 Year Treasury Bond,treasury_intermediate,5346,2005-01-03,2026-04-02,
-TLH,iShares 10-20 Year Treasury Bond,treasury_long,4837,2007-01-11,2026-04-02,
-TLT,iShares 20+ Year Treasury Bond,treasury_ultra_long,5346,2005-01-03,2026-04-02,
-GOVT,iShares US Treasury Bond,treasury_broad,3547,2012-02-24,2026-04-02,
-SPTL,SPDR Portfolio Long Term Treasury,treasury_long,4742,2007-05-30,2026-04-02,
-VGLT,Vanguard Long-Term Treasury,treasury_long,4087,2010-01-04,2026-04-02,
-LQD,iShares Investment Grade Corporate,corp_ig,5346,2005-01-03,2026-04-02,
-VCIT,Vanguard Intermediate-Term Corp Bond,corp_ig,4114,2009-11-23,2026-04-02,
-VCSH,Vanguard Short-Term Corp Bond,corp_ig_short,4114,2009-11-23,2026-04-02,
-IGIB,iShares 5-10 Year IG Corp Bond,corp_ig,4837,2007-01-11,2026-04-02,
-HYG,iShares High Yield Corporate Bond,high_yield,4776,2007-04-11,2026-04-02,
-JNK,SPDR Bloomberg High Yield Bond,high_yield,4611,2007-12-04,2026-04-02,
-USHY,iShares Broad USD High Yield Corp,high_yield,2119,2017-10-26,2026-04-02,
-AGG,iShares Core US Aggregate Bond,aggregate,5346,2005-01-03,2026-04-02,
-BND,Vanguard Total Bond Market,aggregate,4777,2007-04-10,2026-04-02,
-TIP,iShares TIPS Bond,tips,5346,2005-01-03,2026-04-02,
-SCHP,Schwab US TIPS,tips,3939,2010-08-05,2026-04-02,
-MUB,iShares National Muni Bond,municipal,4671,2007-09-10,2026-04-02,
-VTEB,Vanguard Tax-Exempt Bond,municipal,2667,2015-08-25,2026-04-02,
-EMB,iShares JP Morgan USD EM Bond,emerging_market,4600,2007-12-19,2026-04-02,
-VWOB,Vanguard Emerging Markets Govt Bond,emerging_market,3228,2013-06-04,2026-04-02,
-FLOT,iShares Floating Rate Bond,floating_rate,3720,2011-06-17,2026-04-02,
-MBB,iShares MBS,mbs,4793,2007-03-16,2026-04-02,
-VMBS,Vanguard Mortgage-Backed Securities,mbs,4114,2009-11-23,2026-04-02,
-IBDQ,iBonds Dec 2025 Term Corporate,ibond_corp,2709,2015-03-11,2025-12-16,2025.0
-IBDR,iBonds Dec 2026 Term Corporate,ibond_corp,2395,2016-09-22,2026-04-02,2026.0
-IBDS,iBonds Dec 2027 Term Corporate,ibond_corp,2147,2017-09-18,2026-04-02,2027.0
-IBDT,iBonds Dec 2028 Term Corporate,ibond_corp,1893,2018-09-20,2026-04-02,2028.0
-IBDU,iBonds Dec 2029 Term Corporate,ibond_corp,1643,2019-09-19,2026-04-02,2029.0
-IBDV,iBonds Dec 2030 Term Corporate,ibond_corp,1449,2020-06-26,2026-04-02,2030.0
-IBDW,iBonds Dec 2031 Term Corporate,ibond_corp,1198,2021-06-25,2026-04-02,2031.0
-IBDX,iBonds Dec 2032 Term Corporate,ibond_corp,943,2022-06-30,2026-04-02,2032.0
-IBDY,iBonds Dec 2033 Term Corporate,ibond_corp,697,2023-06-23,2026-04-02,2033.0
-IBHF,iBonds Dec 2026 Term HY & Income,ibond_hy,1348,2020-11-18,2026-04-02,2026.0
-IBHG,iBonds Dec 2027 Term HY & Income,ibond_hy,1189,2021-07-09,2026-04-02,2027.0
-IBHH,iBonds Dec 2028 Term HY & Income,ibond_hy,1016,2022-03-16,2026-04-02,2028.0
-IBHI,iBonds Dec 2029 Term HY & Income,ibond_hy,1020,2022-03-10,2026-04-02,2029.0
-IBTF,iBonds Dec 2025 Term Treasury,ibond_treasury,1461,2020-02-25,2025-12-16,2025.0
-IBTG,iBonds Dec 2026 Term Treasury,ibond_treasury,1532,2020-02-28,2026-04-02,2026.0
-IBTH,iBonds Dec 2027 Term Treasury,ibond_treasury,1532,2020-02-28,2026-04-02,2027.0
-IBTI,iBonds Dec 2028 Term Treasury,ibond_treasury,1532,2020-02-28,2026-04-02,2028.0
-IBTJ,iBonds Dec 2029 Term Treasury,ibond_treasury,1532,2020-02-28,2026-04-02,2029.0
-IBTK,iBonds Dec 2030 Term Treasury,ibond_treasury,1434,2020-07-20,2026-04-02,2030.0
-IBTL,iBonds Dec 2031 Term Treasury,ibond_treasury,1153,2021-08-30,2026-04-02,2031.0
-IBTM,iBonds Dec 2032 Term Treasury,ibond_treasury,938,2022-07-08,2026-04-02,2032.0
-BSCQ,BulletShares 2026 Corp Bond,ibond_corp,2395,2016-09-22,2026-04-02,2026.0
-BSCR,BulletShares 2027 Corp Bond,ibond_corp,2140,2017-09-27,2026-04-02,2027.0
-BSCS,BulletShares 2028 Corp Bond,ibond_corp,1922,2018-08-09,2026-04-02,2028.0
-BSCT,BulletShares 2029 Corp Bond,ibond_corp,1647,2019-09-13,2026-04-02,2029.0
-BSCU,BulletShares 2030 Corp Bond,ibond_corp,1391,2020-09-18,2026-04-02,2030.0
-BSCV,BulletShares 2031 Corp Bond,ibond_corp,1141,2021-09-16,2026-04-02,2031.0
-BSCW,BulletShares 2032 Corp Bond,ibond_corp,894,2022-09-09,2026-04-02,2032.0
-BSCX,BulletShares 2033 Corp Bond,ibond_corp,635,2023-09-21,2026-04-02,2033.0
-BSCY,BulletShares 2034 Corp Bond,ibond_corp,452,2024-06-13,2026-04-02,2034.0
-BSJQ,BulletShares 2026 HY Corp Bond,ibond_hy,1922,2018-08-09,2026-04-02,2026.0
-BSJR,BulletShares 2027 HY Corp Bond,ibond_hy,1647,2019-09-13,2026-04-02,2027.0
-BSJS,BulletShares 2028 HY Corp Bond,ibond_hy,1393,2020-09-16,2026-04-02,2028.0
-BSJT,BulletShares 2029 HY Corp Bond,ibond_hy,1142,2021-09-15,2026-04-02,2029.0
-BSJU,BulletShares 2030 HY Corp Bond,ibond_hy,887,2022-09-20,2026-04-02,2030.0
-BSJV,BulletShares 2031 HY Corp Bond,ibond_hy,636,2023-09-20,2026-04-02,2031.0
+ticker,name,category,rows,start,end
+SHY,iShares 1-3 Year Treasury Bond,treasury_short,5346,2005-01-03,2026-04-02
+IEI,iShares 3-7 Year Treasury Bond,treasury_medium,4837,2007-01-11,2026-04-02
+IEF,iShares 7-10 Year Treasury Bond,treasury_intermediate,5346,2005-01-03,2026-04-02
+TLH,iShares 10-20 Year Treasury Bond,treasury_long,4837,2007-01-11,2026-04-02
+TLT,iShares 20+ Year Treasury Bond,treasury_ultra_long,5346,2005-01-03,2026-04-02
+GOVT,iShares US Treasury Bond,treasury_broad,3547,2012-02-24,2026-04-02
+SPTL,SPDR Portfolio Long Term Treasury,treasury_long,4742,2007-05-30,2026-04-02
+VGLT,Vanguard Long-Term Treasury,treasury_long,4087,2010-01-04,2026-04-02
+LQD,iShares Investment Grade Corporate,corp_ig,5346,2005-01-03,2026-04-02
+VCIT,Vanguard Intermediate-Term Corp Bond,corp_ig,4114,2009-11-23,2026-04-02
+VCSH,Vanguard Short-Term Corp Bond,corp_ig_short,4114,2009-11-23,2026-04-02
+IGIB,iShares 5-10 Year IG Corp Bond,corp_ig,4837,2007-01-11,2026-04-02
+HYG,iShares High Yield Corporate Bond,high_yield,4776,2007-04-11,2026-04-02
+JNK,SPDR Bloomberg High Yield Bond,high_yield,4611,2007-12-04,2026-04-02
+USHY,iShares Broad USD High Yield Corp,high_yield,2119,2017-10-26,2026-04-02
+AGG,iShares Core US Aggregate Bond,aggregate,5346,2005-01-03,2026-04-02
+BND,Vanguard Total Bond Market,aggregate,4777,2007-04-10,2026-04-02
+TIP,iShares TIPS Bond,tips,5346,2005-01-03,2026-04-02
+SCHP,Schwab US TIPS,tips,3939,2010-08-05,2026-04-02
+MUB,iShares National Muni Bond,municipal,4671,2007-09-10,2026-04-02
+VTEB,Vanguard Tax-Exempt Bond,municipal,2667,2015-08-25,2026-04-02
+EMB,iShares JP Morgan USD EM Bond,emerging_market,4600,2007-12-19,2026-04-02
+VWOB,Vanguard Emerging Markets Govt Bond,emerging_market,3228,2013-06-04,2026-04-02
+FLOT,iShares Floating Rate Bond,floating_rate,3720,2011-06-17,2026-04-02
+MBB,iShares MBS,mbs,4793,2007-03-16,2026-04-02
+VMBS,Vanguard Mortgage-Backed Securities,mbs,4114,2009-11-23,2026-04-02
