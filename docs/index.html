@@ -300,8 +300,12 @@ Your actual entry price is T's open, not T-1's close. The difference is the <str
 <div class="section">
 <div class="section-title">Allocation Over Time</div>
 <div class="card">
-<div style="font-size:0.78rem;color:var(--t2);margin-bottom:8px">Quarterly snapshots of the Top 5 positions since inception. Tap any row to see details.</div>
-<div style="max-height:500px;overflow-y:auto" id="allocTimeline"></div>
+<div style="font-size:0.78rem;color:var(--t2);margin-bottom:8px">Stacked area chart showing position weights at each quarterly rebalance. Hover/tap to see details.</div>
+<div class="chart-wrap"><canvas id="allocChart"></canvas></div>
+</div>
+<div class="card" style="margin-top:10px">
+<h3>Quarterly Detail</h3>
+<div style="max-height:400px;overflow-y:auto" id="allocTimeline"></div>
 </div>
 </div>
 
@@ -668,14 +672,23 @@ if (fc) {
 const stData = F.stress_tests;
 if (stData) {
   const stT = document.getElementById("stressTable");
-  let stH = `<thead><tr><th style="text-align:left">Scenario</th><th style="text-align:left">Period</th><th>Days</th><th style="color:#1a56db">DICHS</th><th>DICHS DD</th><th style="color:#b45309">AGG</th><th style="color:#0d9e6d">SPY</th></tr></thead><tbody>`;
+  let stH = "";
   (stData.historical||[]).forEach(st=>{
-    stH += `<tr><td style="text-align:left;font-weight:600;font-size:0.74rem">${st.name}</td><td style="text-align:left;font-size:0.68rem;color:var(--t3)">${st.period}</td><td>${st.days}</td>
-    <td class="${pos(st.DICHS.return)}" style="font-weight:700">${fmtPct(st.DICHS.return)}</td><td class="neg">${st.DICHS.max_dd}%</td>
-    <td class="${pos(st.AGG.return)}">${fmtPct(st.AGG.return)}</td><td class="${pos(st.SPY.return)}">${fmtPct(st.SPY.return)}</td></tr>`;
-    stH += `<tr><td colspan="7" style="text-align:left;font-size:0.66rem;color:var(--t3);border:none;padding:0 8px 6px">${st.description}</td></tr>`;
+    const dates = st.period.split(" to ");
+    const d1 = dates[0]||""; const d2 = dates[1]||"";
+    stH += `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px">
+        <span style="font-weight:700;font-size:0.88rem">${st.name}</span>
+        <span style="font-size:0.7rem;color:var(--t3)">${d1} — ${d2} (${st.days} days)</span>
+      </div>
+      <div style="font-size:0.7rem;color:var(--t3);margin:3px 0">${st.description}</div>
+      <div style="display:flex;gap:16px;margin-top:6px;font-size:0.82rem;flex-wrap:wrap">
+        <span><strong style="color:#1a56db">DICHS</strong> <span class="${pos(st.DICHS.return)}" style="font-weight:700">${fmtPct(st.DICHS.return)}</span> <span style="color:var(--t3);font-size:0.7rem">(DD ${st.DICHS.max_dd}%)</span></span>
+        <span><strong style="color:#b45309">AGG</strong> <span class="${pos(st.AGG.return)}">${fmtPct(st.AGG.return)}</span></span>
+        <span><strong style="color:#0d9e6d">SPY</strong> <span class="${pos(st.SPY.return)}">${fmtPct(st.SPY.return)}</span></span>
+      </div>
+    </div>`;
   });
-  stH += `</tbody>`;
   stT.innerHTML = stH;
 
   const hyp = document.getElementById("hypotheticalTests");
@@ -694,18 +707,83 @@ if (stData) {
   hyp.innerHTML = hypH;
 }
 
-// === ALLOCATION OVER TIME ===
-const at2 = document.getElementById("allocTimeline");
+// === ALLOCATION OVER TIME (stacked area chart + detail list) ===
 const allocTL = F.alloc_timeline || [];
 if (allocTL.length > 0) {
+  // Collect all unique position names across all quarters
+  const allNames = new Set();
+  allocTL.forEach(entry=>{
+    Object.keys(entry).forEach(k=>{if(k!=="date") allNames.add(k)});
+  });
+  const nameList = [...allNames];
+
+  // Color palette for positions
+  const posColors = ["#1a56db","#0d9e6d","#b45309","#7c3aed","#dc2626",
+    "#0891b2","#c026d3","#65a30d","#ea580c","#4f46e5","#be123c","#059669",
+    "#d97706","#6d28d9","#e11d48","#0284c7","#9333ea","#16a34a","#ca8a04"];
+  const nameColor = {};
+  nameList.forEach((n,i)=>{ nameColor[n] = posColors[i % posColors.length]; });
+
+  // Build datasets for stacked area
+  const datasets = nameList.map((name,i)=>({
+    label: name,
+    data: allocTL.map(entry=> entry[name] || 0),
+    backgroundColor: nameColor[name] + "88",
+    borderColor: nameColor[name],
+    borderWidth: 1,
+    fill: true,
+    pointRadius: 0,
+  }));
+
+  const acCtx = document.getElementById("allocChart").getContext("2d");
+  new Chart(acCtx, {
+    type: "line",
+    data: {
+      labels: allocTL.map(d=>d.date),
+      datasets: datasets,
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: "index",
+          callbacks: {
+            label: function(ctx) {
+              const v = ctx.parsed.y;
+              return v > 0 ? `${ctx.dataset.label}: ${v.toFixed(1)}%` : null;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { type:"time", time:{unit:"year"}, ticks:{color:"#8888a0",maxTicksLimit:10}, grid:{color:"#e8e8ee"} },
+        y: { stacked: true, max: 100, ticks:{color:"#8888a0",callback:v=>v+"%"}, grid:{color:"#e8e8ee"} }
+      },
+      interaction: { mode:"nearest", intersect:false }
+    }
+  });
+
+  // Detail list below
+  const at2 = document.getElementById("allocTimeline");
   let atH = "";
-  allocTL.forEach((entry,i)=>{
+  allocTL.slice().reverse().forEach((entry,i)=>{
     const dt = entry.date;
-    const keys = Object.keys(entry).filter(k=>k!=="date");
-    const posHtml = keys.map(k=>`<span style="display:inline-block;margin:1px 3px;padding:1px 6px;border-radius:3px;font-size:0.68rem;background:var(--card)">${k} <strong>${entry[k]}%</strong></span>`).join("");
-    atH += `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.76rem">
-      <span style="font-weight:700;min-width:80px;display:inline-block">${dt}</span>
-      <span>${posHtml}</span>
+    const keys = Object.keys(entry).filter(k=>k!=="date").sort((a,b)=>(entry[b]||0)-(entry[a]||0));
+    if (keys.length === 0) return;
+    const posHtml = keys.map(k=>{
+      const w = entry[k];
+      if (!w) return "";
+      const c = nameColor[k] || "#666";
+      return `<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:0.74rem">
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${c};margin-right:4px"></span>${k}</span>
+        <span style="font-weight:700">${w}%</span>
+      </div>`;
+    }).join("");
+
+    atH += `<div style="padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="font-weight:700;font-size:0.82rem;margin-bottom:4px">${dt}</div>
+      <div style="padding-left:4px">${posHtml}</div>
     </div>`;
   });
   at2.innerHTML = atH;
