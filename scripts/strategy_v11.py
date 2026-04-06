@@ -38,6 +38,9 @@ TC_BPS = 5
 TARGET_VOL = 0.10
 EVAL_WINDOW = 252
 REBAL_FREQ = 21
+TOP_N = 5
+MIN_TRAILING_SHARPE = 0.75  # Only include streams with strong trailing performance
+WEIGHTING = "sharpe_sq"     # Sharpe-squared weighting for higher conviction
 
 
 def load_all_data():
@@ -186,6 +189,28 @@ def generate_all_streams(ret, fred):
             r = ret[mf].dropna()
             if len(r) >= MIN: streams[f"mfut_{mf}"] = r
 
+    # ===== ENGINE 3f: NEW CARRY STREAMS (from experiments) =====
+    # Fallen angel + short HY carry (hedged with inverse)
+    for l,h,hw,n in [
+        ("ANGL","SH",0.3,"angl_sh"),("ANGL","TBF",0.4,"angl_tbf"),
+        ("SHYG","SH",0.3,"shyg_sh"),("SHYG","TBF",0.3,"shyg_tbf"),
+        # Active bond funds hedged
+        ("BOND","TBF",0.3,"bond_tbf"),("TOTL","TBF",0.3,"totl_tbf"),
+        # Ultra-short carry
+        ("JPST","TBF",0.2,"jpst_tbf"),("SGOV","TBF",0.3,"sgov_tbf"),
+        # Convertible hedged with equity inverse
+        ("CWB","SH",0.3,"cwb_sh"),
+        # More sector equity carry
+        ("XLK","SH",0.3,"xlk_sh"),("XLI","SH",0.3,"xli_sh"),
+        ("XLE","SH",0.3,"xle_sh"),("XLY","SH",0.3,"xly_sh"),
+        # International hedged
+        ("EFA","SH",0.3,"efa_sh"),("EEM","SH",0.3,"eem_sh"),
+        # Homebuilder carry
+        ("SMH","SH",0.3,"smh_sh"),("ITB","SH",0.3,"itb_sh"),
+    ]:
+        r = hedged_long_only(ret, l, h, hw)
+        if r is not None and len(r) >= MIN: streams[f"newcarry_{n}"] = r
+
     # ===== ENGINE 4: PURE INVERSE ETF MOMENTUM =====
     # When markets trend down, inverse ETFs trend up
     # Use momentum signals to time when to hold inverse ETFs
@@ -299,11 +324,16 @@ def adaptive_portfolio(all_streams, fred, min_warmup=504):
                 s = eval_data[col]
                 if s.std()>0 and s.count()>=63:
                     trailing_sharpe[col] = s.mean()/s.std()*np.sqrt(252)
-            selected = {k:v for k,v in trailing_sharpe.items() if v>0}
+            selected = {k:v for k,v in trailing_sharpe.items() if v>MIN_TRAILING_SHARPE}
             if selected:
-                sv = pd.Series(selected)
-                sv = sv.clip(upper=sv.quantile(0.9))
-                weights = sv/sv.sum()
+                sv = pd.Series(selected).nlargest(TOP_N)
+                sv = sv.clip(upper=sv.quantile(0.9) if len(sv)>3 else 99)
+                # Sharpe-squared weighting for higher conviction
+                if WEIGHTING == "sharpe_sq":
+                    sq = sv**2
+                    weights = sq/sq.sum()
+                else:
+                    weights = sv/sv.sum()
                 current_weights = pd.Series(0.0, index=vol_t.columns)
                 for k,w in weights.items(): current_weights[k] = w
             else:
