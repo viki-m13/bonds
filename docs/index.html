@@ -487,7 +487,7 @@ const pd = document.getElementById("posDetails");
     return `<div><span class="pos" style="font-weight:600">${b.etf}</span> <span style="color:var(--t3)">${etfDesc[b.etf]||""}</span><span style="float:right">$${b.dollar.toLocaleString()} (${sh} sh)</span></div>`;
   }).join("");
   pd.innerHTML += `<div class="pos-card">
-    <div class="pos-head"><div class="name">${i+1}. ${displayName} <span class="badge" style="background:${tcolor}22;color:${tcolor}">${p.type}</span></div><div class="wt">${p.weight_pct.toFixed(1)}%</div></div>
+    <div class="pos-head"><div class="name">${i+1}. ${displayName}<br><span class="badge" style="background:${tcolor}22;color:${tcolor}">${p.type}</span></div><div class="wt">${p.weight_pct.toFixed(1)}%</div></div>
     ${description ? `<div style="font-size:0.7rem;color:var(--t3);margin:2px 0 4px;line-height:1.4">${description}</div>` : ""}
     <div class="pos-buys">${buysHtml}</div>
   </div>`;
