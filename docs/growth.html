@@ -322,6 +322,68 @@ Your actual entry price is T's open, not T-1's close. The difference is the <str
 </div>
 </div>
 
+<!-- HOW THE MODEL WORKS -->
+<div class="section">
+<div class="section-title">How the Model Works — Step by Step</div>
+<div class="card" style="font-size:0.78rem;color:var(--t2);line-height:1.7">
+
+<p style="margin-bottom:10px">The Growth strategy follows the same 7-step process as the Sharpe strategy but with parameters tuned for <strong>maximum total return</strong> instead of maximum risk-adjusted return. The key differences are highlighted below.</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 1: Generate 66 Candidate Streams</h3>
+<p>The Growth strategy draws from a different stream pool than Sharpe. Key differences:</p>
+<div style="margin:8px 0;padding:8px 12px;background:var(--card2);border-radius:4px;font-size:0.76rem">
+<p><strong style="color:var(--t1)">Unhedged Carry (higher return, higher risk)</strong><br>
+Instead of pairing HYG with inverse TBF, the Growth strategy holds HYG directly — no hedge. This keeps the full yield AND the price appreciation, at the cost of more volatility. Applied to HYG, JNK, BKLN, AMLP, EMB, EMLC, PFF.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Leveraged ETFs (3x amplification)</strong><br>
+Includes TQQQ (3x NASDAQ), UPRO (3x S&P), SOXL (3x Semiconductor), TECL (3x Tech), and others. These amplify momentum signals for higher returns. Not used in the Sharpe strategy.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Crypto Momentum (higher allocation)</strong><br>
+Same momentum signals as Sharpe (BTC, ETH, SOL, ADA price trends) but crypto streams are given equal opportunity to compete with other streams, not limited by low Sharpe thresholds.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Lightly Hedged (minimal hedge)</strong><br>
+Some streams use only 15% inverse allocation (vs 30-50% in Sharpe). Just enough to dampen the worst crashes while preserving most of the upside. Example: 85% QQQ + 15% SQQQ.</p>
+</div>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 2: Vol-Target Each Stream to 5%</h3>
+<p>Higher than Sharpe's 3%. Each stream runs at 5% annualized volatility, allowing more return potential per stream before portfolio-level scaling.</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 3: Compute Trailing 252-Day <em>Return</em> for Each Stream</h3>
+<p><strong style="color:var(--red)">Key difference:</strong> The Growth strategy selects by trailing <strong>return</strong>, not Sharpe ratio. It picks whatever made the most money over the last year, regardless of how volatile the path was. Only streams with positive trailing return are considered.</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 4: Select Top 3 by Trailing Return</h3>
+<p><strong style="color:var(--red)">Key difference:</strong> Only 3 positions instead of 5. More concentrated = higher returns when right, bigger losses when wrong.</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 5: Weight by Return-Squared</h3>
+<p><strong style="color:var(--red)">Key difference:</strong> Weights are proportional to trailing return² (not Sharpe²). If stream A returned +30% and stream B returned +15%, A gets 4× the weight. This double-concentrates into the biggest winner.</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 6: Hold for 21 Trading Days</h3>
+<p>Same as Sharpe — portfolio runs unchanged until next rebalance.</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 7: Lighter Risk Controls</h3>
+<div style="margin:6px 0;padding:8px 12px;background:var(--card2);border-radius:4px;font-size:0.76rem">
+<p><strong>VIX Scaling (lighter):</strong> Only reduces to 70% at extreme VIX (vs 50% for Sharpe). Formula: scale = 1.1 − 0.3 × VIX_percentile, clipped to [0.7, 1.1].</p>
+<p style="margin-top:4px"><strong>Drawdown Control:</strong> <strong style="color:var(--red)">OFF.</strong> The Growth strategy does not reduce exposure during drawdowns. It lets positions ride through crashes, which is why max drawdown is larger (~33% vs ~15%) but long-term compounding is higher.</p>
+<p style="margin-top:4px"><strong>Vol Targeting (higher):</strong> Targets <strong>30%</strong> annualized volatility (vs 10% for Sharpe). This is the main driver of higher returns — 3× the risk budget means ~3× the return potential.</p>
+</div>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Sharpe vs Growth: Parameter Comparison</h3>
+<table style="font-size:0.76rem;margin:8px 0">
+<thead><tr><th style="text-align:left">Parameter</th><th>Sharpe Strategy</th><th>Growth Strategy</th></tr></thead>
+<tbody>
+<tr><td style="text-align:left">Candidate streams</td><td>112 (mostly hedged)</td><td>66 (mostly unhedged)</td></tr>
+<tr><td style="text-align:left">Stream vol target</td><td>3%</td><td>5%</td></tr>
+<tr><td style="text-align:left">Selection metric</td><td>Trailing Sharpe > 0.75</td><td>Trailing Return > 0</td></tr>
+<tr><td style="text-align:left">Positions</td><td>Top 5</td><td>Top 3</td></tr>
+<tr><td style="text-align:left">Weighting</td><td>Sharpe²</td><td>Return²</td></tr>
+<tr><td style="text-align:left">VIX scaling</td><td>Aggressive (50-120%)</td><td>Light (70-110%)</td></tr>
+<tr><td style="text-align:left">Drawdown control</td><td>Yes (exponential)</td><td>No</td></tr>
+<tr><td style="text-align:left">Portfolio vol target</td><td>10%</td><td>30%</td></tr>
+</tbody></table>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Why Growth Returns More (and Risks More)</h3>
+<p>The Growth strategy makes three deliberate tradeoffs: (1) it removes most hedges, keeping the full upside of carry and momentum; (2) it runs at 3× the volatility, amplifying both gains and losses; (3) it doesn't cut exposure in drawdowns, allowing positions to recover instead of locking in losses. The result is ~50% higher annualized return but ~2× deeper drawdowns. This is suited for investors with a long time horizon (10+ years) who can tolerate significant interim losses for higher terminal wealth.</p>
+
+</div>
+</div>
+
 <div class="disclaimer">
 <strong>Important Information:</strong> This is a hypothetical backtest for research and educational purposes only. Past performance does not guarantee future results. This is not a fund, not an investment product, and not investment advice. All returns are simulated using historical data with no actual trades executed. Transaction costs of 5-15bps are modeled. Actual implementation would incur additional costs including ETF expense ratios, bid-ask spreads, and taxes.
 </div>

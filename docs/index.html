@@ -322,6 +322,51 @@ Your actual entry price is T's open, not T-1's close. The difference is the <str
 </div>
 </div>
 
+<!-- HOW THE MODEL WORKS -->
+<div class="section">
+<div class="section-title">How the Model Works — Step by Step</div>
+<div class="card" style="font-size:0.78rem;color:var(--t2);line-height:1.7">
+
+<p style="margin-bottom:10px">Every 21 trading days, the model runs this exact process using only data available at that point. No future information is ever used.</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 1: Generate 112 Candidate Streams</h3>
+<p>Each "stream" is a daily return series built from one of 10 engines. The two main types:</p>
+<div style="margin:8px 0;padding:8px 12px;background:var(--card2);border-radius:4px;font-size:0.76rem">
+<p><strong style="color:var(--t1)">Carry Streams (no signal — runs every day)</strong><br>
+A fixed-weight blend of a yield-bearing ETF + an inverse ETF hedge. Example: <code>carry_hyg_tbf</code> = 67% HYG + 33% TBF every day. The carry (income) from HYG is captured while TBF hedges out interest rate risk. About 70 streams are carry-based.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Momentum Streams (signal-driven)</strong><br>
+A position that varies between 0% and 100% based on trailing momentum. The signal averages 21/63/126/252-day risk-adjusted returns. If the signal is positive, go long; if negative, stay in cash. About 40 streams are momentum-based.</p>
+</div>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 2: Vol-Target Each Stream to 3%</h3>
+<p>Each stream's daily return is scaled so its rolling 63-day volatility equals 3% annualized. This makes all streams comparable — a low-vol CLO stream gets scaled UP, a high-vol crypto stream gets scaled DOWN. The scaler always uses <strong>yesterday's</strong> volatility (no look-ahead).</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 3: Compute Trailing 252-Day Sharpe for Each Stream</h3>
+<p>Using the last year of vol-targeted returns: <code>Sharpe = mean / std × √252</code>. Only streams with trailing Sharpe > 0.75 pass the quality filter. This ensures only streams with strong recent risk-adjusted performance are considered.</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 4: Select Top 5 by Trailing Sharpe</h3>
+<p>Sort all qualifying streams by their trailing Sharpe ratio. Take the top 5. The number of qualifying streams varies — as of the latest rebalance, 33 of 112 streams had Sharpe > 0.75.</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 5: Weight by Sharpe-Squared</h3>
+<p>Each position's weight is proportional to its trailing Sharpe <em>squared</em>. This concentrates capital into the highest-conviction stream. If stream A has Sharpe 2.0 and stream B has Sharpe 1.0, A gets <strong>4× the weight</strong> of B (not 2×). Weights are capped at the 90th percentile to prevent extreme concentration.</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 6: Hold for 21 Trading Days</h3>
+<p>The portfolio earns the weighted sum of its 5 streams' daily returns. No changes until the next rebalance. The carry streams run on autopilot (fixed weights); the momentum streams adjust their position daily based on their own signal, but which <em>streams</em> are selected only changes at rebalance.</p>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Step 7: Risk Controls (Applied Daily)</h3>
+<p>Three adjustments are applied to the combined portfolio return each day, all using <strong>prior-day data only</strong>:</p>
+<div style="margin:6px 0;padding:8px 12px;background:var(--card2);border-radius:4px;font-size:0.76rem">
+<p><strong>VIX Scaling:</strong> If VIX is in its 90th percentile (high fear), reduce exposure to ~50%. If low VIX, allow up to 120%. Formula: scale = 1.2 − 0.8 × VIX_percentile, clipped to [0.5, 1.2].</p>
+<p style="margin-top:4px"><strong>Drawdown Control:</strong> If the portfolio is in a drawdown, reduce exposure exponentially. At −10% drawdown, exposure drops to ~60%. At −20%, it drops to ~37%. Formula: scale = e^(drawdown × 5), clipped to [0.2, 1.0].</p>
+<p style="margin-top:4px"><strong>Vol Targeting:</strong> Scale the entire portfolio so its rolling 63-day volatility equals 10% annualized. If recent vol was 15%, the scaler is 10/15 = 0.67. If vol was 5%, scaler is 10/5 = 2.0.</p>
+</div>
+
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Why This Approach Works</h3>
+<p>The strategy harvests <strong>carry premia</strong> — the yield income from bonds, dividends, and CLOs — while hedging out the main risk factors (interest rates, equity market) using inverse ETFs. The adaptive selection automatically rotates into whichever carry streams are performing best, and the risk controls cut exposure during crises. The combination of diversified carry + dynamic selection + risk management produces a consistently positive return with controlled drawdowns.</p>
+
+</div>
+</div>
+
 <div class="disclaimer">
 <strong>Important Information:</strong> This is a hypothetical backtest for research and educational purposes only. Past performance does not guarantee future results. This is not a fund, not an investment product, and not investment advice. All returns are simulated using historical data with no actual trades executed. Transaction costs of 5-15bps are modeled. Actual implementation would incur additional costs including ETF expense ratios, bid-ask spreads, and taxes.
 </div>
