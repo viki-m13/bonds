@@ -1,0 +1,218 @@
+{
+  "experiments": [
+    {
+      "name": "Weekly_vol_63d",
+      "sr": 1.459,
+      "ret": 7.66,
+      "vol": 5.25,
+      "mdd": -10.62,
+      "sortino": 1.656,
+      "test_sr": 2.233,
+      "wf_mean": 1.526,
+      "nav": 6.9
+    },
+    {
+      "name": "Weekly_vol_126d",
+      "sr": 1.528,
+      "ret": 7.76,
+      "vol": 5.08,
+      "mdd": -8.8,
+      "sortino": 1.805,
+      "test_sr": 2.164,
+      "wf_mean": 1.61,
+      "nav": 7.0
+    },
+    {
+      "name": "Weekly_vol_252d",
+      "sr": 1.583,
+      "ret": 8.11,
+      "vol": 5.12,
+      "mdd": -9.45,
+      "sortino": 1.909,
+      "test_sr": 2.161,
+      "wf_mean": 1.7,
+      "nav": 7.7
+    },
+    {
+      "name": "Weekly_vol_vix",
+      "sr": 1.411,
+      "ret": 7.25,
+      "vol": 5.13,
+      "mdd": -11.52,
+      "sortino": 1.583,
+      "test_sr": 2.136,
+      "wf_mean": 1.46,
+      "nav": 6.2
+    },
+    {
+      "name": "Weekly_vol_126d_vix",
+      "sr": 1.466,
+      "ret": 7.32,
+      "vol": 4.99,
+      "mdd": -9.74,
+      "sortino": 1.686,
+      "test_sr": 2.068,
+      "wf_mean": 1.537,
+      "nav": 6.3
+    },
+    {
+      "name": "Biweekly_vol_63d",
+      "sr": 1.338,
+      "ret": 7.59,
+      "vol": 5.67,
+      "mdd": -13.38,
+      "sortino": 1.454,
+      "test_sr": 1.984,
+      "wf_mean": 1.409,
+      "nav": 6.7
+    },
+    {
+      "name": "Biweekly_vol_126d",
+      "sr": 1.479,
+      "ret": 7.65,
+      "vol": 5.18,
+      "mdd": -9.8,
+      "sortino": 1.709,
+      "test_sr": 2.126,
+      "wf_mean": 1.576,
+      "nav": 6.9
+    },
+    {
+      "name": "Weekly_all_63d",
+      "sr": 1.328,
+      "ret": 7.53,
+      "vol": 5.67,
+      "mdd": -11.68,
+      "sortino": 1.509,
+      "test_sr": 1.98,
+      "wf_mean": 1.43,
+      "nav": 6.6
+    },
+    {
+      "name": "Weekly_all_126d",
+      "sr": 1.311,
+      "ret": 7.45,
+      "vol": 5.68,
+      "mdd": -11.4,
+      "sortino": 1.57,
+      "test_sr": 2.048,
+      "wf_mean": 1.473,
+      "nav": 6.5
+    },
+    {
+      "name": "Monthly_only_252d",
+      "sr": 1.308,
+      "ret": 9.61,
+      "vol": 7.35,
+      "mdd": -21.22,
+      "sortino": 1.45,
+      "test_sr": 1.533,
+      "wf_mean": 1.624,
+      "nav": 10.9
+    },
+    {
+      "name": "Weekly_sv4_126d",
+      "sr": 1.532,
+      "ret": 8.96,
+      "vol": 5.85,
+      "mdd": -10.11,
+      "sortino": 1.812,
+      "test_sr": 2.158,
+      "wf_mean": 1.611,
+      "nav": 9.5
+    },
+    {
+      "name": "Weekly_sv5_126d",
+      "sr": 1.531,
+      "ret": 9.99,
+      "vol": 6.52,
+      "mdd": -11.28,
+      "sortino": 1.818,
+      "test_sr": 2.142,
+      "wf_mean": 1.606,
+      "nav": 12.2
+    },
+    {
+      "name": "Weekly_tv12_126d",
+      "sr": 1.528,
+      "ret": 8.5,
+      "vol": 5.56,
+      "mdd": -9.6,
+      "sortino": 1.805,
+      "test_sr": 2.166,
+      "wf_mean": 1.611,
+      "nav": 8.5
+    },
+    {
+      "name": "Weekly_tv15_126d",
+      "sr": 1.527,
+      "ret": 9.49,
+      "vol": 6.21,
+      "mdd": -10.69,
+      "sortino": 1.802,
+      "test_sr": 2.165,
+      "wf_mean": 1.611,
+      "nav": 10.8
+    },
+    {
+      "name": "Weekly_best_v1",
+      "sr": 1.466,
+      "ret": 7.32,
+      "vol": 4.99,
+      "mdd": -9.74,
+      "sortino": 1.686,
+      "test_sr": 2.068,
+      "wf_mean": 1.537,
+      "nav": 6.3
+    },
+    {
+      "name": "Weekly_best_v2",
+      "sr": 1.501,
+      "ret": 8.23,
+      "vol": 5.48,
+      "mdd": -9.68,
+      "sortino": 1.723,
+      "test_sr": 2.048,
+      "wf_mean": 1.54,
+      "nav": 7.9
+    },
+    {
+      "name": "Weekly_best_v3",
+      "sr": 1.499,
+      "ret": 7.73,
+      "vol": 5.16,
+      "mdd": -8.41,
+      "sortino": 1.731,
+      "test_sr": 2.058,
+      "wf_mean": 1.539,
+      "nav": 7.0
+    },
+    {
+      "name": "Weekly_best_v4",
+      "sr": 1.523,
+      "ret": 7.67,
+      "vol": 5.04,
+      "mdd": -10.14,
+      "sortino": 1.792,
+      "test_sr": 2.075,
+      "wf_mean": 1.631,
+      "nav": 6.9
+    }
+  ],
+  "baseline": {
+    "sr": 1.67,
+    "wf": 1.817,
+    "ret": 16.0
+  },
+  "best": {
+    "name": "Weekly_vol_252d",
+    "sr": 1.583,
+    "ret": 8.11,
+    "vol": 5.12,
+    "mdd": -9.45,
+    "sortino": 1.909,
+    "test_sr": 2.161,
+    "wf_mean": 1.7,
+    "nav": 7.7
+  }
+}
