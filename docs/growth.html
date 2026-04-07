@@ -381,6 +381,24 @@ Some streams use only 15% inverse allocation (vs 30-50% in Sharpe). Just enough 
 <h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Why Growth Returns More (and Risks More)</h3>
 <p>The Growth strategy makes three deliberate tradeoffs: (1) it removes most hedges, keeping the full upside of carry and momentum; (2) it runs at 3× the volatility, amplifying both gains and losses; (3) it doesn't cut exposure in drawdowns, allowing positions to recover instead of locking in losses. The result is ~50% higher annualized return but ~2× deeper drawdowns. This is suited for investors with a long time horizon (10+ years) who can tolerate significant interim losses for higher terminal wealth.</p>
 
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">What Runs Daily vs Monthly — Important</h3>
+<div style="margin:8px 0;padding:10px 12px;background:var(--card2);border-radius:4px;border-left:3px solid var(--red);font-size:0.76rem;line-height:1.6">
+<p style="margin-bottom:6px"><strong style="color:var(--t1)">Like the Sharpe strategy, the Growth backtest applies per-stream vol targeting daily, not just at rebalance.</strong></p>
+
+<table style="font-size:0.74rem;margin:8px 0">
+<thead><tr><th style="text-align:left">What</th><th>Frequency</th><th style="text-align:left">Impact</th></tr></thead>
+<tbody>
+<tr><td style="text-align:left;font-weight:600">Which 3 streams to hold</td><td>Monthly (21 days)</td><td style="text-align:left">Determines your ETF allocation</td></tr>
+<tr><td style="text-align:left;font-weight:600">Return² weights between streams</td><td>Monthly (21 days)</td><td style="text-align:left">Determines $ amounts per ETF</td></tr>
+<tr><td style="text-align:left;font-weight:600;color:var(--red)">Per-stream vol scaling</td><td style="color:var(--red)">Daily</td><td style="text-align:left">Scales each stream so its vol stays at 5%. Critical for performance.</td></tr>
+<tr><td style="text-align:left;font-weight:600">VIX stress scaling (light)</td><td>Daily</td><td style="text-align:left">Minor effect — Growth uses light 70-110% range.</td></tr>
+<tr><td style="text-align:left;font-weight:600">Portfolio vol targeting to 30%</td><td>Daily</td><td style="text-align:left">Part of the vol scaling impact.</td></tr>
+<tr><td style="text-align:left;font-weight:600">Momentum signal (if crypto held)</td><td>Daily</td><td style="text-align:left">Crypto momentum position varies 0-100% daily within the stream.</td></tr>
+</tbody></table>
+
+<p style="margin-top:6px"><strong style="color:var(--t1)">Recommendation:</strong> Same as Sharpe — daily per-stream vol targeting is important for replicating backtest results. For carry streams (CLO, dividend), this means adjusting position sizes when their volatility changes. For momentum streams (crypto), the internal signal also changes daily. At minimum, check weekly; ideally automate daily vol scaling.</p>
+</div>
+
 </div>
 </div>
 

@@ -362,6 +362,33 @@ A position that varies between 0% and 100% based on trailing momentum. The signa
 </div>
 
 <h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">Why This Approach Works</h3>
+<h3 style="color:var(--t1);font-size:0.88rem;margin:12px 0 6px">What Runs Daily vs Monthly — Important</h3>
+<div style="margin:8px 0;padding:10px 12px;background:var(--card2);border-radius:4px;border-left:3px solid var(--red);font-size:0.76rem;line-height:1.6">
+<p style="margin-bottom:6px"><strong style="color:var(--t1)">The backtest applies several adjustments DAILY, not just at monthly rebalance. This materially affects performance.</strong></p>
+
+<table style="font-size:0.74rem;margin:8px 0">
+<thead><tr><th style="text-align:left">What</th><th>Frequency</th><th style="text-align:left">Impact</th></tr></thead>
+<tbody>
+<tr><td style="text-align:left;font-weight:600">Which 5 streams to hold</td><td>Monthly (21 days)</td><td style="text-align:left">Determines your ETF allocation</td></tr>
+<tr><td style="text-align:left;font-weight:600">Sharpe² weights between streams</td><td>Monthly (21 days)</td><td style="text-align:left">Determines $ amounts per ETF</td></tr>
+<tr><td style="text-align:left;font-weight:600;color:var(--red)">Per-stream vol scaling</td><td style="color:var(--red)">Daily</td><td style="text-align:left">Scales each stream so its vol stays at 3%. Critical — adds ~0.4 Sharpe.</td></tr>
+<tr><td style="text-align:left;font-weight:600">VIX stress scaling</td><td>Daily</td><td style="text-align:left">Reduces total exposure at high VIX. Adds ~0.05 Sharpe.</td></tr>
+<tr><td style="text-align:left;font-weight:600">Drawdown control</td><td>Daily</td><td style="text-align:left">Reduces exposure in drawdowns. Adds ~0.04 Sharpe.</td></tr>
+<tr><td style="text-align:left;font-weight:600">Portfolio vol targeting</td><td>Daily</td><td style="text-align:left">Scales portfolio to 10% vol. Part of per-stream vol scaling impact.</td></tr>
+</tbody></table>
+
+<p><strong style="color:var(--t1)">Performance gap if you skip daily adjustments:</strong></p>
+<table style="font-size:0.74rem;margin:6px 0">
+<thead><tr><th style="text-align:left">Approach</th><th>Sharpe</th><th>Return</th><th>Max DD</th></tr></thead>
+<tbody>
+<tr><td style="text-align:left">Full backtest (daily scaling)</td><td><strong>1.67</strong></td><td>+16.0%</td><td>-15.0%</td></tr>
+<tr><td style="text-align:left">Monthly allocation + daily vol target</td><td>1.58</td><td>+16.2%</td><td>-20.0%</td></tr>
+<tr><td style="text-align:left;color:var(--red)">Pure monthly (set and forget)</td><td style="color:var(--red)">1.16</td><td style="color:var(--red)">+8.7%</td><td>-19.7%</td></tr>
+</tbody></table>
+
+<p style="margin-top:6px"><strong style="color:var(--t1)">Recommendation:</strong> At minimum, implement daily per-stream volatility targeting. This is the biggest driver of backtest performance. Without it, expected Sharpe drops from 1.67 to 1.16. The VIX/drawdown scaling adds minimal value (~0.09 Sharpe) and can be skipped. In practice, daily vol targeting means checking each stream's recent volatility and adjusting your dollar exposure so each stream contributes ~3% annualized vol to the portfolio.</p>
+</div>
+
 <p>The strategy harvests <strong>carry premia</strong> — the yield income from bonds, dividends, and CLOs — while hedging out the main risk factors (interest rates, equity market) using inverse ETFs. The adaptive selection automatically rotates into whichever carry streams are performing best, and the risk controls cut exposure during crises. The combination of diversified carry + dynamic selection + risk management produces a consistently positive return with controlled drawdowns.</p>
 
 </div>
