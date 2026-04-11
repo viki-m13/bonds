@@ -259,27 +259,10 @@ Your actual entry price is T's open, not T-1's close. The difference is the <str
 
 <!-- DAILY SCALING HISTORY -->
 <div class="section">
-<div class="section-title">Daily Scaling History</div>
-<div class="card">
-<div style="font-size:0.78rem;color:var(--t2);margin-bottom:8px">The backtest applies three daily scaling factors to the portfolio. This chart shows their values over time. Combined scale below 1.0 means the portfolio is running below full capacity.</div>
-<div class="chart-wrap"><canvas id="scaleChart"></canvas></div>
-</div>
-<div class="card" style="margin-top:10px">
-<h3>Scaling Statistics</h3>
-<div id="scaleStats"></div>
-</div>
-</div>
-
-<!-- PURE MONTHLY PERFORMANCE -->
-<div class="section">
-<div class="section-title">Pure Monthly Rebalance (No Daily Scaling)</div>
-<div class="card">
-<div style="font-size:0.78rem;color:var(--t2);margin-bottom:8px">What you'd get if you rebalanced once a month and made zero adjustments in between. All vol scalers, VIX scaling, and drawdown control are computed at rebalance and frozen for 21 trading days.</div>
-<div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
-</div>
-<div class="card" style="margin-top:10px;overflow-x:auto">
-<h3>Daily Scaling vs Pure Monthly</h3>
-<table id="monthlyCompare"></table>
+<div class="section-title">Daily Scaling</div>
+<div class="card" style="padding:16px;font-size:0.82rem;color:var(--t2)">
+<strong style="color:var(--t1)">This strategy has ZERO daily scaling.</strong><br><br>
+All position sizes are set at monthly rebalance and held fixed for 21 trading days. No VIX scaling, no drawdown control, no volatility targeting between rebalances. This is the key advantage of the blend approach — diversification across uncorrelated alpha sources (carry + stocks) replaces the need for daily risk management.
 </div>
 </div>
 
@@ -564,7 +547,7 @@ if(cn) bl.innerHTML += `<div style="margin-top:6px;font-size:0.65rem;color:var(-
 // Type chart
 const ts = F.allocations.type_summary||{};
 const te = Object.entries(ts).sort((a,b)=>b[1]-a[1]);
-const tc = {"Bond Carry":"#1a56db","Dividend Equity":"#0d9e6d","CLO / Structured":"#0e7490",
+const tc = {"Bond Carry":"#1a56db","Carry (Hedged Bond/Credit)":"#1a56db","ASRP (Momentum-Quality Stocks)":"#0d9e6d","Carry Sleeve":"#1a56db","ASRP Stocks Sleeve":"#0d9e6d","Dividend Equity":"#0d9e6d","CLO / Structured":"#0e7490",
   "MLP / Infrastructure":"#b45309","Commodity":"#d97706","Vol Decay":"#7c3aed",
   "Crypto/Momentum":"#c026d3","REIT":"#dc2626","Intl Bond":"#6b7280","Currency":"#0891b2"};
 if(te.length>0){
@@ -653,7 +636,7 @@ const ct = document.getElementById("calTable");
 const years = Object.keys(F.calendar_returns).sort();
 let ctH = `<thead><tr><th>Year</th><th style="color:#1a56db">Blend</th><th style="color:#b45309">AGG</th><th style="color:#0d9e6d">SPY</th><th>vs AGG</th><th>vs SPY</th></tr></thead><tbody>`;
 years.forEach(yr=>{
-  const r=F.calendar_returns[yr]; const d=r.DICHS||0; const a=r.AGG||0; const s=r.SPY||0;
+  const r=F.calendar_returns[yr]; const d=r.Blend||0; const a=r.AGG||0; const s=r.SPY||0;
   ctH += `<tr><td><strong>${yr}</strong></td><td class="${pos(d)}">${fmtPct(d)}</td><td class="${pos(a)}">${fmtPct(a)}</td><td class="${pos(s)}">${fmtPct(s)}</td><td class="${pos(d-a)}">${fmtPct(d-a)}</td><td class="${pos(d-s)}">${fmtPct(d-s)}</td></tr>`;
 });
 ctH += "</tbody>"; ct.innerHTML = ctH;
@@ -854,7 +837,7 @@ if (stData) {
       </div>
       <div style="font-size:0.7rem;color:var(--t3);margin:3px 0">${st.description}</div>
       <div style="display:flex;gap:16px;margin-top:6px;font-size:0.82rem;flex-wrap:wrap">
-        <span><strong style="color:#1a56db">DICHS</strong> <span class="${pos(st.DICHS.return)}" style="font-weight:700">${fmtPct(st.DICHS.return)}</span> <span style="color:var(--t3);font-size:0.7rem">(DD ${st.DICHS.max_dd}%)</span></span>
+        <span><strong style="color:#1a56db">DICHS</strong> <span class="${pos(st.Blend.return)}" style="font-weight:700">${fmtPct(st.Blend.return)}</span> <span style="color:var(--t3);font-size:0.7rem">(DD ${st.Blend.max_dd}%)</span></span>
         <span><strong style="color:#b45309">AGG</strong> <span class="${pos(st.AGG.return)}">${fmtPct(st.AGG.return)}</span></span>
         <span><strong style="color:#0d9e6d">SPY</strong> <span class="${pos(st.SPY.return)}">${fmtPct(st.SPY.return)}</span></span>
       </div>
