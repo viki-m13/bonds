@@ -1,0 +1,126 @@
+{
+  "results": [
+    {
+      "name": "Carry0_ASRP100",
+      "sr": 1.194,
+      "cagr": 13.54,
+      "vol": 11.16,
+      "mdd": -22.26,
+      "sortino": 1.566,
+      "test_sr": 1.36,
+      "wf_mean": 1.245,
+      "nav": 13.55
+    },
+    {
+      "name": "Carry20_ASRP80",
+      "sr": 1.356,
+      "cagr": 13.29,
+      "vol": 9.54,
+      "mdd": -17.35,
+      "sortino": 1.765,
+      "test_sr": 1.534,
+      "wf_mean": 1.429,
+      "nav": 12.95
+    },
+    {
+      "name": "Carry30_ASRP70",
+      "sr": 1.44,
+      "cagr": 13.14,
+      "vol": 8.85,
+      "mdd": -17.76,
+      "sortino": 1.851,
+      "test_sr": 1.627,
+      "wf_mean": 1.534,
+      "nav": 12.61
+    },
+    {
+      "name": "Carry40_ASRP60",
+      "sr": 1.518,
+      "cagr": 12.98,
+      "vol": 8.26,
+      "mdd": -18.18,
+      "sortino": 1.921,
+      "test_sr": 1.717,
+      "wf_mean": 1.64,
+      "nav": 12.24
+    },
+    {
+      "name": "Carry50_ASRP50",
+      "sr": 1.582,
+      "cagr": 12.8,
+      "vol": 7.81,
+      "mdd": -18.61,
+      "sortino": 1.962,
+      "test_sr": 1.798,
+      "wf_mean": 1.742,
+      "nav": 11.85
+    },
+    {
+      "name": "Carry60_ASRP40",
+      "sr": 1.621,
+      "cagr": 12.61,
+      "vol": 7.5,
+      "mdd": -19.04,
+      "sortino": 1.972,
+      "test_sr": 1.859,
+      "wf_mean": 1.828,
+      "nav": 11.44
+    },
+    {
+      "name": "Carry70_ASRP30",
+      "sr": 1.625,
+      "cagr": 12.4,
+      "vol": 7.36,
+      "mdd": -19.48,
+      "sortino": 1.945,
+      "test_sr": 1.888,
+      "wf_mean": 1.886,
+      "nav": 11.02
+    },
+    {
+      "name": "Carry80_ASRP19",
+      "sr": 1.589,
+      "cagr": 12.18,
+      "vol": 7.41,
+      "mdd": -19.92,
+      "sortino": 1.881,
+      "test_sr": 1.877,
+      "wf_mean": 1.906,
+      "nav": 10.58
+    },
+    {
+      "name": "Carry100_ASRP0",
+      "sr": 1.42,
+      "cagr": 11.69,
+      "vol": 8.01,
+      "mdd": -21.18,
+      "sortino": 1.658,
+      "test_sr": 1.735,
+      "wf_mean": 1.809,
+      "nav": 9.68
+    }
+  ],
+  "best": {
+    "name": "Carry80_ASRP19",
+    "sr": 1.589,
+    "cagr": 12.18,
+    "vol": 7.41,
+    "mdd": -19.92,
+    "sortino": 1.881,
+    "test_sr": 1.877,
+    "wf_mean": 1.906,
+    "nav": 10.58
+  },
+  "correlation": 0.308,
+  "spy": {
+    "name": "SPY",
+    "sr": 0.607,
+    "cagr": 10.27,
+    "vol": 19.11,
+    "mdd": -55.19,
+    "sortino": 0.756,
+    "test_sr": 0.804,
+    "wf_mean": 0.714,
+    "nav": 6.22
+  }
+}
