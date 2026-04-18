@@ -1,0 +1,175 @@
+{
+  "fund_name": "AURORA \u2014 Adaptive Uncorrelated Return Overlay",
+  "strategy_type": "Multi-sleeve diversified growth portfolio",
+  "benchmark": "S&P 500 (SPY)",
+  "inception_date": "January 03, 2014",
+  "last_updated": "April 10, 2026",
+  "nav": 10.1551,
+  "rebalance": "Weekly (5-day) momentum / static sleeves",
+  "positions_count": "3 sleeves, ~10 instruments",
+  "universe_size": "14 core instruments",
+  "metrics": {
+    "Blend": {
+      "name": "AURORA",
+      "total_return": 915.51,
+      "ann_return": 20.34,
+      "ann_vol": 16.73,
+      "sharpe": 1.216,
+      "sortino": 1.531,
+      "max_dd": -15.41,
+      "calmar": 1.32,
+      "win_rate_daily": 51.5,
+      "skew": -0.38,
+      "kurt": 5.77,
+      "best_month": 14.86,
+      "worst_month": -9.66,
+      "pct_pos_months": 57.4,
+      "avg_dd_days": 15,
+      "max_dd_days": 447,
+      "n_years": 12.2,
+      "inception": "2014-01-03"
+    },
+    "AGG": {
+      "name": "AGG",
+      "total_return": 30.14,
+      "ann_return": 2.28,
+      "ann_vol": 5.06,
+      "sharpe": 0.45,
+      "sortino": 0.563,
+      "max_dd": -18.43,
+      "calmar": 0.12,
+      "win_rate_daily": 52.5,
+      "skew": -1.05,
+      "kurt": 19.88,
+      "best_month": 4.59,
+      "worst_month": -4.15,
+      "pct_pos_months": 55.4,
+      "avg_dd_days": 32,
+      "max_dd_days": 1427,
+      "n_years": 12.2,
+      "inception": "2014-01-03"
+    },
+    "SPY": {
+      "name": "SPY",
+      "total_return": 357.38,
+      "ann_return": 13.92,
+      "ann_vol": 17.28,
+      "sharpe": 0.805,
+      "sortino": 0.982,
+      "max_dd": -33.72,
+      "calmar": 0.41,
+      "win_rate_daily": 55.1,
+      "skew": -0.31,
+      "kurt": 14.4,
+      "best_month": 12.7,
+      "worst_month": -12.49,
+      "pct_pos_months": 68.9,
+      "avg_dd_days": 11,
+      "max_dd_days": 488,
+      "n_years": 12.2,
+      "inception": "2014-01-03"
+    }
+  },
+  "trailing": {
+    "Blend": {
+      "1M": 0.03,
+      "3M": 8.31,
+      "6M": 12.46,
+      "1Y": 64.43,
+      "3Y_ann": 36.66,
+      "5Y_ann": 24.25,
+      "10Y_ann": 26.21,
+      "YTD": 10.79,
+      "SI_ann": 20.85
+    },
+    "AGG": {
+      "1M": 0.17,
+      "3M": 0.53,
+      "6M": 1.32,
+      "1Y": 5.92,
+      "3Y_ann": 3.51,
+      "5Y_ann": 0.38,
+      "10Y_ann": 1.74,
+      "YTD": 0.62,
+      "SI_ann": 2.18
+    },
+    "SPY": {
+      "1M": 0.74,
+      "3M": -1.19,
+      "6M": 1.52,
+      "1Y": 38.42,
+      "3Y_ann": 19.99,
+      "5Y_ann": 12.35,
+      "10Y_ann": 14.48,
+      "YTD": -0.27,
+      "SI_ann": 13.22
+    }
+  },
+  "calendar_returns": {
+    "2014": {
+      "Blend": 0.97,
+      "AGG": 5.89,
+      "SPY": 14.58
+    },
+    "2015": {
+      "Blend": -6.12,
+      "AGG": 0.48,
+      "SPY": 1.23
+    },
+    "2016": {
+      "Blend": 15.81,
+      "AGG": 2.41,
+      "SPY": 12.0
+    },
+    "2017": {
+      "Blend": 44.6,
+      "AGG": 3.55,
+      "SPY": 21.71
+    },
+    "2018": {
+      "Blend": 0.4,
+      "AGG": 0.34,
+      "SPY": -4.57
+    },
+    "2019": {
+      "Blend": 41.55,
+      "AGG": 8.46,
+      "SPY": 31.22
+    },
+    "2020": {
+      "Blend": 43.21,
+      "AGG": 7.48,
+      "SPY": 18.33
+    },
+    "2021": {
+      "Blend": 25.89,
+      "AGG": -1.77,
+      "SPY": 28.73
+    },
+    "2022": {
+      "Blend": -9.81,
+      "AGG": -13.02,
+      "SPY": -18.18
+    },
+    "2023": {
+      "Blend": 38.55,
+      "AGG": 5.66,
+      "SPY": 26.18
+    },
+    "2024": {
+      "Blend": 30.25,
+      "AGG": 1.31,
+      "SPY": 24.89
+    },
+    "2025": {
+      "Blend": 35.82,
+      "AGG": 7.19,
+      "SPY": 17.72
+    },
+    "2026": {
+      "Blend": 12.94,
+      "AGG": 0.59,
+      "SPY": -0.09
+    }
+  }
+}

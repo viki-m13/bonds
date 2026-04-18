@@ -338,7 +338,18 @@ def main():
         ],
     }
 
-    # Allocations
+    # Latest ETF prices for buy list
+    latest_prices = {}
+    for t in PORTFOLIO:
+        p = load_etf(t)
+        latest_prices[t] = round(float(p.iloc[-1]), 2) if p is not None and len(p) else 0.0
+
+    PORTFOLIO_DOLLARS = 100000.0  # $100K reference portfolio
+
+    # Allocations — schema must match what docs/blend.html JS expects:
+    # net_etf_exposure[i] = {etf, dollar, price}
+    # positions_v11[i]    = {display_name, stream, type, description,
+    #                        weight_pct, buys:[{etf,dollar,price}]}
     fs["allocations"] = {
         "strategy_type": "Static multi-credit portfolio, monthly rebalance, ZERO volatility scaling",
         "n_active": f"{len(PORTFOLIO)} positions",
@@ -349,12 +360,26 @@ def main():
         "data_as_of": dates[-1].strftime("%Y-%m-%d"),
         "latest_rebalance": dates[-1].strftime("%Y-%m-%d"),
         "positions_v11": [
-            {"ticker": t, "name": ETF_META[t][0], "weight": round(w * 100, 2),
-             "type": ETF_META[t][2], "desc": ETF_META[t][1]}
+            {
+                "display_name": ETF_META[t][0],
+                "stream": t,
+                "type": ETF_META[t][2],
+                "description": ETF_META[t][1],
+                "weight_pct": round(w * 100, 2),
+                "buys": [{
+                    "etf": t,
+                    "dollar": round(w * PORTFOLIO_DOLLARS),
+                    "price": latest_prices[t],
+                }],
+            }
             for t, w in PORTFOLIO.items()
         ],
         "net_etf_exposure": [
-            {"ticker": t, "weight": round(w * 100, 2), "type": ETF_META[t][2]}
+            {
+                "etf": t,
+                "dollar": round(w * PORTFOLIO_DOLLARS),
+                "price": latest_prices[t],
+            }
             for t, w in PORTFOLIO.items()
         ],
         "type_summary": {},
@@ -373,17 +398,17 @@ def main():
         rb.append({
             "date": d.strftime("%Y-%m-%d"),
             "positions": [
-                {"stream": t, "name": ETF_META[t][0], "weight": round(w * 100, 2)}
+                {"name": ETF_META[t][0], "weight": round(w * 100, 2)}
                 for t, w in PORTFOLIO.items()
             ],
             "n_candidates": len(PORTFOLIO),
             "days_since_prev": days_since,
+            "added": [],
+            "removed": [],
         })
-    # Keep last 12 rebalances
     fs["rebalance_history"] = rb[-12:]
     fs["total_rebalances"] = len(rb)
     fs["last_rebalance"] = rb[-1]["date"] if rb else ""
-    # Approximate next rebalance ~21 trading days from last
     last = pd.Timestamp(rb[-1]["date"]) if rb else dates[-1]
     fs["next_rebalance"] = (last + pd.Timedelta(days=30)).strftime("%Y-%m-%d")
 
@@ -399,7 +424,7 @@ def main():
 
     # Stream labels (per-ETF for this strategy)
     fs["stream_labels"] = {
-        t: {"name": ETF_META[t][0]} for t in PORTFOLIO
+        t: {"name": ETF_META[t][0], "desc": ETF_META[t][1]} for t in PORTFOLIO
     }
 
     # Universe (just our 7 ETFs grouped by type)

@@ -27038,90 +27038,139 @@
     "latest_rebalance": "2026-04-02",
     "positions_v11": [
       {
-        "ticker": "JAAA",
-        "name": "Janus Henderson AAA CLO ETF",
-        "weight": 32.0,
+        "display_name": "Janus Henderson AAA CLO ETF",
+        "stream": "JAAA",
         "type": "CLO / Structured",
-        "desc": "CLO (AAA)"
+        "description": "CLO (AAA)",
+        "weight_pct": 32.0,
+        "buys": [
+          {
+            "etf": "JAAA",
+            "dollar": 32000,
+            "price": 50.42
+          }
+        ]
       },
       {
-        "ticker": "JPST",
-        "name": "JPMorgan Ultra-Short Income ETF",
-        "weight": 28.0,
+        "display_name": "JPMorgan Ultra-Short Income ETF",
+        "stream": "JPST",
         "type": "Ultra-Short Credit",
-        "desc": "Ultra-short IG credit"
+        "description": "Ultra-short IG credit",
+        "weight_pct": 28.0,
+        "buys": [
+          {
+            "etf": "JPST",
+            "dollar": 28000,
+            "price": 50.46
+          }
+        ]
       },
       {
-        "ticker": "MINT",
-        "name": "PIMCO Enhanced Short Maturity ETF",
-        "weight": 15.0,
+        "display_name": "PIMCO Enhanced Short Maturity ETF",
+        "stream": "MINT",
         "type": "Ultra-Short Credit",
-        "desc": "Ultra-short IG credit"
+        "description": "Ultra-short IG credit",
+        "weight_pct": 15.0,
+        "buys": [
+          {
+            "etf": "MINT",
+            "dollar": 15000,
+            "price": 100.37
+          }
+        ]
       },
       {
-        "ticker": "BKLN",
-        "name": "Invesco Senior Loan ETF",
-        "weight": 10.0,
+        "display_name": "Invesco Senior Loan ETF",
+        "stream": "BKLN",
         "type": "Floating Rate",
-        "desc": "Senior leveraged loans"
+        "description": "Senior leveraged loans",
+        "weight_pct": 10.0,
+        "buys": [
+          {
+            "etf": "BKLN",
+            "dollar": 10000,
+            "price": 20.48
+          }
+        ]
       },
       {
-        "ticker": "SRLN",
-        "name": "SPDR Blackstone Senior Loan ETF",
-        "weight": 5.0,
+        "display_name": "SPDR Blackstone Senior Loan ETF",
+        "stream": "SRLN",
         "type": "Floating Rate",
-        "desc": "Active senior loans"
+        "description": "Active senior loans",
+        "weight_pct": 5.0,
+        "buys": [
+          {
+            "etf": "SRLN",
+            "dollar": 5000,
+            "price": 40.03
+          }
+        ]
       },
       {
-        "ticker": "FLOT",
-        "name": "iShares Floating Rate Bond ETF",
-        "weight": 5.0,
+        "display_name": "iShares Floating Rate Bond ETF",
+        "stream": "FLOT",
         "type": "Floating Rate",
-        "desc": "IG floating-rate notes"
+        "description": "IG floating-rate notes",
+        "weight_pct": 5.0,
+        "buys": [
+          {
+            "etf": "FLOT",
+            "dollar": 5000,
+            "price": 50.84
+          }
+        ]
       },
       {
-        "ticker": "GLD",
-        "name": "SPDR Gold Shares ETF",
-        "weight": 5.0,
+        "display_name": "SPDR Gold Shares ETF",
+        "stream": "GLD",
         "type": "Gold",
-        "desc": "Physical gold crisis hedge"
+        "description": "Physical gold crisis hedge",
+        "weight_pct": 5.0,
+        "buys": [
+          {
+            "etf": "GLD",
+            "dollar": 5000,
+            "price": 429.41
+          }
+        ]
       }
     ],
     "net_etf_exposure": [
       {
-        "ticker": "JAAA",
-        "weight": 32.0,
-        "type": "CLO / Structured"
+        "etf": "JAAA",
+        "dollar": 32000,
+        "price": 50.42
       },
       {
-        "ticker": "JPST",
-        "weight": 28.0,
-        "type": "Ultra-Short Credit"
+        "etf": "JPST",
+        "dollar": 28000,
+        "price": 50.46
       },
       {
-        "ticker": "MINT",
-        "weight": 15.0,
-        "type": "Ultra-Short Credit"
+        "etf": "MINT",
+        "dollar": 15000,
+        "price": 100.37
       },
       {
-        "ticker": "BKLN",
-        "weight": 10.0,
-        "type": "Floating Rate"
+        "etf": "BKLN",
+        "dollar": 10000,
+        "price": 20.48
       },
       {
-        "ticker": "SRLN",
-        "weight": 5.0,
-        "type": "Floating Rate"
+        "etf": "SRLN",
+        "dollar": 5000,
+        "price": 40.03
       },
       {
-        "ticker": "FLOT",
-        "weight": 5.0,
-        "type": "Floating Rate"
+        "etf": "FLOT",
+        "dollar": 5000,
+        "price": 50.84
       },
       {
-        "ticker": "GLD",
-        "weight": 5.0,
-        "type": "Gold"
+        "etf": "GLD",
+        "dollar": 5000,
+        "price": 429.41
       }
     ],
     "type_summary": {
@@ -27136,505 +27185,445 @@
       "date": "2025-04-25",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     },
     {
       "date": "2025-05-27",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     },
     {
       "date": "2025-06-26",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     },
     {
       "date": "2025-07-28",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     },
     {
       "date": "2025-08-26",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     },
     {
       "date": "2025-09-25",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     },
     {
       "date": "2025-10-24",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     },
     {
       "date": "2025-11-24",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     },
     {
       "date": "2025-12-24",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     },
     {
       "date": "2026-01-27",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     },
     {
       "date": "2026-02-26",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     },
     {
       "date": "2026-03-27",
       "positions": [
         {
-          "stream": "JAAA",
           "name": "Janus Henderson AAA CLO ETF",
           "weight": 32.0
         },
         {
-          "stream": "JPST",
           "name": "JPMorgan Ultra-Short Income ETF",
           "weight": 28.0
         },
         {
-          "stream": "MINT",
           "name": "PIMCO Enhanced Short Maturity ETF",
           "weight": 15.0
         },
         {
-          "stream": "BKLN",
           "name": "Invesco Senior Loan ETF",
           "weight": 10.0
         },
         {
-          "stream": "SRLN",
           "name": "SPDR Blackstone Senior Loan ETF",
           "weight": 5.0
         },
         {
-          "stream": "FLOT",
           "name": "iShares Floating Rate Bond ETF",
           "weight": 5.0
         },
         {
-          "stream": "GLD",
           "name": "SPDR Gold Shares ETF",
           "weight": 5.0
         }
       ],
       "n_candidates": 7,
-      "days_since_prev": 21
+      "days_since_prev": 21,
+      "added": [],
+      "removed": []
     }
   ],
   "total_rebalances": 66,
@@ -27864,25 +27853,32 @@
   ],
   "stream_labels": {
     "JAAA": {
-      "name": "Janus Henderson AAA CLO ETF"
+      "name": "Janus Henderson AAA CLO ETF",
+      "desc": "CLO (AAA)"
     },
     "JPST": {
-      "name": "JPMorgan Ultra-Short Income ETF"
+      "name": "JPMorgan Ultra-Short Income ETF",
+      "desc": "Ultra-short IG credit"
     },
     "MINT": {
-      "name": "PIMCO Enhanced Short Maturity ETF"
+      "name": "PIMCO Enhanced Short Maturity ETF",
+      "desc": "Ultra-short IG credit"
     },
     "BKLN": {
-      "name": "Invesco Senior Loan ETF"
+      "name": "Invesco Senior Loan ETF",
+      "desc": "Senior leveraged loans"
     },
     "SRLN": {
-      "name": "SPDR Blackstone Senior Loan ETF"
+      "name": "SPDR Blackstone Senior Loan ETF",
+      "desc": "Active senior loans"
     },
     "FLOT": {
-      "name": "iShares Floating Rate Bond ETF"
+      "name": "iShares Floating Rate Bond ETF",
+      "desc": "IG floating-rate notes"
     },
     "GLD": {
-      "name": "SPDR Gold Shares ETF"
+      "name": "SPDR Gold Shares ETF",
+      "desc": "Physical gold crisis hedge"
     }
   },
   "universe": [
