@@ -31,14 +31,14 @@ def main():
 
     fs = {
         "fund_name": "NOVA — Max-Growth Momentum",
-        "strategy_type": "Cross-sectional momentum on 3x ETFs + crypto",
+        "strategy_type": "Cross-sectional momentum on leveraged ETFs + crypto",
         "benchmark": "S&P 500 (SPY)",
         "inception_date": dates[0].strftime("%B %d, %Y"),
         "last_updated": dates[-1].strftime("%B %d, %Y"),
         "nav": round(nav, 4),
         "rebalance": "Weekly (5-day) momentum rotation",
-        "positions_count": "Top-3 of 9 instruments, 33% cap each",
-        "universe_size": "9 instruments (7 x 3x ETFs + BTC + ETH)",
+        "positions_count": "Top-3 of 20 instruments, 33% cap each",
+        "universe_size": "20 instruments (18 leveraged ETFs + BTC + ETH)",
     }
 
     m_n = metrics(ret); m_n["name"] = "NOVA"
@@ -254,7 +254,7 @@ def main():
         "display_name": "Weekly Momentum Top-3",
         "stream": "momo",
         "type": "Unified Momentum",
-        "description": "Every 5 trading days, rank the 9-instrument universe by 10-day return and hold the top-3 with positive momentum, equal-weight, capped at 33% per name. Equity names (TQQQ/UPRO/SOXL/TECL/FAS/TMF/UGL) are gated off to BIL when SPY<200dma OR VIX>30. Crypto names (BTC/ETH) are gated off when BTC<200dma.",
+        "description": "Every 5 trading days, rank the 20-instrument universe by 10-day return and hold the top-3 with positive momentum, equal-weight, capped at 33% per name. The 18 leveraged equity ETFs (TQQQ/UPRO/QLD/SSO/SOXL/TECL/FAS/LABU/ERX/NUGT/DRN/EDC/YINN/UGL/UCO/TMF/TYD/UBT) are gated off to cash when SPY<200dma OR VIX>30. Crypto names (BTC/ETH) are gated off when BTC<200dma.",
         "weight_pct": round(sum(b["dollar"] for b in momo_buys) / PORT * 100, 2) if momo_buys else 0,
         "buys": momo_buys,
     })
@@ -262,7 +262,7 @@ def main():
     net_etfs = momo_buys.copy()
 
     fs["allocations"] = {
-        "strategy_type": "Unified cross-sectional momentum — 9-instrument universe, top-3, 33% cap per name",
+        "strategy_type": "Unified cross-sectional momentum — 20-instrument universe, top-3, 33% cap per name",
         "n_active": f"{len(positions_v11)} sleeve",
         "n_total": f"{len(UNIVERSE)} instruments in universe",
         "rebalance_freq": "Weekly (5 trading days)",
@@ -325,7 +325,7 @@ def main():
     fs["alloc_timeline"] = at
 
     fs["stream_labels"] = {
-        "momo": {"name": "Weekly Momentum Top-3", "desc": "Top-3 of 9 (3x ETFs + BTC/ETH), weekly rebal, 33% cap"},
+        "momo": {"name": "Weekly Momentum Top-3", "desc": "Top-3 of 20 (18 leveraged ETFs + BTC/ETH), weekly rebal, 33% cap"},
     }
 
     by_type = {}
