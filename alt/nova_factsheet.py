@@ -13,15 +13,31 @@ ROOT = Path("/home/user/bonds")
 ETF = ROOT / "data/etfs"
 RESULTS = ROOT / "data/results"
 
-UNIVERSE = ["TQQQ", "UPRO", "SOXL", "TECL", "FAS", "TMF", "UGL", "BTC_USD", "ETH_USD"]
+UNIVERSE = [
+    "TQQQ", "UPRO", "SOXL", "TECL", "FAS", "TMF", "UGL",
+    "LABU", "EDC", "YINN", "ERX", "NUGT", "DRN", "UCO", "TYD",
+    "QLD", "SSO", "UBT",
+    "BTC_USD", "ETH_USD",
+]
 ETF_META = {
-    "TQQQ":    ("ProShares UltraPro QQQ", "3x Nasdaq-100", "3x Leveraged"),
-    "UPRO":    ("ProShares UltraPro S&P 500", "3x S&P 500", "3x Leveraged"),
-    "SOXL":    ("Direxion Daily Semiconductor Bull 3X", "3x semiconductors", "3x Leveraged"),
-    "TECL":    ("Direxion Daily Technology Bull 3X", "3x tech sector", "3x Leveraged"),
-    "FAS":     ("Direxion Daily Financial Bull 3X", "3x financials", "3x Leveraged"),
-    "TMF":     ("Direxion Daily 20+Y Treasury Bull 3X", "3x long-duration treasuries", "3x Leveraged"),
-    "UGL":     ("ProShares Ultra Gold", "2x gold", "3x Leveraged"),
+    "TQQQ":    ("ProShares UltraPro QQQ", "3x Nasdaq-100", "Leveraged Equity"),
+    "UPRO":    ("ProShares UltraPro S&P 500", "3x S&P 500", "Leveraged Equity"),
+    "QLD":     ("ProShares Ultra QQQ", "2x Nasdaq-100", "Leveraged Equity"),
+    "SSO":     ("ProShares Ultra S&P 500", "2x S&P 500", "Leveraged Equity"),
+    "SOXL":    ("Direxion Daily Semiconductor Bull 3X", "3x semiconductors", "Leveraged Sector"),
+    "TECL":    ("Direxion Daily Technology Bull 3X", "3x tech sector", "Leveraged Sector"),
+    "FAS":     ("Direxion Daily Financial Bull 3X", "3x financials", "Leveraged Sector"),
+    "LABU":    ("Direxion Daily S&P Biotech Bull 3X", "3x biotech", "Leveraged Sector"),
+    "ERX":     ("Direxion Daily Energy Bull 2X", "2x energy sector", "Leveraged Sector"),
+    "NUGT":    ("Direxion Daily Gold Miners Bull 2X", "2x gold miners", "Leveraged Sector"),
+    "DRN":     ("Direxion Daily Real Estate Bull 3X", "3x REITs", "Leveraged Sector"),
+    "EDC":     ("Direxion Daily MSCI Emerging Mkts Bull 3X", "3x emerging markets", "Leveraged Country"),
+    "YINN":    ("Direxion Daily FTSE China Bull 3X", "3x China", "Leveraged Country"),
+    "UGL":     ("ProShares Ultra Gold", "2x gold bullion", "Leveraged Commodity"),
+    "UCO":     ("ProShares Ultra Bloomberg Crude Oil", "2x WTI crude", "Leveraged Commodity"),
+    "TMF":     ("Direxion Daily 20+Y Treasury Bull 3X", "3x long-duration treasuries", "Leveraged Rates"),
+    "TYD":     ("Direxion Daily 7-10Y Treasury Bull 3X", "3x mid-duration treasuries", "Leveraged Rates"),
+    "UBT":     ("ProShares Ultra 20+Y Treasury", "2x long-duration treasuries", "Leveraged Rates"),
     "BTC_USD": ("Bitcoin", "Spot BTC (coinbase)", "Crypto"),
     "ETH_USD": ("Ethereum", "Spot ETH (coinbase)", "Crypto"),
 }
