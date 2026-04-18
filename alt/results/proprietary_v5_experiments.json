@@ -1,0 +1,614 @@
+{
+  "k5_ccNone_rgnone": {
+    "config": {
+      "top_k": 5,
+      "category_cap": null,
+      "regime_name": "none"
+    },
+    "metrics": {
+      "sharpe": 0.8779759014835461,
+      "ann_return": 0.05336991365009638,
+      "ann_vol": 0.06078744708130986,
+      "max_dd": -0.1310665326157836,
+      "sortino": 0.9494640675822829,
+      "calmar": 0.407197112679773,
+      "total_return": 0.878428177544845,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k5_ccNone_rghy": {
+    "config": {
+      "top_k": 5,
+      "category_cap": null,
+      "regime_name": "hy"
+    },
+    "metrics": {
+      "sharpe": 0.8701699258954374,
+      "ann_return": 0.04982132831647761,
+      "ann_vol": 0.05725471179115919,
+      "max_dd": -0.09962969721879389,
+      "sortino": 0.9281134967125151,
+      "calmar": 0.5000650379079888,
+      "total_return": 0.8032099347700941,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k5_ccNone_rgspy_sma": {
+    "config": {
+      "top_k": 5,
+      "category_cap": null,
+      "regime_name": "spy_sma"
+    },
+    "metrics": {
+      "sharpe": 0.8398440157912312,
+      "ann_return": 0.0437964139472376,
+      "ann_vol": 0.05214827173112171,
+      "max_dd": -0.08767412646585115,
+      "sortino": 0.8484966193520912,
+      "calmar": 0.49953635938758045,
+      "total_return": 0.7533550022432176,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k5_ccNone_rgcombo": {
+    "config": {
+      "top_k": 5,
+      "category_cap": null,
+      "regime_name": "combo"
+    },
+    "metrics": {
+      "sharpe": 0.8325146320395188,
+      "ann_return": 0.04397804236375044,
+      "ann_vol": 0.052825548850729195,
+      "max_dd": -0.08757992404899828,
+      "sortino": 0.8429111990348452,
+      "calmar": 0.5021475280013497,
+      "total_return": 0.7567482332917681,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k5_cc2_rgnone": {
+    "config": {
+      "top_k": 5,
+      "category_cap": 2,
+      "regime_name": "none"
+    },
+    "metrics": {
+      "sharpe": 0.9204440796725528,
+      "ann_return": 0.05371275917327789,
+      "ann_vol": 0.05835526607155337,
+      "max_dd": -0.1310665326157835,
+      "sortino": 1.009342409106311,
+      "calmar": 0.4098129255523588,
+      "total_return": 0.889685708976631,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k5_cc2_rghy": {
+    "config": {
+      "top_k": 5,
+      "category_cap": 2,
+      "regime_name": "hy"
+    },
+    "metrics": {
+      "sharpe": 0.9175445854926023,
+      "ann_return": 0.050157932505323286,
+      "ann_vol": 0.054665389887724083,
+      "max_dd": -0.0976415203392782,
+      "sortino": 0.9947046332143146,
+      "calmar": 0.513694710314197,
+      "total_return": 0.8138784873580605,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k5_cc2_rgspy_sma": {
+    "config": {
+      "top_k": 5,
+      "category_cap": 2,
+      "regime_name": "spy_sma"
+    },
+    "metrics": {
+      "sharpe": 0.8909829812692169,
+      "ann_return": 0.04411345610420665,
+      "ann_vol": 0.04951099743944206,
+      "max_dd": -0.08767412646585082,
+      "sortino": 0.9161444673712864,
+      "calmar": 0.5031525021397151,
+      "total_return": 0.7638649202970449,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k5_cc2_rgcombo": {
+    "config": {
+      "top_k": 5,
+      "category_cap": 2,
+      "regime_name": "combo"
+    },
+    "metrics": {
+      "sharpe": 0.881924106221623,
+      "ann_return": 0.04429508452071949,
+      "ann_vol": 0.050225506036443865,
+      "max_dd": -0.08757992404899928,
+      "sortino": 0.908265500777548,
+      "calmar": 0.5057675603365132,
+      "total_return": 0.7672765296037711,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k5_cc3_rgnone": {
+    "config": {
+      "top_k": 5,
+      "category_cap": 3,
+      "regime_name": "none"
+    },
+    "metrics": {
+      "sharpe": 0.8977422622475484,
+      "ann_return": 0.054165819112391024,
+      "ann_vol": 0.060335601196699645,
+      "max_dd": -0.13106653261578383,
+      "sortino": 0.9746000678703409,
+      "calmar": 0.41326964276361766,
+      "total_return": 0.897449757821102,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k5_cc3_rghy": {
+    "config": {
+      "top_k": 5,
+      "category_cap": 3,
+      "regime_name": "hy"
+    },
+    "metrics": {
+      "sharpe": 0.8915415951497704,
+      "ann_return": 0.05061723377877226,
+      "ann_vol": 0.056774954813262585,
+      "max_dd": -0.0937247169197516,
+      "sortino": 0.9552084195056184,
+      "calmar": 0.5400628077875278,
+      "total_return": 0.821469830431381,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k5_cc3_rgspy_sma": {
+    "config": {
+      "top_k": 5,
+      "category_cap": 3,
+      "regime_name": "spy_sma"
+    },
+    "metrics": {
+      "sharpe": 0.8620073385699921,
+      "ann_return": 0.044532417679086674,
+      "ann_vol": 0.051661297632294795,
+      "max_dd": -0.08767412646585182,
+      "sortino": 0.8752328702781049,
+      "calmar": 0.5079311248847355,
+      "total_return": 0.7711100504940034,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k5_cc3_rgcombo": {
+    "config": {
+      "top_k": 5,
+      "category_cap": 3,
+      "regime_name": "combo"
+    },
+    "metrics": {
+      "sharpe": 0.8542202828815009,
+      "ann_return": 0.044714046095599536,
+      "ann_vol": 0.05234486582871547,
+      "max_dd": -0.08757992404899961,
+      "sortino": 0.8690862926058821,
+      "calmar": 0.5105513230473084,
+      "total_return": 0.7745376425139014,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k8_ccNone_rgnone": {
+    "config": {
+      "top_k": 8,
+      "category_cap": null,
+      "regime_name": "none"
+    },
+    "metrics": {
+      "sharpe": 0.8862200071299943,
+      "ann_return": 0.04885991961918899,
+      "ann_vol": 0.05513294579911467,
+      "max_dd": -0.14038799553834092,
+      "sortino": 0.9950569860409006,
+      "calmar": 0.3480348831239279,
+      "total_return": 0.7847542000926673,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k8_ccNone_rghy": {
+    "config": {
+      "top_k": 8,
+      "category_cap": null,
+      "regime_name": "hy"
+    },
+    "metrics": {
+      "sharpe": 0.9076905937923667,
+      "ann_return": 0.04688586470548442,
+      "ann_vol": 0.05165401627617782,
+      "max_dd": -0.09530699347901783,
+      "sortino": 1.0130649787361659,
+      "calmar": 0.49194569038426866,
+      "total_return": 0.7461279322392742,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k8_ccNone_rgspy_sma": {
+    "config": {
+      "top_k": 8,
+      "category_cap": null,
+      "regime_name": "spy_sma"
+    },
+    "metrics": {
+      "sharpe": 0.885926456033596,
+      "ann_return": 0.041001147776070834,
+      "ann_vol": 0.04628053208799986,
+      "max_dd": -0.08755904626088062,
+      "sortino": 0.938799427901959,
+      "calmar": 0.4682685516458076,
+      "total_return": 0.6961913184392279,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k8_ccNone_rgcombo": {
+    "config": {
+      "top_k": 8,
+      "category_cap": null,
+      "regime_name": "combo"
+    },
+    "metrics": {
+      "sharpe": 0.8827352893373576,
+      "ann_return": 0.041562750494440394,
+      "ann_vol": 0.04708404772810237,
+      "max_dd": -0.08323895584981045,
+      "sortino": 0.9365531880006214,
+      "calmar": 0.4993184990142454,
+      "total_return": 0.7079952327431371,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k8_cc2_rgnone": {
+    "config": {
+      "top_k": 8,
+      "category_cap": 2,
+      "regime_name": "none"
+    },
+    "metrics": {
+      "sharpe": 0.8765708520452561,
+      "ann_return": 0.044092409026041814,
+      "ann_vol": 0.050301021215984246,
+      "max_dd": -0.12571688614697918,
+      "sortino": 1.0000324930529256,
+      "calmar": 0.3507278169019564,
+      "total_return": 0.6888810927991653,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k8_cc2_rghy": {
+    "config": {
+      "top_k": 8,
+      "category_cap": 2,
+      "regime_name": "hy"
+    },
+    "metrics": {
+      "sharpe": 0.8807454210920381,
+      "ann_return": 0.04148825636591569,
+      "ann_vol": 0.04710584395031462,
+      "max_dd": -0.10263234345122796,
+      "sortino": 0.9968778513192975,
+      "calmar": 0.40424153800630475,
+      "total_return": 0.6390339529012314,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k8_cc2_rgspy_sma": {
+    "config": {
+      "top_k": 8,
+      "category_cap": 2,
+      "regime_name": "spy_sma"
+    },
+    "metrics": {
+      "sharpe": 0.8749045388674764,
+      "ann_return": 0.037252800894741284,
+      "ann_vol": 0.042579274926340324,
+      "max_dd": -0.08271354253727392,
+      "sortino": 0.9372752851777184,
+      "calmar": 0.45038333206383624,
+      "total_return": 0.6176350422328825,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k8_cc2_rgcombo": {
+    "config": {
+      "top_k": 8,
+      "category_cap": 2,
+      "regime_name": "combo"
+    },
+    "metrics": {
+      "sharpe": 0.8609999633245122,
+      "ann_return": 0.037162967487650085,
+      "ann_vol": 0.043162565703435816,
+      "max_dd": -0.08371451264209795,
+      "sortino": 0.923782087088226,
+      "calmar": 0.44392502942150264,
+      "total_return": 0.6151786695028303,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k8_cc3_rgnone": {
+    "config": {
+      "top_k": 8,
+      "category_cap": 3,
+      "regime_name": "none"
+    },
+    "metrics": {
+      "sharpe": 0.87388856158091,
+      "ann_return": 0.04725999942972802,
+      "ann_vol": 0.05408012131916708,
+      "max_dd": -0.14038799553834092,
+      "sortino": 0.987166033149649,
+      "calmar": 0.33663846576412576,
+      "total_return": 0.7513895034722864,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k8_cc3_rghy": {
+    "config": {
+      "top_k": 8,
+      "category_cap": 3,
+      "regime_name": "hy"
+    },
+    "metrics": {
+      "sharpe": 0.8962454306058778,
+      "ann_return": 0.04528594451602345,
+      "ann_vol": 0.0505285081179263,
+      "max_dd": -0.0953069934790185,
+      "sortino": 1.0077429652927337,
+      "calmar": 0.47515867265284145,
+      "total_return": 0.7134853259260261,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k8_cc3_rgspy_sma": {
+    "config": {
+      "top_k": 8,
+      "category_cap": 3,
+      "regime_name": "spy_sma"
+    },
+    "metrics": {
+      "sharpe": 0.8759969402785039,
+      "ann_return": 0.03952164136998459,
+      "ann_vol": 0.0451161865444639,
+      "max_dd": -0.0875590462608814,
+      "sortino": 0.936133150070585,
+      "calmar": 0.4513713095073033,
+      "total_return": 0.6644822412190101,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k8_cc3_rgcombo": {
+    "config": {
+      "top_k": 8,
+      "category_cap": 3,
+      "regime_name": "combo"
+    },
+    "metrics": {
+      "sharpe": 0.872510206422521,
+      "ann_return": 0.040083244088354154,
+      "ann_vol": 0.045940143500101914,
+      "max_dd": -0.08323895584981045,
+      "sortino": 0.9331835345408062,
+      "calmar": 0.48154429232242024,
+      "total_return": 0.6760654898314535,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k12_ccNone_rgnone": {
+    "config": {
+      "top_k": 12,
+      "category_cap": null,
+      "regime_name": "none"
+    },
+    "metrics": {
+      "sharpe": 0.8960888981153503,
+      "ann_return": 0.045952564708190084,
+      "ann_vol": 0.051281256586079,
+      "max_dd": -0.11327971462565212,
+      "sortino": 1.0403059756753386,
+      "calmar": 0.4056557245050135,
+      "total_return": 0.7267020206796624,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k12_ccNone_rghy": {
+    "config": {
+      "top_k": 12,
+      "category_cap": null,
+      "regime_name": "hy"
+    },
+    "metrics": {
+      "sharpe": 0.8742680744156118,
+      "ann_return": 0.04176620086544698,
+      "ann_vol": 0.04777276225414592,
+      "max_dd": -0.08959705337732671,
+      "sortino": 1.0110342253456444,
+      "calmar": 0.46615596485694555,
+      "total_return": 0.6439775996349333,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k12_ccNone_rgspy_sma": {
+    "config": {
+      "top_k": 12,
+      "category_cap": null,
+      "regime_name": "spy_sma"
+    },
+    "metrics": {
+      "sharpe": 0.8877707062929608,
+      "ann_return": 0.03719157171624135,
+      "ann_vol": 0.04189321798141003,
+      "max_dd": -0.09033700531248579,
+      "sortino": 0.9743886531605226,
+      "calmar": 0.41169808084285675,
+      "total_return": 0.616941595310627,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k12_ccNone_rgcombo": {
+    "config": {
+      "top_k": 12,
+      "category_cap": null,
+      "regime_name": "combo"
+    },
+    "metrics": {
+      "sharpe": 0.8532967426407272,
+      "ann_return": 0.03651252400451009,
+      "ann_vol": 0.04278994888872247,
+      "max_dd": -0.09087030088673786,
+      "sortino": 0.9290624038198102,
+      "calmar": 0.40180921212112924,
+      "total_return": 0.6016690176275339,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k12_cc2_rgnone": {
+    "config": {
+      "top_k": 12,
+      "category_cap": 2,
+      "regime_name": "none"
+    },
+    "metrics": {
+      "sharpe": 0.9842745478877076,
+      "ann_return": 0.045405041620031505,
+      "ann_vol": 0.04613046402294211,
+      "max_dd": -0.10152268582432622,
+      "sortino": 1.1639282262783663,
+      "calmar": 0.44724035077834634,
+      "total_return": 0.7204573931935032,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k12_cc2_rghy": {
+    "config": {
+      "top_k": 12,
+      "category_cap": 2,
+      "regime_name": "hy"
+    },
+    "metrics": {
+      "sharpe": 0.9582677321763363,
+      "ann_return": 0.041093954017050315,
+      "ann_vol": 0.042883583196233914,
+      "max_dd": -0.1007463285293605,
+      "sortino": 1.1296160603788157,
+      "calmar": 0.4078953011679657,
+      "total_return": 0.6349466730108659,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k12_cc2_rgspy_sma": {
+    "config": {
+      "top_k": 12,
+      "category_cap": 2,
+      "regime_name": "spy_sma"
+    },
+    "metrics": {
+      "sharpe": 0.9737003559630972,
+      "ann_return": 0.03689044029625106,
+      "ann_vol": 0.03788685099099336,
+      "max_dd": -0.09228223951225145,
+      "sortino": 1.086430628609714,
+      "calmar": 0.3997566648927442,
+      "total_return": 0.6139273228378541,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k12_cc2_rgcombo": {
+    "config": {
+      "top_k": 12,
+      "category_cap": 2,
+      "regime_name": "combo"
+    },
+    "metrics": {
+      "sharpe": 0.9452785617490285,
+      "ann_return": 0.03658172360680062,
+      "ann_vol": 0.038699411038280875,
+      "max_dd": -0.09006630015025774,
+      "sortino": 1.0439202086508064,
+      "calmar": 0.40616438718778586,
+      "total_return": 0.6066822312951017,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k12_cc3_rgnone": {
+    "config": {
+      "top_k": 12,
+      "category_cap": 3,
+      "regime_name": "none"
+    },
+    "metrics": {
+      "sharpe": 0.9026871189521463,
+      "ann_return": 0.04523575242694365,
+      "ann_vol": 0.050112327380337544,
+      "max_dd": -0.11327971462565212,
+      "sortino": 1.0492711674172368,
+      "calmar": 0.3993279165332576,
+      "total_return": 0.7128676953449988,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k12_cc3_rghy": {
+    "config": {
+      "top_k": 12,
+      "category_cap": 3,
+      "regime_name": "hy"
+    },
+    "metrics": {
+      "sharpe": 0.8824885245098709,
+      "ann_return": 0.04104938858420055,
+      "ann_vol": 0.04651549277312036,
+      "max_dd": -0.09031806385953356,
+      "sortino": 1.0232161390297656,
+      "calmar": 0.45449810181983397,
+      "total_return": 0.6308060618224625,
+      "n_years": 12.238095238095237
+    }
+  },
+  "k12_cc3_rgspy_sma": {
+    "config": {
+      "top_k": 12,
+      "category_cap": 3,
+      "regime_name": "spy_sma"
+    },
+    "metrics": {
+      "sharpe": 0.9005171050279567,
+      "ann_return": 0.03652870842527763,
+      "ann_vol": 0.04056414722310421,
+      "max_dd": -0.0910577517705482,
+      "sortino": 0.9924565781629432,
+      "calmar": 0.4011597883212016,
+      "total_return": 0.6039861015734775,
+      "n_years": 13.234126984126984
+    }
+  },
+  "k12_cc3_rgcombo": {
+    "config": {
+      "top_k": 12,
+      "category_cap": 3,
+      "regime_name": "combo"
+    },
+    "metrics": {
+      "sharpe": 0.8640777682206483,
+      "ann_return": 0.03584966071354637,
+      "ann_vol": 0.0414889284645869,
+      "max_dd": -0.09159030299698889,
+      "sortino": 0.943630053526642,
+      "calmar": 0.3914132778305686,
+      "total_return": 0.5888364558983239,
+      "n_years": 13.234126984126984
+    }
+  }
+}

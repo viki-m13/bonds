@@ -1,0 +1,145 @@
+{
+  "fund_name": "ZEPHYR \u2014 Zero-Scaling Proprietary Strategy",
+  "strategy_type": "Static multi-credit portfolio, monthly rebal, ZERO vol scaling",
+  "benchmark": "Bloomberg US Aggregate Bond Index (AGG)",
+  "inception_date": "October 19, 2020",
+  "last_updated": "April 02, 2026",
+  "nav": 1.2721,
+  "rebalance": "Monthly",
+  "positions_count": "7 static positions",
+  "universe_size": "7 instruments",
+  "metrics": {
+    "Blend": {
+      "name": "Blend",
+      "total_return": 27.21,
+      "ann_return": 4.43,
+      "ann_vol": 1.2,
+      "sharpe": 3.702,
+      "sortino": 4.291,
+      "max_dd": -1.32,
+      "calmar": 3.35,
+      "win_rate_daily": 62.0,
+      "skew": -0.48,
+      "kurt": 9.12,
+      "best_month": 1.48,
+      "worst_month": -0.82,
+      "pct_pos_months": 79.1,
+      "avg_dd_days": 6,
+      "max_dd_days": 182,
+      "n_years": 5.4,
+      "inception": "2020-10-19"
+    },
+    "AGG": {
+      "name": "AGG",
+      "total_return": -0.84,
+      "ann_return": 0.02,
+      "ann_vol": 5.9,
+      "sharpe": 0.003,
+      "sortino": 0.005,
+      "max_dd": -18.08,
+      "calmar": 0.0,
+      "win_rate_daily": 49.7,
+      "skew": 0.07,
+      "kurt": 1.76,
+      "best_month": 4.59,
+      "worst_month": -4.15,
+      "pct_pos_months": 49.3,
+      "avg_dd_days": 226,
+      "max_dd_days": 1318,
+      "n_years": 5.4,
+      "inception": "2020-10-19"
+    },
+    "SPY": {
+      "name": "SPY",
+      "total_return": 106.86,
+      "ann_return": 14.8,
+      "ann_vol": 16.93,
+      "sharpe": 0.874,
+      "sortino": 1.202,
+      "max_dd": -24.5,
+      "calmar": 0.6,
+      "win_rate_daily": 54.3,
+      "skew": 0.27,
+      "kurt": 8.81,
+      "best_month": 10.88,
+      "worst_month": -9.24,
+      "pct_pos_months": 65.7,
+      "avg_dd_days": 11,
+      "max_dd_days": 488,
+      "n_years": 5.4,
+      "inception": "2020-10-19"
+    }
+  },
+  "trailing": {
+    "Blend": {
+      "1M": -0.15,
+      "3M": 1.03,
+      "6M": 2.87,
+      "1Y": 6.98,
+      "3Y_ann": 7.42,
+      "5Y_ann": 5.01,
+      "10Y_ann": null,
+      "YTD": 0.95,
+      "SI_ann": 4.53
+    },
+    "AGG": {
+      "1M": -0.96,
+      "3M": 0.32,
+      "6M": 1.01,
+      "1Y": 4.29,
+      "3Y_ann": 3.94,
+      "5Y_ann": 0.34,
+      "10Y_ann": null,
+      "YTD": 0.36,
+      "SI_ann": -0.16
+    },
+    "SPY": {
+      "1M": -4.02,
+      "3M": -3.56,
+      "6M": -1.33,
+      "1Y": 18.25,
+      "3Y_ann": 19.88,
+      "5Y_ann": 12.14,
+      "10Y_ann": null,
+      "YTD": -3.74,
+      "SI_ann": 14.31
+    }
+  },
+  "calendar_returns": {
+    "2020": {
+      "Blend": -0.06,
+      "AGG": 0.82,
+      "SPY": 9.78
+    },
+    "2021": {
+      "Blend": 0.43,
+      "AGG": -1.77,
+      "SPY": 28.73
+    },
+    "2022": {
+      "Blend": 0.61,
+      "AGG": -13.02,
+      "SPY": -18.18
+    },
+    "2023": {
+      "Blend": 7.64,
+      "AGG": 5.66,
+      "SPY": 26.18
+    },
+    "2024": {
+      "Blend": 7.7,
+      "AGG": 1.31,
+      "SPY": 24.89
+    },
+    "2025": {
+      "Blend": 7.56,
+      "AGG": 7.19,
+      "SPY": 17.72
+    },
+    "2026": {
+      "Blend": 1.03,
+      "AGG": 0.32,
+      "SPY": -3.56
+    }
+  }
+}

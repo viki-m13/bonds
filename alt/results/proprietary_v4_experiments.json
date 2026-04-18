@@ -1,0 +1,222 @@
+{
+  "E1_base": {
+    "metrics": {
+      "sharpe": 0.39527230640482897,
+      "ann_return": 0.012687118034426795,
+      "ann_vol": 0.03209715891766254,
+      "max_dd": -0.13575527769837992,
+      "sortino": 0.5174518403921365,
+      "calmar": 0.09345579965307088,
+      "total_return": 0.17472193693188487,
+      "n_years": 13.23015873015873
+    },
+    "config": {
+      "top_k": 15,
+      "weighting": "equal",
+      "min_sharpe": 0.0,
+      "regime": null,
+      "momentum_filter": false,
+      "category_cap": null
+    }
+  },
+  "E2_regime": {
+    "metrics": {
+      "sharpe": 0.41019250092335763,
+      "ann_return": 0.012841571081247505,
+      "ann_vol": 0.03130620636003993,
+      "max_dd": -0.12216722082368292,
+      "sortino": 0.5421776363346112,
+      "calmar": 0.10511470257460487,
+      "total_return": 0.17751641414129504,
+      "n_years": 13.23015873015873
+    },
+    "config": {
+      "top_k": 15,
+      "weighting": "equal",
+      "min_sharpe": 0.0,
+      "regime": "Date\n2012-01-03    1.0\n2012-01-04    1.0\n2012-01-05    1.0\n2012-01-06    1.0\n2012-01-09    1.0\n             ... \n2026-04-02    1.0\n2026-04-06    1.0\n2026-04-07    1.0\n2026-04-08    1.0\n2026-04-09    1.0\nName: BAMLH0A0HYM2, Length: 3587, dtype: float64",
+      "momentum_filter": false,
+      "category_cap": null
+    }
+  },
+  "E3_regime_mom": {
+    "metrics": {
+      "sharpe": 0.23949150028254249,
+      "ann_return": 0.0072360772332820695,
+      "ann_vol": 0.030214338399255237,
+      "max_dd": -0.12362187852774764,
+      "sortino": 0.2999778377525334,
+      "calmar": 0.05853395304665177,
+      "total_return": 0.09383808215583533,
+      "n_years": 13.23015873015873
+    },
+    "config": {
+      "top_k": 15,
+      "weighting": "equal",
+      "min_sharpe": 0.0,
+      "regime": "Date\n2012-01-03    1.0\n2012-01-04    1.0\n2012-01-05    1.0\n2012-01-06    1.0\n2012-01-09    1.0\n             ... \n2026-04-02    1.0\n2026-04-06    1.0\n2026-04-07    1.0\n2026-04-08    1.0\n2026-04-09    1.0\nName: BAMLH0A0HYM2, Length: 3587, dtype: float64",
+      "momentum_filter": true,
+      "category_cap": null
+    }
+  },
+  "E4_catcap2": {
+    "metrics": {
+      "sharpe": 0.35291248139791376,
+      "ann_return": 0.010967563927050571,
+      "ann_vol": 0.0310772911278377,
+      "max_dd": -0.09985598981353538,
+      "sortino": 0.4446042196122922,
+      "calmar": 0.10983381114673933,
+      "total_return": 0.14879062652719188,
+      "n_years": 13.23015873015873
+    },
+    "config": {
+      "top_k": 15,
+      "weighting": "equal",
+      "min_sharpe": 0.0,
+      "regime": "Date\n2012-01-03    1.0\n2012-01-04    1.0\n2012-01-05    1.0\n2012-01-06    1.0\n2012-01-09    1.0\n             ... \n2026-04-02    1.0\n2026-04-06    1.0\n2026-04-07    1.0\n2026-04-08    1.0\n2026-04-09    1.0\nName: BAMLH0A0HYM2, Length: 3587, dtype: float64",
+      "momentum_filter": true,
+      "category_cap": 2
+    }
+  },
+  "E4b_catcap3": {
+    "metrics": {
+      "sharpe": 0.30978988022277965,
+      "ann_return": 0.009651051129318357,
+      "ann_vol": 0.031153539045168238,
+      "max_dd": -0.1230379950619036,
+      "sortino": 0.3935656939827091,
+      "calmar": 0.07843960009639837,
+      "total_return": 0.12891986779626285,
+      "n_years": 13.23015873015873
+    },
+    "config": {
+      "top_k": 20,
+      "weighting": "equal",
+      "min_sharpe": 0.0,
+      "regime": "Date\n2012-01-03    1.0\n2012-01-04    1.0\n2012-01-05    1.0\n2012-01-06    1.0\n2012-01-09    1.0\n             ... \n2026-04-02    1.0\n2026-04-06    1.0\n2026-04-07    1.0\n2026-04-08    1.0\n2026-04-09    1.0\nName: BAMLH0A0HYM2, Length: 3587, dtype: float64",
+      "momentum_filter": true,
+      "category_cap": 3
+    }
+  },
+  "E5_invvol": {
+    "metrics": {
+      "sharpe": 0.8974935764057816,
+      "ann_return": 0.01661990675281359,
+      "ann_vol": 0.01851813449113676,
+      "max_dd": -0.040017235995514655,
+      "sortino": 0.946845465848962,
+      "calmar": 0.4153187080356184,
+      "total_return": 0.2430992780618979,
+      "n_years": 13.23015873015873
+    },
+    "config": {
+      "top_k": 20,
+      "weighting": "inv_vol",
+      "min_sharpe": 0.0,
+      "regime": "Date\n2012-01-03    1.0\n2012-01-04    1.0\n2012-01-05    1.0\n2012-01-06    1.0\n2012-01-09    1.0\n             ... \n2026-04-02    1.0\n2026-04-06    1.0\n2026-04-07    1.0\n2026-04-08    1.0\n2026-04-09    1.0\nName: BAMLH0A0HYM2, Length: 3587, dtype: float64",
+      "momentum_filter": true,
+      "category_cap": 3
+    }
+  },
+  "E6_all_positive": {
+    "metrics": {
+      "sharpe": 0.8824316257988821,
+      "ann_return": 0.01571753118710203,
+      "ann_vol": 0.01781161364527552,
+      "max_dd": -0.04001723599551499,
+      "sortino": 0.9716952843310137,
+      "calmar": 0.39276903554417414,
+      "total_return": 0.2285566950471929,
+      "n_years": 13.23015873015873
+    },
+    "config": {
+      "top_k": 50,
+      "weighting": "inv_vol",
+      "min_sharpe": 0.0,
+      "regime": "Date\n2012-01-03    1.0\n2012-01-04    1.0\n2012-01-05    1.0\n2012-01-06    1.0\n2012-01-09    1.0\n             ... \n2026-04-02    1.0\n2026-04-06    1.0\n2026-04-07    1.0\n2026-04-08    1.0\n2026-04-09    1.0\nName: BAMLH0A0HYM2, Length: 3587, dtype: float64",
+      "momentum_filter": true,
+      "category_cap": null
+    }
+  },
+  "E7_sharpe_gate_05": {
+    "metrics": {
+      "sharpe": 0.8940548630213733,
+      "ann_return": 0.016936848363825023,
+      "ann_vol": 0.018943857993891512,
+      "max_dd": -0.0431562358661447,
+      "sortino": 0.8963377861436465,
+      "calmar": 0.39245425426714936,
+      "total_return": 0.24819053634552168,
+      "n_years": 13.23015873015873
+    },
+    "config": {
+      "top_k": 20,
+      "weighting": "inv_vol",
+      "min_sharpe": 0.5,
+      "regime": "Date\n2012-01-03    1.0\n2012-01-04    1.0\n2012-01-05    1.0\n2012-01-06    1.0\n2012-01-09    1.0\n             ... \n2026-04-02    1.0\n2026-04-06    1.0\n2026-04-07    1.0\n2026-04-08    1.0\n2026-04-09    1.0\nName: BAMLH0A0HYM2, Length: 3587, dtype: float64",
+      "momentum_filter": true,
+      "category_cap": 3
+    }
+  },
+  "E7b_sharpe_10": {
+    "metrics": {
+      "sharpe": 0.8472524945139688,
+      "ann_return": 0.017089673536139296,
+      "ann_vol": 0.020170697220481936,
+      "max_dd": -0.04930193832906904,
+      "sortino": 0.7652052727224208,
+      "calmar": 0.3466328934589375,
+      "total_return": 0.25031881156545555,
+      "n_years": 13.23015873015873
+    },
+    "config": {
+      "top_k": 20,
+      "weighting": "inv_vol",
+      "min_sharpe": 1.0,
+      "regime": "Date\n2012-01-03    1.0\n2012-01-04    1.0\n2012-01-05    1.0\n2012-01-06    1.0\n2012-01-09    1.0\n             ... \n2026-04-02    1.0\n2026-04-06    1.0\n2026-04-07    1.0\n2026-04-08    1.0\n2026-04-09    1.0\nName: BAMLH0A0HYM2, Length: 3587, dtype: float64",
+      "momentum_filter": true,
+      "category_cap": 3
+    }
+  },
+  "E8_all_equal": {
+    "metrics": {
+      "sharpe": 0.39497907842838964,
+      "ann_return": 0.013400935183892718,
+      "ann_vol": 0.03392821522905631,
+      "max_dd": -0.16429647685736193,
+      "sortino": 0.5257087171606702,
+      "calmar": 0.08156556634824905,
+      "total_return": 0.18491577312630159,
+      "n_years": 13.23015873015873
+    },
+    "config": {
+      "top_k": 32,
+      "weighting": "equal",
+      "min_sharpe": -99,
+      "regime": null,
+      "momentum_filter": false,
+      "category_cap": null
+    }
+  },
+  "E9_all_invvol": {
+    "metrics": {
+      "sharpe": 0.910389417257249,
+      "ann_return": 0.015455770326758104,
+      "ann_vol": 0.016977097969045,
+      "max_dd": -0.06445423493684888,
+      "sortino": 1.0966344950901086,
+      "calmar": 0.23979448894089575,
+      "total_return": 0.2245435921328054,
+      "n_years": 13.23015873015873
+    },
+    "config": {
+      "top_k": 32,
+      "weighting": "inv_vol",
+      "min_sharpe": -99,
+      "regime": null,
+      "momentum_filter": false,
+      "category_cap": null
+    }
+  }
+}
