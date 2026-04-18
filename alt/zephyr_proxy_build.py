@@ -1,21 +1,25 @@
-"""Build ZEPHYR returns using proxies for pre-inception history.
+"""Build ZEPHYR returns with proxies, extended to 2005-04 (match Sharpe page).
 
-Proxy map (used only when the real ETF has no data on a given date):
-  JAAA (2020-10)  -> 60% FLOT + 40% BKLN
-  JPST (2017-05)  -> MINT
-  MINT (2009-11)  -> MINT (real)
-  BKLN (2011-03)  -> BKLN (real)
-  SRLN (2013-04)  -> SRLN (real) - this is the binding constraint
-  FLOT (2011-06)  -> FLOT (real)
-  GLD  (2004-11)  -> GLD  (real)
+Proxy tiers (most recent wins):
+  TIER 1 - Live (2020-10+): real ETFs
+  TIER 2 - Near-proxy (2011-06 to 2020-10):
+    JAAA -> 60% FLOT + 40% BKLN
+    JPST -> MINT
+  TIER 3 - Early-proxy (2005-04 to 2011-06):
+    JAAA / JPST / MINT / FLOT -> SHY (1-3y Treasuries)
+    BKLN / SRLN                -> SHY (no bank-loan ETF pre-2011)
+    GLD                         -> GLD (live from 2004-11) or SHY before
+  BIL (cash comparator for regime gate): use SHY pre-2007-05
 
-ZEPHYR weights (unchanged): JAAA 32 / JPST 28 / MINT 15 / BKLN 10
-                             SRLN 5 / FLOT 5 / GLD 5
+All proxies preserve ZEPHYR's fixed weights. Pre-2011 the backtest is
+essentially a short-duration Treasury portfolio with a small gold sleeve
+— structurally different from the live strategy. The TIER 3 numbers are
+a conservative floor, not a simulation of what JAAA would have returned.
 
-Output:
-  data/results/zephyr_proxy_returns.csv  (Date, Close, source) where
-    source = 'live'  when every constituent has its real ETF available
-    source = 'proxy' when at least one proxy is in use
+Also computes SPY and AGG on the same date grid for comparison.
+
+Output: data/results/zephyr_proxy_returns.csv
+  columns: Close, SPY, AGG, source, tier
 """
 from pathlib import Path
 import numpy as np
@@ -29,18 +33,6 @@ RESULTS = ROOT / "data/results"
 WEIGHTS = {
     "JAAA": 0.32, "JPST": 0.28, "MINT": 0.15, "BKLN": 0.10,
     "SRLN": 0.05, "FLOT": 0.05, "GLD": 0.05,
-}
-
-# Proxy -> replacement series (as daily returns). If first choice is missing,
-# fall back to next. MINT as last resort for the credit sleeves.
-PROXY_RECIPE = {
-    "JAAA": [("FLOT", 0.6), ("BKLN", 0.4)],
-    "JPST": [("MINT", 1.0)],
-    "MINT": [("MINT", 1.0)],
-    "BKLN": [("BKLN", 1.0)],
-    "SRLN": [("SRLN", 1.0)],
-    "FLOT": [("FLOT", 1.0)],
-    "GLD":  [("GLD",  1.0)],
 }
 
 
@@ -58,31 +50,102 @@ def load_fred(s):
     return pd.to_numeric(d, errors="coerce").sort_index()
 
 
-def daily_returns_for(ticker, dates):
-    """Return a daily-return series for `ticker` over `dates`, where missing
-    live data is filled from PROXY_RECIPE. Also returns a boolean series
-    flagging dates where proxy fallback was used."""
-    live = load_etf(ticker)
-    live_ret = (live.reindex(dates).ffill().pct_change().fillna(0)
-                if live is not None else pd.Series(0.0, index=dates))
-    live_avail = pd.Series(False, index=dates) if live is None else \
-                 pd.Series(live.index.min() <= dates, index=dates)
-
-    # Build proxy blend on the same date index.
-    proxy_ret = pd.Series(0.0, index=dates)
-    for comp, w in PROXY_RECIPE[ticker]:
-        comp_px = load_etf(comp)
-        if comp_px is None: continue
-        proxy_ret = proxy_ret + w * comp_px.reindex(dates).ffill().pct_change().fillna(0)
-
-    # Use live where available, proxy otherwise.
-    used_proxy = ~live_avail
-    out = live_ret.where(live_avail, proxy_ret)
-    return out, used_proxy
+def pct(s, dates):
+    return s.reindex(dates).ffill().pct_change().fillna(0)
 
 
-def regime_gate(dates):
-    """ZEPHYR regime gate: HY OAS < 8% AND dDGS10(63d) < 0.7%, both T-1."""
+def main():
+    print("Building ZEPHYR extended to Sharpe-page start...")
+    # Align to Sharpe strategy start (first available bond/SPY data here).
+    spy = load_etf("SPY")
+    start = max(pd.Timestamp("2005-04-25"), spy.index.min())
+    dates = spy.loc[start:].index
+
+    # Daily-return series for each constituent, with tiered proxies.
+    real = {t: load_etf(t) for t in WEIGHTS}
+    flot = load_etf("FLOT"); bkln = load_etf("BKLN"); mint = load_etf("MINT")
+    shy = load_etf("SHY")
+    gld = load_etf("GLD")
+
+    # Returns
+    r_shy = pct(shy, dates)
+    r_flot = pct(flot, dates) if flot is not None else r_shy
+    r_bkln = pct(bkln, dates) if bkln is not None else r_shy
+    r_mint = pct(mint, dates) if mint is not None else r_shy
+    r_gld  = pct(gld, dates)  if gld  is not None else pd.Series(0.0, index=dates)
+
+    # Availability masks
+    def avail(s):
+        return pd.Series(False if s is None else (s.index.min() <= dates), index=dates)
+
+    contribs = pd.Series(0.0, index=dates)
+    tier = pd.Series(3, index=dates, dtype=int)  # 3 = early-proxy by default
+
+    def apply(weight, live_ret, live_mask, near_ret, near_mask, early_ret):
+        """Return weighted contribution + tier-stamp per date."""
+        val = pd.Series(0.0, index=dates)
+        val = val.where(~live_mask, live_ret * weight)
+        val = val.where(live_mask | ~near_mask, near_ret * weight)
+        val = val.where(live_mask | near_mask, early_ret * weight)
+        return val
+
+    # JAAA: live JAAA > FLOT+BKLN blend > SHY
+    jaaa_live = real["JAAA"]
+    jaaa_avail = avail(jaaa_live)
+    near_ret = 0.6 * r_flot + 0.4 * r_bkln
+    near_mask = avail(flot) & avail(bkln)
+    contribs = contribs + apply(WEIGHTS["JAAA"],
+                                pct(jaaa_live, dates), jaaa_avail,
+                                near_ret, near_mask & ~jaaa_avail,
+                                r_shy)
+
+    # JPST: live JPST > MINT > SHY
+    jpst = real["JPST"]
+    jpst_avail = avail(jpst)
+    contribs = contribs + apply(WEIGHTS["JPST"],
+                                pct(jpst, dates), jpst_avail,
+                                r_mint, avail(mint) & ~jpst_avail,
+                                r_shy)
+
+    # MINT: live MINT > SHY
+    contribs = contribs + apply(WEIGHTS["MINT"],
+                                r_mint, avail(mint),
+                                pd.Series(0.0, index=dates), pd.Series(False, index=dates),
+                                r_shy)
+
+    # BKLN: live BKLN > SHY
+    contribs = contribs + apply(WEIGHTS["BKLN"],
+                                r_bkln, avail(bkln),
+                                pd.Series(0.0, index=dates), pd.Series(False, index=dates),
+                                r_shy)
+
+    # SRLN: live SRLN > BKLN > SHY
+    srln = real["SRLN"]
+    srln_avail = avail(srln)
+    contribs = contribs + apply(WEIGHTS["SRLN"],
+                                pct(srln, dates), srln_avail,
+                                r_bkln, avail(bkln) & ~srln_avail,
+                                r_shy)
+
+    # FLOT: live FLOT > SHY
+    contribs = contribs + apply(WEIGHTS["FLOT"],
+                                r_flot, avail(flot),
+                                pd.Series(0.0, index=dates), pd.Series(False, index=dates),
+                                r_shy)
+
+    # GLD: live GLD always (starts 2004-11, pre-start)
+    contribs = contribs + WEIGHTS["GLD"] * r_gld
+
+    # Tier tracking
+    tier = pd.Series(3, index=dates, dtype=int)
+    tier[avail(flot) & avail(bkln) & avail(mint)] = 2
+    tier[jaaa_avail & jpst_avail] = 1  # both late ETFs live -> TIER 1
+
+    # Source label: live iff everything real
+    all_live = jaaa_avail & jpst_avail & avail(mint) & avail(bkln) & srln_avail & avail(flot) & avail(gld)
+    source = np.where(all_live, "live", "proxy")
+
+    # Regime gate (same as main ZEPHYR)
     hy = load_fred("BAMLH0A0HYM2")
     dgs = load_fred("DGS10")
     hy_d = hy.reindex(dates).ffill() if hy is not None else pd.Series(5.0, index=dates)
@@ -90,60 +153,41 @@ def regime_gate(dates):
     g_credit = np.clip((8.0 - hy_d) / (8.0 - 5.0), 0, 1)
     g_rate = ((dg_d - dg_d.shift(63)) < 0.7).astype(float)
     g = (g_credit * g_rate).shift(1).fillna(0)
-    return g
+    bil = load_etf("BIL")
+    r_bil = pct(bil, dates) if bil is not None else r_shy
+    r_bil = r_bil.where(avail(bil), r_shy)  # SHY as pre-BIL cash
+    gated = g * contribs + (1 - g) * r_bil - (0.0002 / 21)  # monthly-drag haircut
 
-
-def main():
-    print("Building ZEPHYR with proxies...")
-    # Date grid: start from first date where SRLN exists (binding constraint)
-    srln = load_etf("SRLN")
-    start = srln.index.min()
-    spy = load_etf("SPY")
-    dates = spy.loc[start:].index
-
-    combined = pd.Series(0.0, index=dates)
-    any_proxy = pd.Series(False, index=dates)
-
-    for tkr, w in WEIGHTS.items():
-        ret, used_proxy = daily_returns_for(tkr, dates)
-        combined = combined + w * ret
-        any_proxy = any_proxy | used_proxy
-        print(f"  {tkr} @ {w:.0%}: proxy days = {used_proxy.sum()}")
-
-    # Apply regime gate + BIL complement.
-    g = regime_gate(dates)
-    bil = load_etf("BIL").reindex(dates).ffill().pct_change().fillna(0)
-    gated = g * combined + (1 - g) * bil
-
-    # 21-day rebalance with 5 bps cost on turnover (static weights means ~drift only)
-    # For proxy purposes we just apply a small fixed 2 bps / month drag.
-    monthly_drag = 0.0002 / 21  # ~0.24%/yr haircut (vs 5bps per rebalance)
-    gated = gated - monthly_drag
+    # Benchmarks
+    r_spy = pct(spy, dates)
+    agg = load_etf("AGG")
+    r_agg = pct(agg, dates) if agg is not None else pd.Series(0.0, index=dates)
 
     out = pd.DataFrame({
         "Close": gated,
-        "source": np.where(any_proxy, "proxy", "live"),
+        "SPY": r_spy,
+        "AGG": r_agg,
+        "source": source,
+        "tier": tier.values,
     })
     out.index.name = "Date"
     out.to_csv(RESULTS / "zephyr_proxy_returns.csv")
 
     # Summary
-    n_total = len(out)
-    n_live = (out["source"] == "live").sum()
-    n_proxy = (out["source"] == "proxy").sum()
-    live_start = out[out["source"] == "live"].index.min() if n_live else None
-    ar = gated.mean() * 252
-    av = gated.std() * np.sqrt(252)
-    sr = ar / av if av > 0 else 0
-    cum = (1 + gated).cumprod()
-    mdd = (cum / cum.cummax() - 1).min()
-    print(f"\nZEPHYR (with proxies) from {dates[0].date()} to {dates[-1].date()}")
-    print(f"  n_total={n_total}, n_proxy={n_proxy} ({n_proxy/n_total*100:.0f}%), "
-          f"n_live={n_live} ({n_live/n_total*100:.0f}%)")
-    if live_start is not None:
-        print(f"  live segment starts: {live_start.date()}")
-    print(f"  Sharpe={sr:.2f}  Ret={ar*100:.2f}%  Vol={av*100:.2f}%  MDD={mdd*100:.1f}%")
-    print(f"  NAV multiple: {cum.iloc[-1]:.3f}x")
+    for label, mask in [("full", slice(None)),
+                        ("tier1 live", out["tier"] == 1),
+                        ("tier2 near-proxy", out["tier"] == 2),
+                        ("tier3 early-proxy", out["tier"] == 3)]:
+        r = gated.loc[out.index[mask] if not isinstance(mask, slice) else out.index]
+        if len(r) < 2: continue
+        ar = r.mean() * 252
+        av = r.std() * np.sqrt(252)
+        sr = ar / av if av > 0 else 0
+        cum = (1 + r).cumprod()
+        mdd = (cum / cum.cummax() - 1).min()
+        d1, d2 = r.index[0].date(), r.index[-1].date()
+        print(f"  {label:20s} {d1}..{d2} ({len(r)/252:.1f}y): "
+              f"SR={sr:.2f} Ret={ar*100:.2f}% Vol={av*100:.2f}% MDD={mdd*100:.1f}%")
 
 
 if __name__ == "__main__":
