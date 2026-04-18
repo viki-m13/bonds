@@ -1,9 +1,15 @@
-"""NOVA — max-growth strategy. Unified cross-sectional momentum on 3x
-leveraged ETFs + BTC + ETH, weekly rebalanced, with per-name cap and
-asset-class regime gates.
+"""NOVA — max-growth strategy. Unified cross-sectional momentum on a broad
+bull-leveraged-ETF universe + BTC + ETH, weekly rebalanced, with per-name
+cap and asset-class regime gates.
 
-Config (picked from alt/nova_grid2.py):
-  - Universe: TQQQ, UPRO, SOXL, TECL, FAS, TMF, UGL, BTC_USD, ETH_USD
+Config (picked from alt/nova_grid2.py, validated on nova_grid3.py):
+  - Universe: 18 bull-leveraged ETFs + BTC_USD + ETH_USD (20 total)
+    - Broad index:      TQQQ UPRO QLD SSO
+    - Sector:           SOXL TECL FAS LABU ERX DRN NUGT
+    - Country/region:   EDC YINN
+    - Commodity:        UGL UCO
+    - Rates:            TMF TYD UBT
+    - Crypto:           BTC_USD ETH_USD
   - Signal:  10-day momentum, top-3 positive, equal-weight
   - Cap:     33% per name (prevents any single asset from dominating)
   - Gates:   SPY>200dma AND VIX<30 on the equity leg
@@ -12,9 +18,7 @@ Config (picked from alt/nova_grid2.py):
   - TC:      15bps round-trip
 
 Full-window result (2014-09 → 2026-04, 11.5y):
-  Return  ~62%    Vol  ~37%    Sharpe  ~1.67    MDD  ~-32%
-
-Average book:   crypto  ~15%  equity  ~51%  cash  ~34%.
+  Return  ~67%    Vol  ~42%    Sharpe  ~1.59    MDD  ~-35%    NAV  832x
 
 Output: data/results/nova_returns.csv
   columns: Close, Crypto, Equity, Cash, SPY, AGG
@@ -28,7 +32,13 @@ ETF = ROOT / "data/etfs"
 FRED = ROOT / "data/fred"
 RESULTS = ROOT / "data/results"
 
-EQUITY = ["TQQQ", "UPRO", "SOXL", "TECL", "FAS", "TMF", "UGL"]
+EQUITY = [
+    # Original 7 (v1 universe)
+    "TQQQ", "UPRO", "SOXL", "TECL", "FAS", "TMF", "UGL",
+    # Expanded bull-leveraged set (v2 universe)
+    "LABU", "EDC", "YINN", "ERX", "NUGT", "DRN", "UCO", "TYD",
+    "QLD", "SSO", "UBT",
+]
 CRYPTO = ["BTC_USD", "ETH_USD"]
 
 LOOKBACK = 10
