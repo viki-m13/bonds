@@ -1,9 +1,10 @@
 """Patch aurora_factsheet_data.json and blend_factsheet_data.json with
-proxy-extended equity curves + period-split metrics.
+proxy-extended equity curves (strategy + SPY + AGG benchmarks) and
+period-split metrics.
 
-For each strategy we add:
-  proxy_equity_curve: [{date,value,source}] — normalized so NAV=10000 at start
-  proxy_metrics:      {full: {...}, live: {...}, proxy_only: {...}}
+New fields added to each factsheet JSON:
+  proxy_equity_curve: [{date,value,spy,agg,source,tier}] — weekly samples
+  proxy_metrics:      {full, live, tier2, tier3, spy_full, agg_full}
   proxy_inception:    date string of first 'live' row
 """
 import json
@@ -37,60 +38,79 @@ def metrics(r):
 
 
 def build_equity_curve(df):
-    """Downsample to weekly, normalize to NAV=10000. Keep source label."""
+    """Weekly sample, normalized so NAV=10000 at start. Carry SPY+AGG+tier."""
     r = df["Close"]
+    r_spy = df["SPY"]
+    r_agg = df["AGG"]
     src = df["source"]
+    tier = df["tier"] if "tier" in df.columns else pd.Series(1, index=df.index)
     cum = (1 + r).cumprod() * 10000
-    # Sample weekly (Friday) to keep payload light
+    cum_spy = (1 + r_spy).cumprod() * 10000
+    cum_agg = (1 + r_agg).cumprod() * 10000
     idx = cum.resample("W-FRI").last().dropna().index
-    cum_w = cum.reindex(idx).dropna()
-    src_w = src.reindex(idx).ffill()
-    return [{"date": d.strftime("%Y-%m-%d"),
-             "value": round(float(cum_w.loc[d]), 2),
-             "source": str(src_w.loc[d])}
-            for d in cum_w.index]
+    return [{
+        "date": d.strftime("%Y-%m-%d"),
+        "value": round(float(cum.reindex(idx).loc[d]), 2),
+        "spy":   round(float(cum_spy.reindex(idx).loc[d]), 2),
+        "agg":   round(float(cum_agg.reindex(idx).loc[d]), 2),
+        "source": str(src.reindex(idx).ffill().loc[d]),
+        "tier":   int(tier.reindex(idx).ffill().loc[d]),
+    } for d in idx]
 
 
-def patch(returns_csv, factsheet_json, name):
+def patch(returns_csv, factsheet_json, name, tier_labels):
     df = pd.read_csv(RESULTS / returns_csv, parse_dates=["Date"]).set_index("Date")
     r = df["Close"]
-    src = df["source"]
-    live_mask = (src == "live")
+    tier = df["tier"] if "tier" in df.columns else pd.Series(1, index=df.index)
+    live_mask = (tier == 1)
+    tier2_mask = (tier == 2)
+    tier3_mask = (tier == 3)
     live_start = df.index[live_mask].min() if live_mask.any() else None
+
+    def period(mask):
+        if not mask.any():
+            return {"period": "", **metrics(pd.Series([], dtype=float))}
+        sub = df.index[mask]
+        return {"period": f"{sub.min().date()} — {sub.max().date()}",
+                **metrics(r[mask])}
 
     out = {
         "proxy_equity_curve": build_equity_curve(df),
         "proxy_inception": live_start.strftime("%Y-%m-%d") if live_start is not None else None,
         "proxy_metrics": {
-            "full":       {**metrics(r), "period": f"{df.index[0].date()} — {df.index[-1].date()}"},
-            "live":       {**metrics(r[live_mask]),
-                           "period": f"{live_start.date()} — {df.index[-1].date()}" if live_start is not None else ""},
-            "proxy_only": {**metrics(r[~live_mask]),
-                           "period": f"{df.index[0].date()} — {(live_start - pd.Timedelta(days=1)).date()}" if live_start is not None else ""},
+            "full":  {"period": f"{df.index[0].date()} — {df.index[-1].date()}", **metrics(r)},
+            "live":  period(live_mask),
+            "tier2": period(tier2_mask),
+            "tier3": period(tier3_mask),
+            "spy_full": {"period": f"{df.index[0].date()} — {df.index[-1].date()}", **metrics(df["SPY"])},
+            "agg_full": {"period": f"{df.index[0].date()} — {df.index[-1].date()}", **metrics(df["AGG"])},
         },
+        "proxy_tier_labels": tier_labels,
     }
 
     fs_path = RESULTS / factsheet_json
     fs = json.loads(fs_path.read_text())
     fs.update(out)
     fs_path.write_text(json.dumps(fs, separators=(",", ":")))
-    print(f"{name}: patched {fs_path.name}")
-    print(f"  full:       SR {out['proxy_metrics']['full']['sharpe']}  "
-          f"Ret {out['proxy_metrics']['full']['ann_return']}%  "
-          f"MDD {out['proxy_metrics']['full']['max_dd']}%  "
-          f"({out['proxy_metrics']['full']['n_years']}y)")
-    print(f"  live:       SR {out['proxy_metrics']['live']['sharpe']}  "
-          f"Ret {out['proxy_metrics']['live']['ann_return']}%  "
-          f"MDD {out['proxy_metrics']['live']['max_dd']}%  "
-          f"({out['proxy_metrics']['live']['n_years']}y)")
-    print(f"  proxy only: SR {out['proxy_metrics']['proxy_only']['sharpe']}  "
-          f"Ret {out['proxy_metrics']['proxy_only']['ann_return']}%  "
-          f"MDD {out['proxy_metrics']['proxy_only']['max_dd']}%  "
-          f"({out['proxy_metrics']['proxy_only']['n_years']}y)")
-    print(f"  curve points: {len(out['proxy_equity_curve'])}")
+    print(f"{name}: patched {fs_path.name}  ({len(out['proxy_equity_curve'])} weekly pts)")
+    for key in ["full", "live", "tier2", "tier3", "spy_full", "agg_full"]:
+        m = out["proxy_metrics"][key]
+        print(f"  {key:10s} {m.get('period',''):28s}  "
+              f"SR {m.get('sharpe',0):>5}  Ret {m.get('ann_return',0):>6}%  "
+              f"MDD {m.get('max_dd',0):>6}%  ({m.get('n_years',0)}y)")
 
 
 if __name__ == "__main__":
-    patch("zephyr_proxy_returns.csv", "blend_factsheet_data.json", "ZEPHYR")
+    ZEPHYR_TIERS = {
+        "1": "Live (all real ETFs)",
+        "2": "Near-proxy (JAAA→FLOT+BKLN, JPST→MINT)",
+        "3": "Early-proxy (credit sleeves→SHY)",
+    }
+    AURORA_TIERS = {
+        "1": "Live (all real ETFs)",
+        "2": "Mid-proxy (XYLD/QYLD/SCHD + synthetic trend)",
+        "3": "Early-proxy (SPY-3%/yr + synthetic 3x underliers)",
+    }
+    patch("zephyr_proxy_returns.csv", "blend_factsheet_data.json", "ZEPHYR", ZEPHYR_TIERS)
     print()
-    patch("aurora_proxy_returns.csv", "aurora_factsheet_data.json", "AURORA")
+    patch("aurora_proxy_returns.csv", "aurora_factsheet_data.json", "AURORA", AURORA_TIERS)
