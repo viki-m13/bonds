@@ -93,7 +93,18 @@ tr:hover{background:var(--card2)}
   .pos-head .name{font-size:0.75rem}
   .pos-buys{font-size:0.68rem}
   .g2,.g3{gap:6px}
+  /* Proxy chart gets extra height on mobile to fit the longer legend (up to 7 series) */
+  #proxyEqChart{}
+  .proxy-chart-wrap{height:320px}
+  /* Proxy metrics table: cramp-friendly layout */
+  #proxyMetricsTable{font-size:0.62rem}
+  #proxyMetricsTable th,#proxyMetricsTable td{padding:3px 3px;white-space:nowrap}
+  #proxyMetricsTable td:first-child,
+  #proxyMetricsTable th:first-child{white-space:normal;max-width:120px}
 }
+/* Keep the Span (date range) column on a single line at all viewports */
+#proxyMetricsTable td:nth-child(2),
+#proxyMetricsTable th:nth-child(2){white-space:nowrap}
 </style>
 </head>
 <body>
@@ -218,7 +229,7 @@ Your actual entry price is T's open, not T-1's close. The difference is the <str
 <p style="margin-top:8px"><strong style="color:var(--t1)">Honest caveats:</strong> The Tier 4 synthetic-leverage returns <em>overstate</em> real leveraged ETF returns in choppy markets because synthetic daily × leverage ignores the compounding drag that real 3x/2x funds experience (typically 1-3% per year in sideways tape). The 1%/yr haircut offsets part of this but not all; treat the pre-2015 curve as indicative. Tier&nbsp;2 is a reasonable reconstruction of the BTC-without-ETH period. The live-era numbers are what the strategy actually produced; tier&nbsp;4 is the optimistic-side bound, spy_full (same window) is the realistic comparison.</p>
 <p style="margin-top:8px"><strong style="color:var(--t1)">No-crypto variant (red dashed line):</strong> the same strategy run with <em>only</em> the 18 leveraged ETFs — no BTC, no ETH — against the identical 21-year window. This shows how much of NOVA's edge comes from crypto vs from leveraged-equity momentum alone. Over 2005-01 → 2026-04: SR&nbsp;1.41 / Ret&nbsp;55% / MDD&nbsp;-40% (vs with-crypto SR&nbsp;1.67 / Ret&nbsp;68% / MDD&nbsp;-44%). Crypto adds meaningful return in the bull phases (~12%/yr) but the strategy still clears SPY by 40%+ annually without it.</p>
 </div>
-<div class="card"><div class="chart-wrap"><canvas id="proxyEqChart"></canvas></div></div>
+<div class="card"><div class="chart-wrap proxy-chart-wrap" style="height:320px"><canvas id="proxyEqChart"></canvas></div></div>
 <div class="card" style="margin-top:10px;overflow-x:auto"><table id="proxyMetricsTable"></table></div>
 </div>
 
@@ -474,9 +485,9 @@ if (F.proxy_equity_curve && F.proxy_equity_curve.length) {
     {label:"SPY", data:spyData, borderColor:"#0d9e6d", borderWidth:1.3, borderDash:[4,2], pointRadius:0, fill:false},
     {label:"AGG", data:aggData, borderColor:"#7c3aed", borderWidth:1.3, borderDash:[4,2], pointRadius:0, fill:false},
   ]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:"#6b7280",font:{size:11}}}},
-    scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#8888a0",maxTicksLimit:12},grid:{color:"#e8e8ee"}},
-      y:{type:"logarithmic",ticks:{color:"#8888a0",callback:function(v){if([10000,100000,1000000,10000000,100000000,1000000000].includes(Math.round(v)))return"$"+v.toLocaleString();return null;},autoSkip:false,maxTicksLimit:8},grid:{color:"#e8e8ee"}}},
+    plugins:{legend:{labels:{color:"#6b7280",font:{size:window.innerWidth<500?9:11},boxWidth:window.innerWidth<500?18:30,padding:window.innerWidth<500?4:10}}},
+    scales:{x:{type:"time",time:{unit:"year"},ticks:{color:"#8888a0",maxTicksLimit:window.innerWidth<500?6:12},grid:{color:"#e8e8ee"}},
+      y:{type:"logarithmic",ticks:{color:"#8888a0",callback:function(v){const r=Math.round(v);const m={10000:"$10K",100000:"$100K",1000000:"$1M",10000000:"$10M",100000000:"$100M",1000000000:"$1B",10000000000:"$10B"};return m[r]||null;},autoSkip:false,maxTicksLimit:7},grid:{color:"#e8e8ee"}}},
     interaction:{mode:"index",intersect:false}}});
 
   const pm = F.proxy_metrics;
@@ -493,10 +504,12 @@ if (F.proxy_equity_curve && F.proxy_equity_curve.length) {
     ["SPY (same window)",                                 pm.spy_full, "#0d9e6d"],
     ["AGG (same window)",                                 pm.agg_full, "#7c3aed"],
   ];
+  // Compact the period string so mobile doesn't stack it across 3 lines.
+  const shortPeriod = p => (p||"").replace(/(\d{4})-(\d{2})-\d{2}\s*[—-]\s*(\d{4})-(\d{2})-\d{2}/, "$1-$2 → $3-$4");
   let pmH = `<thead><tr><th style="text-align:left">Period / Benchmark</th><th>Span</th><th>Years</th><th>Sharpe</th><th>Ann Return</th><th>Vol</th><th>Max DD</th><th>Sortino</th></tr></thead><tbody>`;
   rows.forEach(([label,d,color])=>{
     if (!d || !d.period) return;
-    pmH += `<tr><td style="text-align:left;color:${color};font-weight:700">${label}</td><td style="font-size:0.72rem;color:var(--t3)">${d.period||""}</td><td>${d.n_years||0}</td><td style="font-weight:700">${d.sharpe||0}</td><td class="${pos(d.ann_return||0)}">${fmtPct(d.ann_return||0)}</td><td>${d.ann_vol||0}%</td><td class="neg">${d.max_dd||0}%</td><td>${d.sortino||0}</td></tr>`;
+    pmH += `<tr><td style="text-align:left;color:${color};font-weight:700">${label}</td><td style="font-size:0.72rem;color:var(--t3)">${shortPeriod(d.period)}</td><td>${d.n_years||0}</td><td style="font-weight:700">${d.sharpe||0}</td><td class="${pos(d.ann_return||0)}">${fmtPct(d.ann_return||0)}</td><td>${d.ann_vol||0}%</td><td class="neg">${d.max_dd||0}%</td><td>${d.sortino||0}</td></tr>`;
   });
   pmH += "</tbody>";
   document.getElementById("proxyMetricsTable").innerHTML = pmH;
