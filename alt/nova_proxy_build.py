@@ -104,11 +104,11 @@ def btc_regime(dates, ma_len=200):
     return (b > b.rolling(ma_len).mean()).shift(1).fillna(False).astype(float)
 
 
-def build():
+def build(include_crypto=True, out_name="nova_proxy_returns.csv", label="NOVA proxy"):
     spy = load_etf("SPY")
     dates = spy.index  # 2005-01-03 onwards
-    print(f"NOVA proxy build: {dates[0].date()} .. {dates[-1].date()} "
-          f"({len(dates)/252:.1f}y)")
+    print(f"{label}: {dates[0].date()} .. {dates[-1].date()} "
+          f"({len(dates)/252:.1f}y)  include_crypto={include_crypto}")
 
     # Build return series for each equity name: real when live else synthetic
     rets_eq = {}
@@ -119,7 +119,6 @@ def build():
         real_m = avail(real, dates)
         synth_r_full = synthetic_lev(und, lev, dates)
         if synth_r_full is None:
-            # No underlier at all — only real ETF contributes
             rets_eq[name] = real_r
             avail_eq[name] = real_m
         else:
@@ -127,11 +126,9 @@ def build():
             rets_eq[name] = real_r.where(real_m, synth_r)
             avail_eq[name] = real_m | synth_m
 
-    # Reconstruct prices for momentum ranking
     rets_df = pd.DataFrame(rets_eq)
     avail_eq_df = pd.DataFrame(avail_eq)
 
-    # Crypto: real returns where live, else simply NaN (drop from ranking)
     btc = load_etf("BTC_USD")
     eth = load_etf("ETH_USD")
     btc_r = pct(btc, dates) if btc is not None else pd.Series(0.0, index=dates)
@@ -139,21 +136,24 @@ def build():
     btc_m = avail(btc, dates)
     eth_m = avail(eth, dates)
 
-    # Prices for ranking: use cum-product of returns (initial level arbitrary).
     prices_eq = (1 + rets_df).cumprod() * 100
-    # Before a name's own availability, set price to NaN so momentum can't see it
     for name in EQUITY:
         prices_eq[name] = prices_eq[name].where(avail_eq_df[name])
 
-    btc_px = (1 + btc_r.where(btc_m, 0)).cumprod() * 100
-    btc_px = btc_px.where(btc_m)
-    eth_px = (1 + eth_r.where(eth_m, 0)).cumprod() * 100
-    eth_px = eth_px.where(eth_m)
-
-    prices = pd.concat([prices_eq, btc_px.rename("BTC_USD"), eth_px.rename("ETH_USD")], axis=1)
-    rets_all = pd.concat([rets_df,
-                          btc_r.where(btc_m, 0).rename("BTC_USD"),
-                          eth_r.where(eth_m, 0).rename("ETH_USD")], axis=1)
+    if include_crypto:
+        btc_px = (1 + btc_r.where(btc_m, 0)).cumprod() * 100
+        btc_px = btc_px.where(btc_m)
+        eth_px = (1 + eth_r.where(eth_m, 0)).cumprod() * 100
+        eth_px = eth_px.where(eth_m)
+        prices = pd.concat([prices_eq, btc_px.rename("BTC_USD"), eth_px.rename("ETH_USD")], axis=1)
+        rets_all = pd.concat([rets_df,
+                              btc_r.where(btc_m, 0).rename("BTC_USD"),
+                              eth_r.where(eth_m, 0).rename("ETH_USD")], axis=1)
+        universe = EQUITY + CRYPTO
+    else:
+        prices = prices_eq.copy()
+        rets_all = rets_df.copy()
+        universe = list(EQUITY)
 
     bil = load_etf("BIL")
     shy = load_etf("SHY")
@@ -163,17 +163,17 @@ def build():
     cash = bil_r.where(avail(bil, dates), shy_r)
 
     reg_eq = spy_regime(dates)
-    reg_bt = btc_regime(dates)
+    reg_bt = btc_regime(dates) if include_crypto else pd.Series(0.0, index=dates)
 
-    current = pd.Series(0.0, index=UNIVERSE)
+    current = pd.Series(0.0, index=universe)
     port = pd.Series(0.0, index=dates)
     w_crypto = pd.Series(0.0, index=dates)
     w_equity = pd.Series(0.0, index=dates)
     last_idx = -REBAL
+    crypto_names = CRYPTO if include_crypto else []
 
     for i in range(len(dates)):
         if i >= LOOKBACK and i - last_idx >= REBAL:
-            # Only names that are live TODAY and were live LOOKBACK days ago
             live_now = prices.iloc[i].notna()
             live_then = prices.iloc[i - LOOKBACK].notna()
             live = live_now & live_then
@@ -181,7 +181,7 @@ def build():
             ranked = momo.dropna().sort_values(ascending=False)
             positive = [t for t in ranked.index if momo[t] > 0]
             top = positive[:TOP_N]
-            new = pd.Series(0.0, index=UNIVERSE)
+            new = pd.Series(0.0, index=universe)
             if top:
                 w = 1.0 / len(top)
                 for t in top:
@@ -195,21 +195,27 @@ def build():
         geq = reg_eq.iloc[i]
         gbt = reg_bt.iloc[i]
         off_eq = sum(current[t] for t in EQUITY) * (1 - geq)
-        off_bt = sum(current[t] for t in CRYPTO) * (1 - gbt)
+        off_bt = sum(current[t] for t in crypto_names) * (1 - gbt)
         for t in EQUITY: eff[t] = current[t] * geq
-        for t in CRYPTO: eff[t] = current[t] * gbt
+        for t in crypto_names: eff[t] = current[t] * gbt
         r = (rets_all.iloc[i] * eff).sum() + (off_eq + off_bt) * cash.iloc[i]
         port.iloc[i] += r
-        w_crypto.iloc[i] = sum(eff[t] for t in CRYPTO)
+        w_crypto.iloc[i] = sum(eff[t] for t in crypto_names)
         w_equity.iloc[i] = sum(eff[t] for t in EQUITY)
 
     # Tier assignment
     all_eq_real = pd.DataFrame({t: avail(load_etf(t), dates) for t in EQUITY}).all(axis=1)
-    tier = pd.Series(4, index=dates, dtype=int)
-    tier[all_eq_real] = 3                       # all equity real, no crypto
-    tier[all_eq_real & btc_m] = 2               # add BTC
-    tier[all_eq_real & btc_m & eth_m] = 1       # add ETH (live)
-    source = np.where(tier == 1, "live", "proxy")
+    if include_crypto:
+        tier = pd.Series(4, index=dates, dtype=int)
+        tier[all_eq_real] = 3
+        tier[all_eq_real & btc_m] = 2
+        tier[all_eq_real & btc_m & eth_m] = 1
+        source = np.where(tier == 1, "live", "proxy")
+    else:
+        # Only two tiers without crypto: synth-leverage vs all-real
+        tier = pd.Series(4, index=dates, dtype=int)
+        tier[all_eq_real] = 1
+        source = np.where(tier == 1, "live", "proxy")
 
     # Benchmarks
     r_spy = pct(spy, dates)
@@ -224,13 +230,18 @@ def build():
         "tier": tier.values,
     })
     out.index.name = "Date"
-    out.to_csv(RESULTS / "nova_proxy_returns.csv")
+    out.to_csv(RESULTS / out_name)
 
-    for label, mask in [("full",              slice(None)),
-                        ("t1 live",           out["tier"] == 1),
-                        ("t2 btc-only",       out["tier"] == 2),
-                        ("t3 no-crypto",      out["tier"] == 3),
-                        ("t4 synth-lev",      out["tier"] == 4)]:
+    rows = [("full", slice(None))]
+    if include_crypto:
+        rows += [("t1 live", out["tier"] == 1),
+                 ("t2 btc-only", out["tier"] == 2),
+                 ("t3 no-crypto", out["tier"] == 3),
+                 ("t4 synth-lev", out["tier"] == 4)]
+    else:
+        rows += [("t1 all-real", out["tier"] == 1),
+                 ("t4 synth-lev", out["tier"] == 4)]
+    for lbl, mask in rows:
         sub = out.index[mask] if not isinstance(mask, slice) else out.index
         r = port.loc[sub]
         if len(r) < 2: continue
@@ -239,7 +250,7 @@ def build():
         cum = (1 + r).cumprod()
         mdd = (cum / cum.cummax() - 1).min()
         d1, d2 = r.index[0].date(), r.index[-1].date()
-        print(f"  {label:15s} {d1}..{d2} ({len(r)/252:.1f}y): "
+        print(f"  {lbl:15s} {d1}..{d2} ({len(r)/252:.1f}y): "
               f"SR={sr:.2f} Ret={ar*100:.2f}% Vol={av*100:.2f}% MDD={mdd*100:.1f}%")
 
     # Compare to SPY / AGG on same full window
@@ -254,4 +265,6 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    build(include_crypto=True,  out_name="nova_proxy_returns.csv",          label="NOVA proxy (with crypto)")
+    print()
+    build(include_crypto=False, out_name="nova_proxy_nocrypto_returns.csv", label="NOVA proxy (no crypto)")
