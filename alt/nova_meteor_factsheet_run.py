@@ -1,24 +1,42 @@
-"""Assemble full nova_factsheet_data.json — mirrors aurora_factsheet_run.py
-but with a single sleeve for the unified NOVA momentum strategy."""
+"""Assemble nova_factsheet_data.json for NOVA METEOR build.
+
+Mirrors alt/nova_factsheet_run.py but reads nova_meteor_returns.csv and
+nova_meteor_rebalances.csv and uses the METEOR descriptors:
+  - 120-day momentum, top-3, equal-weight (no cap bind)
+  - MONTHLY rebalance (21 trading days)
+  - PDOT (378-day HWM) + NAV-trend overlay throttle on 5.5x base leverage
+"""
 import json
 from pathlib import Path
 import numpy as np
 import pandas as pd
 
 from nova_factsheet import (
-    ROOT, ETF, RESULTS, UNIVERSE, ETF_META, CAP, FEE_ANNUAL,
+    ROOT, ETF, RESULTS, UNIVERSE, ETF_META, FEE_ANNUAL,
     load_etf, metrics, trailing,
 )
 
+# METEOR parameters (mirror alt/nova_meteor_build.py)
+LOOKBACK = 120
+TOP_N = 3
+CAP = 1.00
+REBAL_DAYS = 21
+OVERLAY_BASE = 5.5
+DD_FLOOR = 0.30
+NAV_WIN = 15
+PDOT_WIN = 378
+NAV_FLOOR_MULT = 0.40
+
 
 def main():
-    df = pd.read_csv(RESULTS / "nova_returns.csv",
+    df = pd.read_csv(RESULTS / "nova_meteor_returns.csv",
                      parse_dates=["Date"]).set_index("Date")
     ret = df["Close"]
-    rebals = pd.read_csv(RESULTS / "nova_rebalances.csv",
+    rebals = pd.read_csv(RESULTS / "nova_meteor_rebalances.csv",
                          parse_dates=["date"])
     w_crypto = df["Crypto"]
     w_equity = df["Equity"]
+    overlay_s = df["Overlay"]
 
     dates = ret.index
     cum = (1 + ret).cumprod()
@@ -30,18 +48,19 @@ def main():
     spy_r = spy.pct_change().fillna(0)
 
     fs = {
-        "fund_name": "NOVA — Max-Growth Momentum",
-        "strategy_type": "Cross-sectional momentum on leveraged ETFs + crypto",
+        "fund_name": "NOVA METEOR — Path-Dependent Leverage Momentum",
+        "strategy_type": ("Cross-sectional momentum on 18 leveraged ETFs + BTC/ETH "
+                          "with PDOT + NAV-trend dynamic overlay throttle"),
         "benchmark": "S&P 500 (SPY)",
         "inception_date": dates[0].strftime("%B %d, %Y"),
         "last_updated": dates[-1].strftime("%B %d, %Y"),
         "nav": round(nav, 4),
-        "rebalance": "Weekly (5-day) momentum rotation",
-        "positions_count": "Top-3 of 20 instruments, 33% cap each",
-        "universe_size": "20 instruments (18 leveraged ETFs + BTC + ETH)",
+        "rebalance": "Monthly (21-day) momentum rotation",
+        "positions_count": f"Top-{TOP_N} of {len(UNIVERSE)} instruments, equal-weight",
+        "universe_size": f"{len(UNIVERSE)} instruments (18 leveraged ETFs + BTC + ETH)",
     }
 
-    m_n = metrics(ret); m_n["name"] = "NOVA"
+    m_n = metrics(ret); m_n["name"] = "NOVA METEOR"
     m_a = metrics(agg_r); m_a["name"] = "AGG"
     m_s = metrics(spy_r); m_s["name"] = "SPY"
     fs["metrics"] = {"Blend": m_n, "AGG": m_a, "SPY": m_s}
@@ -186,14 +205,22 @@ def main():
         if len(p) == 0: return {"return": 0}
         return {"return": round(float(((1 + p).prod() - 1) * 100), 2)}
     historical_events = [
-        ("2015-16 Oil Crash", "2015-08-01", "2016-02-29", "Commodity collapse; SPY -13% peak-to-trough. BTC was rangebound; 3x equity ETFs churned."),
-        ("2017 Crypto Bull", "2017-01-01", "2017-12-31", "BTC 15x, ETH 90x. Momentum sleeve rotated heavily into crypto names."),
-        ("2018 Crypto Crash", "2018-01-15", "2018-12-31", "BTC -75% from peak. BTC-trend filter cut exposure early."),
-        ("2020 COVID Crash", "2020-02-15", "2020-04-30", "SPY -34% in 5 weeks; SPY-regime gate forces equity rotation to cash."),
-        ("2020 Recovery", "2020-05-01", "2020-12-31", "Post-crash, everything rallied — 3x tech and BTC both hit tops."),
-        ("2022 Bear Market", "2022-01-01", "2022-10-31", "Rate-shock killed both stocks and BTC. Regime gates cut exposure."),
-        ("2023 Tech Rally", "2023-01-01", "2023-12-31", "NDX +53%; TQQQ/TECL/SOXL dominated top-3 picks."),
-        ("2024-25 BTC ATH", "2024-01-01", "2024-12-31", "BTC $100k; crypto sleeve contributed materially."),
+        ("2015-16 Oil Crash", "2015-08-01", "2016-02-29",
+         "Commodity collapse; SPY -13% peak-to-trough. PDOT de-levers book; "
+         "NAV-trend throttles overlay to ~0."),
+        ("2018 Crypto Crash", "2018-01-15", "2018-12-31",
+         "BTC -75% from peak. BTC-trend gate + NAV-trend cut exposure early."),
+        ("2020 COVID Crash", "2020-02-15", "2020-04-30",
+         "SPY -34% in 5 weeks. NAV-trend retracts overlay in the first 20 days."),
+        ("2020 Recovery", "2020-05-01", "2020-12-31",
+         "Post-crash rally. Rolling 378d HWM resets; PDOT re-engages full overlay."),
+        ("2022 Bear Market", "2022-01-01", "2022-10-31",
+         "Rate shock killed stocks and BTC. Regime gates + PDOT + NAV-trend "
+         "deleverage simultaneously."),
+        ("2023 Tech Rally", "2023-01-01", "2023-12-31",
+         "NDX +53%; TQQQ/TECL/SOXL dominated top-3 picks. Full 5.5x overlay."),
+        ("2024-25 BTC ATH", "2024-01-01", "2024-12-31",
+         "BTC $100k; crypto sleeve contributed materially under full overlay."),
     ]
     hist = []
     for name, s, e, desc in historical_events:
@@ -209,30 +236,35 @@ def main():
     fs["stress_tests"] = {
         "historical": hist,
         "hypothetical": [
-            {"name": "SPY −30% drawdown (slow)", "description": "Regime gate (SPY<200dma or VIX>30) deleverages equity leg to cash.",
-             "basis": "Equity weight ~51% on average; gate typically cuts within 2 weeks.",
-             "estimated_impact": -12.0},
-            {"name": "BTC −60% crash", "description": "BTC-trend gate (>200dma) trips; crypto leg rotates to cash.",
-             "basis": "Avg crypto weight 15%; concentrated periods up to 66%. Trend filter caps downside.",
-             "estimated_impact": -10.0},
-            {"name": "VIX spike to 40 (fast selloff)", "description": "Weekly rebalance cadence can't react to a 1-day 5% equity shock.",
-             "basis": "3x ETFs compound losses intra-week; historical worst daily ~-7%.",
+            {"name": "SPY -30% drawdown (slow)",
+             "description": "Regime gate + PDOT + NAV-trend stack deleverage equity leg.",
+             "basis": "Average overlay drops below 1x within 20-40 days; book de-grosses.",
+             "estimated_impact": -18.0},
+            {"name": "BTC -60% crash",
+             "description": "BTC-trend gate trips; NAV-trend shrinks overlay multiplier.",
+             "basis": "Crypto weight capped at 2/3 of book; trend filter caps downside.",
              "estimated_impact": -15.0},
-            {"name": "Tech rally (NDX +20% in month)", "description": "Momentum sleeve captures via TQQQ/SOXL/TECL; typical beta to NDX ~1.5-2x.",
-             "basis": "Top-3 often holds 2 tech names in bull regimes.",
-             "estimated_impact": 25.0},
-            {"name": "Crypto rally (BTC +50% in month)", "description": "BTC enters top-3; max 33% weight.",
-             "basis": "33% × 50% = ~16.5% portfolio contribution.",
-             "estimated_impact": 16.0},
+            {"name": "VIX spike to 40 (fast selloff)",
+             "description": "Monthly rebalance + NAV-trend react within 15 trading days.",
+             "basis": "5.5x overlay × 3x ETFs compounds losses intra-month.",
+             "estimated_impact": -28.0},
+            {"name": "Tech rally (NDX +20% in month)",
+             "description": "Momentum sleeve captures via TQQQ/SOXL/TECL at full 5.5x overlay.",
+             "basis": "Top-3 often holds 2-3 tech names; levered beta to NDX ~7-9x.",
+             "estimated_impact": 60.0},
+            {"name": "Crypto rally (BTC +50% in month)",
+             "description": "BTC enters top-3; max 33% weight × 5.5x overlay.",
+             "basis": "33% × 50% × 5.5 ≈ 90% portfolio contribution (pre-throttle).",
+             "estimated_impact": 65.0},
         ],
     }
 
     last_pick = rebals.iloc[-1] if len(rebals) else None
     current_picks = []
     if last_pick is not None:
-        picks = [p for p in [last_pick.get("pick_1"), last_pick.get("pick_2"), last_pick.get("pick_3")]
-                 if p and str(p) != "nan" and p != ""]
-        current_picks = picks
+        cols = [c for c in ["pick_1", "pick_2", "pick_3"] if c in last_pick.index]
+        picks = [last_pick.get(c) for c in cols]
+        current_picks = [p for p in picks if p and str(p) != "nan" and p != ""]
 
     latest_prices = {}
     for t in UNIVERSE:
@@ -240,21 +272,30 @@ def main():
         latest_prices[t] = round(float(p.iloc[-1]), 2) if p is not None and len(p) else 0.0
 
     PORT = 100000.0
+    current_overlay = float(overlay_s.iloc[-1])
 
-    # Single sleeve: unified momentum top-3
     positions_v11 = []
     momo_buys = []
     if current_picks:
         per = 1.0 / len(current_picks)
-        per_capped = min(per, CAP)
+        levered_per = per * current_overlay
         for t in current_picks:
             if latest_prices.get(t, 0) > 0:
-                momo_buys.append({"etf": t, "dollar": round(per_capped * PORT), "price": latest_prices[t]})
+                momo_buys.append({"etf": t, "dollar": round(levered_per * PORT),
+                                  "price": latest_prices[t]})
     positions_v11.append({
-        "display_name": "Weekly Momentum Top-3",
+        "display_name": f"METEOR Top-{TOP_N} Momentum",
         "stream": "momo",
-        "type": "Unified Momentum",
-        "description": "Every 5 trading days, rank the 20-instrument universe by 120-day return and hold the top-3 with positive momentum, equal-weight, capped at 33% per name. The 18 leveraged equity ETFs (TQQQ/UPRO/QLD/SSO/SOXL/TECL/FAS/LABU/ERX/NUGT/DRN/EDC/YINN/UGL/UCO/TMF/TYD/UBT) are gated off to cash when SPY<200dma OR VIX>30. Crypto names (BTC/ETH) are gated off when BTC<200dma. Signal is lagged 1 bar: the momentum ranking uses closes through t-1 and is traded starting at bar t.",
+        "type": "PDOT-Throttled Momentum",
+        "description": (f"Every {REBAL_DAYS} trading days (monthly), rank the {len(UNIVERSE)}-"
+                        f"instrument universe by {LOOKBACK}-day return and hold the top-{TOP_N} "
+                        f"positive-momentum names equal-weight. The entire book is then "
+                        f"multiplied by overlay_t = {OVERLAY_BASE}x × PDOT × NAV-trend, where "
+                        f"PDOT de-levers linearly with strategy drawdown vs rolling {PDOT_WIN}d HWM "
+                        f"(dd_floor={DD_FLOOR}) and NAV-trend shrinks overlay when the "
+                        f"strategy's own {NAV_WIN}-day NAV return is negative. Overlay financed at "
+                        f"DGS3MO; equity leg gated by SPY>200dma & VIX<30, crypto leg by "
+                        f"BTC>200dma. Momentum signal lagged 1 bar."),
         "weight_pct": round(sum(b["dollar"] for b in momo_buys) / PORT * 100, 2) if momo_buys else 0,
         "buys": momo_buys,
     })
@@ -262,36 +303,39 @@ def main():
     net_etfs = momo_buys.copy()
 
     fs["allocations"] = {
-        "strategy_type": "Unified cross-sectional momentum — 20-instrument universe, top-3, 33% cap per name",
+        "strategy_type": ("PDOT + NAV-trend throttled cross-sectional momentum — "
+                          f"{len(UNIVERSE)}-instrument universe, top-{TOP_N}, "
+                          f"{OVERLAY_BASE}x base overlay"),
         "n_active": f"{len(positions_v11)} sleeve",
         "n_total": f"{len(UNIVERSE)} instruments in universe",
-        "rebalance_freq": "Weekly (5 trading days)",
-        "vol_target_stream": "None (cap-bound instead)",
-        "vol_target_portfolio": "None (cash residual when <3 names positive)",
+        "rebalance_freq": f"Monthly ({REBAL_DAYS} trading days)",
+        "vol_target_stream": "None (PDOT + NAV-trend on NAV path instead)",
+        "vol_target_portfolio": f"Base {OVERLAY_BASE}x × PDOT × NAV-trend",
         "data_as_of": dates[-1].strftime("%Y-%m-%d"),
         "latest_rebalance": last_pick["date"].strftime("%Y-%m-%d") if last_pick is not None else dates[-1].strftime("%Y-%m-%d"),
+        "current_overlay": round(current_overlay, 2),
         "positions_v11": positions_v11,
         "net_etf_exposure": net_etfs,
         "type_summary": {
-            "3x Leveraged": round(float(w_equity.mean() * 100), 2),
-            "Crypto": round(float(w_crypto.mean() * 100), 2),
-            "Cash (avg)": round(float((1 - w_crypto - w_equity).mean() * 100), 2),
+            "3x Leveraged (net)": round(float(w_equity.mean() * 100), 2),
+            "Crypto (net)": round(float(w_crypto.mean() * 100), 2),
+            "Avg Overlay Applied": round(float(overlay_s.loc[overlay_s > 0].mean()), 2),
         },
     }
 
     rebal_hist = []
     for i, row in rebals.iterrows():
-        picks = [p for p in [row.get("pick_1"), row.get("pick_2"), row.get("pick_3")]
+        cols = [c for c in ["pick_1", "pick_2", "pick_3"] if c in row.index]
+        picks = [p for p in [row.get(c) for c in cols]
                  if p and str(p) != "nan" and p != ""]
         if not picks: continue
         per = 1.0 / len(picks)
-        per_capped = min(per, CAP)
-        positions = [{"name": f"Momo {t}", "weight": round(per_capped * 100, 2)} for t in picks]
+        positions = [{"name": f"Momo {t}", "weight": round(per * 100, 2)} for t in picks]
         rebal_hist.append({
             "date": row["date"].strftime("%Y-%m-%d"),
             "positions": positions,
             "n_candidates": len(UNIVERSE),
-            "days_since_prev": 5 if i > 0 else None,
+            "days_since_prev": REBAL_DAYS if i > 0 else None,
         })
     for i in range(1, len(rebal_hist)):
         prev = {p["name"] for p in rebal_hist[i-1]["positions"]}
@@ -306,26 +350,28 @@ def main():
     fs["total_rebalances"] = len(rebal_hist)
     fs["last_rebalance"] = rebal_hist[-1]["date"] if rebal_hist else dates[-1].strftime("%Y-%m-%d")
     last = pd.Timestamp(rebal_hist[-1]["date"]) if rebal_hist else dates[-1]
-    fs["next_rebalance"] = (last + pd.Timedelta(days=7)).strftime("%Y-%m-%d")
+    fs["next_rebalance"] = (last + pd.Timedelta(days=30)).strftime("%Y-%m-%d")
 
     at = []
     rbq = rebals.copy()
     rbq["quarter"] = rbq["date"].dt.to_period("Q")
     for q, grp in rbq.groupby("quarter"):
         row = grp.iloc[0]
-        picks = [p for p in [row.get("pick_1"), row.get("pick_2"), row.get("pick_3")]
+        cols = [c for c in ["pick_1", "pick_2", "pick_3"] if c in row.index]
+        picks = [p for p in [row.get(c) for c in cols]
                  if p and str(p) != "nan" and p != ""]
         entry = {"date": row["date"].strftime("%Y-%m-%d")}
         if picks:
             per = 1.0 / len(picks)
-            per_capped = min(per, CAP)
             for t in picks:
-                entry[f"Momo {t}"] = round(per_capped * 100, 2)
+                entry[f"Momo {t}"] = round(per * 100, 2)
         at.append(entry)
     fs["alloc_timeline"] = at
 
     fs["stream_labels"] = {
-        "momo": {"name": "Weekly Momentum Top-3", "desc": "Top-3 of 20 (18 leveraged ETFs + BTC/ETH), weekly rebal, 33% cap"},
+        "momo": {"name": f"METEOR Monthly Momentum Top-{TOP_N}",
+                 "desc": f"Top-{TOP_N} of {len(UNIVERSE)} ({LOOKBACK}d momentum, monthly rebal, "
+                         f"{OVERLAY_BASE}x overlay throttled by PDOT + NAV-trend)"},
     }
 
     by_type = {}
@@ -348,11 +394,20 @@ def main():
     fs["universe"] = uni
     fs["universe_total_available"] = sum(1 for t in UNIVERSE if latest_prices.get(t, 0) > 0)
 
-    fs["scaling_note"] = ("NOVA uses no portfolio-level volatility scaling. The single sleeve rotates "
-                          "its 3 holdings every 5 trading days based on 120-day return (signal lagged "
-                          "1 bar to avoid look-ahead). Each name is capped at 33% so crypto cannot "
-                          "dominate the book. Equity names gate off to BIL when SPY<200dma or VIX>30; "
-                          "crypto names gate off when BTC<200dma.")
+    fs["scaling_note"] = (
+        f"NOVA METEOR uses DYNAMIC PORTFOLIO-LEVEL OVERLAY SCALING. A base overlay of "
+        f"{OVERLAY_BASE}x is multiplied by two path-dependent throttles: "
+        f"(A) PDOT = max(0, 1 + DD_t / {DD_FLOOR}) where DD_t is drawdown vs the "
+        f"rolling {PDOT_WIN}-day HWM — fully levered at DD=0, fully de-levered at "
+        f"DD=-{DD_FLOOR:.0%}. (B) NAV-trend shrinks overlay linearly from 1 to 0 "
+        f"when the strategy's own {NAV_WIN}-day NAV return is negative "
+        f"(floor -{DD_FLOOR*NAV_FLOOR_MULT:.0%}), snaps back to 1 as soon as NAV turns positive. "
+        f"Combined effect: the mean applied overlay is ~0.6x (base {OVERLAY_BASE}x) — METEOR "
+        f"only engages full leverage when both NAV is at a recent HWM AND "
+        f"short-horizon momentum is positive. Name selection is still the "
+        f"corrected {LOOKBACK}-day cross-sectional momentum, top-{TOP_N}, monthly "
+        f"rebalance; overlay is financed at DGS3MO."
+    )
 
     out_path = RESULTS / "nova_factsheet_data.json"
     with open(out_path, "w") as f:
@@ -361,6 +416,8 @@ def main():
     print(f"  Sharpe={m_n['sharpe']}  Ret={m_n['ann_return']}%  "
           f"Vol={m_n['ann_vol']}%  MDD={m_n['max_dd']}%")
     print(f"  {len(rebal_hist)} total rebalances, {len(at)} quarterly snapshots")
+    print(f"  current overlay = {current_overlay:.2f}x, "
+          f"mean applied overlay = {overlay_s.loc[overlay_s>0].mean():.2f}x")
 
 
 if __name__ == "__main__":

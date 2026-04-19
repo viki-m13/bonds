@@ -47,7 +47,7 @@ EQUITY = list(EQUITY_MAP.keys())
 CRYPTO = ["BTC_USD", "ETH_USD"]
 UNIVERSE = EQUITY + CRYPTO
 
-LOOKBACK = 10
+LOOKBACK = 120
 TOP_N = 3
 CAP = 0.33
 REBAL = 5
@@ -76,14 +76,22 @@ def avail(s, dates):
     return pd.Series(False if s is None else (s.index.min() <= dates), index=dates)
 
 
-def synthetic_lev(underlier, leverage, dates):
-    """Daily-return × leverage, minus 1%/yr expense ratio (approx real 3x ETF fee)."""
+def financing_cost(dates):
+    """Daily financing cost series from 3-month T-bill yield (FRED DGS3MO, in %/yr)."""
+    d = load_fred("DGS3MO").reindex(dates).ffill() / 100.0
+    return d.fillna(0) / 252.0
+
+
+def synthetic_lev(underlier, leverage, dates, fin):
+    """Daily-return × leverage, minus expense ratio AND financing cost on the
+    (leverage - 1) levered notional. Real 3x ETFs pay ~0.95%/yr management fee
+    plus (lev-1) * short-rate swap financing."""
     s = load_etf(underlier)
     if s is None: return None
     r = pct(s, dates)
-    # Only valid once underlier is live
     m = avail(s, dates)
-    synth = leverage * r - (0.01 / 252)
+    expense = 0.0095 / 252  # ~95bp/yr management fee for typical 3x ETF
+    synth = leverage * r - expense - (leverage - 1) * fin
     return synth.where(m, 0.0), m
 
 
@@ -110,6 +118,8 @@ def build(include_crypto=True, out_name="nova_proxy_returns.csv", label="NOVA pr
     print(f"{label}: {dates[0].date()} .. {dates[-1].date()} "
           f"({len(dates)/252:.1f}y)  include_crypto={include_crypto}")
 
+    fin = financing_cost(dates)
+
     # Build return series for each equity name: real when live else synthetic
     rets_eq = {}
     avail_eq = {}  # "does this name have *any* valid return series today?"
@@ -117,7 +127,7 @@ def build(include_crypto=True, out_name="nova_proxy_returns.csv", label="NOVA pr
         real = load_etf(name)
         real_r = pct(real, dates) if real is not None else pd.Series(0.0, index=dates)
         real_m = avail(real, dates)
-        synth_r_full = synthetic_lev(und, lev, dates)
+        synth_r_full = synthetic_lev(und, lev, dates, fin)
         if synth_r_full is None:
             rets_eq[name] = real_r
             avail_eq[name] = real_m
@@ -173,11 +183,12 @@ def build(include_crypto=True, out_name="nova_proxy_returns.csv", label="NOVA pr
     crypto_names = CRYPTO if include_crypto else []
 
     for i in range(len(dates)):
-        if i >= LOOKBACK and i - last_idx >= REBAL:
-            live_now = prices.iloc[i].notna()
-            live_then = prices.iloc[i - LOOKBACK].notna()
+        if i > LOOKBACK and i - last_idx >= REBAL:
+            # Signal uses yesterday's close (one-bar lag) to avoid look-ahead.
+            live_now = prices.iloc[i - 1].notna()
+            live_then = prices.iloc[i - 1 - LOOKBACK].notna()
             live = live_now & live_then
-            momo = (prices.iloc[i] / prices.iloc[i - LOOKBACK] - 1).where(live)
+            momo = (prices.iloc[i - 1] / prices.iloc[i - 1 - LOOKBACK] - 1).where(live)
             ranked = momo.dropna().sort_values(ascending=False)
             positive = [t for t in ranked.index if momo[t] > 0]
             top = positive[:TOP_N]
