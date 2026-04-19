@@ -62,8 +62,9 @@ def top_n_momo(universe, lookback, top_n, dates, rebal_days=5, regime=None,
     last_idx = -rebal_days
     avail = prices.notna().all(axis=1)
     for i in range(len(dates)):
-        if avail.iloc[i] and i >= lookback and i - last_idx >= rebal_days:
-            momo = prices.iloc[i] / prices.iloc[i - lookback] - 1
+        if i > lookback and avail.iloc[i - 1] and i - last_idx >= rebal_days:
+            # Lag signal by 1 bar: trade today using info known at close[i-1].
+            momo = prices.iloc[i - 1] / prices.iloc[i - 1 - lookback] - 1
             ranked = momo.dropna().sort_values(ascending=False)
             positive = [t for t in ranked.index if momo[t] > 0]
             top = positive[:top_n]

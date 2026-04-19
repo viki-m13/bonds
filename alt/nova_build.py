@@ -1,8 +1,8 @@
-"""NOVA — max-growth strategy. Unified cross-sectional momentum on a broad
-bull-leveraged-ETF universe + BTC + ETH, weekly rebalanced, with per-name
-cap and asset-class regime gates.
+"""NOVA — cross-sectional momentum on a bull-leveraged-ETF + crypto universe,
+weekly rebalanced, with per-name cap and asset-class regime gates.
 
-Config (picked from alt/nova_grid2.py, validated on nova_grid3.py):
+Config (picked from alt/nova_grid3.py IS grid 2014-09 → 2019-12,
+evaluated OOS 2020-01 → present):
   - Universe: 18 bull-leveraged ETFs + BTC_USD + ETH_USD (20 total)
     - Broad index:      TQQQ UPRO QLD SSO
     - Sector:           SOXL TECL FAS LABU ERX DRN NUGT
@@ -10,15 +10,16 @@ Config (picked from alt/nova_grid2.py, validated on nova_grid3.py):
     - Commodity:        UGL UCO
     - Rates:            TMF TYD UBT
     - Crypto:           BTC_USD ETH_USD
-  - Signal:  10-day momentum, top-3 positive, equal-weight
-  - Cap:     33% per name (prevents any single asset from dominating)
+  - Signal:  120-day momentum lagged 1 bar, top-3 positive, equal-weight
+  - Cap:     33% per name
   - Gates:   SPY>200dma AND VIX<30 on the equity leg
              BTC>200dma on the crypto leg
   - Rebal:   weekly (5 trading days)
   - TC:      15bps round-trip
 
-Full-window result (2014-09 → 2026-04, 11.5y):
-  Return  ~67%    Vol  ~42%    Sharpe  ~1.59    MDD  ~-35%    NAV  832x
+IMPORTANT: the earlier build used `prices.iloc[i]` both for the momentum signal
+and as the denominator of same-bar returns -- one-bar look-ahead that
+mechanically biased results. Signal is now lagged by one bar.
 
 Output: data/results/nova_returns.csv
   columns: Close, Crypto, Equity, Cash, SPY, AGG
@@ -41,7 +42,7 @@ EQUITY = [
 ]
 CRYPTO = ["BTC_USD", "ETH_USD"]
 
-LOOKBACK = 10
+LOOKBACK = 120
 TOP_N = 3
 CAP = 0.33
 BTC_MA = 200
@@ -100,9 +101,11 @@ def build():
     rebal_rows = []
 
     for i in range(len(dates)):
-        if i >= LOOKBACK and i - last_idx >= REBAL:
-            live = avail.iloc[i]
-            momo = (prices.iloc[i] / prices.iloc[i - LOOKBACK] - 1).where(live)
+        if i > LOOKBACK and i - last_idx >= REBAL:
+            # Signal uses yesterday's close (last observable at trade time);
+            # weights take effect on today's bar earning rets.iloc[i].
+            live = avail.iloc[i - 1]
+            momo = (prices.iloc[i - 1] / prices.iloc[i - 1 - LOOKBACK] - 1).where(live)
             ranked = momo.dropna().sort_values(ascending=False)
             positive = [t for t in ranked.index if momo[t] > 0]
             top = positive[:TOP_N]

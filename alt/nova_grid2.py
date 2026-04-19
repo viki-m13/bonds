@@ -63,9 +63,10 @@ def run(lookback, top_n, cap, btc_ma, dates, tc_bps=15.0):
     port = pd.Series(0.0, index=dates)
     last_idx = -5
     for i in range(len(dates)):
-        if i >= lookback and i - last_idx >= 5:
-            live = avail.iloc[i]
-            momo = (prices.iloc[i] / prices.iloc[i - lookback] - 1).where(live)
+        if i > lookback and i - last_idx >= 5:
+            # Lag momentum by 1 bar (avoid look-ahead).
+            live = avail.iloc[i - 1]
+            momo = (prices.iloc[i - 1] / prices.iloc[i - 1 - lookback] - 1).where(live)
             ranked = momo.dropna().sort_values(ascending=False)
             positive = [t for t in ranked.index if momo[t] > 0]
             top = positive[:top_n]

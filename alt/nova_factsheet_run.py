@@ -254,7 +254,7 @@ def main():
         "display_name": "Weekly Momentum Top-3",
         "stream": "momo",
         "type": "Unified Momentum",
-        "description": "Every 5 trading days, rank the 20-instrument universe by 10-day return and hold the top-3 with positive momentum, equal-weight, capped at 33% per name. The 18 leveraged equity ETFs (TQQQ/UPRO/QLD/SSO/SOXL/TECL/FAS/LABU/ERX/NUGT/DRN/EDC/YINN/UGL/UCO/TMF/TYD/UBT) are gated off to cash when SPY<200dma OR VIX>30. Crypto names (BTC/ETH) are gated off when BTC<200dma.",
+        "description": "Every 5 trading days, rank the 20-instrument universe by 120-day return and hold the top-3 with positive momentum, equal-weight, capped at 33% per name. The 18 leveraged equity ETFs (TQQQ/UPRO/QLD/SSO/SOXL/TECL/FAS/LABU/ERX/NUGT/DRN/EDC/YINN/UGL/UCO/TMF/TYD/UBT) are gated off to cash when SPY<200dma OR VIX>30. Crypto names (BTC/ETH) are gated off when BTC<200dma. Signal is lagged 1 bar: the momentum ranking uses closes through t-1 and is traded starting at bar t.",
         "weight_pct": round(sum(b["dollar"] for b in momo_buys) / PORT * 100, 2) if momo_buys else 0,
         "buys": momo_buys,
     })
@@ -349,9 +349,10 @@ def main():
     fs["universe_total_available"] = sum(1 for t in UNIVERSE if latest_prices.get(t, 0) > 0)
 
     fs["scaling_note"] = ("NOVA uses no portfolio-level volatility scaling. The single sleeve rotates "
-                          "its 3 holdings every 5 trading days based on 10-day return. Each name is "
-                          "capped at 33% so crypto cannot dominate the book. Equity names gate off "
-                          "to BIL when SPY<200dma or VIX>30; crypto names gate off when BTC<200dma.")
+                          "its 3 holdings every 5 trading days based on 120-day return (signal lagged "
+                          "1 bar to avoid look-ahead). Each name is capped at 33% so crypto cannot "
+                          "dominate the book. Equity names gate off to BIL when SPY<200dma or VIX>30; "
+                          "crypto names gate off when BTC<200dma.")
 
     out_path = RESULTS / "nova_factsheet_data.json"
     with open(out_path, "w") as f:
