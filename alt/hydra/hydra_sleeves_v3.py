@@ -153,24 +153,25 @@ def s7_gold_silver_regime(dates):
 
 # ==================== CURRENCY (2) ====================
 
-def s8_fx_carry(dates):
-    """DBV is a pure FX carry-factor ETF (long-short high-vs-low yielding G10).
-    Long DBV when DBV>200dma AND when carry is not unwinding (DBV 3m mom > 0)."""
-    dbv = load_etf("DBV")
+def s8_safe_haven_jpy(dates):
+    """Long FXY (Yen) as crisis safe-haven: activate when VIX 10d avg > 22
+    (elevated-vol regime). Yen rallies during equity risk-off episodes —
+    genuinely negative-beta payoff (2008, 2015, 2020). Cash otherwise."""
+    fxy = load_etf("FXY")
     bil = load_etf("BIL").reindex(dates).ffill()
-    if dbv is None: return pd.Series(0.0, index=dates).rename("s8_fx_carry")
-    d = dbv.reindex(dates).ffill()
-    ma = d.rolling(200).mean()
-    mom = (d / d.shift(63) - 1)
-    sig = ((d > ma) & (mom > 0)).shift(1).fillna(False).astype(float)
-    live = d.notna().astype(float)
-    sig = sig * live
-    w = pd.DataFrame({"DBV": sig, "BIL": 1 - sig})
+    vix = load_fred("VIXCLS")
+    if fxy is None or vix is None:
+        return pd.Series(0.0, index=dates).rename("s8_fxy_sh")
+    f = fxy.reindex(dates).ffill()
+    v = vix.reindex(dates).ffill().rolling(10).mean()
+    live = f.notna()
+    sig = ((v > 22) & live).shift(1).fillna(False).astype(float)
+    w = pd.DataFrame({"FXY": sig, "BIL": 1 - sig})
     w = rebal(w, monthly_mask(dates))
-    gross = w["DBV"] * d.pct_change().fillna(0) + w["BIL"] * bil.pct_change().fillna(0)
+    gross = w["FXY"] * f.pct_change().fillna(0) + w["BIL"] * bil.pct_change().fillna(0)
     net = apply_tc(w, gross, dates)
     r, _ = vol_target(net)
-    return r.rename("s8_fx_carry")
+    return r.rename("s8_fxy_sh")
 
 
 def s9_dollar_regime(dates):
@@ -605,7 +606,7 @@ SLEEVES = [
     s1_vol_contingent_spy, s2_sector_top3,
     s3_bond_duration, s4_credit_trend, s5_curve_carry,
     s6_commodity_trend, s7_gold_silver_regime,
-    s8_fx_carry, s9_dollar_regime,
+    s8_safe_haven_jpy, s9_dollar_regime,
     s10_vix_carry,
     s12_btc_trend,
     s13_cross_asset_ensemble,
@@ -613,4 +614,7 @@ SLEEVES = [
     s17_semi_trend,
     s18_spy_meanrev, s19_emerging_mkt,
     s20_inflation_hedge,
+    s22_energy_regime,
+    s24_em_bond_carry,
+    s27_risk_onoff_ls,
 ]
