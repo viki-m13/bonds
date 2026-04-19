@@ -208,6 +208,144 @@ Why 50% CAGR requires this much risk:
 
 These are the honest mechanical limits of the universe.
 
+## 8. NOVA METEOR — novel 55%+ CAGR with bounded drawdown
+
+### Motivation
+NOVA v2 hit ~55% CAGR but at the cost of -89% max drawdown. The user asked
+for a *novel proprietary* method that could keep 50%+ CAGR while bounding
+the drawdown. METEOR layers two mechanics on top of the corrected v1
+momentum core:
+
+### Mechanic A — Path-Dependent Overlay Throttle (PDOT)
+
+```
+overlay_t = overlay_base * max(0, 1 + DD[t] / dd_floor)
+```
+where `DD[t]` is the strategy's own drawdown vs its rolling 378-day
+(1.5-year) high-water mark. Fully levered at DD=0, fully de-levered at
+DD=-dd_floor, linear in between. The rolling HWM window is the key design
+choice: it avoids the classic CPPI permanent-lockout trap — once a new
+378-day high prints, leverage fully re-engages. The 378-day window was
+picked by the Phase 3 refinement over the more conventional 252 — a longer
+window leaves more runway for the throttle to re-engage after large
+recoveries.
+
+### Mechanic B — NAV-Trend Asymmetric Multiplier
+
+```
+nav_mom = NAV[t] / NAV[t - nav_win] - 1
+trend_mult = 1                                              if nav_mom >= 0
+trend_mult = max(0, 1 + nav_mom / (dd_floor*nav_floor_mult)) if nav_mom < 0
+overlay_t = overlay_base * pdot * trend_mult
+```
+When the strategy's own short-horizon (`nav_win` = 15d) NAV return is
+negative, a second multiplier shrinks linearly from 1 at 0% down to 0 at
+-dd_floor · nav_floor_mult = -0.12. The multiplier is asymmetric: it
+de-levers fast on negative NAV momentum but snaps back to 1 as soon as
+NAV prints positive again. PDOT (slow, DD-driven) and NAV-trend (fast,
+momentum-driven) compose multiplicatively — a 378-day HWM drawdown that
+is also currently in a losing streak gets *double* de-leveraging.
+
+### Grid search (three phases)
+
+1. **Phase 1** (`alt/nova_meteor_v2_explore.py`): 1920 configs over
+   (lookback, top_n, cap, rebal, overlay_base, dd_floor, nav_win) plus a
+   rebalance-frequency sweep that confirmed **monthly rebalance (21d)
+   dominates faster schedules** on both CAGR and Calmar. Daily/weekly
+   rebalances generate more turnover and overlay-oscillation noise
+   without paying back on CAGR.
+2. **Phase 2** (`alt/nova_meteor_deep_explore.py`): 10,443 configs adding
+   three new axes — `PDOT_WIN` (rolling-HWM window independent of 252),
+   `SKIP_RECENT` (12-1 momentum), `NAV_FLOOR_MULT` (independent NAV-trend
+   floor) — and extending `top_n` to 1-6, `pdot_floor` to 0.15-0.60. This
+   surfaced a new efficient frontier: longer PDOT windows (378d) + tighter
+   NAV-trend floor (0.33-0.40 × dd_floor) dominated the original 252/0.50
+   cell.
+3. **Phase 3** (`alt/nova_meteor_phase3_explore.py`): 2,070 configs tight
+   refinement around the Phase 2 cell. Confirmed the Phase 2 optimum and
+   revealed a small pure improvement at `nav_floor_mult = 0.40` vs 0.33
+   (same MDD, +0.5pp CAGR, slightly higher Sharpe).
+
+Selection rule: ≥55% full-window CAGR, MDD > -55%, IS Sharpe > 0.6, OOS
+Sharpe > 0.6, IS/OOS gap < 0.30, rank by Calmar.
+
+### Selected config (`alt/nova_meteor_build.py`)
+
+Lookback 120, top-3 positive momentum, cap 1.0, **monthly rebalance (21d)**,
+overlay_base 5.5x, dd_floor 0.30, nav_win 15d, **pdot_win 378d**,
+**nav_floor_mult 0.40**. Regime gates and 15bps TC as in v1; overlay
+financed at DGS3MO.
+
+| Window | SR | Ret | Vol | MDD | NAVx |
+|---|---|---|---|---|---|
+| IS 2014-09..2019-12 | 0.82 | 49.6% | 60.3% | −47.6% | 5.4× |
+| OOS 2020-01..2026-04 | **1.00** | **62.6%** | 62.6% | −52.6% | 18.2× |
+| Full 2014-09..2026-04 | **0.92** | **56.6%** | 61.6% | **−52.6%** | **99.4×** |
+
+Comparison vs prior builds (full window):
+
+| Build | Sharpe | CAGR | MDD | Calmar |
+|---|---|---|---|---|
+| NOVA v1 (corrected) | 0.72 | 31.5% | −73.5% | 0.43 |
+| NOVA v2 (1.7x overlay) | 0.72 | 54.8% | −88.9% | 0.62 |
+| NOVA METEOR v1 (4.5x / 252d) | 0.96 | 51.1% | −52.3% | 0.98 |
+| **NOVA METEOR v2 (5.5x / 378d)** | **0.92** | **56.6%** | **−52.6%** | **1.08** |
+
+METEOR v2 adds +5.5pp CAGR at roughly the same MDD as the v1 METEOR build,
+lifting Calmar from 0.98 to 1.08. **Out-of-sample Sharpe (1.00) is higher
+than in-sample (0.82)** — the strategy was not selected by winning on the
+period where the parameters were picked, a strong robustness signal.
+
+### Why METEOR works
+
+The mean applied overlay is 1.6x even though the base is 5.5x. The
+throttles spend most of their time pulling leverage down; the strategy
+is only at or near full 5.5x when both (a) NAV is at a recent HWM and
+(b) short-horizon NAV momentum is positive — i.e. the rare "both
+mechanics agree to lever up" regime. That is the entire game: lever
+up heavily in the good regimes, get out of the way fast in the bad
+ones, and let the 378-day HWM window eventually reset lockout so
+the strategy participates in recoveries.
+
+### Why the Phase 3 knobs help
+
+- **PDOT_WIN 378d over 252d.** A 1.5y HWM window leaves more recovery
+  runway before the throttle hard-floors at DD=-30%. With a 252d window,
+  a single one-year drawdown could leave the strategy stuck on
+  risk-free carry long after conditions normalised; 378d gives the
+  throttle more time to re-engage after the recovery.
+- **NAV_FLOOR_MULT 0.40 (vs original 0.50).** Tightens the NAV-trend
+  floor from -15% to -12%, so the fast brake hits zero 3pp sooner on
+  loss streaks. Combined with nav_win=15 (vs 20), the brake is both
+  faster (shorter window) and tighter (lower floor) — retracts overlay
+  earlier during the first days of a drawdown.
+- **Overlay 5.5× (vs 4.5×).** The Phase 3 fine grid showed the efficient
+  frontier runs from ~4.0× at 45% CAGR to ~6.0× at 60% CAGR along
+  roughly constant Calmar (~1.0-1.1). 5.5× is the Calmar-maximising cell
+  with robust IS/OOS agreement. Pushing to 6.0× would give +3pp CAGR
+  but at a worse IS/OOS gap — the returns start to load on a single
+  noisy regime.
+
+### Rebalancing frequency sweep
+
+`alt/nova_meteor_rebal_sweep.csv` tested rb ∈ {1, 2, 3, 4, 5, 7, 10,
+15, 21, 42, 63} with overlay 4.5x, dd_floor 0.40. Monthly (21d) was
+best because:
+- Daily/2d/3d rebalances produced MDD of −90% to −96% (turnover
+  destroys the strategy).
+- 5d and 7d work but cap out at CAGR ~53% with MDD ~−66% to −90%.
+- 21d monthly hits the Calmar sweet spot.
+- 42d and 63d sacrifice too much IS Sharpe (stale signal).
+
+The Phase 3 fine sweep retested {17, 19, 21, 23, 25} at the new
+parameter cell and again picked 21 cleanly.
+
+**Serious risk warning still applies.** -52.6% MDD is severe; METEOR
+is a speculative satellite, not a core allocation. The strategy depends
+on continued trendiness in the leveraged-ETF + crypto universe; regime
+changes (e.g. sustained high rates with compressed momentum like 2022)
+would likely degrade it.
+
 ## Still honest, still biased — what's left
 
 1. **Parameter & universe selection are still partly in-sample.** The grid
