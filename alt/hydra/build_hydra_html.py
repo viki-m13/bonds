@@ -90,6 +90,7 @@ OVERVIEW = """<!-- STRATEGY OVERVIEW -->
 <p style="margin-top:6px"><strong style="color:var(--t1)">Construction:</strong> Every sleeve uses 1-bar signal lag, 15 bps transaction cost on turnover, monthly sleeve rebalancing, daily inverse-vol weight updates, and rolling 63-day volatility scaling (5% floor, 1.5× scaling cap at the sleeve level). Walk-forward filter and regime overlays were tested and rejected — both hurt net performance (filter dropped sleeves at bottoms before recoveries; overlay was net-neutral).</p>
 <p style="margin-top:6px"><strong style="color:var(--t1)">Diversification math:</strong> With N=20, avg sleeve Sharpe ≈ 0.5, avg pairwise correlation ≈ 0.17, the equal-weight diversified Sharpe ceiling is ≈ 1.1. Inverse-vol weighting plus sleeve design (JPY safe-haven, dollar-neutral long-short, crisis hedges) lifts realised full-window Sharpe to <strong>1.58</strong> and OOS Sharpe to <strong>2.01</strong>.</p>
 <p style="margin-top:6px"><strong style="color:var(--t1)">Honest ceiling:</strong> After extensive iteration, full-window Sharpe ≈ 1.6 / OOS Sharpe ≈ 2.0 is the realistic upper bound for a 21-year backtest with honest construction. Hitting Sharpe 3 over 21 years requires hindsight-biased sleeve selection, concentrated leverage (the METEOR-style approach produced &minus;78% MDD in its 21y proxy), or sleeves exploiting regimes that won't repeat. HYDRA is the defensible professional-grade alternative.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">HYDRA-Lite.</strong> A simplified execution variant is included for operators preferring monthly-only rebalancing with no dynamic vol scaling at the portfolio level: equal-weight sleeves, static 2.43× leverage, single trade per month. It achieves Sharpe 1.20 / CAGR 12% / MDD &minus;17% — still clearly superior to SPY but trading ~0.4 SR for operational simplicity. See comparison section below.</p>
 </div>
 </div>
 """
@@ -152,6 +153,27 @@ BODY_SECTIONS = """<!-- KPIs -->
 <div class="section-title">Walk-Forward — Rolling 5-Year Windows</div>
 <div class="card" style="overflow-x:auto"><table id="wfTable"></table></div>
 <div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)">HYDRA strongly outperforms SPY in 3 of 4 non-overlapping 5-year windows. 2011-2015 was a multi-strategy-fund-wide weak period (low vol, dispersion-starved, bond bull-bear tantrum); HYDRA underperformed SPY's 12.9% return but never breached &minus;15.0% drawdown. No window shows a large loss.</div>
+</div>
+
+<!-- HYDRA-LITE COMPARISON -->
+<div class="section">
+<div class="section-title">HYDRA-Lite Comparison (Simplified Execution)</div>
+<div class="card" style="font-size:0.78rem;color:var(--t2);line-height:1.6">
+<p style="margin-bottom:8px"><strong style="color:var(--t1)">HYDRA-Lite</strong> is a stripped-down execution variant designed for operators who want monthly-only rebalancing with no dynamic vol scaling at the portfolio level. The sleeve rules are the same; only the ensemble layer changes.</p>
+<table style="font-size:0.76rem;margin:8px 0">
+<tr><td style="font-weight:700;width:160px;border:none;padding:4px 8px">Weighting</td><td style="border:none;padding:4px 8px" id="liteWeighting"></td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Rebalance</td><td style="border:none;padding:4px 8px" id="liteRebal"></td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Leverage</td><td style="border:none;padding:4px 8px" id="liteLev"></td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Portfolio vol scaling</td><td style="border:none;padding:4px 8px" id="liteVS"></td></tr>
+</table>
+</div>
+<div class="g3">
+<div class="card"><h3>HYDRA (shipped)</h3><table id="liteCmpShipped"></table></div>
+<div class="card"><h3>HYDRA-Lite</h3><table id="liteCmpLite"></table></div>
+<div class="card"><h3>SPY benchmark</h3><table id="liteCmpSPY"></table></div>
+</div>
+<div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)"><strong style="color:var(--t1)">Trade-off.</strong> Stripping dynamic vol scaling costs ~0.4 Sharpe and ~4 percentage points of CAGR versus the shipped version, but eliminates the daily leverage-scaling workflow. MDD is essentially unchanged at matched target vol. If operational simplicity is the priority, HYDRA-Lite is still a significant upgrade over SPY (Sharpe 1.20 vs 0.63, MDD &minus;17% vs &minus;55%).</div>
+<div class="card" style="margin-top:4px;overflow-x:auto"><h3>Walk-Forward — HYDRA vs HYDRA-Lite vs SPY</h3><table id="liteWfTable"></table></div>
 </div>
 
 <!-- TRAILING RETURNS -->
@@ -271,16 +293,21 @@ function renderEquityChart() {
   const ctx = document.getElementById("eqChart").getContext("2d");
   const labels = F.equity_curve.map(r => r.date);
   const hydra = F.equity_curve.map(r => r.HYDRA);
+  const lite = F.equity_curve.map(r => r.HYDRA_Lite).filter(v => v !== undefined);
   const spy = F.equity_curve.map(r => r.SPY);
+  const hasLite = lite.length === hydra.length;
+  const datasets = [
+    { label: "HYDRA", data: hydra, borderColor: "#7c3aed", backgroundColor: "rgba(124,58,237,0.12)", borderWidth: 2, pointRadius: 0, fill: true, tension: 0.1 },
+  ];
+  if (hasLite) datasets.push(
+    { label: "HYDRA-Lite", data: lite, borderColor: "#0e7490", borderWidth: 1.6, pointRadius: 0, borderDash: [2, 2], fill: false }
+  );
+  datasets.push(
+    { label: "SPY", data: spy, borderColor: "#4a4a68", borderWidth: 1.2, pointRadius: 0, borderDash: [4, 3], fill: false }
+  );
   new Chart(ctx, {
     type: "line",
-    data: {
-      labels,
-      datasets: [
-        { label: "HYDRA", data: hydra, borderColor: "#7c3aed", backgroundColor: "rgba(124,58,237,0.12)", borderWidth: 2, pointRadius: 0, fill: true, tension: 0.1 },
-        { label: "SPY", data: spy, borderColor: "#4a4a68", borderWidth: 1.2, pointRadius: 0, borderDash: [4, 3], fill: false },
-      ],
-    },
+    data: { labels, datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
@@ -507,6 +534,49 @@ function renderMethodology() {
      <p style="margin-top:6px"><strong style="color:var(--t1)">Transaction costs.</strong> ${n.tc}</p>
      <p style="margin-top:6px"><strong style="color:var(--t1)">Honest ceiling.</strong> ${n.ceiling_honest}</p>`;
 }
+
+function renderLite() {
+  if (!F.hydra_lite) return;
+  const L = F.hydra_lite;
+  const cfg = L.config;
+  document.getElementById("liteWeighting").textContent = cfg.weighting;
+  document.getElementById("liteRebal").textContent = cfg.rebalance;
+  document.getElementById("liteLev").textContent = cfg.leverage;
+  document.getElementById("liteVS").textContent = cfg.vol_scaling;
+
+  const rows = (m, nav) => {
+    const body = [
+      ["Sharpe", fmtNum(m.sharpe, 2)],
+      ["Ann. Return", fmtPctPlain(m.ann_return, 2)],
+      ["Ann. Vol", fmtPctPlain(m.ann_vol, 2)],
+      ["Max DD", fmtPctPlain(m.max_dd, 2)],
+      ["Sortino", fmtNum(m.sortino, 2)],
+      ["NAVx ($10k→)", "$" + Math.round(nav * 10000).toLocaleString()],
+    ];
+    return "<tbody>" + body.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("") + "</tbody>";
+  };
+  document.getElementById("liteCmpShipped").innerHTML = rows(F.metrics.HYDRA, F.nav_x);
+  document.getElementById("liteCmpLite").innerHTML = rows(L.metrics, L.nav_x);
+  const spyNav = Math.pow(1 + F.metrics.SPY.ann_return / 100, F.metrics.SPY.n_years);
+  document.getElementById("liteCmpSPY").innerHTML = rows(F.metrics.SPY, spyNav);
+
+  const h = "<thead><tr><th>Window</th><th>HYDRA SR</th><th>HYDRA Ret</th><th>Lite SR</th><th>Lite Ret</th><th>SPY SR</th><th>SPY Ret</th></tr></thead>";
+  const liteMap = {};
+  L.walkforward_5y.forEach(w => liteMap[w.window] = w);
+  const body = F.walkforward_5y.map(w => {
+    const l = liteMap[w.window] || {};
+    return `<tr>
+      <td>${w.window}</td>
+      <td>${fmtNum(w.hydra_sr, 2)}</td>
+      <td class="${colorPos(w.hydra_ret)}">${fmtPctPlain(w.hydra_ret, 2)}</td>
+      <td>${fmtNum(l.hydra_sr, 2)}</td>
+      <td class="${colorPos(l.hydra_ret)}">${fmtPctPlain(l.hydra_ret, 2)}</td>
+      <td>${fmtNum(w.spy_sr, 2)}</td>
+      <td class="${colorPos(w.spy_ret)}">${fmtPctPlain(w.spy_ret, 2)}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("liteWfTable").innerHTML = h + "<tbody>" + body + "</tbody>";
+}
 """
 
 JS_MAIN = r"""
@@ -522,6 +592,7 @@ function renderAll() {
   renderPortfolioTable();
   renderSleeveTable();
   renderMethodology();
+  renderLite();
   renderEquityChart();
   renderDrawdownChart();
   renderRollingSharpeChart();
