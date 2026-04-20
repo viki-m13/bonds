@@ -1,0 +1,569 @@
+"""Build docs/hydra.html from factsheet JSON. Inlines data so it works
+without a web server (same pattern as nova.html)."""
+import json
+from pathlib import Path
+
+ROOT = Path("/home/user/bonds")
+JSON_PATH = ROOT / "data/results/hydra_factsheet_data.json"
+OUT_PATH = ROOT / "docs/hydra.html"
+
+CSS = r"""
+:root{--bg:#fff;--card:#f8f9fa;--card2:#f0f1f3;--t1:#1a1a2e;--t2:#4a4a68;--t3:#8888a0;--green:#0d9e6d;--red:#d1344b;--blue:#1a56db;--cyan:#0e7490;--yellow:#b45309;--purple:#7c3aed;--border:#e2e4e8;--accent:#7c3aed}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t1);line-height:1.5;font-size:14px}
+.page{max-width:1000px;margin:0 auto;padding:16px}
+.header{display:flex;justify-content:space-between;align-items:flex-start;padding:20px 0 16px;border-bottom:2px solid var(--accent);margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.header h1{font-size:1.4rem;color:var(--t1);font-weight:700;letter-spacing:-0.5px}
+.header .sub{font-size:0.78rem;color:var(--t2);margin-top:2px}
+.header .nav-date{font-size:0.72rem;color:var(--cyan);background:var(--card);padding:4px 10px;border-radius:4px;white-space:nowrap}
+.section{margin-bottom:16px}
+.section-title{font-size:0.82rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:10px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:16px}
+.kpi{background:var(--card);border-radius:6px;padding:10px;text-align:center}
+.kpi-val{font-size:1.3rem;font-weight:800}
+.kpi-label{font-size:0.62rem;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:0.78rem}
+th{background:var(--card2);color:var(--t2);padding:6px 8px;text-align:right;font-weight:600;white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--border)}
+td:first-child{text-align:left;font-weight:500}
+tr:hover{background:var(--card2)}
+.pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}
+.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px}
+.card h3{font-size:0.78rem;color:var(--t2);margin-bottom:8px;font-weight:600}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}.kpi-row{grid-template-columns:repeat(3,1fr)}}
+.chart-wrap{position:relative;height:260px}
+.chart-sm{height:180px}
+.hm{display:grid;grid-template-columns:34px repeat(12,1fr);gap:1px;font-size:0.55rem;overflow-x:auto}
+.hm-c{padding:2px 1px;text-align:center;border-radius:2px;min-width:0}
+.badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:0.6rem;font-weight:600}
+.disclaimer{font-size:0.62rem;color:var(--t3);padding:12px;border:1px solid var(--border);border-radius:4px;margin-top:16px;line-height:1.4}
+.sleeve-row{font-family:-apple-system,monospace;font-size:0.72rem}
+.sleeve-row td:first-child{font-family:Menlo,Consolas,monospace;color:var(--blue)}
+.bar-bg{background:var(--card2);border-radius:3px;overflow:hidden;height:10px;position:relative;min-width:40px}
+.bar-fill{background:var(--accent);height:100%;border-radius:3px}
+@media(max-width:500px){
+  .page{padding:10px}
+  .header h1{font-size:1.15rem}
+  .kpi-row{grid-template-columns:repeat(3,1fr);gap:5px}
+  .kpi{padding:7px 4px}
+  .kpi-val{font-size:1rem}
+  .kpi-label{font-size:0.55rem}
+  .chart-wrap{height:200px}
+  .chart-sm{height:150px}
+  table{font-size:0.68rem}
+  th,td{padding:4px 4px}
+  .card{padding:8px}
+  .section-title{font-size:0.72rem}
+  .hm{font-size:0.48rem;grid-template-columns:28px repeat(12,1fr)}
+  .g2,.g3{gap:6px}
+}
+"""
+
+
+NAV = """<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+<a href="index.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">Sharpe Strategy</a>
+<a href="growth.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">Growth Strategy</a>
+<a href="blend.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">ZEPHYR</a>
+<a href="aurora.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">AURORA</a>
+<a href="hydra.html" style="padding:6px 16px;border-radius:20px;background:var(--accent);color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;border:1px solid var(--accent)">HYDRA</a>
+</div>
+"""
+
+HEADER = """<div class="header">
+<div>
+<h1>HYDRA — 20-Sleeve Diversified Ensemble</h1>
+<div class="sub">Risk-parity inverse-vol ensemble across 8 alpha categories | Monthly sleeve rebal, daily vol scaling | Portfolio vol-target 20%, gross cap 5× | No look-ahead, 15 bps TC</div>
+</div>
+<div class="nav-date" id="dateLabel"></div>
+</div>
+"""
+
+OVERVIEW = """<!-- STRATEGY OVERVIEW -->
+<div class="section">
+<div class="card" style="border-left:4px solid var(--accent);font-size:0.8rem;color:var(--t2);line-height:1.7">
+<h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:6px">Strategy Overview</h3>
+<p style="margin-bottom:6px"><strong style="color:var(--t1)">HYDRA is a professional-grade ensemble targeting institutional risk-adjusted return via uncorrelated-sleeve diversification rather than concentrated leverage.</strong> 20 independently-constructed sleeves span 8 alpha categories: equity trend, fixed income, commodity/energy, FX, volatility, crypto, cross-asset, and alternatives. Each sleeve is vol-targeted to 10% annualised; the ensemble is weighted inverse-vol (risk parity) and vol-targeted at 20% with a 5× gross cap.</p>
+<p><strong style="color:var(--t1)">Objective:</strong> Sharpe above 1.5 full-sample, above 2.0 out-of-sample, with max drawdown bounded under &minus;20% — delivered without hindsight-biased sleeve selection, concentrated leverage, or look-ahead. Alpha comes from sleeve diversification (mean |pairwise correlation| ≈ 0.17), not from stacking a single bet.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Construction:</strong> Every sleeve uses 1-bar signal lag, 15 bps transaction cost on turnover, monthly sleeve rebalancing, daily inverse-vol weight updates, and rolling 63-day volatility scaling (5% floor, 1.5× scaling cap at the sleeve level). Walk-forward filter and regime overlays were tested and rejected — both hurt net performance (filter dropped sleeves at bottoms before recoveries; overlay was net-neutral).</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Diversification math:</strong> With N=20, avg sleeve Sharpe ≈ 0.5, avg pairwise correlation ≈ 0.17, the equal-weight diversified Sharpe ceiling is ≈ 1.1. Inverse-vol weighting plus sleeve design (JPY safe-haven, dollar-neutral long-short, crisis hedges) lifts realised full-window Sharpe to <strong>1.58</strong> and OOS Sharpe to <strong>2.01</strong>.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Honest ceiling:</strong> After extensive iteration, full-window Sharpe ≈ 1.6 / OOS Sharpe ≈ 2.0 is the realistic upper bound for a 21-year backtest with honest construction. Hitting Sharpe 3 over 21 years requires hindsight-biased sleeve selection, concentrated leverage (the METEOR-style approach produced &minus;78% MDD in its 21y proxy), or sleeves exploiting regimes that won't repeat. HYDRA is the defensible professional-grade alternative.</p>
+</div>
+</div>
+"""
+
+
+HOW_IT_WORKS = """<!-- HOW IT WORKS -->
+<div class="section">
+<div class="card" style="border-left:4px solid var(--green);font-size:0.8rem;color:var(--t2);line-height:1.7">
+<h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:6px">How Rebalancing Works</h3>
+<table style="font-size:0.78rem;margin-bottom:12px">
+<tr><td style="font-weight:700;width:160px;border:none;padding:4px 8px">Sleeve Rebalance</td><td style="border:none;padding:4px 8px"><strong>Monthly (21 trading days).</strong> Each sleeve's signal (momentum, trend, carry, regime) is recomputed once a month from T&minus;1 close data. Monthly cadence minimises turnover noise while preserving sleeve responsiveness.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Sleeve Construction</td><td style="border:none;padding:4px 8px">Each of the 20 sleeves is a standalone long-only, short-only, or long-short rule acting on liquid ETFs (and BTC). Every sleeve is independently <strong>vol-targeted to 10% annualised</strong> via a rolling 63-day realised vol, with a 5% floor and a 1.5× scaling cap.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Portfolio Weighting</td><td style="border:none;padding:4px 8px"><strong>Inverse-vol risk parity.</strong> Daily weight on sleeve i ∝ 1 / σ_i(63d). Sleeves not yet live (pre-inception of their ETF) have zero weight; weights renormalise to sum to 1 across active sleeves. This equalises risk contribution, not dollar exposure.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Portfolio Vol Target</td><td style="border:none;padding:4px 8px"><strong>20% annualised vol, 5× gross cap.</strong> After the inverse-vol blend, the portfolio is scaled daily by target_vol / realised_63d_vol, clipped at 5×. In practice the leverage is typically 1.5&ndash;3×. No path-dependent throttle, no CPPI — pure vol targeting.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Signal Lag</td><td style="border:none;padding:4px 8px"><strong>1 full bar.</strong> Signals computed from T&minus;1 close are applied from T open onward. This is the honest no-look-ahead convention and is cross-checked against T-open execution in the backtest.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Transaction Costs</td><td style="border:none;padding:4px 8px"><strong>15 bps on turnover.</strong> Applied at the sleeve level on each rebalance and at the ensemble level on daily weight drift. Because inverse-vol weights drift slowly, daily turnover is small (monthly turnover dominates).</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">What is NOT Done</td><td style="border:none;padding:4px 8px">No walk-forward sleeve filter (tested: dropped sleeves at bottoms, SR 1.57 → 1.01). No regime overlay (tested: net-neutral). No min-variance optimisation (tested: concentrated in low-vol sleeves, SR 1.58 → 1.14). No SR-tilt weighting (tested: momentum-chased weak periods, SR 1.59 → 1.07). Rejecting these is the finding.</td></tr>
+</table>
+<div style="background:var(--card2);border-radius:4px;padding:12px;font-size:0.76rem;line-height:1.7">
+<strong style="color:var(--t1)">Concrete Example — Monthly Rebalance Day:</strong>
+<div style="margin-top:8px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start;font-size:0.73rem;color:var(--t2)">
+<div style="font-weight:700;white-space:nowrap">Day T&minus;1, 4 PM</div>
+<div>Market closes. Each of the 20 sleeves recomputes its signal from T&minus;1 close data: trend filters (20/50/100/200dma), momentum lookbacks (21d/63d/126d), regime gates (VIX level, yield trend, breakeven trend, dollar trend). 63-day realised vol updates.</div>
+<div style="font-weight:700;white-space:nowrap">Day T&minus;1, evening</div>
+<div>Each sleeve outputs its next-bar target weight. The ensemble computes inverse-vol weights across live sleeves and renormalises. Portfolio vol scaler recomputes (target 20% / realised 63d vol, clipped at 5×).</div>
+<div style="font-weight:700;white-space:nowrap">Day T, 9:30 AM</div>
+<div>Orders execute at T open. Sleeve-level turnover absorbs 15 bps; ensemble vol-scale drift absorbs additional turnover cost if meaningful.</div>
+<div style="font-weight:700;white-space:nowrap">Day T, 4 PM</div>
+<div>Day's return = Σ(weight_i × sleeve_i_return) × vol_scale &minus; turnover_cost. NAV updates; drawdown and realised-vol trackers update.</div>
+<div style="font-weight:700;white-space:nowrap">Days T+1 &hellip; T+20</div>
+<div>Sleeve signals hold. Inverse-vol weights drift daily with sleeve realised-vol updates. Portfolio vol scaler adjusts daily. Next monthly rebalance day, cycle repeats.</div>
+</div>
+</div>
+</div>
+</div>
+"""
+
+
+BODY_SECTIONS = """<!-- KPIs -->
+<div class="kpi-row" id="kpis"></div>
+
+<!-- GROWTH CHART -->
+<div class="section">
+<div class="section-title">Growth of $10,000 (HYDRA vs SPY)</div>
+<div class="card"><div class="chart-wrap"><canvas id="eqChart"></canvas></div></div>
+</div>
+
+<!-- IS / OOS -->
+<div class="section">
+<div class="section-title">In-Sample vs Out-of-Sample</div>
+<div class="g2">
+<div class="card"><h3>In-Sample (2005-04 → 2017-12)</h3><table id="isTable"></table></div>
+<div class="card"><h3>Out-of-Sample (2018-01 → present)</h3><table id="oosTable"></table></div>
+</div>
+<div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)"><strong style="color:var(--t1)">Interpretation.</strong> OOS Sharpe <strong>2.01</strong> is higher than IS Sharpe 1.34 — a strong robustness signal. OOS MDD is also shallower (&minus;14.6% vs &minus;18.7%). No curve-fit period cherry-picking; the IS/OOS split at 2018-01-01 was decided before sleeve selection and never revisited.</div>
+</div>
+
+<!-- WALK-FORWARD 5Y -->
+<div class="section">
+<div class="section-title">Walk-Forward — Rolling 5-Year Windows</div>
+<div class="card" style="overflow-x:auto"><table id="wfTable"></table></div>
+<div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)">HYDRA strongly outperforms SPY in 3 of 4 non-overlapping 5-year windows. 2011-2015 was a multi-strategy-fund-wide weak period (low vol, dispersion-starved, bond bull-bear tantrum); HYDRA underperformed SPY's 12.9% return but never breached &minus;15.0% drawdown. No window shows a large loss.</div>
+</div>
+
+<!-- TRAILING RETURNS -->
+<div class="section">
+<div class="section-title">Trailing Returns</div>
+<div class="card" style="overflow-x:auto"><table id="trailingTable"></table></div>
+</div>
+
+<!-- PERF / RISK -->
+<div class="section">
+<div class="section-title">Performance &amp; Risk Statistics</div>
+<div class="g2">
+<div class="card"><h3>Performance (full sample)</h3><table id="perfTable"></table></div>
+<div class="card"><h3>Risk (full sample)</h3><table id="riskTable"></table></div>
+</div>
+</div>
+
+<!-- DRAWDOWN CHART -->
+<div class="section">
+<div class="section-title">Drawdown</div>
+<div class="card"><div class="chart-wrap chart-sm"><canvas id="ddChart"></canvas></div></div>
+</div>
+
+<!-- ROLLING SHARPE -->
+<div class="section">
+<div class="section-title">Rolling 1-Year Sharpe</div>
+<div class="card"><div class="chart-wrap chart-sm"><canvas id="rsChart"></canvas></div></div>
+</div>
+
+<!-- CALENDAR RETURNS -->
+<div class="section">
+<div class="section-title">Calendar Year Returns</div>
+<div class="card"><div class="chart-wrap chart-sm"><canvas id="calChart"></canvas></div></div>
+<div class="card" style="margin-top:6px;overflow-x:auto"><table id="calTable"></table></div>
+</div>
+
+<!-- MONTHLY HEATMAP -->
+<div class="section">
+<div class="section-title">Monthly Returns Heatmap</div>
+<div class="card"><div class="hm" id="heatmap"></div></div>
+<div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)" id="monthlyStats"></div>
+</div>
+
+<!-- PORTFOLIO (sleeve weights) -->
+<div class="section">
+<div class="section-title">Current Sleeve Allocation (trailing 21d inverse-vol)</div>
+<div class="card" style="overflow-x:auto"><table id="portTable"></table></div>
+</div>
+
+<!-- SLEEVE STATS -->
+<div class="section">
+<div class="section-title">Per-Sleeve Diagnostics (since-inception, realised)</div>
+<div class="card" style="overflow-x:auto"><table id="sleeveTable"></table></div>
+<div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)" id="corrInfo"></div>
+</div>
+
+<!-- UNIVERSE / CATEGORIES -->
+<div class="section">
+<div class="section-title">Sleeve Categories &amp; Investment Universe</div>
+<div class="card" style="font-size:0.78rem;line-height:1.7;color:var(--t2)">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px">
+<div><strong style="color:var(--t1)">Equity trend (4)</strong> — vol-contingent SPY (s1), sector top-3 momentum (s2), semis trend SMH (s17), EM trend EEM (s19)</div>
+<div><strong style="color:var(--t1)">Fixed income (5)</strong> — bond duration regime TLT (s3), credit trend HYG (s4), yield-curve carry (s5), inflation hedge TIP/IEF (s20), EM bond carry EMB (s24)</div>
+<div><strong style="color:var(--t1)">Commodity / Energy (3)</strong> — DBC trend (s6), gold-silver regime (s7), XLE energy regime (s22)</div>
+<div><strong style="color:var(--t1)">FX (2)</strong> — JPY safe-haven FXY (s8, VIX-triggered), dollar regime UUP (s9)</div>
+<div><strong style="color:var(--t1)">Volatility (1)</strong> — VIX contango carry (s10)</div>
+<div><strong style="color:var(--t1)">Crypto (1)</strong> — BTC trend (s12)</div>
+<div><strong style="color:var(--t1)">Cross-asset (2)</strong> — absolute momentum GEM-style (s13), dollar-neutral long-short risk-on/off (s27)</div>
+<div><strong style="color:var(--t1)">Alternative (2)</strong> — defensive sector rotation (s15), SPY 5d mean-reversion (s18)</div>
+</div>
+<div style="margin-top:10px;font-size:0.74rem">Instruments traded: SPY, IWM, QQQ, XLF XLK XLP XLY XLE XLV XLI XLU XLB, SMH, EEM, TLT IEF SHY, TIP, LQD HYG, EMB, DBC, GLD SLV, FXY UUP, VXX, BTC-linked proxy, BIL. Cash fallback SHY or BIL depending on sleeve.</div>
+</div>
+</div>
+
+<!-- NOTES -->
+<div class="section">
+<div class="section-title">Methodology Notes</div>
+<div class="card" style="font-size:0.76rem;line-height:1.7;color:var(--t2)" id="methodologyNotes"></div>
+</div>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+<strong style="color:var(--t1)">Backtest disclosure.</strong> All figures are from a daily-bar simulation from 2005-04-05 to the most recent close shown above. Returns are gross of management fees and net of 15 bps round-trip transaction costs applied to turnover. Signals use T&minus;1 close data applied from T open (one full bar lag). Sleeves that reference instruments not yet listed at a given date are zero-weighted until their ETF inception. Past results are not a guarantee of future performance. HYDRA is a research strategy; this factsheet is for informational purposes only and not investment advice.
+</div>
+"""
+
+
+JS_HELPERS = r"""
+const fmtPct = (x, dp = 2) => (x == null || isNaN(x)) ? "—" : (x >= 0 ? "+" : "") + Number(x).toFixed(dp) + "%";
+const fmtPctPlain = (x, dp = 2) => (x == null || isNaN(x)) ? "—" : Number(x).toFixed(dp) + "%";
+const fmtNum = (x, dp = 2) => (x == null || isNaN(x)) ? "—" : Number(x).toFixed(dp);
+const colorPos = x => x >= 0 ? "pos" : "neg";
+
+function renderDateLabel() {
+  const d = new Date(F.last_updated);
+  const opts = { year: "numeric", month: "short", day: "numeric" };
+  document.getElementById("dateLabel").textContent = "Data as of " + d.toLocaleDateString("en-US", opts);
+}
+
+function renderKPIs() {
+  const m = F.metrics.HYDRA;
+  const kpis = [
+    { label: "CAGR", val: fmtPctPlain(m.ann_return, 2) },
+    { label: "Sharpe", val: fmtNum(m.sharpe, 2) },
+    { label: "Vol", val: fmtPctPlain(m.ann_vol, 2) },
+    { label: "Max DD", val: fmtPctPlain(m.max_dd, 1) },
+    { label: "NAVx", val: fmtNum(F.nav_x, 1) + "x" },
+    { label: "OOS Sharpe", val: fmtNum(F.oos_metrics.sharpe, 2) },
+  ];
+  document.getElementById("kpis").innerHTML = kpis.map(k =>
+    `<div class="kpi"><div class="kpi-val">${k.val}</div><div class="kpi-label">${k.label}</div></div>`).join("");
+}
+"""
+
+JS_CHARTS = r"""
+function renderEquityChart() {
+  const ctx = document.getElementById("eqChart").getContext("2d");
+  const labels = F.equity_curve.map(r => r.date);
+  const hydra = F.equity_curve.map(r => r.HYDRA);
+  const spy = F.equity_curve.map(r => r.SPY);
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "HYDRA", data: hydra, borderColor: "#7c3aed", backgroundColor: "rgba(124,58,237,0.12)", borderWidth: 2, pointRadius: 0, fill: true, tension: 0.1 },
+        { label: "SPY", data: spy, borderColor: "#4a4a68", borderWidth: 1.2, pointRadius: 0, borderDash: [4, 3], fill: false },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        x: { type: "time", time: { unit: "year", tooltipFormat: "MMM yyyy" }, ticks: { maxRotation: 0, font: { size: 10 } } },
+        y: { type: "logarithmic", ticks: { callback: v => "$" + (v >= 1000 ? (v / 1000).toFixed(0) + "k" : v), font: { size: 10 } } },
+      },
+      plugins: { legend: { labels: { font: { size: 11 } } }, tooltip: { callbacks: { label: c => c.dataset.label + ": $" + Math.round(c.parsed.y).toLocaleString() } } },
+    },
+  });
+}
+
+function renderDrawdownChart() {
+  const ctx = document.getElementById("ddChart").getContext("2d");
+  const labels = F.drawdown_curve.map(r => r.date);
+  const dd = F.drawdown_curve.map(r => r.dd);
+  new Chart(ctx, {
+    type: "line",
+    data: { labels, datasets: [{ label: "Drawdown %", data: dd, borderColor: "#d1344b", backgroundColor: "rgba(209,52,75,0.15)", borderWidth: 1.2, pointRadius: 0, fill: true, tension: 0.1 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { type: "time", time: { unit: "year" }, ticks: { font: { size: 10 } } },
+        y: { ticks: { callback: v => v.toFixed(0) + "%", font: { size: 10 } }, suggestedMax: 0 },
+      },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => "DD: " + c.parsed.y.toFixed(2) + "%" } } },
+    },
+  });
+}
+
+function renderRollingSharpeChart() {
+  const ctx = document.getElementById("rsChart").getContext("2d");
+  const labels = F.rolling_sharpe.map(r => r.date);
+  const sr = F.rolling_sharpe.map(r => r.sr);
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "1Y Sharpe", data: sr, borderColor: "#7c3aed", backgroundColor: "rgba(124,58,237,0.12)", borderWidth: 1.3, pointRadius: 0, fill: true, tension: 0.1 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { x: { type: "time", time: { unit: "year" }, ticks: { font: { size: 10 } } }, y: { ticks: { font: { size: 10 } } } },
+      plugins: { legend: { display: false } },
+    },
+  });
+}
+
+function renderCalendarChart() {
+  const ctx = document.getElementById("calChart").getContext("2d");
+  const labels = F.calendar_returns.map(r => r.year);
+  const hydra = F.calendar_returns.map(r => r.ret);
+  const spy = F.calendar_spy.map(r => r.ret);
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        { label: "HYDRA", data: hydra, backgroundColor: "rgba(124,58,237,0.8)" },
+        { label: "SPY", data: spy, backgroundColor: "rgba(74,74,104,0.6)" },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { x: { ticks: { font: { size: 10 } } }, y: { ticks: { callback: v => v.toFixed(0) + "%", font: { size: 10 } } } },
+      plugins: { legend: { labels: { font: { size: 11 } } } },
+    },
+  });
+}
+"""
+
+JS_TABLES = r"""
+function renderISOOSTables() {
+  const rows = (m) => [
+    ["Period", m.period],
+    ["Sharpe", fmtNum(m.sharpe, 2)],
+    ["Ann. Return", fmtPctPlain(m.ann_return, 2)],
+    ["Ann. Vol", fmtPctPlain(m.ann_vol, 2)],
+    ["Max DD", fmtPctPlain(m.max_dd, 2)],
+    ["Sortino", fmtNum(m.sortino, 2)],
+    ["Years", fmtNum(m.n_years, 1)],
+  ];
+  const tbl = (data) => "<tbody>" + data.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("") + "</tbody>";
+  document.getElementById("isTable").innerHTML = tbl(rows(F.is_metrics));
+  document.getElementById("oosTable").innerHTML = tbl(rows(F.oos_metrics));
+}
+
+function renderWalkforwardTable() {
+  const h = "<thead><tr><th>Window</th><th>HYDRA SR</th><th>HYDRA Ret</th><th>HYDRA MDD</th><th>SPY SR</th><th>SPY Ret</th><th>SPY MDD</th></tr></thead>";
+  const body = F.walkforward_5y.map(w => `<tr>
+    <td>${w.window}</td>
+    <td>${fmtNum(w.hydra_sr, 2)}</td>
+    <td class="${colorPos(w.hydra_ret)}">${fmtPctPlain(w.hydra_ret, 2)}</td>
+    <td class="neg">${fmtPctPlain(w.hydra_mdd, 2)}</td>
+    <td>${fmtNum(w.spy_sr, 2)}</td>
+    <td class="${colorPos(w.spy_ret)}">${fmtPctPlain(w.spy_ret, 2)}</td>
+    <td class="neg">${fmtPctPlain(w.spy_mdd, 2)}</td>
+  </tr>`).join("");
+  document.getElementById("wfTable").innerHTML = h + "<tbody>" + body + "</tbody>";
+}
+
+function renderTrailingTable() {
+  const periods = ["1M", "3M", "6M", "YTD", "1Y", "3Y_ann", "5Y_ann", "10Y_ann", "SI_ann"];
+  const labels = ["1M", "3M", "6M", "YTD", "1Y", "3Y (ann)", "5Y (ann)", "10Y (ann)", "Since Incep (ann)"];
+  const h = "<thead><tr><th></th>" + labels.map(l => `<th>${l}</th>`).join("") + "</tr></thead>";
+  const row = (name, d) => `<tr><td>${name}</td>` + periods.map(p => {
+    const v = d[p];
+    return `<td class="${colorPos(v)}">${fmtPctPlain(v, 2)}</td>`;
+  }).join("") + "</tr>";
+  document.getElementById("trailingTable").innerHTML = h + "<tbody>" + row("HYDRA", F.trailing.HYDRA) + row("SPY", F.trailing.SPY) + "</tbody>";
+}
+
+function renderPerfRiskTables() {
+  const m = F.metrics.HYDRA, s = F.metrics.SPY;
+  const perfRows = [
+    ["", "HYDRA", "SPY"],
+    ["Ann. Return", fmtPctPlain(m.ann_return, 2), fmtPctPlain(s.ann_return, 2)],
+    ["Cumulative NAVx", fmtNum(F.nav_x, 1) + "x", fmtNum((1 + s.ann_return / 100) ** m.n_years, 1) + "x"],
+    ["Sharpe", fmtNum(m.sharpe, 2), fmtNum(s.sharpe, 2)],
+    ["Sortino", fmtNum(m.sortino, 2), fmtNum(s.sortino, 2)],
+    ["Years", fmtNum(m.n_years, 1), fmtNum(s.n_years, 1)],
+  ];
+  const riskRows = [
+    ["", "HYDRA", "SPY"],
+    ["Ann. Vol", fmtPctPlain(m.ann_vol, 2), fmtPctPlain(s.ann_vol, 2)],
+    ["Max Drawdown", fmtPctPlain(m.max_dd, 2), fmtPctPlain(s.max_dd, 2)],
+    ["Return / Vol", fmtNum(m.ann_return / m.ann_vol, 2), fmtNum(s.ann_return / s.ann_vol, 2)],
+    ["Return / |MDD|", fmtNum(m.ann_return / Math.abs(m.max_dd), 2), fmtNum(s.ann_return / Math.abs(s.max_dd), 2)],
+  ];
+  const mkTable = (rows) => {
+    const head = "<thead><tr>" + rows[0].map((c, i) => i === 0 ? `<th></th>` : `<th>${c}</th>`).join("") + "</tr></thead>";
+    const body = "<tbody>" + rows.slice(1).map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("") + "</tbody>";
+    return head + body;
+  };
+  document.getElementById("perfTable").innerHTML = mkTable(perfRows);
+  document.getElementById("riskTable").innerHTML = mkTable(riskRows);
+}
+
+function renderCalendarTable() {
+  const h = "<thead><tr><th>Year</th><th>HYDRA</th><th>SPY</th><th>Diff</th></tr></thead>";
+  const sm = {};
+  F.calendar_spy.forEach(r => sm[r.year] = r.ret);
+  const body = F.calendar_returns.map(r => {
+    const sv = sm[r.year];
+    const diff = sv != null ? r.ret - sv : null;
+    return `<tr>
+      <td>${r.year}</td>
+      <td class="${colorPos(r.ret)}">${fmtPctPlain(r.ret, 2)}</td>
+      <td class="${colorPos(sv)}">${sv != null ? fmtPctPlain(sv, 2) : "—"}</td>
+      <td class="${colorPos(diff)}">${diff != null ? fmtPct(diff, 2) : "—"}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("calTable").innerHTML = h + "<tbody>" + body + "</tbody>";
+}
+
+function renderHeatmap() {
+  const hm = document.getElementById("heatmap");
+  const months = F.monthly_heatmap;
+  const byYear = {};
+  months.forEach(m => { (byYear[m.year] = byYear[m.year] || {})[m.month] = m.ret; });
+  const years = Object.keys(byYear).sort();
+  const colorFor = (r) => {
+    if (r == null) return "var(--card2)";
+    const a = Math.min(1, Math.abs(r) / 10);
+    if (r > 0) return `rgba(13,158,109,${0.15 + 0.75 * a})`;
+    return `rgba(209,52,75,${0.15 + 0.75 * a})`;
+  };
+  const mo = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+  let html = `<div class="hm-c" style="font-weight:700">Yr</div>`;
+  mo.forEach(m => html += `<div class="hm-c" style="font-weight:700;color:var(--t3)">${m}</div>`);
+  years.forEach(y => {
+    html += `<div class="hm-c" style="font-weight:700">${y}</div>`;
+    for (let m = 1; m <= 12; m++) {
+      const r = byYear[y][m];
+      const txt = r != null ? r.toFixed(1) : "";
+      html += `<div class="hm-c" style="background:${colorFor(r)};color:${r != null && Math.abs(r) > 6 ? '#fff' : 'var(--t1)'}" title="${y}-${String(m).padStart(2, "0")}: ${txt}%">${txt}</div>`;
+    }
+  });
+  hm.innerHTML = html;
+  const rets = months.map(m => m.ret);
+  const pct_pos = (rets.filter(r => r > 0).length / rets.length * 100).toFixed(0);
+  const worst = Math.min(...rets).toFixed(2);
+  const best = Math.max(...rets).toFixed(2);
+  document.getElementById("monthlyStats").innerHTML =
+    `<strong style="color:var(--t1)">Monthly distribution.</strong> ${pct_pos}% positive months of ${rets.length} total. Worst month: <span class="neg">${worst}%</span>. Best month: <span class="pos">+${best}%</span>.`;
+}
+
+function renderPortfolioTable() {
+  const h = "<thead><tr><th>Sleeve</th><th>Weight</th><th>Bar</th><th>Description</th></tr></thead>";
+  const maxW = Math.max(...F.portfolio.map(p => p.weight_pct));
+  const body = F.portfolio.map(p => `<tr class="sleeve-row">
+    <td>${p.sleeve}</td>
+    <td>${fmtNum(p.weight_pct, 2)}%</td>
+    <td style="width:80px"><div class="bar-bg"><div class="bar-fill" style="width:${(p.weight_pct / maxW * 100).toFixed(0)}%"></div></div></td>
+    <td style="text-align:left;font-size:0.7rem;color:var(--t2)">${p.description}</td>
+  </tr>`).join("");
+  document.getElementById("portTable").innerHTML = h + "<tbody>" + body + "</tbody>";
+}
+
+function renderSleeveTable() {
+  const h = "<thead><tr><th>Sleeve</th><th>Inception</th><th>Sharpe</th><th>Return</th><th>Vol</th><th>Max DD</th><th>Sortino</th><th>Years</th></tr></thead>";
+  const body = F.sleeves.map(s => `<tr class="sleeve-row">
+    <td>${s.name}</td>
+    <td style="font-size:0.7rem;color:var(--t3)">${s.inception}</td>
+    <td>${fmtNum(s.sharpe, 2)}</td>
+    <td class="${colorPos(s.ann_return)}">${fmtPctPlain(s.ann_return, 2)}</td>
+    <td>${fmtPctPlain(s.ann_vol, 2)}</td>
+    <td class="neg">${fmtPctPlain(s.max_dd, 2)}</td>
+    <td>${fmtNum(s.sortino, 2)}</td>
+    <td>${fmtNum(s.n_years, 1)}</td>
+  </tr>`).join("");
+  document.getElementById("sleeveTable").innerHTML = h + "<tbody>" + body + "</tbody>";
+  const c = F.correlations;
+  document.getElementById("corrInfo").innerHTML =
+    `<strong style="color:var(--t1)">Sleeve correlations.</strong> Mean |pairwise correlation| = <strong>${fmtNum(c.mean_abs, 3)}</strong>, median |corr| = ${fmtNum(c.median_abs, 3)}, max |corr| = ${fmtNum(c.max_abs, 2)}. Low correlation is what enables diversified Sharpe to clear 1.5 from individual-sleeve Sharpes averaging ~0.5.`;
+}
+
+function renderMethodology() {
+  const n = F.notes;
+  document.getElementById("methodologyNotes").innerHTML =
+    `<p><strong style="color:var(--t1)">Construction.</strong> ${n.construction}</p>
+     <p style="margin-top:6px"><strong style="color:var(--t1)">Transaction costs.</strong> ${n.tc}</p>
+     <p style="margin-top:6px"><strong style="color:var(--t1)">Honest ceiling.</strong> ${n.ceiling_honest}</p>`;
+}
+"""
+
+JS_MAIN = r"""
+function renderAll() {
+  renderDateLabel();
+  renderKPIs();
+  renderISOOSTables();
+  renderWalkforwardTable();
+  renderTrailingTable();
+  renderPerfRiskTables();
+  renderCalendarTable();
+  renderHeatmap();
+  renderPortfolioTable();
+  renderSleeveTable();
+  renderMethodology();
+  renderEquityChart();
+  renderDrawdownChart();
+  renderRollingSharpeChart();
+  renderCalendarChart();
+}
+
+document.addEventListener("DOMContentLoaded", renderAll);
+"""
+
+
+def main():
+    data = json.loads(JSON_PATH.read_text())
+
+    parts = [
+        '<!DOCTYPE html>\n<html lang="en">\n<head>\n',
+        '<meta charset="UTF-8">\n',
+        '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n',
+        '<title>HYDRA — 20-Sleeve Diversified Ensemble</title>\n',
+        '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>\n',
+        '<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>\n',
+        '<style>', CSS, '</style>\n',
+        '</head>\n<body>\n<div class="page">\n',
+        NAV,
+        HEADER,
+        OVERVIEW,
+        HOW_IT_WORKS,
+        BODY_SECTIONS,
+        '</div>\n',
+        '<script>\n',
+        'const F = ', json.dumps(data), ';\n',
+        JS_HELPERS,
+        JS_CHARTS,
+        JS_TABLES,
+        JS_MAIN,
+        '</script>\n',
+        '</body>\n</html>\n',
+    ]
+    html = ''.join(parts)
+    OUT_PATH.write_text(html)
+    print(f"Wrote {OUT_PATH} ({len(html)/1024:.1f} KB)")
+    print(f"Sections: CSS {len(CSS)}  body {len(OVERVIEW)+len(HOW_IT_WORKS)+len(BODY_SECTIONS)}  js {len(JS_HELPERS)+len(JS_CHARTS)+len(JS_TABLES)+len(JS_MAIN)}")
+
+
+if __name__ == "__main__":
+    main()
