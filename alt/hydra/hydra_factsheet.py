@@ -200,6 +200,34 @@ def main():
     r = ret_df["HYDRA"]
     spy = ret_df["SPY"]
 
+    # HYDRA-Lite (no dynamic vol scaling; eq-weight + monthly rebal + static lev)
+    lite_path = RESULTS / "hydra_lite_returns.csv"
+    lite_data = None
+    if lite_path.exists():
+        lite_df = pd.read_csv(lite_path, parse_dates=["Date"]).set_index("Date")
+        lite = lite_df["HYDRA_Lite"].reindex(r.index).fillna(0)
+        lite_full = metrics(lite)
+        lite_is = metrics(lite.loc[:pd.Timestamp("2018-01-01")])
+        lite_oos = metrics(lite.loc[pd.Timestamp("2018-01-01"):])
+        lite_data = {
+            "metrics": {"name": "HYDRA-Lite", **lite_full,
+                        "n_years": round(len(lite) / 252, 1),
+                        "inception": str(lite.index[0].date())},
+            "is_metrics": lite_is,
+            "oos_metrics": lite_oos,
+            "trailing": trailing(lite, spy)["HYDRA"],
+            "nav_x": round(float((1 + lite).cumprod().iloc[-1]), 2),
+            "calendar_returns": calendar_returns(lite),
+            "walkforward_5y": walkforward(lite, spy,
+                                          [(y, y + 5) for y in range(2006, 2022, 5)]),
+            "config": {
+                "weighting": "Equal-weight across live sleeves",
+                "rebalance": "Monthly (every 21 trading days)",
+                "leverage": "Static 2.43x (chosen once to hit 10% ann vol)",
+                "vol_scaling": "None at portfolio level",
+            },
+        }
+
     IS_END = pd.Timestamp("2018-01-01")
     is_m = metrics(r.loc[:IS_END])
     oos_m = metrics(r.loc[IS_END:])
@@ -240,7 +268,10 @@ def main():
         "oos_metrics": {"period": f"{r.loc[IS_END:].index[0].date()} — {r.loc[IS_END:].index[-1].date()}", **oos_m},
 
         "trailing": trailing(r, spy),
-        "equity_curve": equity_curve_multi(pd.DataFrame({"HYDRA": r, "SPY": spy})),
+        "equity_curve": equity_curve_multi(
+            pd.DataFrame({"HYDRA": r, "HYDRA_Lite": lite, "SPY": spy}).fillna(0)
+            if lite_data is not None
+            else pd.DataFrame({"HYDRA": r, "SPY": spy})),
         "drawdown_curve": drawdown_curve(r),
         "rolling_sharpe": rolling_sharpe(r),
         "calendar_returns": calendar_returns(r),
@@ -253,6 +284,8 @@ def main():
         "sleeves": sleeve_stats(sl_df),
         "correlations": sleeve_correlations(sl_df),
         "portfolio": portfolio,
+
+        "hydra_lite": lite_data,
 
         "notes": {
             "construction": "Inverse-vol risk parity across 20 uncorrelated sleeves, each independently vol-targeted to 10% annualised. Portfolio vol target 20%, gross cap 5x.",
