@@ -177,6 +177,18 @@ BODY_SECTIONS = """<!-- KPIs -->
 <div class="card" style="margin-top:4px;overflow-x:auto"><h3>Walk-Forward — HYDRA vs HYDRA-Lite vs SPY</h3><table id="liteWfTable"></table></div>
 </div>
 
+<!-- LEVERAGE VARIANTS COMPARISON -->
+<div class="section">
+<div class="section-title">Leverage &amp; Dynamic Weighting — Four-Variant Comparison</div>
+<div class="card" style="font-size:0.78rem;color:var(--t2);line-height:1.65">
+<p style="margin:0 0 8px"><strong style="color:var(--t1)">What does leverage actually buy you?</strong> This section isolates the two design choices that produce HYDRA's headline numbers — <em>leverage</em> (the portfolio scalar that can amplify the composite by up to 5×) and <em>dynamic inverse-vol weighting</em> (which reshuffles sleeve weights daily) — by showing all four combinations over the same 21-year window. Comparing horizontally isolates the leverage effect; comparing vertically (HYDRA-pair vs Lite-pair) isolates the weighting effect.</p>
+</div>
+<div class="card" style="margin-top:8px;overflow-x:auto"><table id="variantsTable"></table></div>
+<div class="card" style="margin-top:8px"><h3 style="margin:0 0 4px;font-size:0.82rem">Compounded growth — $10,000 at inception</h3><div class="chart-wrap"><canvas id="variantsChart"></canvas></div></div>
+<div class="card" style="margin-top:8px;overflow-x:auto"><h3 style="margin:0 0 4px;font-size:0.82rem">Trailing 1y &amp; 3y (annualised)</h3><table id="variantsTrailingTable"></table></div>
+<div class="card" style="margin-top:8px;font-size:0.77rem;color:var(--t2);line-height:1.65" id="variantsNotes"></div>
+</div>
+
 <!-- TRAILING RETURNS -->
 <div class="section">
 <div class="section-title">Trailing Returns</div>
@@ -740,6 +752,99 @@ function renderLite() {
   }).join("");
   document.getElementById("liteWfTable").innerHTML = h + "<tbody>" + body + "</tbody>";
 }
+
+function renderVariantsTable() {
+  if (!F.leverage_variants) return;
+  const V = F.leverage_variants.variants;
+  const head = "<thead><tr>" +
+    "<th>Variant</th><th>Leverage</th><th>Full SR</th><th>Ret</th><th>Vol</th><th>Max DD</th><th>NAVx ($10k→)</th><th>IS SR</th><th>OOS SR</th>" +
+    "</tr></thead>";
+  const body = V.map(v => {
+    const f = v.full, is = v.is, oos = v.oos;
+    const dollarNav = "$" + Math.round(v.navx * 10000).toLocaleString();
+    const accent = v.name === "HYDRA" ? "font-weight:600;background:rgba(124,58,237,0.05)" : "";
+    return `<tr style="${accent}">
+      <td style="text-align:left"><span style="display:inline-block;width:10px;height:10px;background:${v.color};border-radius:2px;margin-right:6px;vertical-align:middle"></span><strong>${v.name}</strong></td>
+      <td style="font-size:0.74rem">${v.lev_label}</td>
+      <td>${fmtNum(f.sharpe, 2)}</td>
+      <td class="${colorPos(f.ann_return)}">${fmtPctPlain(f.ann_return, 2)}</td>
+      <td>${fmtPctPlain(f.ann_vol, 2)}</td>
+      <td class="neg">${fmtPctPlain(f.max_dd, 2)}</td>
+      <td>${dollarNav}</td>
+      <td>${fmtNum(is.sharpe, 2)}</td>
+      <td>${fmtNum(oos.sharpe, 2)}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("variantsTable").innerHTML = head + "<tbody>" + body + "</tbody>";
+}
+
+function renderVariantsTrailingTable() {
+  if (!F.leverage_variants) return;
+  const V = F.leverage_variants.variants;
+  const head = "<thead><tr>" +
+    "<th>Variant</th><th>1y Ret</th><th>1y Vol</th><th>1y SR</th><th>3y Ret (ann)</th><th>3y Vol</th><th>3y SR</th>" +
+    "</tr></thead>";
+  const cell = (x, dp=2) => x == null ? "—" : fmtPctPlain(x, dp);
+  const body = V.map(v => {
+    const t1 = v.trailing_1y, t3 = v.trailing_3y;
+    const accent = v.name === "HYDRA" ? "font-weight:600;background:rgba(124,58,237,0.05)" : "";
+    return `<tr style="${accent}">
+      <td style="text-align:left"><span style="display:inline-block;width:10px;height:10px;background:${v.color};border-radius:2px;margin-right:6px;vertical-align:middle"></span><strong>${v.name}</strong></td>
+      <td class="${colorPos(t1.ret)}">${cell(t1.ret)}</td>
+      <td>${cell(t1.vol)}</td>
+      <td>${fmtNum(t1.sharpe, 2)}</td>
+      <td class="${colorPos(t3.ret)}">${cell(t3.ret)}</td>
+      <td>${cell(t3.vol)}</td>
+      <td>${fmtNum(t3.sharpe, 2)}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("variantsTrailingTable").innerHTML = head + "<tbody>" + body + "</tbody>";
+}
+
+function renderVariantsChart() {
+  if (!F.leverage_variants) return;
+  const ctx = document.getElementById("variantsChart").getContext("2d");
+  const labels = F.leverage_variants.equity_curve.map(r => r.date);
+  const series = F.leverage_variants.variants.map(v => {
+    const col = v.name.replace("-", "_");
+    const data = F.leverage_variants.equity_curve.map(r => r[col]);
+    const isHYDRA = v.name === "HYDRA";
+    return {
+      label: v.name,
+      data,
+      borderColor: v.color,
+      backgroundColor: v.color + "18",
+      borderWidth: isHYDRA ? 2 : 1.3,
+      pointRadius: 0,
+      fill: isHYDRA,
+      tension: 0.1,
+      borderDash: v.name === "Lite-NoLev" ? [2, 2] : v.name === "HYDRA-NoLev" ? [6, 3] : v.name === "SPY" ? [4, 3] : [],
+    };
+  });
+  new Chart(ctx, {
+    type: "line",
+    data: { labels, datasets: series },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        x: { type: "time", time: { unit: "year", tooltipFormat: "MMM yyyy" }, ticks: { font: { size: 10 } } },
+        y: { type: "logarithmic", ticks: { callback: v => "$" + (v >= 1000 ? (v / 1000).toFixed(0) + "k" : v), font: { size: 10 } } },
+      },
+      plugins: {
+        legend: { labels: { font: { size: 11 } } },
+        tooltip: { callbacks: { label: c => c.dataset.label + ": $" + Math.round(c.parsed.y).toLocaleString() } },
+      },
+    },
+  });
+}
+
+function renderVariantsNotes() {
+  if (!F.leverage_variants) return;
+  const notes = F.leverage_variants.notes;
+  document.getElementById("variantsNotes").innerHTML =
+    notes.map(n => `<p style="margin:6px 0"><strong style="color:var(--t1)">${n[0]}.</strong> ${n[1]}</p>`).join("");
+}
 """
 
 JS_MAIN = r"""
@@ -762,6 +867,10 @@ function renderAll() {
   renderSleeveTable();
   renderMethodology();
   renderLite();
+  renderVariantsTable();
+  renderVariantsTrailingTable();
+  renderVariantsChart();
+  renderVariantsNotes();
   renderEquityChart();
   renderDrawdownChart();
   renderRollingSharpeChart();
