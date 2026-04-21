@@ -1,0 +1,125 @@
+{
+  "start": "2010-03-11",
+  "end": "2026-04-02",
+  "is_sharpe": 0.728832799272017,
+  "oos_sharpe": 0.6794719851150514,
+  "full_sharpe": 0.6824071528361734,
+  "is_cagr": 0.1718510541544973,
+  "oos_cagr": 0.2187722102481311,
+  "full_cagr": 0.19279049700019613,
+  "max_dd": -0.54628426471684,
+  "ann_vol": 0.3480999536286135,
+  "avg_turnover_daily": 0.08813824960818278,
+  "avg_turnover_annual": 22.21083890126206,
+  "cash_avg_wt": 0.2402870576589953,
+  "is_oos_gap": 0.04936081415696569,
+  "universe": [
+    "SPY",
+    "QQQ",
+    "IEF",
+    "TLT",
+    "GLD",
+    "USO",
+    "XLK",
+    "XLE",
+    "XLF",
+    "SMH",
+    "VNQ",
+    "EEM",
+    "FXI"
+  ],
+  "lev_map": {
+    "SPY": "UPRO",
+    "QQQ": "TQQQ",
+    "IEF": "TYD",
+    "TLT": "TMF",
+    "GLD": "UGL",
+    "USO": "UCO",
+    "XLK": "TECL",
+    "XLE": "ERX",
+    "XLF": "FAS",
+    "SMH": "SOXL",
+    "VNQ": "DRN",
+    "EEM": "EDC",
+    "FXI": "YINN"
+  },
+  "n_rebalances": 415,
+  "picks_sample_first5": [
+    {
+      "date": "2010-12-31",
+      "weights": {
+        "UGL": 0.5,
+        "BIL": 0.5
+      }
+    },
+    {
+      "date": "2011-01-14",
+      "weights": {
+        "BIL": 1.0
+      }
+    },
+    {
+      "date": "2011-01-21",
+      "weights": {
+        "UGL": 0.5,
+        "BIL": 0.5
+      }
+    },
+    {
+      "date": "2011-02-11",
+      "weights": {
+        "BIL": 1.0
+      }
+    },
+    {
+      "date": "2011-02-18",
+      "weights": {
+        "UGL": 0.5,
+        "BIL": 0.5
+      }
+    }
+  ],
+  "picks_sample_last5": [
+    {
+      "date": "2025-11-28",
+      "weights": {
+        "UGL": 0.25,
+        "TECL": 0.25,
+        "SOXL": 0.25,
+        "EDC": 0.25
+      }
+    },
+    {
+      "date": "2026-01-30",
+      "weights": {
+        "UGL": 0.25,
+        "ERX": 0.25,
+        "SOXL": 0.25,
+        "EDC": 0.25
+      }
+    },
+    {
+      "date": "2026-02-13",
+      "weights": {
+        "UGL": 0.125,
+        "ERX": 0.125,
+        "SOXL": 0.125,
+        "EDC": 0.125,
+        "BIL": 0.5
+      }
+    },
+    {
+      "date": "2026-03-06",
+      "weights": {
+        "UGL": 0.5,
+        "BIL": 0.5
+      }
+    },
+    {
+      "date": "2026-04-10",
+      "weights": {
+        "UPRO": 1.0
+      }
+    }
+  ]
+}

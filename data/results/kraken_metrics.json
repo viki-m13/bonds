@@ -1,0 +1,92 @@
+{
+  "config": {
+    "universe": [
+      "TQQQ",
+      "UPRO",
+      "QLD",
+      "SSO",
+      "SOXL",
+      "TECL",
+      "FAS",
+      "LABU",
+      "ERX",
+      "DRN",
+      "EDC",
+      "YINN",
+      "NUGT",
+      "UGL",
+      "UCO",
+      "TMF",
+      "UBT",
+      "TYD"
+    ],
+    "sectors": [
+      "XLB",
+      "XLE",
+      "XLF",
+      "XLI",
+      "XLK",
+      "XLP",
+      "XLU",
+      "XLV",
+      "XLY"
+    ],
+    "breadth_ma": 200,
+    "breadth_high": 0.6,
+    "hy_ema_win": 60,
+    "vix_max": 25.0,
+    "confirm_days": 3,
+    "mom_lb": 63,
+    "mom_skip": 5,
+    "top_k": 2,
+    "rebal_days": 21,
+    "tc_bps_oneway": 10.0,
+    "is_end": "2018-12-31",
+    "oos_start": "2019-01-01",
+    "oos_end": "2026-04-02"
+  },
+  "metrics": {
+    "full": {
+      "label": "FULL",
+      "n": 4041,
+      "start": "2010-03-11",
+      "end": "2026-04-02",
+      "sharpe": -0.04344568124958961,
+      "cagr": -0.09888890546939988,
+      "ann_vol": 0.41269477608308625,
+      "mdd": -0.9452907464892558,
+      "navx": 0.18829480108526428
+    },
+    "is": {
+      "label": "IS",
+      "n": 2218,
+      "start": "2010-03-11",
+      "end": "2018-12-31",
+      "sharpe": 0.16309099022514084,
+      "cagr": -0.01118125152327476,
+      "ann_vol": 0.3815718847309727,
+      "mdd": -0.6702111493731773,
+      "navx": 0.9057725199070116
+    },
+    "oos": {
+      "label": "OOS",
+      "n": 1823,
+      "start": "2019-01-02",
+      "end": "2026-04-02",
+      "sharpe": -0.2579661103581823,
+      "cagr": -0.19517837789724757,
+      "ann_vol": 0.4475760069075842,
+      "mdd": -0.9159596879198326,
+      "navx": 0.20788310193446313
+    },
+    "gap": 0.42105710058332313
+  },
+  "time_in_market": 0.5555555555555556,
+  "avg_turnover": 0.08042563721851027,
+  "state_counts": {
+    "state_on": 2245,
+    "state_off": 1796,
+    "total": 4041
+  },
+  "passed": false
+}
