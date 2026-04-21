@@ -167,6 +167,64 @@ def sleeve_correlations(sleeves_df):
     }
 
 
+def vol_scaling_series(sleeves_df, hydra_r, target_vol=0.20, lev_cap=5.0,
+                       window=63, recent_days=252, table_days=20):
+    """Reconstruct the exact vol-scaling decision the strategy makes each day.
+
+    Mirrors ``risk_parity_ensemble`` in alt/hydra/hydra_run.py:
+      vols  = sleeves.rolling(63).std().shift(1) * sqrt(252)
+      raw   = (inv_vol_weights * sleeves).sum(axis=1)
+      pv    = raw.rolling(63).std().shift(1) * sqrt(252)  # pre-scale portfolio vol
+      scale = clip(target_vol / pv, upper=5x)
+    """
+    vols = sleeves_df.rolling(window).std().shift(1) * np.sqrt(252)
+    vols = vols.where(vols > 0.001)
+    inv = (1 / vols).where(vols.notna(), 0)
+    w = inv.div(inv.sum(axis=1).replace(0, np.nan), axis=0).fillna(0)
+    raw = (w * sleeves_df).sum(axis=1)
+    pv = raw.rolling(window).std().shift(1) * np.sqrt(252)
+    scalar = (target_vol / pv).clip(upper=lev_cap).fillna(0)
+    realised = hydra_r.rolling(window).std() * np.sqrt(252)
+
+    # Last N days, chart-ready
+    idx = hydra_r.index[-recent_days:]
+    daily = [{
+        "date": d.strftime("%Y-%m-%d"),
+        "realised_vol": round(float(realised.loc[d] * 100), 2) if d in realised.index and not np.isnan(realised.loc[d]) else None,
+        "raw_vol": round(float(pv.loc[d] * 100), 2) if d in pv.index and not np.isnan(pv.loc[d]) else None,
+        "scalar": round(float(scalar.loc[d]), 2) if d in scalar.index else None,
+    } for d in idx]
+
+    # Last N days tabular (most recent first)
+    tbl_idx = hydra_r.index[-table_days:][::-1]
+    table = [{
+        "date": d.strftime("%Y-%m-%d"),
+        "raw_vol": round(float(pv.loc[d] * 100), 2) if d in pv.index and not np.isnan(pv.loc[d]) else None,
+        "scalar": round(float(scalar.loc[d]), 2) if d in scalar.index else None,
+        "realised_vol": round(float(realised.loc[d] * 100), 2) if d in realised.index and not np.isnan(realised.loc[d]) else None,
+        "ret": round(float(hydra_r.loc[d] * 100), 3),
+    } for d in tbl_idx]
+
+    ry = realised.iloc[-recent_days:].dropna()
+    sy = scalar.iloc[-recent_days:].dropna()
+    summary = {
+        "target_vol_pct": round(target_vol * 100, 1),
+        "lev_cap": lev_cap,
+        "window": window,
+        "current_realised_vol_pct": round(float(realised.iloc[-1] * 100), 2) if not np.isnan(realised.iloc[-1]) else None,
+        "current_raw_vol_pct": round(float(pv.iloc[-1] * 100), 2) if not np.isnan(pv.iloc[-1]) else None,
+        "current_scalar": round(float(scalar.iloc[-1]), 2),
+        "vol_1y_min_pct": round(float(ry.min() * 100), 2) if len(ry) else None,
+        "vol_1y_max_pct": round(float(ry.max() * 100), 2) if len(ry) else None,
+        "vol_1y_mean_pct": round(float(ry.mean() * 100), 2) if len(ry) else None,
+        "scalar_1y_min": round(float(sy.min()), 2) if len(sy) else None,
+        "scalar_1y_max": round(float(sy.max()), 2) if len(sy) else None,
+        "scalar_1y_mean": round(float(sy.mean()), 2) if len(sy) else None,
+        "pct_days_capped": round(float((sy >= lev_cap - 1e-6).mean() * 100), 1) if len(sy) else None,
+    }
+    return {"daily": daily, "table": table, "summary": summary}
+
+
 def sleeve_descriptions():
     return {
         "s1_eq_regime": "Long SPY when SPY > 200dma AND VIX < 25; else SHY.",
@@ -286,6 +344,8 @@ def main():
         "portfolio": portfolio,
 
         "hydra_lite": lite_data,
+
+        "vol_scaling": vol_scaling_series(sl_df, r),
 
         "notes": {
             "construction": "Inverse-vol risk parity across 20 uncorrelated sleeves, each independently vol-targeted to 10% annualised. Portfolio vol target 20%, gross cap 5x.",
