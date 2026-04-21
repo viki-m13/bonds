@@ -1,23 +1,23 @@
 {
   "start": "2010-03-11",
   "end": "2026-04-02",
-  "is_sharpe": 0.728832799272017,
-  "oos_sharpe": 0.6794719851150514,
-  "full_sharpe": 0.6824071528361734,
-  "is_cagr": 0.1718510541544973,
-  "oos_cagr": 0.2187722102481311,
-  "full_cagr": 0.19279049700019613,
-  "max_dd": -0.54628426471684,
-  "ann_vol": 0.3480999536286135,
-  "avg_turnover_daily": 0.08813824960818278,
-  "avg_turnover_annual": 22.21083890126206,
-  "cash_avg_wt": 0.2402870576589953,
-  "is_oos_gap": 0.04936081415696569,
+  "is_sharpe": 0.6775831126226289,
+  "oos_sharpe": 0.8108195203750332,
+  "full_sharpe": 0.734183159311782,
+  "is_cagr": 0.189791800911991,
+  "oos_cagr": 0.3370435961298983,
+  "full_cagr": 0.2540983536436394,
+  "max_dd": -0.6226189262355042,
+  "ann_vol": 0.44421266155736566,
+  "avg_turnover_daily": 0.1111111111111111,
+  "avg_turnover_annual": 28.0,
+  "cash_avg_wt": 0.11383320960158376,
+  "is_oos_gap": -0.1332364077524043,
   "universe": [
     "SPY",
     "QQQ",
-    "IEF",
     "TLT",
+    "IEF",
     "GLD",
     "USO",
     "XLK",
@@ -31,8 +31,8 @@
   "lev_map": {
     "SPY": "UPRO",
     "QQQ": "TQQQ",
-    "IEF": "TYD",
     "TLT": "TMF",
+    "IEF": "TYD",
     "GLD": "UGL",
     "USO": "UCO",
     "XLK": "TECL",
@@ -43,82 +43,83 @@
     "EEM": "EDC",
     "FXI": "YINN"
   },
-  "n_rebalances": 415,
+  "params": {
+    "MOM_LB": 189,
+    "MOM_SKIP": 42,
+    "SMA_LB": 200,
+    "TOP_N": 2,
+    "GROSS_CAP": 1.0,
+    "VIX_Z_CAP": 1.5,
+    "HY_CHG20_CAP": 0.3,
+    "REBAL_FREQ": "W-FRI",
+    "COST_BPS": 5.0
+  },
+  "n_rebalances": 812,
   "picks_sample_first5": [
     {
-      "date": "2010-12-31",
-      "weights": {
-        "UGL": 0.5,
-        "BIL": 0.5
-      }
-    },
-    {
-      "date": "2011-01-14",
+      "date": "2010-03-12",
       "weights": {
         "BIL": 1.0
       }
     },
     {
-      "date": "2011-01-21",
-      "weights": {
-        "UGL": 0.5,
-        "BIL": 0.5
-      }
-    },
-    {
-      "date": "2011-02-11",
+      "date": "2010-03-19",
       "weights": {
         "BIL": 1.0
       }
     },
     {
-      "date": "2011-02-18",
+      "date": "2010-03-26",
       "weights": {
-        "UGL": 0.5,
-        "BIL": 0.5
+        "BIL": 1.0
+      }
+    },
+    {
+      "date": "2010-04-09",
+      "weights": {
+        "BIL": 1.0
+      }
+    },
+    {
+      "date": "2010-04-16",
+      "weights": {
+        "BIL": 1.0
       }
     }
   ],
   "picks_sample_last5": [
     {
-      "date": "2025-11-28",
+      "date": "2026-02-27",
       "weights": {
-        "UGL": 0.25,
-        "TECL": 0.25,
-        "SOXL": 0.25,
-        "EDC": 0.25
-      }
-    },
-    {
-      "date": "2026-01-30",
-      "weights": {
-        "UGL": 0.25,
-        "ERX": 0.25,
-        "SOXL": 0.25,
-        "EDC": 0.25
-      }
-    },
-    {
-      "date": "2026-02-13",
-      "weights": {
-        "UGL": 0.125,
-        "ERX": 0.125,
-        "SOXL": 0.125,
-        "EDC": 0.125,
-        "BIL": 0.5
+        "TMF": 0.5,
+        "UGL": 0.5
       }
     },
     {
       "date": "2026-03-06",
       "weights": {
-        "UGL": 0.5,
-        "BIL": 0.5
+        "TYD": 0.5,
+        "UGL": 0.5
       }
     },
     {
-      "date": "2026-04-10",
+      "date": "2026-03-13",
       "weights": {
-        "UPRO": 1.0
+        "TYD": 0.5,
+        "UGL": 0.5
+      }
+    },
+    {
+      "date": "2026-03-20",
+      "weights": {
+        "TYD": 0.5,
+        "UGL": 0.5
+      }
+    },
+    {
+      "date": "2026-03-27",
+      "weights": {
+        "UGL": 1.0
       }
     }
   ]
