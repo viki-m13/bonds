@@ -11,15 +11,16 @@ Outputs to data/results/atlas_returns.csv: daily returns (Date, ret).
 from pathlib import Path
 import pandas as pd
 
-from letf_tsmom import tsmom_with_vol_target, prep as tsmom_prep
+from letf_tsmom import tsmom_with_vol_target
 from letf_dd_throttle import apply_dd_throttle
+from atlas_ext_prep import extended_prep
 
 
 OUT = Path("/home/user/bonds/data/results")
 
 
 def build_atlas_returns():
-    tsmom_px = tsmom_prep()
+    tsmom_px = extended_prep()
     base, _ = tsmom_with_vol_target(tsmom_px, K_months=3, target_vol=0.15)
     atlas, mult = apply_dd_throttle(
         base,
