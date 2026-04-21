@@ -204,6 +204,16 @@ BODY_SECTIONS = """<!-- KPIs -->
 <div class="card"><div class="chart-wrap chart-sm"><canvas id="rsChart"></canvas></div></div>
 </div>
 
+<!-- DAILY VOL SCALING (recent) -->
+<div class="section">
+<div class="section-title">Daily Vol Scaling (Trailing 1 Year)</div>
+<div class="card" style="font-size:0.78rem;line-height:1.65;color:var(--t2);margin-bottom:8px">
+<p style="margin:0"><strong style="color:var(--t1)">How the vol-targeter decides today's gross exposure.</strong> Every day the strategy measures the trailing 63-day realised vol of the inverse-vol-weighted sleeve composite (the "raw" portfolio, <strong>pre-scale</strong>). It then sets the gross-exposure scalar to <code>20% / raw_vol_63d</code>, clipped at the 5× leverage cap. That scalar is applied to day-T's return — the <strong>realised</strong> line below shows the resulting 63-day vol of HYDRA's scaled output. Both series use <code>.shift(1)</code> on the rolling window, so today's sizing is based only on data through T−1 close; orders fill at T open.</p>
+</div>
+<div class="card"><div id="volSummary" style="font-size:0.76rem;color:var(--t2);margin-bottom:6px"></div><div class="chart-wrap chart-sm"><canvas id="volChart"></canvas></div></div>
+<div class="card" style="margin-top:6px;overflow-x:auto"><table id="volTable"></table></div>
+</div>
+
 <!-- CALENDAR RETURNS -->
 <div class="section">
 <div class="section-title">Calendar Year Returns</div>
@@ -359,6 +369,41 @@ function renderRollingSharpeChart() {
   });
 }
 
+function renderVolChart() {
+  const ctx = document.getElementById("volChart").getContext("2d");
+  const v = F.vol_scaling.daily;
+  const labels = v.map(r => r.date);
+  const realised = v.map(r => r.realised_vol);
+  const rawvol = v.map(r => r.raw_vol);
+  const scalar = v.map(r => r.scalar);
+  const target = v.map(() => F.vol_scaling.summary.target_vol_pct);
+  new Chart(ctx, {
+    data: {
+      labels,
+      datasets: [
+        { type: "line", label: "HYDRA realised 63d vol %", data: realised, borderColor: "#7c3aed", backgroundColor: "rgba(124,58,237,0.10)", borderWidth: 1.4, pointRadius: 0, fill: true, tension: 0.1, yAxisID: "y" },
+        { type: "line", label: "Target vol (20%)", data: target, borderColor: "#d1344b", borderWidth: 1, borderDash: [4, 3], pointRadius: 0, fill: false, yAxisID: "y" },
+        { type: "line", label: "Raw (pre-scale) 63d vol %", data: rawvol, borderColor: "#0e7490", borderWidth: 1.2, borderDash: [2, 2], pointRadius: 0, fill: false, yAxisID: "y" },
+        { type: "line", label: "Gross scalar (×)", data: scalar, borderColor: "#c97a00", backgroundColor: "rgba(201,122,0,0.08)", borderWidth: 1.2, pointRadius: 0, fill: false, tension: 0.1, yAxisID: "y2" },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        x: { type: "time", time: { unit: "month", tooltipFormat: "MMM d, yyyy" }, ticks: { font: { size: 10 } } },
+        y: { position: "left", ticks: { callback: v => v.toFixed(0) + "%", font: { size: 10 } }, title: { display: true, text: "Vol (ann %)", font: { size: 10 } } },
+        y2: { position: "right", grid: { drawOnChartArea: false }, ticks: { callback: v => v.toFixed(1) + "x", font: { size: 10 } }, suggestedMin: 0, suggestedMax: 5.5, title: { display: true, text: "Scalar", font: { size: 10 } } },
+      },
+      plugins: { legend: { labels: { font: { size: 10 }, boxWidth: 14 } } },
+    },
+  });
+  const s = F.vol_scaling.summary;
+  document.getElementById("volSummary").innerHTML =
+    `<strong style="color:var(--t1)">Current state.</strong> Realised 63d vol <strong>${fmtPctPlain(s.current_realised_vol_pct, 2)}</strong> · raw (pre-scale) vol <strong>${fmtPctPlain(s.current_raw_vol_pct, 2)}</strong> · active scalar <strong>${fmtNum(s.current_scalar, 2)}×</strong> (target ${fmtPctPlain(s.target_vol_pct, 0)}, cap ${s.lev_cap.toFixed(0)}×). ` +
+    `Trailing 1y — realised vol range ${fmtPctPlain(s.vol_1y_min_pct, 2)} to ${fmtPctPlain(s.vol_1y_max_pct, 2)} (mean ${fmtPctPlain(s.vol_1y_mean_pct, 2)}); scalar range ${fmtNum(s.scalar_1y_min, 2)}×–${fmtNum(s.scalar_1y_max, 2)}× (mean ${fmtNum(s.scalar_1y_mean, 2)}×); capped on <strong>${fmtPctPlain(s.pct_days_capped, 0)}</strong> of days.`;
+}
+
 function renderCalendarChart() {
   const ctx = document.getElementById("calChart").getContext("2d");
   const labels = F.calendar_returns.map(r => r.year);
@@ -447,6 +492,18 @@ function renderPerfRiskTables() {
   };
   document.getElementById("perfTable").innerHTML = mkTable(perfRows);
   document.getElementById("riskTable").innerHTML = mkTable(riskRows);
+}
+
+function renderVolTable() {
+  const h = "<thead><tr><th>Date</th><th>Raw 63d Vol</th><th>Scalar</th><th>HYDRA 63d Vol</th><th>HYDRA Ret</th></tr></thead>";
+  const body = F.vol_scaling.table.map(r => `<tr>
+    <td style="font-size:0.72rem">${r.date}</td>
+    <td>${fmtPctPlain(r.raw_vol, 2)}</td>
+    <td>${fmtNum(r.scalar, 2)}×</td>
+    <td>${fmtPctPlain(r.realised_vol, 2)}</td>
+    <td class="${colorPos(r.ret)}">${fmtPct(r.ret, 3)}</td>
+  </tr>`).join("");
+  document.getElementById("volTable").innerHTML = h + "<tbody>" + body + "</tbody>";
 }
 
 function renderCalendarTable() {
@@ -588,6 +645,7 @@ function renderAll() {
   renderWalkforwardTable();
   renderTrailingTable();
   renderPerfRiskTables();
+  renderVolTable();
   renderCalendarTable();
   renderHeatmap();
   renderPortfolioTable();
@@ -597,6 +655,7 @@ function renderAll() {
   renderEquityChart();
   renderDrawdownChart();
   renderRollingSharpeChart();
+  renderVolChart();
   renderCalendarChart();
 }
 
