@@ -1,0 +1,70 @@
+{
+  "params": {
+    "rsi_len": 2,
+    "rsi_low": 10.0,
+    "rsi_high": 70.0,
+    "max_hold": 5,
+    "sma_len": 200,
+    "hy_slope_days": 20,
+    "hy_slope_thr": 0.3,
+    "vix_max": 35.0,
+    "n_max": 4,
+    "tc_bps_oneway": 10.0
+  },
+  "universe": [
+    "TQQQ",
+    "UPRO",
+    "QLD",
+    "SSO",
+    "SOXL",
+    "TECL",
+    "FAS",
+    "ERX",
+    "DRN",
+    "EDC",
+    "YINN",
+    "UCO",
+    "UGL",
+    "NUGT",
+    "TMF",
+    "UBT",
+    "TYD"
+  ],
+  "full": {
+    "label": "FULL",
+    "n": 4041,
+    "start": "2010-03-11",
+    "end": "2026-04-02",
+    "sharpe": 0.4289,
+    "cagr": 0.0913,
+    "ann_vol": 0.3324,
+    "mdd": -0.7576,
+    "navx": 4.057
+  },
+  "is": {
+    "label": "IS",
+    "n": 2218,
+    "start": "2010-03-11",
+    "end": "2018-12-31",
+    "sharpe": 0.1203,
+    "cagr": -0.0072,
+    "ann_vol": 0.2888,
+    "mdd": -0.6542,
+    "navx": 0.9382
+  },
+  "oos": {
+    "label": "OOS",
+    "n": 1823,
+    "start": "2019-01-02",
+    "end": "2026-04-02",
+    "sharpe": 0.723,
+    "cagr": 0.2243,
+    "ann_vol": 0.3786,
+    "mdd": -0.4337,
+    "navx": 4.3243
+  },
+  "is_oos_gap": 0.6027,
+  "avg_turnover_annual": 136.51,
+  "avg_active_positions": 1.78,
+  "pct_time_invested": 0.6209
+}

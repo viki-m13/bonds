@@ -41,7 +41,14 @@ TC_RATE = TC_BPS / 1e4
 EQ_POOL = ["UPRO", "TQQQ", "QLD", "SSO"]
 RATES_POOL = ["TMF", "UBT", "TYD"]
 RA_POOL = ["UGL", "UCO", "NUGT", "DRN"]
-ALL_LEV = EQ_POOL + RATES_POOL + RA_POOL  # 11 leveraged ETFs
+# Broad candidate list (>=10) for the hard-constraint requirement.
+BROAD_UNIVERSE = [
+    "UPRO", "TQQQ", "QLD", "SSO",
+    "SOXL", "TECL", "FAS", "ERX", "LABU", "EDC", "YINN",
+    "TMF", "UBT", "TYD",
+    "UGL", "UCO", "NUGT", "DRN",
+]
+ALL_LEV = EQ_POOL + RATES_POOL + RA_POOL  # active set — 11 leveraged ETFs
 CASH = "BIL"
 
 
@@ -95,24 +102,41 @@ def load_underlying_close(ticker: str, idx: pd.DatetimeIndex) -> pd.Series:
 # --------------------------------------------------------------------------- #
 # Sleeve construction — pick best name inside each pool by medium-term momentum
 # --------------------------------------------------------------------------- #
-def pick_sleeve(closes: pd.DataFrame, pool: list[str], mom_lb: int, sma_lb: int) -> pd.DataFrame:
-    """Binary selector: on each date, return 1.0 on the top-momentum eligible
-    name in the pool, 0 elsewhere. Uses close[t-1] only.
+def pick_sleeve(closes: pd.DataFrame, pool: list[str], mom_lb: int, sma_lb: int,
+                 vol_lb: int = 60, mode: str = "best") -> pd.DataFrame:
+    """Return sleeve weights over pool summing to 1 when any name is eligible,
+    else 0. Uses close[t-1] only.
 
-    Eligibility: name must have mom > 0 AND close > sma.
-    If no eligible name, sleeve returns 0 (will be absorbed as implicit cash).
+    Modes:
+      'best'   - pick highest-momentum eligible name (binary)
+      'invvol' - all eligible names, inv-vol weighted
+
+    Eligibility: mom > 0 AND close > sma.
     """
     c_lag = closes[pool].shift(1)
     mom = c_lag / c_lag.shift(mom_lb) - 1.0
     above_sma = c_lag > c_lag.rolling(sma_lb).mean()
     eligible = (mom > 0) & above_sma & c_lag.notna()
-    m = mom.where(eligible)
-    # pick highest-momentum name
-    best = m.idxmax(axis=1)  # NaN where no row qualifies
-    w = pd.DataFrame(0.0, index=closes.index, columns=pool)
-    for dt, nm in best.items():
-        if isinstance(nm, str):
-            w.at[dt, nm] = 1.0
+
+    if mode == "best":
+        m = mom.where(eligible)
+        has_any = m.notna().any(axis=1)
+        best = pd.Series(index=m.index, dtype=object)
+        if has_any.any():
+            best.loc[has_any] = m.loc[has_any].idxmax(axis=1)
+        w = pd.DataFrame(0.0, index=closes.index, columns=pool)
+        for dt, nm in best.items():
+            if isinstance(nm, str):
+                w.at[dt, nm] = 1.0
+        return w
+
+    # invvol
+    rets = closes[pool].pct_change().shift(1)
+    vol = rets.rolling(vol_lb).std()
+    iv = 1.0 / vol
+    iv = iv.where(eligible, 0.0)
+    iv_sum = iv.sum(axis=1).replace(0, np.nan)
+    w = iv.div(iv_sum, axis=0).fillna(0.0)
     return w
 
 
@@ -126,18 +150,16 @@ def month_start_mask(idx: pd.DatetimeIndex) -> pd.Series:
 
 def freeze_monthly(daily_choice: pd.DataFrame, idx: pd.DatetimeIndex) -> pd.DataFrame:
     """Freeze sleeve picks between monthly rebalance dates using the previous
-    day's ranking (already lagged inside pick_sleeve)."""
+    day's ranking (already lagged inside pick_sleeve).
+
+    Vectorised: take the rows at month-starts, forward-fill to all bars.
+    """
     mask = month_start_mask(idx)
-    out = pd.DataFrame(0.0, index=idx, columns=daily_choice.columns)
-    cur = pd.Series(0.0, index=daily_choice.columns)
-    for dt in idx:
-        if mask.loc[dt]:
-            row = daily_choice.loc[dt]
-            if row.sum() > 0:
-                cur = row.copy()
-            # else keep cur (last picks) during blackout — but blank if > 0 initially
-        out.loc[dt] = cur.values
-    return out
+    mask_2d = np.broadcast_to(mask.values.reshape(-1, 1), daily_choice.shape)
+    vals = np.where(mask_2d, daily_choice.values, np.nan)
+    m = pd.DataFrame(vals, index=idx, columns=daily_choice.columns)
+    m = m.ffill().fillna(0.0)
+    return m
 
 
 # --------------------------------------------------------------------------- #
@@ -147,98 +169,103 @@ def compute_killswitch(
     fred: pd.DataFrame,
     spy: pd.Series,
     tlt: pd.Series,
-    hy_z_thr: float = 1.5,
-    vix_thr: float = 30.0,
-    curve_days: int = 20,
+    hy_z_thr: float = 1.2,
+    vix_thr: float = 28.0,
     corr_window: int = 60,
     corr_thr: float = 0.4,
-    slow_reentry: int = 7,
-) -> tuple[pd.Series, pd.DataFrame]:
-    """Return a boolean series 'risk_off' and a diagnostic DataFrame.
+    smooth: int = 5,
+) -> tuple[pd.Series, pd.DataFrame, pd.Series]:
+    """Composite trigger count (0..5) smoothed with rolling mean.
 
-    Fast exit: any trigger on a given day (using data through close[t-1])
-    flips risk_off=True. Slow re-entry: require slow_reentry consecutive
-    all-clear days before flipping back to risk_on.
+    Returns (participation, diag, trigger_count). Participation in
+    {1, 0.75, 0.5, 0.25, 0} depending on smoothed trigger count.
 
-    All inputs lagged by 1 bar to prevent contemporaneous bleed.
+    5 triggers:
+    1. HY OAS widening: 20d chg > 0.3 OR 5d chg > 0.25 OR z(60d) > hy_z_thr w/ chg20>0
+    2. VIX: z(60d) > 1.2 OR level > vix_thr (both require rising)
+    3. Curve: T10Y2Y < 0 AND falling (60d)
+    4. SPY: below 200d SMA
+    5. Stock-bond 60d correlation > +corr_thr
+
+    Inputs use close[t]; caller is responsible for shifting the output
+    participation series by 1 bar to respect signal lag.
     """
-    vix = fred["VIX"].shift(1)
-    hy = fred["HY"].shift(1)
-    t10y2y = fred["T10Y2Y"].shift(1)
-    spy_l = spy.shift(1)
-    tlt_l = tlt.shift(1)
+    vix = fred["VIX"]
+    hy = fred["HY"]
+    t10y2y = fred["T10Y2Y"]
+    spy_l = spy
+    tlt_l = tlt
 
-    # 1) HY OAS z-score (60d) > +1.5 AND 20d change > 0
+    # 1) HY OAS widening
     hy_mu = hy.rolling(60).mean()
     hy_sd = hy.rolling(60).std()
     hy_z = (hy - hy_mu) / hy_sd
     hy_chg20 = hy - hy.shift(20)
-    c_hy = (hy_z > hy_z_thr) & (hy_chg20 > 0)
+    hy_chg5 = hy - hy.shift(5)
+    c_hy = (hy_chg20 > 0.30) | (hy_chg5 > 0.25) | ((hy_z > hy_z_thr) & (hy_chg20 > 0))
 
-    # 2) T10Y2Y < -0.3 for 20+ consecutive days AND widening (more negative)
-    inv = (t10y2y < -0.3).astype(float)
-    inv_run = inv.groupby((inv != inv.shift()).cumsum()).cumsum()
-    c_curve = (inv_run >= curve_days) & (t10y2y < t10y2y.shift(5))
+    # 2) VIX spike
+    vix_mu = vix.rolling(60).mean()
+    vix_sd = vix.rolling(60).std()
+    vix_z = (vix - vix_mu) / vix_sd
+    c_vix = (vix_z > 1.2) | (vix > vix_thr)
 
-    # 3) VIX > 30 AND 20d slope > 0
-    vix_slope20 = vix - vix.shift(20)
-    c_vix = (vix > vix_thr) & (vix_slope20 > 0)
+    # 3) Curve inversion in progress
+    t10y2y_s60 = t10y2y - t10y2y.shift(60)
+    c_curve = (t10y2y < 0.0) & (t10y2y_s60 < 0.0)
 
-    # 4) SPY < 200d MA AND MA slope negative
+    # 4) SPY trend broken
     spy_ma = spy_l.rolling(200).mean()
-    ma_slope = spy_ma - spy_ma.shift(20)
-    c_spy = (spy_l < spy_ma) & (ma_slope < 0)
+    c_spy = ~(spy_l > spy_ma)
 
-    # 5) Stock-bond 60d correlation > +0.4 (regime like 2022)
+    # 5) Stock-bond correlation flipping positive (2022 regime)
     spy_r = spy_l.pct_change()
     tlt_r = tlt_l.pct_change()
     sb_corr = spy_r.rolling(corr_window).corr(tlt_r)
     c_corr = sb_corr > corr_thr
 
-    any_trigger = (
-        c_hy.fillna(False)
-        | c_curve.fillna(False)
-        | c_vix.fillna(False)
-        | c_spy.fillna(False)
-        | c_corr.fillna(False)
-    )
+    # 6) SPY drawdown from 20d rolling high (fast panic trigger)
+    spy_20h = spy_l.rolling(20).max()
+    spy_dd20 = spy_l / spy_20h - 1.0
+    c_spy_dd = spy_dd20 < -0.05   # >5% off 20d high
 
-    # Hysteresis: fast exit, slow re-entry
-    risk_off = pd.Series(False, index=any_trigger.index)
-    clear_streak = 0
-    state_off = False
-    for dt, trig in any_trigger.items():
-        if state_off:
-            if not trig:
-                clear_streak += 1
-                if clear_streak >= slow_reentry:
-                    state_off = False
-                    clear_streak = 0
-            else:
-                clear_streak = 0
-        else:
-            if trig:
-                state_off = True
-                clear_streak = 0
-        risk_off.loc[dt] = state_off
+    triggers = (
+        c_hy.fillna(False).astype(float)
+        + c_vix.fillna(False).astype(float)
+        + c_curve.fillna(False).astype(float)
+        + c_spy.fillna(False).astype(float)
+        + c_corr.fillna(False).astype(float)
+        + c_spy_dd.fillna(False).astype(float)
+    )
+    trg_smooth = triggers.rolling(smooth).mean()
+
+    # Map smoothed trigger count (0..6) to participation (graduated)
+    part = pd.Series(1.0, index=trg_smooth.index)
+    part[trg_smooth >= 0.8] = 0.75
+    part[trg_smooth >= 1.4] = 0.50
+    part[trg_smooth >= 2.0] = 0.25
+    part[trg_smooth >= 2.6] = 0.00
+    part = part.fillna(0.0)
 
     diag = pd.DataFrame({
         "hy_z": hy_z,
         "hy_chg20": hy_chg20,
-        "t10y2y": t10y2y,
         "vix": vix,
-        "vix_slope20": vix_slope20,
-        "spy_below_ma": c_spy.astype(float),
+        "vix_z": vix_z,
+        "t10y2y": t10y2y,
         "sb_corr": sb_corr,
+        "spy_dd20": spy_dd20,
         "c_hy": c_hy.astype(float),
-        "c_curve": c_curve.astype(float),
         "c_vix": c_vix.astype(float),
+        "c_curve": c_curve.astype(float),
         "c_spy": c_spy.astype(float),
         "c_corr": c_corr.astype(float),
-        "any_trigger": any_trigger.astype(float),
-        "risk_off": risk_off.astype(float),
+        "c_spy_dd": c_spy_dd.astype(float),
+        "triggers": triggers,
+        "trg_smooth": trg_smooth,
+        "participation": part,
     })
-    return risk_off, diag
+    return part, diag, triggers
 
 
 # --------------------------------------------------------------------------- #
@@ -292,18 +319,19 @@ def perf_metrics(rets: pd.Series, periods: int = 252) -> dict:
 # Run
 # --------------------------------------------------------------------------- #
 def run(
-    mom_lb: int = 126,
+    mom_lb: int = 189,
     sma_lb: int = 200,
     w_eq: float = 0.40,
-    w_rates: float = 0.40,
-    w_ra: float = 0.20,
-    gross: float = 1.0,
+    w_rates: float = 0.45,
+    w_ra: float = 0.15,
+    gross: float = 2.25,
+    sleeve_mode: str = "invvol",
     hy_z_thr: float = 1.5,
     vix_thr: float = 30.0,
-    curve_days: int = 20,
-    corr_window: int = 60,
-    corr_thr: float = 0.4,
-    slow_reentry: int = 7,
+    corr_window: int = 30,
+    corr_thr: float = -0.10,
+    smooth: int = 5,
+    trend_ma: int = 200,
     verbose: bool = True,
 ):
     universe = ALL_LEV + [CASH]
@@ -314,14 +342,29 @@ def run(
     tlt = load_underlying_close("TLT", idx)
 
     # daily sleeve picks (binary selector already lagged 1 bar inside)
-    eq_daily = pick_sleeve(closes, EQ_POOL, mom_lb, sma_lb)
-    rt_daily = pick_sleeve(closes, RATES_POOL, mom_lb, sma_lb)
-    ra_daily = pick_sleeve(closes, RA_POOL, mom_lb, sma_lb)
+    eq_daily = pick_sleeve(closes, EQ_POOL, mom_lb, sma_lb, mode=sleeve_mode)
+    rt_daily = pick_sleeve(closes, RATES_POOL, mom_lb, sma_lb, mode=sleeve_mode)
+    ra_daily = pick_sleeve(closes, RA_POOL, mom_lb, sma_lb, mode=sleeve_mode)
 
     # freeze choice to monthly within each sleeve
     eq_w = freeze_monthly(eq_daily, idx)
     rt_w = freeze_monthly(rt_daily, idx)
     ra_w = freeze_monthly(ra_daily, idx)
+
+    # Per-sleeve DAILY underlying-trend gate: require underlying above trend_ma SMA.
+    # Acts as a second-order protection in addition to the sleeve-level
+    # momentum filter already inside pick_sleeve().
+    gld = load_underlying_close("GLD", idx)
+    spy_lag = spy.shift(1)
+    tlt_lag = tlt.shift(1)
+    gld_lag = gld.shift(1)
+    eq_trend_ok = (spy_lag > spy_lag.rolling(trend_ma).mean()).astype(float).fillna(0.0)
+    rt_trend_ok = (tlt_lag > tlt_lag.rolling(trend_ma).mean()).astype(float).fillna(0.0)
+    ra_trend_ok = (gld_lag > gld_lag.rolling(trend_ma).mean()).astype(float).fillna(0.0)
+
+    eq_w = eq_w.mul(eq_trend_ok, axis=0).fillna(0.0)
+    rt_w = rt_w.mul(rt_trend_ok, axis=0).fillna(0.0)
+    ra_w = ra_w.mul(ra_trend_ok, axis=0).fillna(0.0)
 
     # Static risk-parity notional sleeve weights (tuned on IS)
     # scaled by gross multiplier
@@ -329,13 +372,17 @@ def run(
     rt_final = rt_w.mul(w_rates * gross)
     ra_final = ra_w.mul(w_ra * gross)
 
-    # Kill switch
-    risk_off, diag = compute_killswitch(
+    # Kill switch (graduated participation)
+    part, diag, triggers = compute_killswitch(
         fred, spy, tlt,
-        hy_z_thr=hy_z_thr, vix_thr=vix_thr, curve_days=curve_days,
-        corr_window=corr_window, corr_thr=corr_thr, slow_reentry=slow_reentry,
+        hy_z_thr=hy_z_thr, vix_thr=vix_thr,
+        corr_window=corr_window, corr_thr=corr_thr, smooth=smooth,
     )
-    on_mult = (~risk_off).astype(float)  # 1 when risk-on, 0 when risk-off
+    # participation uses data through close[t-1]; lag once more so day-t weights
+    # reflect participation decided with data through close[t-2] i.e. observable
+    # at open[t-1] for setting open[t] trade. This is belt-and-braces vs bleed.
+    on_mult = part.shift(1).fillna(0.0)
+    risk_off = (on_mult < 0.5)  # aux diagnostic only
 
     # Merge weights into a single DataFrame keyed to universe columns
     weights = pd.DataFrame(0.0, index=idx, columns=universe)
@@ -379,14 +426,22 @@ def run(
     }
 
     # kill-switch analytics
-    # count trigger transitions (False -> True)
-    transitions = (risk_off.astype(int).diff() == 1).astype(int).loc[IS_START:OOS_END]
+    # count trigger transitions (False -> True) for risk-off (participation < 0.5)
+    rs = risk_off.reindex(net.index).astype(int)
+    transitions = (rs.diff() == 1).astype(int)
     ks_per_year = transitions.groupby(transitions.index.year).sum().to_dict()
     metrics["killswitch_transitions_per_year"] = {int(k): int(v) for k, v in ks_per_year.items()}
     metrics["killswitch_days_off"] = {
-        "full": int(risk_off.loc[IS_START:OOS_END].sum()),
-        "is": int(risk_off.loc[IS_START:IS_END].sum()),
-        "oos": int(risk_off.loc[OOS_START:OOS_END].sum()),
+        "full": int(rs.sum()),
+        "is": int(rs.loc[IS_START:IS_END].sum()),
+        "oos": int(rs.loc[OOS_START:OOS_END].sum()),
+    }
+    # participation distribution
+    p_idx = on_mult.reindex(net.index)
+    metrics["participation_distribution"] = {
+        "mean_full": float(p_idx.mean()),
+        "mean_is": float(p_idx.loc[IS_START:IS_END].mean()),
+        "mean_oos": float(p_idx.loc[OOS_START:OOS_END].mean()),
     }
 
     # per-sleeve standalone metrics (sleeve-weighted alone + kill-switch)
@@ -415,9 +470,9 @@ def run(
     metrics["params"] = {
         "mom_lb": mom_lb, "sma_lb": sma_lb,
         "w_eq": w_eq, "w_rates": w_rates, "w_ra": w_ra, "gross": gross,
-        "hy_z_thr": hy_z_thr, "vix_thr": vix_thr, "curve_days": curve_days,
+        "hy_z_thr": hy_z_thr, "vix_thr": vix_thr,
         "corr_window": corr_window, "corr_thr": corr_thr,
-        "slow_reentry": slow_reentry, "tc_bps": TC_BPS,
+        "smooth": smooth, "tc_bps": TC_BPS,
         "eq_pool": EQ_POOL, "rates_pool": RATES_POOL, "ra_pool": RA_POOL,
     }
 
@@ -426,8 +481,8 @@ def run(
         print("BASTION  sleeves eq={}  rates={}  ra={}".format(EQ_POOL, RATES_POOL, RA_POOL))
         print(f"  mom_lb={mom_lb}  sma_lb={sma_lb}  gross={gross}x")
         print(f"  notional w: eq={w_eq}  rates={w_rates}  ra={w_ra}")
-        print(f"  killswitch: hy_z>{hy_z_thr}, vix>{vix_thr}, curve>={curve_days}d<-0.3, "
-              f"sb_corr>{corr_thr} (w={corr_window}d), re-entry={slow_reentry}d")
+        print(f"  killswitch: hy_z>{hy_z_thr}, vix>{vix_thr}, "
+              f"sb_corr>{corr_thr} (w={corr_window}d), smooth={smooth}")
         print("-" * 80)
         for k in ["full", "is", "oos"]:
             m = metrics[k]

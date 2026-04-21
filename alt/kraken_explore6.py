@@ -213,18 +213,17 @@ if __name__ == "__main__":
     rows=[]
     universes = [
         ("UNIV_10", UNIV_10),
-        ("UNIV_12", UNIV_12),
         ("UNIV_15", UNIV_15),
     ]
     grid = list(itertools.product(
         universes,
-        [150, 200, 250],          # trend win
-        [10, 21],                 # rebal
+        [150, 200],               # trend win
+        [21],                     # rebal
         [0.5, 0.6],               # bh
-        [22, 25, 28],             # vxm
+        [25, 28],                 # vxm
         [3, 5],                   # confirm
         [True, False],            # daily exit
-        [None, 0.10, 0.15, 0.20], # nav stop
+        [None, 0.10, 0.15],       # nav stop
         [None, 2, 3, 5],          # top_k
     ))
     print(f"configs: {len(grid)}")

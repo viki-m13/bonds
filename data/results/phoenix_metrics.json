@@ -1,0 +1,181 @@
+{
+  "weights": {
+    "VANGUARD": 0.3153835834005025,
+    "ORION": 0.4374979489649403,
+    "HELIOS": 0.2471184676345573,
+    "CITADEL": 0.0,
+    "BASTION": 0.0,
+    "REVENANT": 0.0
+  },
+  "full": {
+    "label": "FULL",
+    "n": 4191,
+    "start": "2010-03-11",
+    "end": "2026-04-02",
+    "sharpe": 1.4685,
+    "sortino": 1.9972,
+    "cagr": 0.2623,
+    "ann_vol": 0.1684,
+    "mdd": -0.2725,
+    "navx": 48.1421,
+    "calmar": 0.9626
+  },
+  "is": {
+    "label": "IS",
+    "n": 2298,
+    "start": "2010-03-11",
+    "end": "2018-12-31",
+    "sharpe": 1.3454,
+    "sortino": 1.8636,
+    "cagr": 0.1998,
+    "ann_vol": 0.1431,
+    "mdd": -0.2725,
+    "navx": 5.2652,
+    "calmar": 0.7332
+  },
+  "oos": {
+    "label": "OOS",
+    "n": 1892,
+    "start": "2019-01-02",
+    "end": "2026-04-02",
+    "sharpe": 1.612,
+    "sortino": 2.2027,
+    "cagr": 0.3428,
+    "ann_vol": 0.1948,
+    "mdd": -0.2557,
+    "navx": 9.1435,
+    "calmar": 1.3408
+  },
+  "is_oos_gap": 0.2666,
+  "components": {
+    "VANGUARD": {
+      "label": "VANGUARD",
+      "n": 4191,
+      "start": "2010-03-11",
+      "end": "2026-04-02",
+      "sharpe": 0.9564,
+      "sortino": 1.1304,
+      "cagr": 0.2484,
+      "ann_vol": 0.2705,
+      "mdd": -0.4093,
+      "navx": 40.0311,
+      "calmar": 0.6069
+    },
+    "ORION": {
+      "label": "ORION",
+      "n": 4191,
+      "start": "2010-03-11",
+      "end": "2026-04-02",
+      "sharpe": 0.8375,
+      "sortino": 1.0362,
+      "cagr": 0.1878,
+      "ann_vol": 0.24,
+      "mdd": -0.3166,
+      "navx": 17.4884,
+      "calmar": 0.593
+    },
+    "HELIOS": {
+      "label": "HELIOS",
+      "n": 4191,
+      "start": "2010-03-11",
+      "end": "2026-04-02",
+      "sharpe": 0.7209,
+      "sortino": 0.8776,
+      "cagr": 0.244,
+      "ann_vol": 0.4362,
+      "mdd": -0.6226,
+      "navx": 37.7413,
+      "calmar": 0.3919
+    },
+    "CITADEL": {
+      "label": "CITADEL",
+      "n": 4191,
+      "start": "2010-03-11",
+      "end": "2026-04-02",
+      "sharpe": 0.5882,
+      "sortino": 0.6104,
+      "cagr": 0.1642,
+      "ann_vol": 0.3882,
+      "mdd": -0.5354,
+      "navx": 12.5285,
+      "calmar": 0.3066
+    },
+    "BASTION": {
+      "label": "BASTION",
+      "n": 4191,
+      "start": "2010-03-11",
+      "end": "2026-04-02",
+      "sharpe": 0.6495,
+      "sortino": 0.7746,
+      "cagr": 0.1484,
+      "ann_vol": 0.2691,
+      "mdd": -0.448,
+      "navx": 9.9835,
+      "calmar": 0.3312
+    },
+    "REVENANT": {
+      "label": "REVENANT",
+      "n": 4191,
+      "start": "2010-03-11",
+      "end": "2026-04-02",
+      "sharpe": 0.4212,
+      "sortino": 0.4643,
+      "cagr": 0.0879,
+      "ann_vol": 0.3264,
+      "mdd": -0.7576,
+      "navx": 4.057,
+      "calmar": 0.116
+    }
+  },
+  "is_correlations": {
+    "VANGUARD": {
+      "VANGUARD": 1.0,
+      "ORION": -0.01,
+      "HELIOS": -0.026,
+      "CITADEL": 0.493,
+      "BASTION": 0.642,
+      "REVENANT": 0.377
+    },
+    "ORION": {
+      "VANGUARD": -0.01,
+      "ORION": 1.0,
+      "HELIOS": -0.002,
+      "CITADEL": -0.012,
+      "BASTION": 0.023,
+      "REVENANT": -0.034
+    },
+    "HELIOS": {
+      "VANGUARD": -0.026,
+      "ORION": -0.002,
+      "HELIOS": 1.0,
+      "CITADEL": -0.046,
+      "BASTION": -0.024,
+      "REVENANT": -0.025
+    },
+    "CITADEL": {
+      "VANGUARD": 0.493,
+      "ORION": -0.012,
+      "HELIOS": -0.046,
+      "CITADEL": 1.0,
+      "BASTION": 0.527,
+      "REVENANT": 0.526
+    },
+    "BASTION": {
+      "VANGUARD": 0.642,
+      "ORION": 0.023,
+      "HELIOS": -0.024,
+      "CITADEL": 0.527,
+      "BASTION": 1.0,
+      "REVENANT": 0.435
+    },
+    "REVENANT": {
+      "VANGUARD": 0.377,
+      "ORION": -0.034,
+      "HELIOS": -0.025,
+      "CITADEL": 0.526,
+      "BASTION": 0.435,
+      "REVENANT": 1.0
+    }
+  },
+  "scheme_name": "orthogonal_3"
+}

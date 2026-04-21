@@ -1,0 +1,98 @@
+{
+  "weights": {
+    "VANGUARD": 0.3153835834005025,
+    "ORION": 0.4374979489649403,
+    "HELIOS": 0.2471184676345573
+  },
+  "throttle": {
+    "dd_win": 252,
+    "dd_floor": -0.1,
+    "vol_win": 60,
+    "vol_pct": 0.8,
+    "pct_lookback": 252
+  },
+  "raw": {
+    "full": {
+      "label": "RAW",
+      "n": 4191,
+      "start": "2010-03-11",
+      "end": "2026-04-02",
+      "sharpe": 1.4685,
+      "sortino": 1.9972,
+      "cagr": 0.2623,
+      "ann_vol": 0.1684,
+      "mdd": -0.2725,
+      "navx": 48.1421,
+      "calmar": 0.9626
+    },
+    "is": {
+      "label": "RAW IS",
+      "n": 2298,
+      "start": "2010-03-11",
+      "end": "2018-12-31",
+      "sharpe": 1.3454,
+      "sortino": 1.8636,
+      "cagr": 0.1998,
+      "ann_vol": 0.1431,
+      "mdd": -0.2725,
+      "navx": 5.2652,
+      "calmar": 0.7332
+    },
+    "oos": {
+      "label": "RAW OOS",
+      "n": 1892,
+      "start": "2019-01-02",
+      "end": "2026-04-02",
+      "sharpe": 1.612,
+      "sortino": 2.2027,
+      "cagr": 0.3428,
+      "ann_vol": 0.1948,
+      "mdd": -0.2557,
+      "navx": 9.1435,
+      "calmar": 1.3408
+    }
+  },
+  "enhanced": {
+    "full": {
+      "label": "FULL",
+      "n": 4191,
+      "start": "2010-03-11",
+      "end": "2026-04-02",
+      "sharpe": 1.5569,
+      "sortino": 2.0977,
+      "cagr": 0.2427,
+      "ann_vol": 0.1465,
+      "mdd": -0.2159,
+      "navx": 37.0999,
+      "calmar": 1.1242
+    },
+    "is": {
+      "label": "IS",
+      "n": 2298,
+      "start": "2010-03-11",
+      "end": "2018-12-31",
+      "sharpe": 1.3779,
+      "sortino": 1.8517,
+      "cagr": 0.1737,
+      "ann_vol": 0.1216,
+      "mdd": -0.2159,
+      "navx": 4.3077,
+      "calmar": 0.8045
+    },
+    "oos": {
+      "label": "OOS",
+      "n": 1892,
+      "start": "2019-01-02",
+      "end": "2026-04-02",
+      "sharpe": 1.755,
+      "sortino": 2.423,
+      "cagr": 0.3321,
+      "ann_vol": 0.1719,
+      "mdd": -0.2149,
+      "navx": 8.6125,
+      "calmar": 1.5458
+    }
+  },
+  "is_oos_gap": 0.3771,
+  "avg_mult": 0.8556430446194225
+}

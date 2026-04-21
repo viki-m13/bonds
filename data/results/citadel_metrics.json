@@ -1,0 +1,96 @@
+{
+  "params": {
+    "lb_mom": 252,
+    "sma_long": 200,
+    "sma_short": 50,
+    "hy_slope": 20,
+    "hy_thr": 0.0,
+    "rebal_days": 21,
+    "tc_bps": 5.0,
+    "n_max_long": 4,
+    "n_max_short": 3,
+    "min_breadth": 0.45,
+    "max_breadth": 0.25,
+    "sleeves": [
+      [
+        "UPRO",
+        "SPXU",
+        "SPY"
+      ],
+      [
+        "TQQQ",
+        "SQQQ",
+        "QQQ"
+      ],
+      [
+        "SOXL",
+        "SOXS",
+        "SMH"
+      ],
+      [
+        "TECL",
+        "TECS",
+        "XLK"
+      ],
+      [
+        "FAS",
+        "FAZ",
+        "XLF"
+      ],
+      [
+        "TMF",
+        "TMV",
+        "TLT"
+      ],
+      [
+        "YINN",
+        "YANG",
+        "FXI"
+      ]
+    ]
+  },
+  "full": {
+    "label": "FULL",
+    "n": 4041,
+    "start": "2010-03-11",
+    "end": "2026-04-02",
+    "sharpe": 0.5991,
+    "cagr": 0.1708,
+    "ann_vol": 0.3953,
+    "mdd": -0.5354,
+    "navx": 12.5285
+  },
+  "is": {
+    "label": "IS",
+    "n": 2218,
+    "start": "2010-03-11",
+    "end": "2018-12-31",
+    "sharpe": 0.5319,
+    "cagr": 0.1235,
+    "ann_vol": 0.3103,
+    "mdd": -0.4149,
+    "navx": 2.7869
+  },
+  "oos": {
+    "label": "OOS",
+    "n": 1823,
+    "start": "2019-01-02",
+    "end": "2026-04-02",
+    "sharpe": 0.677,
+    "cagr": 0.2309,
+    "ann_vol": 0.4789,
+    "mdd": -0.4759,
+    "navx": 4.4955
+  },
+  "is_oos_gap": 0.1451,
+  "avg_turnover_annual": 8.33,
+  "time_in_market": {
+    "long": 0.631,
+    "short": 0.013,
+    "cash": 0.357
+  },
+  "attribution": {
+    "cumulative_long_pnl": 3.6338,
+    "cumulative_short_pnl": 0.0998
+  }
+}
