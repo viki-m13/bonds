@@ -211,7 +211,9 @@ BODY_SECTIONS = """<!-- KPIs -->
 <p style="margin:0"><strong style="color:var(--t1)">How the vol-targeter decides today's gross exposure.</strong> Every day the strategy measures the trailing 63-day realised vol of the inverse-vol-weighted sleeve composite (the "raw" portfolio, <strong>pre-scale</strong>). It then sets the gross-exposure scalar to <code>20% / raw_vol_63d</code>, clipped at the 5× leverage cap. That scalar is applied to day-T's return — the <strong>realised</strong> line below shows the resulting 63-day vol of HYDRA's scaled output. Both series use <code>.shift(1)</code> on the rolling window, so today's sizing is based only on data through T−1 close; orders fill at T open.</p>
 </div>
 <div class="card"><div id="volSummary" style="font-size:0.76rem;color:var(--t2);margin-bottom:6px"></div><div class="chart-wrap chart-sm"><canvas id="volChart"></canvas></div></div>
-<div class="card" style="margin-top:6px;overflow-x:auto"><table id="volTable"></table></div>
+<div class="card" style="margin-top:6px;overflow-x:auto"><div style="font-size:0.78rem;color:var(--t1);font-weight:600;margin-bottom:4px">Last 20 trading days — vol &amp; sizing</div><table id="volTable"></table></div>
+<div class="card" style="margin-top:6px;overflow-x:auto"><div style="font-size:0.78rem;color:var(--t1);font-weight:600;margin-bottom:4px">Daily rebalance trades — last 15 trading days</div><div style="font-size:0.72rem;color:var(--t3);margin-bottom:6px">Turnover = sum of |&#916; gross sleeve position| in NAV%. Top buy/sell shows the single largest trade that day.</div><table id="tradeSummaryTable"></table></div>
+<div class="card" style="margin-top:6px;overflow-x:auto"><div style="font-size:0.78rem;color:var(--t1);font-weight:600;margin-bottom:4px" id="ledgerTitle">Per-sleeve trade ledger — most recent day</div><div style="font-size:0.72rem;color:var(--t3);margin-bottom:6px">Top 10 sleeves by absolute trade size. Position = inverse-vol weight &times; gross scalar, expressed as % of NAV.</div><table id="ledgerTable"></table></div>
 </div>
 
 <!-- CALENDAR RETURNS -->
@@ -400,8 +402,8 @@ function renderVolChart() {
   });
   const s = F.vol_scaling.summary;
   document.getElementById("volSummary").innerHTML =
-    `<strong style="color:var(--t1)">Current state.</strong> Realised 63d vol <strong>${fmtPctPlain(s.current_realised_vol_pct, 2)}</strong> · raw (pre-scale) vol <strong>${fmtPctPlain(s.current_raw_vol_pct, 2)}</strong> · active scalar <strong>${fmtNum(s.current_scalar, 2)}×</strong> (target ${fmtPctPlain(s.target_vol_pct, 0)}, cap ${s.lev_cap.toFixed(0)}×). ` +
-    `Trailing 1y — realised vol range ${fmtPctPlain(s.vol_1y_min_pct, 2)} to ${fmtPctPlain(s.vol_1y_max_pct, 2)} (mean ${fmtPctPlain(s.vol_1y_mean_pct, 2)}); scalar range ${fmtNum(s.scalar_1y_min, 2)}×–${fmtNum(s.scalar_1y_max, 2)}× (mean ${fmtNum(s.scalar_1y_mean, 2)}×); capped on <strong>${fmtPctPlain(s.pct_days_capped, 0)}</strong> of days.`;
+    `<strong style="color:var(--t1)">Current state (${s.ledger_date}).</strong> Realised 63d vol <strong>${fmtPctPlain(s.current_realised_vol_pct, 2)}</strong> · raw (pre-scale) vol <strong>${fmtPctPlain(s.current_raw_vol_pct, 2)}</strong> · active scalar <strong>${fmtNum(s.current_scalar, 2)}×</strong> (target ${fmtPctPlain(s.target_vol_pct, 0)}, cap ${s.lev_cap.toFixed(0)}×) · gross exposure <strong>${fmtPctPlain(s.current_gross_pct, 0)}</strong> of NAV · today's turnover <strong>${fmtPctPlain(s.current_turnover_pct, 2)}</strong>. ` +
+    `<br/><strong style="color:var(--t1)">Trailing 1y.</strong> Realised vol range ${fmtPctPlain(s.vol_1y_min_pct, 2)} to ${fmtPctPlain(s.vol_1y_max_pct, 2)} (mean ${fmtPctPlain(s.vol_1y_mean_pct, 2)}); scalar range ${fmtNum(s.scalar_1y_min, 2)}×–${fmtNum(s.scalar_1y_max, 2)}× (mean ${fmtNum(s.scalar_1y_mean, 2)}×); capped on <strong>${fmtPctPlain(s.pct_days_capped, 0)}</strong> of days. Daily turnover: median ${fmtPctPlain(s.turnover_1y_median_pct, 2)}, mean ${fmtPctPlain(s.turnover_1y_mean_pct, 2)}.`;
 }
 
 function renderCalendarChart() {
@@ -504,6 +506,45 @@ function renderVolTable() {
     <td class="${colorPos(r.ret)}">${fmtPct(r.ret, 3)}</td>
   </tr>`).join("");
   document.getElementById("volTable").innerHTML = h + "<tbody>" + body + "</tbody>";
+}
+
+function renderTradeSummaryTable() {
+  const h = "<thead><tr><th>Date</th><th>Gross</th><th>Scalar</th><th>Turnover</th><th>Buys / Sells</th><th>Top Buy</th><th>Top Sell</th></tr></thead>";
+  const fmtTrade = (t, sign) => t == null ? "—" : `<span style="font-size:0.72rem">${t.sleeve}</span> <span class="${sign}">${fmtPct(t.delta_pct, 2)}</span>`;
+  const turnoverColor = (t) => t > 50 ? "color:#d1344b;font-weight:600" : t > 10 ? "color:#c97a00" : "";
+  const body = F.vol_scaling.trade_summary.map(r => `<tr>
+    <td style="font-size:0.72rem">${r.date}</td>
+    <td>${fmtPctPlain(r.gross_pct, 1)}</td>
+    <td>${fmtNum(r.scalar, 2)}×</td>
+    <td style="${turnoverColor(r.turnover_pct)}">${fmtPctPlain(r.turnover_pct, 2)}</td>
+    <td><span class="pos">${r.n_buys}</span> / <span class="neg">${r.n_sells}</span></td>
+    <td style="text-align:left">${fmtTrade(r.top_buy, "pos")}</td>
+    <td style="text-align:left">${fmtTrade(r.top_sell, "neg")}</td>
+  </tr>`).join("");
+  document.getElementById("tradeSummaryTable").innerHTML = h + "<tbody>" + body + "</tbody>";
+}
+
+function renderLedgerTable() {
+  const s = F.vol_scaling.summary;
+  document.getElementById("ledgerTitle").textContent =
+    `Per-sleeve trade ledger — ${s.ledger_date} (vs ${s.ledger_prior_date})`;
+  const h = "<thead><tr><th>Action</th><th>Sleeve</th><th>Prior Pos</th><th>New Pos</th><th>&#916; (NAV%)</th><th>Bar</th></tr></thead>";
+  const ledger = F.vol_scaling.ledger_today;
+  const maxAbs = Math.max(...ledger.map(r => Math.abs(r.delta_pct)), 0.001);
+  const body = ledger.map(r => {
+    const cls = r.action === "BUY" ? "pos" : "neg";
+    const w = (Math.abs(r.delta_pct) / maxAbs * 100).toFixed(0);
+    const bar = `<div class="bar-bg" style="width:80px"><div style="height:100%;background:${r.action === 'BUY' ? '#0d9e6d' : '#d1344b'};width:${w}%"></div></div>`;
+    return `<tr class="sleeve-row">
+      <td><span class="${cls}" style="font-weight:600">${r.action}</span></td>
+      <td>${r.sleeve}</td>
+      <td>${fmtPctPlain(r.prior_pct, 3)}</td>
+      <td>${fmtPctPlain(r.new_pct, 3)}</td>
+      <td class="${cls}">${fmtPct(r.delta_pct, 3)}</td>
+      <td style="width:90px">${bar}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("ledgerTable").innerHTML = h + "<tbody>" + body + "</tbody>";
 }
 
 function renderCalendarTable() {
@@ -646,6 +687,8 @@ function renderAll() {
   renderTrailingTable();
   renderPerfRiskTables();
   renderVolTable();
+  renderTradeSummaryTable();
+  renderLedgerTable();
   renderCalendarTable();
   renderHeatmap();
   renderPortfolioTable();

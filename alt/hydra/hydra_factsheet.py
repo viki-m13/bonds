@@ -168,7 +168,8 @@ def sleeve_correlations(sleeves_df):
 
 
 def vol_scaling_series(sleeves_df, hydra_r, target_vol=0.20, lev_cap=5.0,
-                       window=63, recent_days=252, table_days=20):
+                       window=63, recent_days=252, table_days=20,
+                       trades_days=15, trades_top_n=10):
     """Reconstruct the exact vol-scaling decision the strategy makes each day.
 
     Mirrors ``risk_parity_ensemble`` in alt/hydra/hydra_run.py:
@@ -176,6 +177,9 @@ def vol_scaling_series(sleeves_df, hydra_r, target_vol=0.20, lev_cap=5.0,
       raw   = (inv_vol_weights * sleeves).sum(axis=1)
       pv    = raw.rolling(63).std().shift(1) * sqrt(252)  # pre-scale portfolio vol
       scale = clip(target_vol / pv, upper=5x)
+
+    Per-sleeve gross position = inv_vol_weight * scalar (in fraction of NAV).
+    Per-sleeve trade on day T  = position_T - position_T-1 (signed).
     """
     vols = sleeves_df.rolling(window).std().shift(1) * np.sqrt(252)
     vols = vols.where(vols > 0.001)
@@ -186,6 +190,12 @@ def vol_scaling_series(sleeves_df, hydra_r, target_vol=0.20, lev_cap=5.0,
     scalar = (target_vol / pv).clip(upper=lev_cap).fillna(0)
     realised = hydra_r.rolling(window).std() * np.sqrt(252)
 
+    # Per-sleeve gross position = w * scale, then daily trades = diff
+    gross = w.multiply(scalar, axis=0)        # rows=date, cols=sleeve
+    trades = gross.diff()                     # signed delta in NAV fraction
+    turnover = trades.abs().sum(axis=1)
+    gross_total = gross.sum(axis=1)
+
     # Last N days, chart-ready
     idx = hydra_r.index[-recent_days:]
     daily = [{
@@ -195,7 +205,7 @@ def vol_scaling_series(sleeves_df, hydra_r, target_vol=0.20, lev_cap=5.0,
         "scalar": round(float(scalar.loc[d]), 2) if d in scalar.index else None,
     } for d in idx]
 
-    # Last N days tabular (most recent first)
+    # Last N days tabular (most recent first) — vol/scalar/return
     tbl_idx = hydra_r.index[-table_days:][::-1]
     table = [{
         "date": d.strftime("%Y-%m-%d"),
@@ -205,8 +215,54 @@ def vol_scaling_series(sleeves_df, hydra_r, target_vol=0.20, lev_cap=5.0,
         "ret": round(float(hydra_r.loc[d] * 100), 3),
     } for d in tbl_idx]
 
+    # Daily trade summary: last N days, most recent first
+    trade_idx = hydra_r.index[-trades_days:][::-1]
+    trade_summary = []
+    for d in trade_idx:
+        if d not in trades.index:
+            continue
+        row = trades.loc[d]
+        if row.isna().all():
+            continue
+        buys = row[row > 1e-6]
+        sells = row[row < -1e-6]
+        top_buy = buys.idxmax() if len(buys) else None
+        top_sell = sells.idxmin() if len(sells) else None
+        trade_summary.append({
+            "date": d.strftime("%Y-%m-%d"),
+            "gross_pct": round(float(gross_total.loc[d] * 100), 2),
+            "scalar": round(float(scalar.loc[d]), 2),
+            "turnover_pct": round(float(turnover.loc[d] * 100), 2),
+            "n_buys": int(len(buys)),
+            "n_sells": int(len(sells)),
+            "top_buy": {"sleeve": top_buy, "delta_pct": round(float(buys.max() * 100), 2)} if top_buy else None,
+            "top_sell": {"sleeve": top_sell, "delta_pct": round(float(sells.min() * 100), 2)} if top_sell else None,
+        })
+
+    # Most-recent-day per-sleeve trade ledger
+    last_d = hydra_r.index[-1]
+    prev_d = hydra_r.index[-2]
+    ledger_today = []
+    if last_d in trades.index:
+        last_row = trades.loc[last_d]
+        prior = gross.loc[prev_d] if prev_d in gross.index else gross.loc[last_d] * 0
+        new = gross.loc[last_d]
+        sorted_idx = last_row.abs().sort_values(ascending=False).index
+        for s in sorted_idx[:trades_top_n]:
+            d_val = float(last_row.loc[s])
+            if abs(d_val) < 1e-6:
+                continue
+            ledger_today.append({
+                "sleeve": s,
+                "prior_pct": round(float(prior.loc[s] * 100), 3),
+                "new_pct": round(float(new.loc[s] * 100), 3),
+                "delta_pct": round(float(d_val * 100), 3),
+                "action": "BUY" if d_val > 0 else "SELL",
+            })
+
     ry = realised.iloc[-recent_days:].dropna()
     sy = scalar.iloc[-recent_days:].dropna()
+    ty = turnover.iloc[-recent_days:].dropna()
     summary = {
         "target_vol_pct": round(target_vol * 100, 1),
         "lev_cap": lev_cap,
@@ -214,6 +270,8 @@ def vol_scaling_series(sleeves_df, hydra_r, target_vol=0.20, lev_cap=5.0,
         "current_realised_vol_pct": round(float(realised.iloc[-1] * 100), 2) if not np.isnan(realised.iloc[-1]) else None,
         "current_raw_vol_pct": round(float(pv.iloc[-1] * 100), 2) if not np.isnan(pv.iloc[-1]) else None,
         "current_scalar": round(float(scalar.iloc[-1]), 2),
+        "current_gross_pct": round(float(gross_total.iloc[-1] * 100), 2),
+        "current_turnover_pct": round(float(turnover.iloc[-1] * 100), 2),
         "vol_1y_min_pct": round(float(ry.min() * 100), 2) if len(ry) else None,
         "vol_1y_max_pct": round(float(ry.max() * 100), 2) if len(ry) else None,
         "vol_1y_mean_pct": round(float(ry.mean() * 100), 2) if len(ry) else None,
@@ -221,8 +279,13 @@ def vol_scaling_series(sleeves_df, hydra_r, target_vol=0.20, lev_cap=5.0,
         "scalar_1y_max": round(float(sy.max()), 2) if len(sy) else None,
         "scalar_1y_mean": round(float(sy.mean()), 2) if len(sy) else None,
         "pct_days_capped": round(float((sy >= lev_cap - 1e-6).mean() * 100), 1) if len(sy) else None,
+        "turnover_1y_mean_pct": round(float(ty.mean() * 100), 2) if len(ty) else None,
+        "turnover_1y_median_pct": round(float(ty.median() * 100), 2) if len(ty) else None,
+        "ledger_date": last_d.strftime("%Y-%m-%d"),
+        "ledger_prior_date": prev_d.strftime("%Y-%m-%d"),
     }
-    return {"daily": daily, "table": table, "summary": summary}
+    return {"daily": daily, "table": table, "summary": summary,
+            "trade_summary": trade_summary, "ledger_today": ledger_today}
 
 
 def sleeve_descriptions():
