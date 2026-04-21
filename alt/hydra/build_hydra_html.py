@@ -214,6 +214,9 @@ BODY_SECTIONS = """<!-- KPIs -->
 <div class="card" style="margin-top:6px;overflow-x:auto"><div style="font-size:0.78rem;color:var(--t1);font-weight:600;margin-bottom:4px">Last 20 trading days — vol &amp; sizing</div><table id="volTable"></table></div>
 <div class="card" style="margin-top:6px;overflow-x:auto"><div style="font-size:0.78rem;color:var(--t1);font-weight:600;margin-bottom:4px">Daily rebalance trades — last 15 trading days</div><div style="font-size:0.72rem;color:var(--t3);margin-bottom:6px">Turnover = sum of |&#916; gross sleeve position| in NAV%. Top buy/sell shows the single largest trade that day.</div><table id="tradeSummaryTable"></table></div>
 <div class="card" style="margin-top:6px;overflow-x:auto"><div style="font-size:0.78rem;color:var(--t1);font-weight:600;margin-bottom:4px" id="ledgerTitle">Per-sleeve trade ledger — most recent day</div><div style="font-size:0.72rem;color:var(--t3);margin-bottom:6px">Top 10 sleeves by absolute trade size. Position = inverse-vol weight &times; gross scalar, expressed as % of NAV.</div><table id="ledgerTable"></table></div>
+<div class="card" style="margin-top:10px;overflow-x:auto"><div style="font-size:0.78rem;color:var(--t1);font-weight:600;margin-bottom:4px" id="etfPosTitle">Current ETF positions (notional)</div><div style="font-size:0.72rem;color:var(--t3);margin-bottom:6px">Per-ticker exposure after resolving each sleeve's internal ETF toggle and per-sleeve vol scalar. Sum of absolute exposures is the true gross — higher than the 500% sleeve-level cap because each sleeve is independently vol-targeted to 10% (capped at 1.5×) before the ensemble-level 20% target applies.</div><div id="etfPosSummary" style="font-size:0.74rem;color:var(--t2);margin-bottom:6px"></div><table id="etfPosTable"></table></div>
+<div class="card" style="margin-top:6px;overflow-x:auto"><div style="font-size:0.78rem;color:var(--t1);font-weight:600;margin-bottom:4px" id="etfLedgerTitle">Exact ETF trades — most recent day</div><div style="font-size:0.72rem;color:var(--t3);margin-bottom:6px">Signed per-ticker rebalance trades. Positive = buy, negative = sell, as a fraction of NAV.</div><table id="etfLedgerTable"></table></div>
+<div class="card" style="margin-top:6px;overflow-x:auto"><div style="font-size:0.78rem;color:var(--t1);font-weight:600;margin-bottom:4px">ETF trade history — last 15 trading days</div><div style="font-size:0.72rem;color:var(--t3);margin-bottom:6px">Top buys and top sells by absolute size each day. Turnover = sum of |&#916; ETF| in NAV%.</div><table id="etfHistoryTable"></table></div>
 </div>
 
 <!-- CALENDAR RETURNS -->
@@ -547,6 +550,67 @@ function renderLedgerTable() {
   document.getElementById("ledgerTable").innerHTML = h + "<tbody>" + body + "</tbody>";
 }
 
+function renderEtfPositionsTable() {
+  if (!F.etf_positions) return;
+  const ep = F.etf_positions;
+  document.getElementById("etfPosTitle").textContent =
+    `Current ETF positions (notional) — ${ep.as_of}`;
+  document.getElementById("etfPosSummary").innerHTML =
+    `<strong style="color:var(--t1)">Gross exposure</strong> ${fmtPctPlain(ep.gross_pct, 1)} of NAV across <strong>${ep.n_etfs}</strong> live tickers · net <strong>${fmtPct(ep.net_pct, 1)}</strong>.`;
+  const h = "<thead><tr><th>Ticker</th><th>% NAV</th><th>Bar</th></tr></thead>";
+  const maxAbs = Math.max(...ep.positions_today.map(p => Math.abs(p.pct_nav)), 1);
+  const body = ep.positions_today.map(p => {
+    const cls = p.pct_nav >= 0 ? "pos" : "neg";
+    const w = (Math.abs(p.pct_nav) / maxAbs * 100).toFixed(0);
+    const bar = `<div class="bar-bg" style="width:120px"><div style="height:100%;background:${p.pct_nav >= 0 ? '#0d9e6d' : '#d1344b'};width:${w}%"></div></div>`;
+    return `<tr class="sleeve-row">
+      <td style="font-weight:600">${p.etf}</td>
+      <td class="${cls}">${fmtPct(p.pct_nav, 2)}</td>
+      <td style="width:130px">${bar}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("etfPosTable").innerHTML = h + "<tbody>" + body + "</tbody>";
+}
+
+function renderEtfLedgerTable() {
+  if (!F.etf_positions) return;
+  const ep = F.etf_positions;
+  document.getElementById("etfLedgerTitle").textContent =
+    `Exact ETF trades — ${ep.as_of} (vs ${ep.prior})`;
+  const h = "<thead><tr><th>Action</th><th>Ticker</th><th>Prior Pos</th><th>New Pos</th><th>&#916; (NAV%)</th><th>Bar</th></tr></thead>";
+  const maxAbs = Math.max(...ep.ledger_today.map(r => Math.abs(r.delta_pct)), 0.001);
+  const body = ep.ledger_today.map(r => {
+    const cls = r.action === "BUY" ? "pos" : "neg";
+    const w = (Math.abs(r.delta_pct) / maxAbs * 100).toFixed(0);
+    const bar = `<div class="bar-bg" style="width:80px"><div style="height:100%;background:${r.action === 'BUY' ? '#0d9e6d' : '#d1344b'};width:${w}%"></div></div>`;
+    return `<tr class="sleeve-row">
+      <td><span class="${cls}" style="font-weight:600">${r.action}</span></td>
+      <td style="font-weight:600">${r.etf}</td>
+      <td>${fmtPct(r.prior_pct, 3)}</td>
+      <td>${fmtPct(r.new_pct, 3)}</td>
+      <td class="${cls}">${fmtPct(r.delta_pct, 3)}</td>
+      <td style="width:90px">${bar}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("etfLedgerTable").innerHTML = h + "<tbody>" + body + "</tbody>";
+}
+
+function renderEtfHistoryTable() {
+  if (!F.etf_positions) return;
+  const ep = F.etf_positions;
+  const h = "<thead><tr><th>Date</th><th>Turnover</th><th>Top Buys</th><th>Top Sells</th></tr></thead>";
+  const fmtList = (arr, sign) => arr.length === 0 ? "—" :
+    arr.map(x => `<span style="font-size:0.72rem">${x.etf}</span> <span class="${sign}">${fmtPct(x.delta_pct, 2)}</span>`).join(" &nbsp; ");
+  const turnoverColor = (t) => t > 50 ? "color:#d1344b;font-weight:600" : t > 10 ? "color:#c97a00" : "";
+  const body = ep.history.map(r => `<tr>
+    <td style="font-size:0.72rem">${r.date}</td>
+    <td style="${turnoverColor(r.turnover_pct)}">${fmtPctPlain(r.turnover_pct, 2)}</td>
+    <td style="text-align:left">${fmtList(r.buys.slice(0, 5), "pos")}</td>
+    <td style="text-align:left">${fmtList(r.sells.slice(0, 5), "neg")}</td>
+  </tr>`).join("");
+  document.getElementById("etfHistoryTable").innerHTML = h + "<tbody>" + body + "</tbody>";
+}
+
 function renderCalendarTable() {
   const h = "<thead><tr><th>Year</th><th>HYDRA</th><th>SPY</th><th>Diff</th></tr></thead>";
   const sm = {};
@@ -689,6 +753,9 @@ function renderAll() {
   renderVolTable();
   renderTradeSummaryTable();
   renderLedgerTable();
+  renderEtfPositionsTable();
+  renderEtfLedgerTable();
+  renderEtfHistoryTable();
   renderCalendarTable();
   renderHeatmap();
   renderPortfolioTable();

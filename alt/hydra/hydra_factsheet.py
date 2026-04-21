@@ -288,6 +288,76 @@ def vol_scaling_series(sleeves_df, hydra_r, target_vol=0.20, lev_cap=5.0,
             "trade_summary": trade_summary, "ledger_today": ledger_today}
 
 
+def etf_positions_block(csv_path, top_positions=20, top_trades=20,
+                        trade_history_days=15, trade_history_top=8,
+                        min_delta_pct=0.001):
+    """Load per-ETF exposure CSV (built by hydra_etf_positions.py) and
+    produce a JSON-friendly block for the factsheet."""
+    if not csv_path.exists():
+        return None
+    ep = pd.read_csv(csv_path, parse_dates=["Date"]).set_index("Date")
+    trades = ep.diff()
+
+    last_d = ep.index[-1]
+    prev_d = ep.index[-2]
+    last = ep.iloc[-1]
+    prev = ep.iloc[-2]
+
+    # Full position list (most recent day), sorted by absolute size
+    positions_today = []
+    for etf in last.abs().sort_values(ascending=False).index[:top_positions]:
+        positions_today.append({
+            "etf": etf,
+            "pct_nav": round(float(last[etf] * 100), 3),
+        })
+
+    # Full trade ledger for most recent day
+    today_trades = trades.iloc[-1]
+    ledger_today = []
+    for etf in today_trades.abs().sort_values(ascending=False).index[:top_trades]:
+        d = float(today_trades[etf])
+        if abs(d) * 100 < min_delta_pct:
+            continue
+        ledger_today.append({
+            "etf": etf,
+            "prior_pct": round(float(prev[etf] * 100), 3),
+            "new_pct": round(float(last[etf] * 100), 3),
+            "delta_pct": round(d * 100, 3),
+            "action": "BUY" if d > 0 else "SELL",
+        })
+
+    # Per-day trade history: top N buys and sells, most recent first
+    history = []
+    for d in ep.index[-trade_history_days:][::-1]:
+        row = trades.loc[d].dropna()
+        if row.empty:
+            continue
+        buys = row[row > 1e-6].sort_values(ascending=False)
+        sells = row[row < -1e-6].sort_values()
+        history.append({
+            "date": d.strftime("%Y-%m-%d"),
+            "turnover_pct": round(float(row.abs().sum() * 100), 2),
+            "gross_pct": round(float(ep.loc[d].abs().sum() * 100), 2),
+            "net_pct": round(float(ep.loc[d].sum() * 100), 2),
+            "n_etfs_live": int((ep.loc[d].abs() > 1e-6).sum()),
+            "buys": [{"etf": e, "delta_pct": round(float(v * 100), 3)}
+                     for e, v in buys.head(trade_history_top).items()],
+            "sells": [{"etf": e, "delta_pct": round(float(v * 100), 3)}
+                      for e, v in sells.head(trade_history_top).items()],
+        })
+
+    return {
+        "as_of": last_d.strftime("%Y-%m-%d"),
+        "prior": prev_d.strftime("%Y-%m-%d"),
+        "gross_pct": round(float(last.abs().sum() * 100), 2),
+        "net_pct": round(float(last.sum() * 100), 2),
+        "n_etfs": int((last.abs() > 1e-6).sum()),
+        "positions_today": positions_today,
+        "ledger_today": ledger_today,
+        "history": history,
+    }
+
+
 def sleeve_descriptions():
     return {
         "s1_eq_regime": "Long SPY when SPY > 200dma AND VIX < 25; else SHY.",
@@ -314,6 +384,13 @@ def sleeve_descriptions():
 
 
 def main():
+    # Refresh per-ETF positions before building the factsheet
+    try:
+        import hydra_etf_positions
+        hydra_etf_positions.build()
+    except Exception as e:
+        print(f"[warn] hydra_etf_positions.build() failed: {e}")
+
     ret_df = pd.read_csv(RESULTS / "hydra_returns.csv",
                          parse_dates=["Date"]).set_index("Date")
     sl_df = pd.read_csv(RESULTS / "hydra_sleeves.csv",
@@ -409,6 +486,7 @@ def main():
         "hydra_lite": lite_data,
 
         "vol_scaling": vol_scaling_series(sl_df, r),
+        "etf_positions": etf_positions_block(RESULTS / "hydra_etf_positions.csv"),
 
         "notes": {
             "construction": "Inverse-vol risk parity across 20 uncorrelated sleeves, each independently vol-targeted to 10% annualised. Portfolio vol target 20%, gross cap 5x.",
