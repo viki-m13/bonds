@@ -17,72 +17,72 @@
     "tc_bps_per_lev_chg": 10.0
   },
   "full": {
-    "sharpe": 2.0183,
-    "sortino": 2.8906,
-    "cagr": 0.2891,
-    "vol": 0.1301,
-    "mdd": -0.1686,
-    "calmar": 1.7145,
-    "navx": 69.1621,
+    "sharpe": 1.388,
+    "sortino": 1.9019,
+    "cagr": 0.163,
+    "vol": 0.1135,
+    "mdd": -0.2048,
+    "calmar": 0.796,
+    "navx": 12.4162,
     "n": 4204
   },
   "is": {
-    "sharpe": 2.2256,
-    "sortino": 3.1118,
-    "cagr": 0.2984,
-    "vol": 0.1207,
-    "mdd": -0.1553,
-    "calmar": 1.9214,
-    "navx": 10.8202,
+    "sharpe": 1.1035,
+    "sortino": 1.4881,
+    "cagr": 0.1082,
+    "vol": 0.0974,
+    "mdd": -0.2048,
+    "calmar": 0.5283,
+    "navx": 2.5516,
     "n": 2298
   },
   "oos": {
-    "sharpe": 1.8158,
-    "sortino": 2.6809,
-    "cagr": 0.2781,
-    "vol": 0.1407,
-    "mdd": -0.1686,
-    "calmar": 1.6494,
-    "navx": 6.3919,
+    "sharpe": 1.6737,
+    "sortino": 2.3495,
+    "cagr": 0.2328,
+    "vol": 0.1302,
+    "mdd": -0.1685,
+    "calmar": 1.3818,
+    "navx": 4.866,
     "n": 1905
   },
-  "is_oos_gap": 0.4098,
-  "avg_total_mult": 0.9000586189253614,
-  "avg_vol_target_mult": 0.9403583560484005,
+  "is_oos_gap": 0.5702,
+  "avg_total_mult": 0.926786208863217,
+  "avg_vol_target_mult": 0.9685204039181099,
   "correlations": {
     "VANGUARD": {
       "VANGUARD": 1.0,
       "ORION": -0.015,
       "HELIOS": -0.002,
-      "QUANTUM": 0.043,
+      "QUANTUM": 0.056,
       "CRYPTO": 0.108
     },
     "ORION": {
       "VANGUARD": -0.015,
       "ORION": 1.0,
       "HELIOS": 0.013,
-      "QUANTUM": 0.185,
+      "QUANTUM": 0.157,
       "CRYPTO": -0.032
     },
     "HELIOS": {
       "VANGUARD": -0.002,
       "ORION": 0.013,
       "HELIOS": 1.0,
-      "QUANTUM": -0.016,
+      "QUANTUM": -0.003,
       "CRYPTO": 0.007
     },
     "QUANTUM": {
-      "VANGUARD": 0.043,
-      "ORION": 0.185,
-      "HELIOS": -0.016,
+      "VANGUARD": 0.056,
+      "ORION": 0.157,
+      "HELIOS": -0.003,
       "QUANTUM": 1.0,
-      "CRYPTO": -0.006
+      "CRYPTO": 0.039
     },
     "CRYPTO": {
       "VANGUARD": 0.108,
       "ORION": -0.032,
       "HELIOS": 0.007,
-      "QUANTUM": -0.006,
+      "QUANTUM": 0.039,
       "CRYPTO": 1.0
     }
   }
