@@ -1041,8 +1041,37 @@ if (LIVE && LIVE.context && LIVE.target_positions) {
     _dateEl.textContent = 'Backtest thru ' + F.meta.end + ' · Live signal ' + LIVE.context.as_of;
   }
 
-  document.getElementById('liveAsOf').textContent = 'As of ' + LIVE.context.as_of;
-  document.getElementById('liveGenerated').textContent = 'Generated ' + (LIVE.generated_at_utc || '').replace('T', ' ');
+  // Format: "Signal for [date] · Generated [ET time] · [N] market days old"
+  const _asOf = LIVE.context.as_of;
+  document.getElementById('liveAsOf').textContent = 'Signal computed using data through ' + _asOf + ' close';
+  const genUtc = LIVE.generated_at_utc || '';
+  let genStr = genUtc;
+  try {
+    const dt = new Date(genUtc);
+    const opts = { timeZone: 'America/New_York', year: 'numeric', month: 'short', day: '2-digit',
+                   hour: 'numeric', minute: '2-digit', hour12: true, timeZoneName: 'short' };
+    genStr = dt.toLocaleString('en-US', opts);
+  } catch(e) {}
+  // Compute market-days staleness from as_of to today (ET)
+  const todayET = new Date(new Date().toLocaleString('en-US', {timeZone: 'America/New_York'}));
+  const asOfDt = new Date(_asOf + 'T16:00:00-04:00');  // 4pm ET close
+  let stale = 0;
+  let cursor = new Date(asOfDt);
+  while (cursor < todayET) {
+    cursor.setDate(cursor.getDate() + 1);
+    const dow = cursor.getDay();
+    if (dow !== 0 && dow !== 6) stale++;
+  }
+  stale = Math.max(0, stale - 1);  // -1 because asOf itself counts
+  let staleBadge = '';
+  if (stale >= 2) {
+    staleBadge = ` · <span style="color:var(--red);font-weight:600">${stale} market days stale</span> (cron has not fetched new prices; next run after today's close)`;
+  } else if (stale === 1) {
+    staleBadge = ` · <span style="color:var(--yellow);font-weight:500">1 market day old</span>`;
+  } else {
+    staleBadge = ` · <span style="color:var(--green)">fresh</span>`;
+  }
+  document.getElementById('liveGenerated').innerHTML = 'Generated ' + genStr + staleBadge;
 
   const regimeEl = document.getElementById('liveRegimeVal');
   regimeEl.textContent = LIVE.context.regime_gate_pass ? 'PASS' : 'FAIL';
