@@ -125,42 +125,6 @@ def fetch_latest(tickers):
         print(f"  {t}: +{len(df)} new rows, latest={df['Date'].iloc[-1]}")
 
 
-def fetch_vix_from_yfinance():
-    """Fallback: get VIX via yfinance's ^VIX ticker.
-
-    Used as a safety net if FRED's API fails or is unavailable. yfinance's
-    ^VIX is the same series as FRED's VIXCLS.
-    """
-    try:
-        import yfinance as yf
-    except ImportError:
-        return False
-    out = FRED / "VIXCLS.csv"
-    try:
-        df = yf.download("^VIX", start="1990-01-01", progress=False, auto_adjust=False)
-    except Exception as e:
-        print(f"  VIXCLS (yfinance ^VIX fallback): fetch failed ({e})", file=sys.stderr)
-        return False
-    if df is None or len(df) == 0:
-        return False
-    if isinstance(df.columns, pd.MultiIndex):
-        df.columns = df.columns.get_level_values(0)
-    # Convert to FRED-style CSV (Date, VIXCLS columns)
-    df = df.reset_index()[["Date", "Close"]].rename(columns={"Close": "VIXCLS"})
-    df["Date"] = pd.to_datetime(df["Date"])
-    if out.exists():
-        existing = pd.read_csv(out, parse_dates=["Date"])
-        combined = pd.concat([existing, df], ignore_index=True)
-        combined = combined.drop_duplicates(subset="Date", keep="last").sort_values("Date")
-        if len(combined) >= len(existing):
-            combined.to_csv(out, index=False)
-            print(f"  VIXCLS (yfinance ^VIX): merged, {len(combined)} total, latest={combined['Date'].iloc[-1].date()}")
-    else:
-        df.to_csv(out, index=False)
-        print(f"  VIXCLS (yfinance ^VIX): wrote {len(df)} rows")
-    return True
-
-
 def fetch_fred_latest():
     """Refresh VIX / HY OAS / rates via FRED API (requires FRED_API_KEY env var).
 
@@ -168,16 +132,11 @@ def fetch_fred_latest():
     Some FRED series (e.g., BAMLH0A0HYM2, ICE BofA licensed) only return the
     last ~3 years via the free API as of 2023, but we have full-history
     CSVs in the repo. If we overwrote, we'd lose 20+ years of IS data.
-
-    If FRED_API_KEY is missing, falls back to yfinance for VIX (the most
-    critical series for the live signal). HY-OAS has no yfinance equivalent
-    and will simply use the cached file if FRED is unavailable.
     """
     import os, urllib.request
     api_key = os.environ.get("FRED_API_KEY", "")
     if not api_key:
-        print("FRED_API_KEY not set; using yfinance fallback for VIX only.", file=sys.stderr)
-        fetch_vix_from_yfinance()
+        print("FRED_API_KEY not set; skipping FRED fetch.", file=sys.stderr)
         return
 
     series = ["VIXCLS", "BAMLH0A0HYM2", "DGS10", "DGS2", "FEDFUNDS"]
