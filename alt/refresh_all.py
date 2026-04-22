@@ -393,8 +393,14 @@ def main():
     print("\n=== Regenerating factsheet ===")
     regenerate_factsheet()
 
-    # 6. Regenerate live_signal.json (latest orders)
-    run(["python3", str(ALT / "live_signal.py"), "--skip-fetch"], "Generate live_signal.json")
+    # 6a. Backfill any missed weekdays in the trade/position log since last cron
+    # This replays live_signal --as-of <date> for each missed market day so the
+    # trade history is complete (not just cron-days). Skips gracefully if no gap.
+    run(["python3", str(ALT / "backfill_trades.py")],
+        "Backfill any missed market days in trade log")
+
+    # 6b. Regenerate live_signal.json for TODAY's open orders
+    run(["python3", str(ALT / "live_signal.py"), "--skip-fetch"], "Generate today's live_signal.json")
 
     # 7. Regenerate audit bundle (needs live_signal.json to be current)
     print("\n=== Regenerating audit bundle ===")

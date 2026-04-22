@@ -404,6 +404,8 @@ def compute_trades(prev_weights, target_weights, threshold=0.005):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--skip-fetch", action="store_true", help="Don't download new prices")
+    p.add_argument("--as-of", type=str, default=None,
+                   help="Generate signal as-of this date (YYYY-MM-DD). Used for backfill.")
     args = p.parse_args()
 
     universe_plus_underlying = list(set(UNIVERSE + ["SPY","BIL","QQQ","TLT","IEF","GLD","USO",
@@ -425,6 +427,14 @@ def main():
     dates = opn["SPY"].dropna().index
     # restrict to 2010-start for signal computation
     dates = dates[(dates >= pd.Timestamp("2010-03-11"))]
+    # If --as-of specified, truncate the date universe so signal reflects
+    # what the strategy would have done if run on that date (backfill mode)
+    if args.as_of:
+        cutoff = pd.Timestamp(args.as_of)
+        dates = dates[dates <= cutoff]
+        if len(dates) == 0:
+            print(f"No market data on or before {args.as_of}")
+            return
     close = close.reindex(dates).ffill(limit=5)
     opn = opn.reindex(dates).ffill(limit=5)
 
