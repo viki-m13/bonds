@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-04-22T03:59:38+00:00",
+  "generated_at_utc": "2026-04-22T03:54:41+00:00",
   "context": {
     "as_of": "2026-04-21",
     "regime_gate_pass": true,
@@ -151,130 +151,13 @@
       "delta_pct": 3.33
     },
     {
-      "Date": "2026-04-20",
-      "ticker": "SOXL",
-      "side": "BUY",
-      "weight_before": 0.1566,
-      "weight_after": 0.2173,
-      "weight_delta": 0.0608,
-      "delta_pct": 6.08
-    },
-    {
-      "Date": "2026-04-20",
+      "Date": "2026-04-10",
       "ticker": "ERX",
       "side": "SELL",
-      "weight_before": 0.184,
-      "weight_after": 0.1233,
-      "weight_delta": -0.0608,
-      "delta_pct": -6.08
-    },
-    {
-      "Date": "2026-04-17",
-      "ticker": "UCO",
-      "side": "BUY",
-      "weight_before": 0.184,
-      "weight_after": 0.2173,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
-    },
-    {
-      "Date": "2026-04-17",
-      "ticker": "EDC",
-      "side": "SELL",
-      "weight_before": 0.0333,
-      "weight_after": 0.0,
-      "weight_delta": -0.0333,
-      "delta_pct": -3.33
-    },
-    {
-      "Date": "2026-04-16",
-      "ticker": "UCO",
-      "side": "BUY",
-      "weight_before": 0.184,
-      "weight_after": 0.2173,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
-    },
-    {
-      "Date": "2026-04-16",
-      "ticker": "TECL",
-      "side": "SELL",
-      "weight_before": 0.0333,
-      "weight_after": 0.0,
-      "weight_delta": -0.0333,
-      "delta_pct": -3.33
-    },
-    {
-      "Date": "2026-04-15",
-      "ticker": "TECL",
-      "side": "SELL",
-      "weight_before": 0.0333,
-      "weight_after": 0.0,
-      "weight_delta": -0.0333,
-      "delta_pct": -3.33
-    },
-    {
-      "Date": "2026-04-15",
-      "ticker": "UCO",
-      "side": "BUY",
-      "weight_before": 0.184,
-      "weight_after": 0.2173,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
-    },
-    {
-      "Date": "2026-04-14",
-      "ticker": "TECL",
-      "side": "SELL",
-      "weight_before": 0.0333,
-      "weight_after": 0.0,
-      "weight_delta": -0.0333,
-      "delta_pct": -3.33
-    },
-    {
-      "Date": "2026-04-14",
-      "ticker": "UCO",
-      "side": "BUY",
-      "weight_before": 0.184,
-      "weight_after": 0.2173,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
-    },
-    {
-      "Date": "2026-04-13",
-      "ticker": "ERX",
-      "side": "BUY",
-      "weight_before": 0.184,
-      "weight_after": 0.2173,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
-    },
-    {
-      "Date": "2026-04-13",
-      "ticker": "UCO",
-      "side": "BUY",
-      "weight_before": 0.184,
-      "weight_after": 0.2173,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
-    },
-    {
-      "Date": "2026-04-13",
-      "ticker": "TECL",
-      "side": "SELL",
-      "weight_before": 0.0333,
-      "weight_after": 0.0,
-      "weight_delta": -0.0333,
-      "delta_pct": -3.33
-    },
-    {
-      "Date": "2026-04-13",
-      "ticker": "EDC",
-      "side": "SELL",
-      "weight_before": 0.0333,
-      "weight_after": 0.0,
-      "weight_delta": -0.0333,
-      "delta_pct": -3.33
+      "weight_before": 0.3119,
+      "weight_after": 0.234,
+      "weight_delta": -0.078,
+      "delta_pct": -7.8
     },
     {
       "Date": "2026-04-10",
@@ -284,15 +167,6 @@
       "weight_after": 0.234,
       "weight_delta": -0.078,
       "delta_pct": -7.8
-    },
-    {
-      "Date": "2026-04-10",
-      "ticker": "BIL",
-      "side": "BUY",
-      "weight_before": 0.2118,
-      "weight_after": 0.4088,
-      "weight_delta": 0.1971,
-      "delta_pct": 19.71
     },
     {
       "Date": "2026-04-10",
@@ -305,12 +179,12 @@
     },
     {
       "Date": "2026-04-10",
-      "ticker": "ERX",
-      "side": "SELL",
-      "weight_before": 0.3119,
-      "weight_after": 0.234,
-      "weight_delta": -0.078,
-      "delta_pct": -7.8
+      "ticker": "BIL",
+      "side": "BUY",
+      "weight_before": 0.2118,
+      "weight_after": 0.4088,
+      "weight_delta": 0.1971,
+      "delta_pct": 19.71
     }
   ],
   "price_context": {
