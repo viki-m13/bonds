@@ -126,7 +126,13 @@ def fetch_latest(tickers):
 
 
 def fetch_fred_latest():
-    """Refresh VIX / HY OAS / rates via FRED API (requires FRED_API_KEY env var)."""
+    """Refresh VIX / HY OAS / rates via FRED API (requires FRED_API_KEY env var).
+
+    IMPORTANT: MERGES new data with existing CSV rather than overwriting.
+    Some FRED series (e.g., BAMLH0A0HYM2, ICE BofA licensed) only return the
+    last ~3 years via the free API as of 2023, but we have full-history
+    CSVs in the repo. If we overwrote, we'd lose 20+ years of IS data.
+    """
     import os, urllib.request
     api_key = os.environ.get("FRED_API_KEY", "")
     if not api_key:
@@ -144,15 +150,36 @@ def fetch_fred_latest():
             print(f"  {s}: FRED fetch failed ({e})", file=sys.stderr)
             continue
         obs = data.get("observations", [])
-        if not obs: continue
+        if not obs:
+            continue
         rows = [(o["date"], o["value"]) for o in obs if o["value"] != "."]
-        df = pd.DataFrame(rows, columns=["Date", s])
-        df["Date"] = pd.to_datetime(df["Date"])
-        df[s] = pd.to_numeric(df[s], errors="coerce")
-        df = df.dropna().sort_values("Date")
+        new_df = pd.DataFrame(rows, columns=["Date", s])
+        new_df["Date"] = pd.to_datetime(new_df["Date"])
+        new_df[s] = pd.to_numeric(new_df[s], errors="coerce")
+        new_df = new_df.dropna().sort_values("Date")
+
         out = FRED / f"{s}.csv"
-        df.to_csv(out, index=False)
-        print(f"  {s}: {len(df)} rows, latest={df['Date'].iloc[-1].date()}")
+        if out.exists():
+            try:
+                existing = pd.read_csv(out, parse_dates=["Date"])
+                existing[s] = pd.to_numeric(existing[s], errors="coerce")
+                # MERGE: keep existing rows + add any new dates from the API
+                # Prefer the API value on overlapping dates (more recent = more accurate)
+                combined = pd.concat([existing, new_df], ignore_index=True)
+                combined = combined.drop_duplicates(subset="Date", keep="last").sort_values("Date")
+                merged_count = len(combined)
+                # Only write if we didn't shrink the file (sanity check)
+                if merged_count >= len(existing):
+                    combined.to_csv(out, index=False)
+                    new_rows = merged_count - len(existing)
+                    print(f"  {s}: {new_rows} new rows, {merged_count} total, latest={combined['Date'].iloc[-1].date()}")
+                else:
+                    print(f"  {s}: [WARN] merge would shrink file ({len(existing)} → {merged_count}); keeping existing")
+            except Exception as e:
+                print(f"  {s}: [WARN] merge failed ({e}); keeping existing file")
+        else:
+            new_df.to_csv(out, index=False)
+            print(f"  {s}: wrote {len(new_df)} rows (new file), latest={new_df['Date'].iloc[-1].date()}")
 
 
 # --------------- Signal logic ---------------
