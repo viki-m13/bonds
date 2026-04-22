@@ -409,18 +409,50 @@ def main():
     data_is = data[is_mask]
     print(f"IS rows (pre-clean): {len(data_is)}")
 
-    print("Cross-validating (N, K) inside IS...")
-    cv = cv_select(data_is, feature_cols)
-    N = cv["best_N"]
-    K = cv["best_K"]
-    print(f"CV best: N={N}, K={K}, mean_rank_IC={cv['best_ic']:.4f}")
+    # CACHE: if a trained model + chosen-N cache exists, skip CV + fit entirely.
+    # The training data is FROZEN at 2010-03-11..2018-12-31 (IS_END) so retraining
+    # produces identical outputs. Caching drops runtime from ~60s to ~2s per cron.
+    import pickle
+    cache_path = RESULTS / "quantum_model.pkl"
+    cache_hit = False
+    if cache_path.exists():
+        try:
+            with open(cache_path, 'rb') as f:
+                cached = pickle.load(f)
+            if (cached.get("is_end") == IS_END and
+                cached.get("feature_cols") == feature_cols):
+                final_model = cached["model"]
+                N = cached["N"]
+                K = cached["K"]
+                cv = cached["cv"]
+                print(f"[CACHE HIT] Loaded trained model from {cache_path}")
+                print(f"  N={N}, K={K}, IC={cv['best_ic']:.4f}")
+                cache_hit = True
+        except Exception as e:
+            print(f"[CACHE MISS] Failed to load cache ({e}); retraining.")
 
-    # Train final model on ALL of IS using chosen N
-    tgt_col = f"fwd_{N}"
-    train = data_is.dropna(subset=feature_cols + [tgt_col])
-    print(f"Final train rows: {len(train)}")
-    final_model = make_model()
-    final_model.fit(train[feature_cols].values, train[tgt_col].values, verbose=False)
+    if not cache_hit:
+        print("Cross-validating (N, K) inside IS...")
+        cv = cv_select(data_is, feature_cols)
+        N = cv["best_N"]
+        K = cv["best_K"]
+        print(f"CV best: N={N}, K={K}, mean_rank_IC={cv['best_ic']:.4f}")
+
+        # Train final model on ALL of IS using chosen N
+        tgt_col = f"fwd_{N}"
+        train = data_is.dropna(subset=feature_cols + [tgt_col])
+        print(f"Final train rows: {len(train)}")
+        final_model = make_model()
+        final_model.fit(train[feature_cols].values, train[tgt_col].values, verbose=False)
+
+        # Persist the trained artifact
+        try:
+            with open(cache_path, 'wb') as f:
+                pickle.dump({"model": final_model, "N": N, "K": K, "cv": cv,
+                             "is_end": IS_END, "feature_cols": feature_cols}, f)
+            print(f"[CACHE WRITE] Saved trained model to {cache_path}")
+        except Exception as e:
+            print(f"[CACHE WRITE ERR] {e}")
 
     # Feature importances
     fi = dict(zip(feature_cols, final_model.feature_importances_.astype(float).tolist()))

@@ -318,24 +318,75 @@ def inject_into_html():
     html_path.write_text(html)
 
 
+def get_sleeve_last_date(csv_name):
+    """Return the last date in a sleeve's returns CSV, or None if missing."""
+    import pandas as pd
+    p = R / csv_name
+    if not p.exists():
+        return None
+    try:
+        df = pd.read_csv(p)
+        date_col = "Date" if "Date" in df.columns else df.columns[0]
+        return pd.to_datetime(df[date_col].iloc[-1]).date()
+    except Exception:
+        return None
+
+
+def get_latest_market_date():
+    """Find the latest common market-close date across core ETFs (SPY, QQQ, IBIT)."""
+    import pandas as pd
+    from pathlib import Path as P
+    ETF = ROOT / "data/etfs"
+    dates = []
+    for t in ["SPY", "QQQ", "IBIT"]:
+        p = ETF / f"{t}.csv"
+        if p.exists():
+            df = pd.read_csv(p)
+            dates.append(pd.to_datetime(df["Date"].iloc[-1]).date())
+    return min(dates) if dates else None
+
+
 def main():
     # 1+2. Fetch fresh prices + FRED
     fetch_latest_prices()
 
-    # 3. Re-run each sleeve strategy to extend returns CSVs
-    # Note: each sleeve is idempotent — reruns produce consistent output given same IS params.
-    for name, script in [("VANGUARD", "vanguard_strategy.py"),
-                          ("ORION",    "orion_strategy.py"),
-                          ("HELIOS",   "helios_strategy.py"),
-                          ("QUANTUM",  "quantum_strategy.py"),
-                          ]:
-        # QUANTUM retrains XGBoost each run — takes ~30s but produces identical IS/OOS
-        run(["python3", str(ALT / script)], f"Re-run {name}")
+    # 3. Check which sleeves need extending. If a sleeve's last date >= latest
+    #    common market date, it's already up to date — skip the re-run.
+    latest = get_latest_market_date()
+    print(f"\nLatest common market date across SPY/QQQ/IBIT: {latest}")
 
-    # CRYPTO sleeve is built by phoenix_v2_crypto.py (which also updates crypto_returns.csv)
-    run(["python3", str(ALT / "phoenix_v2_crypto.py")], "Re-run CRYPTO sleeve")
+    sleeve_map = [
+        ("VANGUARD", "vanguard_strategy.py", "vanguard_returns.csv"),
+        ("ORION",    "orion_strategy.py",    "orion_returns.csv"),
+        ("HELIOS",   "helios_strategy.py",   "helios_returns.csv"),
+        ("QUANTUM",  "quantum_strategy.py",  "quantum_returns.csv"),
+    ]
+    any_extended = False
+    for name, script, csv_name in sleeve_map:
+        last = get_sleeve_last_date(csv_name)
+        if last is None:
+            print(f"\n{name}: no existing returns; full run needed")
+            run(["python3", str(ALT / script)], f"Build {name}")
+            any_extended = True
+        elif latest is not None and last >= latest:
+            print(f"\n{name}: already at {last} (matches market date) — skip rerun ✓")
+        else:
+            print(f"\n{name}: last date {last} < market {latest} — extend to today")
+            run(["python3", str(ALT / script)], f"Extend {name}")
+            any_extended = True
 
-    # 4. Re-run production strategy
+    # CRYPTO sleeve is rebuilt by phoenix_v2_crypto.py (idempotent, ~3s)
+    cry_last = get_sleeve_last_date("crypto_returns.csv")
+    if cry_last is None or (latest and cry_last < latest):
+        print(f"\nCRYPTO: last date {cry_last} — extending")
+        run(["python3", str(ALT / "phoenix_v2_crypto.py")], "Extend CRYPTO sleeve")
+        any_extended = True
+    else:
+        print(f"\nCRYPTO: already at {cry_last} — skip rerun ✓")
+
+    # 4. Re-run production strategy (reads all 5 sleeves, blends + applies overlay)
+    # This is fast (~2s) and should always run so the final net_ret reflects the
+    # current sleeve data.
     run(["python3", str(ALT / "phoenix_production.py")], "Re-run PHOENIX production")
 
     # 5. Regenerate factsheet
