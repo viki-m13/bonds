@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-04-22T03:54:41+00:00",
+  "generated_at_utc": "2026-04-22T04:01:30+00:00",
   "context": {
     "as_of": "2026-04-21",
     "regime_gate_pass": true,
@@ -107,16 +107,16 @@
     },
     {
       "Date": "2026-04-21",
-      "ticker": "ERX",
-      "side": "SELL",
-      "weight_before": 0.234,
-      "weight_after": 0.184,
-      "weight_delta": -0.0499,
-      "delta_pct": -4.99
+      "ticker": "EDC",
+      "side": "BUY",
+      "weight_before": 0.0,
+      "weight_after": 0.0333,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
     },
     {
       "Date": "2026-04-21",
-      "ticker": "UCO",
+      "ticker": "ERX",
       "side": "SELL",
       "weight_before": 0.234,
       "weight_after": 0.184,
@@ -134,15 +134,6 @@
     },
     {
       "Date": "2026-04-21",
-      "ticker": "EDC",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.0333,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
-    },
-    {
-      "Date": "2026-04-21",
       "ticker": "TECL",
       "side": "BUY",
       "weight_before": 0.0,
@@ -151,40 +142,175 @@
       "delta_pct": 3.33
     },
     {
-      "Date": "2026-04-10",
+      "Date": "2026-04-21",
+      "ticker": "UCO",
+      "side": "SELL",
+      "weight_before": 0.234,
+      "weight_after": 0.184,
+      "weight_delta": -0.0499,
+      "delta_pct": -4.99
+    },
+    {
+      "Date": "2026-04-20",
       "ticker": "ERX",
       "side": "SELL",
-      "weight_before": 0.3119,
-      "weight_after": 0.234,
-      "weight_delta": -0.078,
-      "delta_pct": -7.8
+      "weight_before": 0.184,
+      "weight_after": 0.1233,
+      "weight_delta": -0.0608,
+      "delta_pct": -6.08
+    },
+    {
+      "Date": "2026-04-20",
+      "ticker": "SOXL",
+      "side": "BUY",
+      "weight_before": 0.1566,
+      "weight_after": 0.2173,
+      "weight_delta": 0.0608,
+      "delta_pct": 6.08
+    },
+    {
+      "Date": "2026-04-17",
+      "ticker": "EDC",
+      "side": "SELL",
+      "weight_before": 0.0333,
+      "weight_after": 0.0,
+      "weight_delta": -0.0333,
+      "delta_pct": -3.33
+    },
+    {
+      "Date": "2026-04-17",
+      "ticker": "UCO",
+      "side": "BUY",
+      "weight_before": 0.184,
+      "weight_after": 0.2173,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
+    },
+    {
+      "Date": "2026-04-16",
+      "ticker": "TECL",
+      "side": "SELL",
+      "weight_before": 0.0333,
+      "weight_after": 0.0,
+      "weight_delta": -0.0333,
+      "delta_pct": -3.33
+    },
+    {
+      "Date": "2026-04-16",
+      "ticker": "UCO",
+      "side": "BUY",
+      "weight_before": 0.184,
+      "weight_after": 0.2173,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
+    },
+    {
+      "Date": "2026-04-15",
+      "ticker": "TECL",
+      "side": "SELL",
+      "weight_before": 0.0333,
+      "weight_after": 0.0,
+      "weight_delta": -0.0333,
+      "delta_pct": -3.33
+    },
+    {
+      "Date": "2026-04-15",
+      "ticker": "UCO",
+      "side": "BUY",
+      "weight_before": 0.184,
+      "weight_after": 0.2173,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
+    },
+    {
+      "Date": "2026-04-14",
+      "ticker": "TECL",
+      "side": "SELL",
+      "weight_before": 0.0333,
+      "weight_after": 0.0,
+      "weight_delta": -0.0333,
+      "delta_pct": -3.33
+    },
+    {
+      "Date": "2026-04-14",
+      "ticker": "UCO",
+      "side": "BUY",
+      "weight_before": 0.184,
+      "weight_after": 0.2173,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
+    },
+    {
+      "Date": "2026-04-13",
+      "ticker": "EDC",
+      "side": "SELL",
+      "weight_before": 0.0333,
+      "weight_after": 0.0,
+      "weight_delta": -0.0333,
+      "delta_pct": -3.33
+    },
+    {
+      "Date": "2026-04-13",
+      "ticker": "TECL",
+      "side": "SELL",
+      "weight_before": 0.0333,
+      "weight_after": 0.0,
+      "weight_delta": -0.0333,
+      "delta_pct": -3.33
+    },
+    {
+      "Date": "2026-04-13",
+      "ticker": "UCO",
+      "side": "BUY",
+      "weight_before": 0.184,
+      "weight_after": 0.2173,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
+    },
+    {
+      "Date": "2026-04-13",
+      "ticker": "ERX",
+      "side": "BUY",
+      "weight_before": 0.184,
+      "weight_after": 0.2173,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
+    },
+    {
+      "Date": "2026-04-10",
+      "ticker": "ERX",
+      "side": "BUY",
+      "weight_before": 0.184,
+      "weight_after": 0.2173,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
     },
     {
       "Date": "2026-04-10",
       "ticker": "UCO",
-      "side": "SELL",
-      "weight_before": 0.3119,
-      "weight_after": 0.234,
-      "weight_delta": -0.078,
-      "delta_pct": -7.8
-    },
-    {
-      "Date": "2026-04-10",
-      "ticker": "DRN",
-      "side": "SELL",
-      "weight_before": 0.1644,
-      "weight_after": 0.1233,
-      "weight_delta": -0.0411,
-      "delta_pct": -4.11
-    },
-    {
-      "Date": "2026-04-10",
-      "ticker": "BIL",
       "side": "BUY",
-      "weight_before": 0.2118,
-      "weight_after": 0.4088,
-      "weight_delta": 0.1971,
-      "delta_pct": 19.71
+      "weight_before": 0.184,
+      "weight_after": 0.2173,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
+    },
+    {
+      "Date": "2026-04-10",
+      "ticker": "TECL",
+      "side": "SELL",
+      "weight_before": 0.0333,
+      "weight_after": 0.0,
+      "weight_delta": -0.0333,
+      "delta_pct": -3.33
+    },
+    {
+      "Date": "2026-04-10",
+      "ticker": "EDC",
+      "side": "SELL",
+      "weight_before": 0.0333,
+      "weight_after": 0.0,
+      "weight_delta": -0.0333,
+      "delta_pct": -3.33
     }
   ],
   "price_context": {
