@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-04-22T01:34:20+00:00",
+  "generated_at_utc": "2026-04-22T01:54:30+00:00",
   "context": {
     "as_of": "2026-04-10",
     "regime_gate_pass": true,
@@ -7,8 +7,8 @@
     "spy_vs_200dma": 0.027976148361650965,
     "vix": 19.49,
     "hy_oas_slope_20d": -0.27,
-    "overlay_mult": 1.0,
-    "overlay_reason": "No history yet \u2014 multiplier defaulted to 1.0",
+    "overlay_mult": 0.6568583454303922,
+    "overlay_reason": "Vol target 15% \u2192 mult 0.66x (realized vol 22.8%) \u00b7 All safety gates clear",
     "mom63_ranking": {
       "TQQQ": -0.21331080854586304,
       "UPRO": -0.16657213297879536,
@@ -30,99 +30,120 @@
       "IBIT": -0.263290637442267
     }
   },
-  "previous_positions": [],
-  "target_positions": [
+  "previous_positions": [
     {
       "ticker": "ERX",
-      "weight": 0.3561666666666667,
-      "pct": 35.62
+      "weight": 0.3119347298188329,
+      "pct": 31.19
     },
     {
       "ticker": "UCO",
-      "weight": 0.3561666666666667,
-      "pct": 35.62
-    },
-    {
-      "ticker": "DRN",
-      "weight": 0.18766666666666665,
-      "pct": 18.77
+      "weight": 0.3119347298188329,
+      "pct": 31.19
     },
     {
       "ticker": "BIL",
-      "weight": 0.101,
-      "pct": 10.1
+      "weight": 0.2117699854835293,
+      "pct": 21.18
+    },
+    {
+      "ticker": "DRN",
+      "weight": 0.1643605548788048,
+      "pct": 16.44
+    }
+  ],
+  "target_positions": [
+    {
+      "ticker": "BIL",
+      "weight": 0.408827489112647,
+      "pct": 40.88
+    },
+    {
+      "ticker": "ERX",
+      "weight": 0.23395104736412473,
+      "pct": 23.4
+    },
+    {
+      "ticker": "UCO",
+      "weight": 0.23395104736412473,
+      "pct": 23.4
+    },
+    {
+      "ticker": "DRN",
+      "weight": 0.1232704161591036,
+      "pct": 12.33
     }
   ],
   "trades_today": [
     {
       "ticker": "ERX",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.3562,
-      "weight_delta": 0.3562,
-      "delta_pct": 35.62
+      "side": "SELL",
+      "weight_before": 0.3119,
+      "weight_after": 0.234,
+      "weight_delta": -0.078,
+      "delta_pct": -7.8
     },
     {
       "ticker": "UCO",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.3562,
-      "weight_delta": 0.3562,
-      "delta_pct": 35.62
+      "side": "SELL",
+      "weight_before": 0.3119,
+      "weight_after": 0.234,
+      "weight_delta": -0.078,
+      "delta_pct": -7.8
     },
     {
       "ticker": "DRN",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.1877,
-      "weight_delta": 0.1877,
-      "delta_pct": 18.77
+      "side": "SELL",
+      "weight_before": 0.1644,
+      "weight_after": 0.1233,
+      "weight_delta": -0.0411,
+      "delta_pct": -4.11
     },
     {
       "ticker": "BIL",
       "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.101,
-      "weight_delta": 0.101,
-      "delta_pct": 10.1
+      "weight_before": 0.2118,
+      "weight_after": 0.4088,
+      "weight_delta": 0.1971,
+      "delta_pct": 19.71
     }
   ],
   "recent_trades_30d": [
     {
       "Date": "2026-04-10",
       "ticker": "ERX",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.3562,
-      "weight_delta": 0.3562,
-      "delta_pct": 35.62
+      "side": "SELL",
+      "weight_before": 0.3119,
+      "weight_after": 0.234,
+      "weight_delta": -0.078,
+      "delta_pct": -7.8
     },
     {
       "Date": "2026-04-10",
       "ticker": "UCO",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.3562,
-      "weight_delta": 0.3562,
-      "delta_pct": 35.62
+      "side": "SELL",
+      "weight_before": 0.3119,
+      "weight_after": 0.234,
+      "weight_delta": -0.078,
+      "delta_pct": -7.8
     },
     {
       "Date": "2026-04-10",
       "ticker": "DRN",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.1877,
-      "weight_delta": 0.1877,
-      "delta_pct": 18.77
+      "side": "SELL",
+      "weight_before": 0.1644,
+      "weight_after": 0.1233,
+      "weight_delta": -0.0411,
+      "delta_pct": -4.11
     },
     {
       "Date": "2026-04-10",
       "ticker": "BIL",
       "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.101,
-      "weight_delta": 0.101,
-      "delta_pct": 10.1
+      "weight_before": 0.2118,
+      "weight_after": 0.4088,
+      "weight_delta": 0.1971,
+      "delta_pct": 19.71
     }
   ],
   "price_context": {

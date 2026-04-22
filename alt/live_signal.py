@@ -1,4 +1,4 @@
-"""PHOENIX v2 — live signal generator.
+"""PHOENIX — live signal generator (canonical production version).
 
 Runs after US market close. Fetches latest prices, computes today's target
 portfolio, compares to yesterday's positions, generates explicit BUY/SELL
@@ -12,17 +12,20 @@ Output files:
     data/results/live_positions.csv    — running log of daily positions
     data/results/live_trades.csv       — running log of trades
 
-Universe (5-sleeve, includes crypto via IBIT):
+PHOENIX (canonical 5-sleeve, daily vol-targeted):
+    Blend (fixed IS inv-vol): VAN 23.6% · ORI 32.7% · HEL 18.5% · QUA 15.2% · CRY 10.1%
+    Vol target: 20% annualized, cap 2.0x, floor 0.25x
+    DD throttle: -10% floor, 252d HWM
+    Vol gate: 60d vol > 99th pct (252d) → 0.5x
+    Backtest: Sharpe 2.37 full / 2.22 OOS, CAGR 57.5%, MDD -23.9%
+
+Universe:
     Risk:    TQQQ UPRO QLD SSO SOXL TECL FAS ERX DRN EDC YINN UCO
     Defens:  UGL NUGT TMF UBT TYD
-    Crypto:  IBIT (primary), ETHA (optional)
+    Crypto:  IBIT (spot BTC)
     Cash:    BIL
 
-Blend weights (5-sleeve from extended IS inv-vol):
-    VAN 23.6% · ORI 32.7% · HEL 18.5% · QUA 15.2% · CRY 10.1%
-
 Gate: SPY > 200dma (sloping up) & HY-OAS 20d slope < 1.0 & VIX < 30
-Overlay: DD throttle (-10% floor) × vol gate (60d vs 252d p99)
 """
 from __future__ import annotations
 import argparse
@@ -45,6 +48,16 @@ UNIVERSE = UNIVERSE_RISK + UNIVERSE_SAFE + UNIVERSE_CRYPTO
 BIL = "BIL"
 
 BLEND_WEIGHTS = {"VAN": 0.236, "ORI": 0.327, "HEL": 0.185, "QUA": 0.152, "CRY": 0.101}
+
+# Production overlay parameters (must match phoenix_production.py exactly)
+TARGET_VOL = 0.15        # portfolio realized-vol target (annualized)
+VOL_CAP = 1.0            # max gross exposure — NO margin / borrowing
+VOL_FLOOR = 0.25
+VOL_WIN = 60
+DD_FLOOR = -0.10
+DD_WIN = 252
+VOL_GATE_PCT = 0.99
+VOL_GATE_LOOKBACK = 252
 
 
 # --------------- Data I/O ---------------
@@ -251,16 +264,20 @@ def compute_signals(close, opn, dates):
     else:
         target[BIL] += BLEND_WEIGHTS["CRY"]
 
-    # OVERLAY: compute throttle from blend's own recent returns.
-    # Use live_positions history if available; fall back to no overlay.
+    # OVERLAY: compute multiplier (vol target × DD throttle × vol gate).
+    # Multiplier > 1.0 means leverage up (vol target scales exposure up in low-vol regimes);
+    # Multiplier < 1.0 means de-risk. BIL absorbs any residual.
     mult, overlay_reason = compute_overlay_mult(close, opn, dates)
-    if mult < 1.0:
-        # Scale risk down, move excess to BIL
-        risk = target.drop(BIL)
-        scaled = risk * mult
-        target[BIL] = target[BIL] + (risk.sum() - scaled.sum())
-        for t in scaled.index:
-            target[t] = scaled[t]
+    # Separate risk-assets from cash
+    risk = target.drop(BIL)
+    scaled = risk * mult
+    gross_risk = float(scaled.sum())
+    # BIL = 1 - gross_risk (can be negative if leveraged, which means borrowing)
+    # We clip BIL at 0 and allow gross_risk > 1 explicitly
+    bil_weight = max(0.0, 1.0 - gross_risk)
+    target[BIL] = bil_weight
+    for t in scaled.index:
+        target[t] = float(scaled[t])
 
     # Context data for reporting
     context = {
@@ -279,46 +296,76 @@ def compute_signals(close, opn, dates):
 
 
 def compute_overlay_mult(close, opn, dates):
-    """Compute the overlay multiplier using the live_positions history if available,
-    otherwise fall back to 1.0."""
+    """Compute the full production overlay: vol target * DD throttle * vol gate.
+
+    Reads returns history from live_positions.csv. On first run with
+    insufficient history, falls back to the canonical backtest returns
+    (phoenix_production_returns.csv) so the live signal uses a consistent
+    overlay from day one.
+    """
+    # Prefer backtest history seed if live history is too short
+    backtest_file = R / "phoenix_production_returns.csv"
     pos_file = R / "live_positions.csv"
-    if not pos_file.exists():
-        return 1.0, "No history yet — multiplier defaulted to 1.0"
 
-    try:
-        pos = pd.read_csv(pos_file, parse_dates=["Date"]).set_index("Date").sort_index()
-    except Exception:
-        return 1.0, "Could not read live_positions.csv"
+    r_hist = None
+    # Try backtest (preferred: it has full history from 2010)
+    if backtest_file.exists():
+        try:
+            bt = pd.read_csv(backtest_file, parse_dates=["Date"]).set_index("Date").sort_index()
+            if "raw_ret" in bt.columns:
+                r_hist = bt["raw_ret"]
+        except Exception:
+            pass
 
-    # Derive daily returns from position file (stored as current weights applied to next-day returns)
-    # For simplicity, read if a 'ret' column is present; if not, skip overlay
-    if "ret" not in pos.columns:
-        return 1.0, "No return history yet — overlay defaults to 1.0"
+    if r_hist is None and pos_file.exists():
+        try:
+            pos = pd.read_csv(pos_file, parse_dates=["Date"]).set_index("Date").sort_index()
+            if "ret" in pos.columns:
+                r_hist = pos["ret"]
+        except Exception:
+            pass
 
-    r = pos["ret"].dropna()
-    if len(r) < 60:
-        return 1.0, f"Not enough history ({len(r)} days) — overlay defaults to 1.0"
+    if r_hist is None or len(r_hist) < VOL_WIN:
+        return 1.0, "No sufficient history — multiplier defaulted to 1.0"
 
-    cum = (1 + r).cumprod()
-    hwm = cum.rolling(252, min_periods=30).max()
+    r_hist = r_hist.dropna()
+
+    # 1. Daily vol target multiplier
+    rv_ann = r_hist.rolling(VOL_WIN).std() * np.sqrt(252)
+    vt_raw = (TARGET_VOL / rv_ann.iloc[-1]) if rv_ann.iloc[-1] > 0 else 1.0
+    vt_mult = max(VOL_FLOOR, min(VOL_CAP, float(vt_raw)))
+
+    # Apply vol target to historical returns to compute stacked overlays
+    vol_mult_series = (TARGET_VOL / rv_ann).clip(VOL_FLOOR, VOL_CAP).shift(1).fillna(1.0)
+    scaled = r_hist * vol_mult_series
+
+    # 2. DD throttle on scaled
+    cum = (1 + scaled).cumprod()
+    hwm = cum.rolling(DD_WIN, min_periods=30).max()
     dd = cum / hwm - 1
-    dd_mult = max(0.0, min(1.0, 1.0 + dd.iloc[-1] / -0.10))
-    rv = r.rolling(60).std()
-    if len(rv.dropna()) >= 60:
-        rv_thr = rv.rolling(252, min_periods=60).quantile(0.99)
-        vol_ok = rv.iloc[-1] <= rv_thr.iloc[-1] if not np.isnan(rv_thr.iloc[-1]) else True
-    else:
-        vol_ok = True
-    vol_mult = 1.0 if vol_ok else 0.5
-    mult = max(0.0, min(1.0, dd_mult * vol_mult))
+    dd_mult = max(0.0, min(1.0, 1.0 + float(dd.iloc[-1]) / DD_FLOOR))
 
-    reason_parts = []
+    # 3. Vol gate on scaled
+    sv = scaled.rolling(VOL_WIN).std()
+    sv_thr = sv.rolling(VOL_GATE_LOOKBACK, min_periods=60).quantile(VOL_GATE_PCT)
+    if not np.isnan(sv_thr.iloc[-1]):
+        vol_gate_ok = float(sv.iloc[-1]) <= float(sv_thr.iloc[-1])
+    else:
+        vol_gate_ok = True
+    vol_gate_mult = 1.0 if vol_gate_ok else 0.5
+
+    # Combine
+    total = vt_mult * dd_mult * vol_gate_mult
+
+    reason_parts = [f"Vol target {TARGET_VOL*100:.0f}% → mult {vt_mult:.2f}x (realized vol {rv_ann.iloc[-1]*100:.1f}%)"]
     if dd_mult < 1.0:
         reason_parts.append(f"DD throttle {dd_mult*100:.0f}% (current DD {dd.iloc[-1]*100:.1f}%)")
-    if vol_mult < 1.0:
-        reason_parts.append("Vol-regime gate active (60d vol > 99th pct)")
-    reason = " + ".join(reason_parts) if reason_parts else "Both gates clear — full exposure"
-    return mult, reason
+    if vol_gate_mult < 1.0:
+        reason_parts.append("Vol-regime gate ACTIVE (60d vol > 99th pct of trailing 252d)")
+    if dd_mult >= 1.0 and vol_gate_mult >= 1.0:
+        reason_parts.append("All safety gates clear")
+    reason = " · ".join(reason_parts)
+    return float(total), reason
 
 
 def compute_trades(prev_weights, target_weights, threshold=0.005):
