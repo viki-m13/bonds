@@ -85,19 +85,29 @@ def fetch_latest(tickers):
         print("yfinance not installed; skipping fetch.", file=sys.stderr)
         return
 
+    # Today's date (UTC — matches yfinance)
+    today = datetime.now(timezone.utc).date()
+    # Always fetch last 10 calendar days to merge (handles weekends, missed days,
+    # and avoids the start>=end race condition when the CSV was updated minutes ago).
     for t in tickers:
         p = ETF / f"{t}.csv"
-        start = "2023-01-01"
+        start_candidate = today - timedelta(days=14)
         if p.exists():
             existing = pd.read_csv(p, parse_dates=["Date"]).set_index("Date").sort_index()
-            last_date = existing.index[-1]
-            start = (last_date + timedelta(days=1)).strftime("%Y-%m-%d")
+            last_date = existing.index[-1].date()
+            # Start from last_date (not last_date+1) so we overlap a day and always fetch something
+            start_candidate = max(start_candidate, last_date)
+            # If CSV is already at or beyond today, skip
+            if last_date >= today:
+                continue
+        start = start_candidate.strftime("%Y-%m-%d")
         try:
             df = yf.download(t, start=start, progress=False, auto_adjust=False)
         except Exception as e:
             print(f"  {t}: fetch failed ({e})", file=sys.stderr)
             continue
         if df is None or len(df) == 0:
+            print(f"  {t}: no new data (market closed or already up to date)")
             continue
         # Flatten multi-index columns if any
         if isinstance(df.columns, pd.MultiIndex):

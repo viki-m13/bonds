@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  signal:
+  refresh:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,44 +25,28 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install pandas numpy yfinance requests
+        pip install pandas numpy yfinance requests xgboost scikit-learn
 
-    - name: Run PHOENIX live signal generator
+    - name: Full PHOENIX refresh
       env:
         FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         PYTHONUNBUFFERED: '1'
       run: |
-        python alt/live_signal.py
-
-    - name: Inject live signal into webapp
-      run: |
-        python -c "
-        import json, re
-        with open('data/results/live_signal.json') as f:
-            live = f.read()
-        with open('docs/phoenix.html') as f:
-            html = f.read()
-        pattern = re.compile(r'const LIVE = \{.*?\};', re.DOTALL)
-        replacement = 'const LIVE = ' + live + ';'
-        # Use a lambda to avoid re.sub interpreting backreferences/escapes in replacement
-        if pattern.search(html):
-            html = pattern.sub(lambda m: replacement, html, count=1)
-        else:
-            idx = html.rfind('</script>')
-            html = html[:idx] + '\nconst LIVE = ' + live + ';\n' + html[idx:]
-        with open('docs/phoenix.html', 'w') as f:
-            f.write(html)
-        print('Live signal injected into webapp')
-        "
+        python alt/refresh_all.py
 
     - name: Commit and push
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add data/etfs/ data/fred/ data/results/live_signal.json data/results/live_positions.csv data/results/live_trades.csv docs/phoenix.html
+        git add data/etfs/ data/fred/ data/results/ docs/phoenix.html
         if git diff --staged --quiet; then
           echo "No changes to commit"
         else
-          git commit -m "PHOENIX live signal: $(date -u +%Y-%m-%d)"
-          git push
+          git commit -m "PHOENIX refresh: $(date -u +%Y-%m-%d)"
+          # Retry push on transient errors
+          for i in 1 2 3; do
+            git push && break
+            echo "Push attempt $i failed, retrying..."
+            sleep $((i*2))
+          done
         fi
