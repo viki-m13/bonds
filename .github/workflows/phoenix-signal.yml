@@ -42,11 +42,12 @@ jobs:
             live = f.read()
         with open('docs/phoenix.html') as f:
             html = f.read()
-        # Replace existing 'const LIVE = {...};' or insert a new one
-        if re.search(r'const LIVE = \{.*?\};', html, re.DOTALL):
-            html = re.sub(r'const LIVE = \{.*?\};', 'const LIVE = ' + live + ';', html, count=1, flags=re.DOTALL)
+        pattern = re.compile(r'const LIVE = \{.*?\};', re.DOTALL)
+        replacement = 'const LIVE = ' + live + ';'
+        # Use a lambda to avoid re.sub interpreting backreferences/escapes in replacement
+        if pattern.search(html):
+            html = pattern.sub(lambda m: replacement, html, count=1)
         else:
-            # Inject before last </script>
             idx = html.rfind('</script>')
             html = html[:idx] + '\nconst LIVE = ' + live + ';\n' + html[idx:]
         with open('docs/phoenix.html', 'w') as f:
