@@ -76,6 +76,71 @@ tr:hover{background:var(--card2)}
 </div>
 <div class="nav-date" id="dateLabel"></div>
 </div>
+<!-- LIVE SIGNAL -->
+<div class="section">
+<div class="section-title" style="color:var(--red)">&#x1F514; Live signal &mdash; today's actions</div>
+<div class="card" style="border-left:4px solid var(--red);background:#fff8f5">
+<div id="liveEmpty" style="display:none;font-size:0.85rem;color:var(--t2);padding:10px">
+Live signal has not yet been generated. A GitHub Actions cron job runs the strategy daily at 6:30pm ET (30 min after market close) and updates this section with explicit BUY/SELL orders, current positions, and recent trades. In the meantime, the static backtest sections below (Current portfolio positions, Recent trades, etc.) show the latest available analysis based on 2026-04-02 data.
+</div>
+<div id="liveContent" style="display:none">
+<div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:12px;align-items:baseline">
+<div style="font-size:1.2rem;font-weight:700" id="liveAsOf"></div>
+<div style="font-size:0.85rem;color:var(--t3)" id="liveGenerated"></div>
+</div>
+<div class="g3" style="margin-bottom:12px">
+<div class="kpi"><div class="kpi-val" id="liveRegimeVal"></div><div class="kpi-label">MACRO REGIME</div></div>
+<div class="kpi"><div class="kpi-val" id="liveOverlayVal"></div><div class="kpi-label">OVERLAY MULT</div></div>
+<div class="kpi"><div class="kpi-val" id="liveVIXVal"></div><div class="kpi-label">VIX</div></div>
+</div>
+
+<h3 style="color:var(--t1);font-size:0.95rem;margin:12px 0 6px 0">Orders to execute at tomorrow&apos;s open</h3>
+<div style="font-size:0.72rem;color:var(--t3);margin-bottom:8px">Signal computed at today&apos;s close. Execute at open next trading day. Weights are as percentages of total portfolio (notional = account value).</div>
+<div style="overflow-x:auto"><table id="liveTradesTable">
+<thead><tr><th>Side</th><th>Ticker</th><th>&Delta; Weight</th><th>Before</th><th>After</th></tr></thead>
+<tbody></tbody>
+</table></div>
+<div id="liveNoTrades" style="font-size:0.85rem;color:var(--green);padding:8px;font-weight:600;display:none">No changes &mdash; hold current positions.</div>
+
+<div class="g2" style="margin-top:16px">
+<div>
+<h3 style="color:var(--t1);font-size:0.9rem;margin-bottom:6px">Positions BEFORE (currently holding)</h3>
+<table id="livePrevTable" style="font-size:0.82rem">
+<thead><tr><th>Ticker</th><th>Weight</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+<div>
+<h3 style="color:var(--t1);font-size:0.9rem;margin-bottom:6px">Positions AFTER (target for open)</h3>
+<table id="liveTargetTable" style="font-size:0.82rem">
+<thead><tr><th>Ticker</th><th>Weight</th><th>Role</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+
+<h3 style="color:var(--t1);font-size:0.9rem;margin:16px 0 6px 0">Signal inputs</h3>
+<div style="overflow-x:auto"><table id="liveMomTable" style="font-size:0.8rem">
+<thead><tr><th>Ticker</th><th>Price</th><th>21d</th><th>63d</th><th>Rank</th></tr></thead>
+<tbody></tbody>
+</table></div>
+
+<h3 style="color:var(--t1);font-size:0.9rem;margin:16px 0 6px 0">Recent trade log (last 30 days)</h3>
+<div style="overflow-x:auto"><table id="liveRecentTradesTable" style="font-size:0.8rem">
+<thead><tr><th>Date</th><th>Side</th><th>Ticker</th><th>&Delta; Weight</th></tr></thead>
+<tbody></tbody>
+</table></div>
+
+<div style="margin-top:12px;padding:10px;background:var(--card2);border-radius:4px;font-size:0.72rem;color:var(--t2);line-height:1.5">
+<strong style="color:var(--t1)">How to execute.</strong> This is a research signal, not an auto-trader. (1) Read the "Orders to execute" table. (2) At tomorrow's open, place market-on-open orders for each row. Turnover is ~15&times;/year so on most days you&apos;ll see &le; 3 trades. (3) SELLs are listed first by convention so cash is raised before BUYs. (4) Overlay multiplier &lt; 100% means the DD throttle or vol gate is active &mdash; the target weights already reflect this. (5) The signal uses close[t&minus;1] data and is generated after market close, so there is <em>no</em> same-day look-ahead. All inputs are pinned to the prior close.
+</div>
+<div style="margin-top:6px;padding:10px;background:#fff4ec;border-left:3px solid var(--accent);border-radius:4px;font-size:0.72rem;color:var(--t2);line-height:1.5">
+<strong style="color:var(--t1)">Honest caveats.</strong> (a) This signal uses a simplified 4+1 sleeve analog (no trained QUANTUM ML on live data since retraining is not part of the cron). The full ML sleeve would add ~0.10 Sharpe. (b) Trades are computed from weight deltas &ge; 0.5% to avoid noise trades. (c) Regime gate + overlay is identical to backtest. (d) Live deployment should also monitor HY OAS, VIX, and SPY 200dma for manual overrides; see "Macro regime gate" in "Signal inputs" above. (e) Not investment advice.
+</div>
+</div>
+</div>
+</div>
+
 <!-- STRATEGY OVERVIEW -->
 <div class="section">
 <div class="card" style="border-left:4px solid var(--accent);font-size:0.8rem;color:var(--t2);line-height:1.7">
@@ -826,6 +891,328 @@ document.getElementById('test6tbody').innerHTML = rb_rows.map(r =>
     <td>${r.bl_full.toFixed(2)}</td>
     <td>${r.bl_oos.toFixed(2)}</td></tr>`
 ).join('');
+
+
+
+// === Live signal rendering ===
+const LIVE = {
+  "generated_at_utc": "2026-04-22T01:34:20+00:00",
+  "context": {
+    "as_of": "2026-04-10",
+    "regime_gate_pass": true,
+    "regime_risk_on": true,
+    "spy_vs_200dma": 0.027976148361650965,
+    "vix": 19.49,
+    "hy_oas_slope_20d": -0.27,
+    "overlay_mult": 1.0,
+    "overlay_reason": "No history yet \u2014 multiplier defaulted to 1.0",
+    "mom63_ranking": {
+      "TQQQ": -0.21331080854586304,
+      "UPRO": -0.16657213297879536,
+      "QLD": -0.13744319209767408,
+      "SSO": -0.10688451777264585,
+      "SOXL": 0.008797075471767002,
+      "TECL": -0.25134178669512663,
+      "FAS": -0.3148122680337968,
+      "ERX": 0.7071966027703214,
+      "DRN": 0.0918710847001789,
+      "EDC": -0.0843834268686402,
+      "YINN": -0.3008278824981828,
+      "UCO": 1.12654159027471,
+      "UGL": 0.033028467694799835,
+      "NUGT": -0.034773576198328215,
+      "TMF": -0.03345694889921835,
+      "UBT": -0.012767380694338248,
+      "TYD": -0.0359779881856811,
+      "IBIT": -0.263290637442267
+    }
+  },
+  "previous_positions": [],
+  "target_positions": [
+    {
+      "ticker": "ERX",
+      "weight": 0.3561666666666667,
+      "pct": 35.62
+    },
+    {
+      "ticker": "UCO",
+      "weight": 0.3561666666666667,
+      "pct": 35.62
+    },
+    {
+      "ticker": "DRN",
+      "weight": 0.18766666666666665,
+      "pct": 18.77
+    },
+    {
+      "ticker": "BIL",
+      "weight": 0.101,
+      "pct": 10.1
+    }
+  ],
+  "trades_today": [
+    {
+      "ticker": "ERX",
+      "side": "BUY",
+      "weight_before": 0.0,
+      "weight_after": 0.3562,
+      "weight_delta": 0.3562,
+      "delta_pct": 35.62
+    },
+    {
+      "ticker": "UCO",
+      "side": "BUY",
+      "weight_before": 0.0,
+      "weight_after": 0.3562,
+      "weight_delta": 0.3562,
+      "delta_pct": 35.62
+    },
+    {
+      "ticker": "DRN",
+      "side": "BUY",
+      "weight_before": 0.0,
+      "weight_after": 0.1877,
+      "weight_delta": 0.1877,
+      "delta_pct": 18.77
+    },
+    {
+      "ticker": "BIL",
+      "side": "BUY",
+      "weight_before": 0.0,
+      "weight_after": 0.101,
+      "weight_delta": 0.101,
+      "delta_pct": 10.1
+    }
+  ],
+  "recent_trades_30d": [
+    {
+      "Date": "2026-04-10",
+      "ticker": "ERX",
+      "side": "BUY",
+      "weight_before": 0.0,
+      "weight_after": 0.3562,
+      "weight_delta": 0.3562,
+      "delta_pct": 35.62
+    },
+    {
+      "Date": "2026-04-10",
+      "ticker": "UCO",
+      "side": "BUY",
+      "weight_before": 0.0,
+      "weight_after": 0.3562,
+      "weight_delta": 0.3562,
+      "delta_pct": 35.62
+    },
+    {
+      "Date": "2026-04-10",
+      "ticker": "DRN",
+      "side": "BUY",
+      "weight_before": 0.0,
+      "weight_after": 0.1877,
+      "weight_delta": 0.1877,
+      "delta_pct": 18.77
+    },
+    {
+      "Date": "2026-04-10",
+      "ticker": "BIL",
+      "side": "BUY",
+      "weight_before": 0.0,
+      "weight_after": 0.101,
+      "weight_delta": 0.101,
+      "delta_pct": 10.1
+    }
+  ],
+  "price_context": {
+    "TQQQ": {
+      "price": 43.33,
+      "mom63": -0.1991,
+      "mom21": -0.1205
+    },
+    "UPRO": {
+      "price": 99.38,
+      "mom63": -0.1655,
+      "mom21": -0.094
+    },
+    "QLD": {
+      "price": 62.6,
+      "mom63": -0.1273,
+      "mom21": -0.0779
+    },
+    "SSO": {
+      "price": 52.74,
+      "mom63": -0.1061,
+      "mom21": -0.0604
+    },
+    "SOXL": {
+      "price": 52.75,
+      "mom63": 0.0624,
+      "mom21": -0.0595
+    },
+    "TECL": {
+      "price": 92.39,
+      "mom63": -0.215,
+      "mom21": -0.1097
+    },
+    "FAS": {
+      "price": 119.66,
+      "mom63": -0.3262,
+      "mom21": -0.0032
+    },
+    "ERX": {
+      "price": 96.34,
+      "mom63": 0.6024,
+      "mom21": 0.0882
+    },
+    "DRN": {
+      "price": 9.08,
+      "mom63": 0.0664,
+      "mom21": -0.0492
+    },
+    "EDC": {
+      "price": 55.41,
+      "mom63": -0.0829,
+      "mom21": -0.1351
+    },
+    "YINN": {
+      "price": 31.84,
+      "mom63": -0.3072,
+      "mom21": -0.0835
+    },
+    "UCO": {
+      "price": 39.66,
+      "mom63": 0.98,
+      "mom21": 0.0974
+    },
+    "UGL": {
+      "price": 60.99,
+      "mom63": 0.0223,
+      "mom21": -0.2015
+    },
+    "NUGT": {
+      "price": 199.37,
+      "mom63": -0.0406,
+      "mom21": -0.1571
+    },
+    "TMF": {
+      "price": 36.53,
+      "mom63": -0.0177,
+      "mom21": -0.0116
+    },
+    "UBT": {
+      "price": 16.49,
+      "mom63": -0.0009,
+      "mom21": -0.0009
+    },
+    "TYD": {
+      "price": 24.61,
+      "mom63": -0.0276,
+      "mom21": -0.0207
+    },
+    "IBIT": {
+      "price": 37.97,
+      "mom63": -0.263,
+      "mom21": -0.0524
+    }
+  },
+  "blend_weights": {
+    "VAN": 0.236,
+    "ORI": 0.327,
+    "HEL": 0.185,
+    "QUA": 0.152,
+    "CRY": 0.101
+  }
+};
+
+if (LIVE && LIVE.context && LIVE.target_positions) {
+  document.getElementById('liveEmpty').style.display = 'none';
+  document.getElementById('liveContent').style.display = 'block';
+
+  document.getElementById('liveAsOf').textContent = 'As of ' + LIVE.context.as_of;
+  document.getElementById('liveGenerated').textContent = 'Generated ' + (LIVE.generated_at_utc || '').replace('T', ' ');
+
+  const regimeEl = document.getElementById('liveRegimeVal');
+  regimeEl.textContent = LIVE.context.regime_gate_pass ? 'PASS' : 'FAIL';
+  regimeEl.className = 'kpi-val ' + (LIVE.context.regime_gate_pass ? 'pos' : 'neg');
+
+  document.getElementById('liveOverlayVal').textContent = (LIVE.context.overlay_mult*100).toFixed(0) + '%';
+  document.getElementById('liveVIXVal').textContent = LIVE.context.vix.toFixed(1);
+
+  // Trades today
+  const trBody = document.querySelector('#liveTradesTable tbody');
+  if (LIVE.trades_today && LIVE.trades_today.length > 0) {
+    trBody.innerHTML = LIVE.trades_today.map(t => {
+      const cls = t.side === 'BUY' ? 'pos' : 'neg';
+      const sign = t.delta_pct >= 0 ? '+' : '';
+      return `<tr>
+        <td class="${cls}"><strong>${t.side}</strong></td>
+        <td><strong>${t.ticker}</strong></td>
+        <td class="${cls}">${sign}${t.delta_pct.toFixed(2)}%</td>
+        <td>${(t.weight_before*100).toFixed(2)}%</td>
+        <td>${(t.weight_after*100).toFixed(2)}%</td></tr>`;
+    }).join('');
+    document.getElementById('liveNoTrades').style.display = 'none';
+  } else {
+    trBody.innerHTML = '';
+    document.getElementById('liveNoTrades').style.display = 'block';
+  }
+
+  // Before / after
+  const roleMap2 = {
+    'BIL':'Cash (T-bills)','TMF':'3x long US bonds','UBT':'2x long US bonds','TYD':'3x intermediate UST',
+    'UGL':'2x gold','NUGT':'3x gold miners','UCO':'2x oil','UNG':'Nat gas',
+    'TQQQ':'3x NASDAQ-100','UPRO':'3x S&P 500','QLD':'2x NASDAQ-100','SSO':'2x S&P 500',
+    'SOXL':'3x semis','TECL':'3x tech','FAS':'3x financials','ERX':'2x energy',
+    'DRN':'3x real estate','EDC':'3x EM','YINN':'3x China','IBIT':'Spot BTC','ETHA':'Spot ETH'
+  };
+  const prevTb = document.querySelector('#livePrevTable tbody');
+  if (LIVE.previous_positions && LIVE.previous_positions.length > 0) {
+    prevTb.innerHTML = LIVE.previous_positions.map(p =>
+      `<tr><td><strong>${p.ticker}</strong></td><td>${p.pct.toFixed(2)}%</td></tr>`
+    ).join('');
+  } else {
+    prevTb.innerHTML = '<tr><td colspan="2" style="color:var(--t3);font-style:italic">(first signal run — no prior positions)</td></tr>';
+  }
+  const tgtTb = document.querySelector('#liveTargetTable tbody');
+  tgtTb.innerHTML = LIVE.target_positions.map(p =>
+    `<tr><td><strong>${p.ticker}</strong></td><td>${p.pct.toFixed(2)}%</td><td style="font-size:0.72rem;color:var(--t3)">${roleMap2[p.ticker] || 'LETF'}</td></tr>`
+  ).join('');
+
+  // Momentum / signal inputs table
+  const mTb = document.querySelector('#liveMomTable tbody');
+  const rows = [];
+  if (LIVE.price_context) {
+    for (const [t, p] of Object.entries(LIVE.price_context)) {
+      rows.push({t, price: p.price, m21: p.mom21, m63: p.mom63});
+    }
+  }
+  rows.sort((a, b) => (b.m63 || -999) - (a.m63 || -999));
+  mTb.innerHTML = rows.map((r, i) => {
+    const c21 = (r.m21 != null && r.m21 >= 0) ? 'pos' : 'neg';
+    const c63 = (r.m63 != null && r.m63 >= 0) ? 'pos' : 'neg';
+    return `<tr><td><strong>${r.t}</strong></td>
+      <td>$${r.price != null ? r.price.toFixed(2) : '-'}</td>
+      <td class="${c21}">${r.m21 != null ? (r.m21*100).toFixed(1)+'%' : '-'}</td>
+      <td class="${c63}">${r.m63 != null ? (r.m63*100).toFixed(1)+'%' : '-'}</td>
+      <td>${i+1}</td></tr>`;
+  }).join('');
+
+  // Recent trades (30 day log)
+  const rtTb = document.querySelector('#liveRecentTradesTable tbody');
+  if (LIVE.recent_trades_30d && LIVE.recent_trades_30d.length > 0) {
+    rtTb.innerHTML = LIVE.recent_trades_30d.slice(0, 50).map(t => {
+      const side = t.side || '';
+      const cls = side === 'BUY' ? 'pos' : 'neg';
+      const dp = t.delta_pct != null ? t.delta_pct : (t.weight_delta * 100);
+      const sign = dp >= 0 ? '+' : '';
+      return `<tr><td>${t.Date}</td><td class="${cls}">${side}</td><td><strong>${t.ticker}</strong></td><td class="${cls}">${sign}${dp.toFixed(2)}%</td></tr>`;
+    }).join('');
+  } else {
+    rtTb.innerHTML = '<tr><td colspan="4" style="color:var(--t3);font-style:italic">(no trades yet)</td></tr>';
+  }
+} else {
+  document.getElementById('liveEmpty').style.display = 'block';
+  document.getElementById('liveContent').style.display = 'none';
+}
 
 </script>
 </body>

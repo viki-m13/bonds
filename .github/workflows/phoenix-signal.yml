@@ -1,0 +1,67 @@
+name: PHOENIX Live Signal
+
+on:
+  schedule:
+    # Run at 6:30 PM ET (23:30 UTC) every weekday (30 min after market close)
+    - cron: '30 23 * * 1-5'
+  workflow_dispatch:  # allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  signal:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        pip install pandas numpy yfinance requests
+
+    - name: Run PHOENIX live signal generator
+      env:
+        FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        PYTHONUNBUFFERED: '1'
+      run: |
+        python alt/live_signal.py
+
+    - name: Inject live signal into webapp
+      run: |
+        python -c "
+        import json, re
+        with open('data/results/live_signal.json') as f:
+            live = f.read()
+        with open('docs/phoenix.html') as f:
+            html = f.read()
+        # Replace existing 'const LIVE = {...};' or insert a new one
+        if re.search(r'const LIVE = \{.*?\};', html, re.DOTALL):
+            html = re.sub(r'const LIVE = \{.*?\};', 'const LIVE = ' + live + ';', html, count=1, flags=re.DOTALL)
+        else:
+            # Inject before last </script>
+            idx = html.rfind('</script>')
+            html = html[:idx] + '\nconst LIVE = ' + live + ';\n' + html[idx:]
+        with open('docs/phoenix.html', 'w') as f:
+            f.write(html)
+        print('Live signal injected into webapp')
+        "
+
+    - name: Commit and push
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add data/etfs/ data/fred/ data/results/live_signal.json data/results/live_positions.csv data/results/live_trades.csv docs/phoenix.html
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "PHOENIX live signal: $(date -u +%Y-%m-%d)"
+          git push
+        fi
