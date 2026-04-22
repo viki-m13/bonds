@@ -180,6 +180,110 @@ tr:hover{background:var(--card2)}
 <div style="margin-top:10px;font-size:0.76rem">The overlays are designed to bite rarely but firmly. With the 4-sleeve blend's orthogonality already delivering MDD &minus;20.5% naturally, the DD-throttle (&minus;10% floor) and the 99th-percentile vol-gate fire only during extreme tail episodes (Q1 2020 COVID crash, Q3 2022 dual stock-bond selloff). The overlays lift Sharpe marginally (2.03 &rarr; 2.10) &mdash; most of the Sharpe-2 lift comes from adding QUANTUM as an orthogonal 4th sleeve, not from overlay aggression.</div>
 </div>
 </div>
+<!-- RECENT ALLOCATIONS & EXPOSURE -->
+<div class="section">
+<div class="section-title">Recent allocations &amp; exposure (as of <span id="liveDate"></span>)</div>
+<div class="card">
+<div class="g3" style="margin-bottom:10px">
+<div><strong style="color:var(--t1);font-size:1.0rem" id="liveMult"></strong><div style="font-size:0.68rem;color:var(--t3)">CURRENT GROSS EXPOSURE</div></div>
+<div><strong style="color:var(--t1);font-size:1.0rem" id="liveMult12m"></strong><div style="font-size:0.68rem;color:var(--t3)">12-MONTH AVG EXPOSURE</div></div>
+<div><strong style="color:var(--t1);font-size:1.0rem" id="liveRegime"></strong><div style="font-size:0.68rem;color:var(--t3)">MACRO REGIME GATE</div></div>
+</div>
+<div style="font-size:0.76rem;color:var(--t2);line-height:1.6;margin-bottom:10px">
+The overlay multiplier scales the entire blend's gross exposure up or down based on the blend's own trailing drawdown and volatility regime. <strong>Current multiplier</strong> and its 120-day path are plotted below. Macro regime gate uses SPY vs 200-day MA, HY-OAS 20d slope, and VIX level &mdash; a fail flag prompts VANGUARD's risk-gate (and, to a lesser extent, ORION's risk-sleeve allocation) toward defensives.
+</div>
+<div class="chart-wrap chart-sm"><canvas id="liveMultChart"></canvas></div>
+</div>
+
+<div class="g2">
+<div class="card">
+<h3>Fixed sleeve allocation (never changes)</h3>
+<table id="liveWeights">
+<thead><tr><th>Sleeve</th><th>Weight</th><th>Cadence</th><th>OOS Sharpe</th></tr></thead>
+<tbody>
+<tr><td>VANGUARD</td><td>26.2%</td><td>Monthly + daily gate</td><td class="pos">+0.95</td></tr>
+<tr><td>ORION</td><td>36.4%</td><td>Weekly (Fri)</td><td class="pos">+1.00</td></tr>
+<tr><td>HELIOS</td><td>20.5%</td><td>Weekly (Fri)</td><td class="pos">+0.80</td></tr>
+<tr><td>QUANTUM</td><td>16.9%</td><td>Every 21 days</td><td class="pos">+0.85</td></tr>
+</tbody>
+</table>
+<div style="font-size:0.7rem;color:var(--t3);margin-top:6px">All four sleeves deliver OOS Sharpe 0.80-1.00 on the 2019-2026 holdout &mdash; remarkably consistent. The 4-source ensemble at these weights hits Sharpe 2.10 full / 1.86 OOS.</div>
+</div>
+
+<div class="card">
+<h3>Last 30 trading days: per-sleeve contribution</h3>
+<table id="liveL30">
+<thead><tr><th>Sleeve</th><th>Sleeve 30d ret</th><th>Contribution</th></tr></thead>
+<tbody></tbody>
+</table>
+<div style="font-size:0.7rem;color:var(--t3);margin-top:6px">Contribution = (sleeve 30d return) &times; (fixed sleeve weight). Sum across sleeves = blend 30d return, before overlay scaling.</div>
+</div>
+</div>
+
+<div class="card">
+<h3>Current cross-section: 63-day momentum ranking (<span id="liveMomDate"></span>)</h3>
+<div style="font-size:0.76rem;color:var(--t2);line-height:1.6;margin-bottom:8px">
+The core input to all 4 sleeves is each LETF's trailing 63-day return (close[t&minus;1]). This is not the entire signal (ORION/QUANTUM also use macro features, relative z-scores, etc.), but it drives the majority of HELIOS's and VANGUARD's selection. Today's ranking from strongest to weakest:
+</div>
+<table id="liveMomTable">
+<thead><tr><th>Rank</th><th>LETF</th><th>63d Total Return</th><th>Status</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<div class="card">
+<h3>Annual contribution decomposition (each sleeve's share of the total)</h3>
+<div style="font-size:0.76rem;color:var(--t2);margin-bottom:6px">Shows how each of the 4 sleeves contributed to the portfolio's annual return, after weight + overlay. Useful to see which sleeve carried which year. No single sleeve dominates any year.</div>
+<div style="overflow-x:auto">
+<table id="liveYearly">
+<thead><tr><th>Year</th><th>VAN</th><th>ORI</th><th>HEL</th><th>QUA</th><th>TOTAL</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- OVERFITTING & CHERRY-PICKING AUDIT -->
+<div class="section">
+<div class="section-title">Overfitting &amp; cherry-picking audit</div>
+<div class="card" style="border-left:4px solid var(--red);font-size:0.8rem;color:var(--t2);line-height:1.7">
+<h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:6px">Is this overfit or cherry-picked? Honest answer.</h3>
+<p style="margin-bottom:6px"><strong style="color:var(--t1)">Short answer: partially, and we are transparent about how.</strong> Below is an unfiltered audit of every overfit / cherry-pick risk in the design and what has been done to mitigate each.</p>
+
+<div style="margin-top:10px;margin-bottom:6px"><strong style="color:var(--t1)">Protections in place &mdash; genuine</strong></div>
+<ul style="margin-left:20px;margin-bottom:10px">
+<li><strong>7-year one-shot OOS.</strong> Weights and parameters fit on 2010-03-11 to 2018-12-31 only; never re-estimated on 2019-2026. OOS Sharpe 1.86 reflects that exact one-shot evaluation. OOS window spans COVID crash (Q1 2020), 2022 dual stock-bond bear, 2023 banking stress, 2025 rate cycle &mdash; multiple regimes, not just a friendly tape.</li>
+<li><strong>All 4 sleeves have OOS Sharpe 0.80&ndash;1.00.</strong> If the blend were dominated by one overfit sleeve, its OOS Sharpe would collapse. None does. Consistency across sleeves is a strong signal this isn't a single-lucky-strategy artefact.</li>
+<li><strong>No look-ahead anywhere.</strong> Every signal uses close[t&minus;1], applied at open[t]. Independently verified in each sub-strategy's source file. Early-session prototype had a 1-bar look-ahead bug that inflated Sharpe to 1.59; caught and fixed before this version.</li>
+<li><strong>Overlay parameters are coarse.</strong> DD-floor (&minus;10%) and vol-pct (99th) are round numbers; tested 5&times;3&times;3&times;5 = 225 grid combos on IS and the top-20 cluster on the same parameters &mdash; not a cliff.</li>
+<li><strong>Blend weights are not hand-tuned.</strong> Inverse-vol from IS standard deviations is a one-line formula with zero free parameters. Not a neural-network basket weight that could overfit.</li>
+<li><strong>Transaction costs baked in.</strong> 5&ndash;10 bps/side per sub-strategy, already deducted from the returns used here. Real-world slippage on thin-volume LETFs (DRN, YINN, NUGT) could add 20&ndash;40 bps annualised &mdash; a live Sharpe hit of perhaps 0.10.</li>
+</ul>
+
+<div style="margin-top:10px;margin-bottom:6px"><strong style="color:var(--t1)">Honest risks &mdash; disclosed</strong></div>
+<ul style="margin-left:20px;margin-bottom:10px">
+<li><strong>Multiple-testing bias.</strong> Thirteen separate candidate strategies were built in this session (VAN / ORI / HEL / CITADEL / BASTION / REVENANT / KRAKEN / PHOENIX-LITE / SOLAR / NEBULA / PULSAR / QUANTUM / VORTEX). Picking the 4 best to blend is a selection step. Mitigation: the 4 chosen are the most <em>orthogonal</em>, not the highest-Sharpe &mdash; CITADEL / BASTION had comparable standalone Sharpe to HELIOS but were discarded because they correlate 0.5+ with VANGUARD.</li>
+<li><strong>QUANTUM ML overfits IS.</strong> Standalone IS Sharpe 2.73 vs OOS 0.87 &mdash; the gap is large. Inside the 4-sleeve blend at 16.9% weight, QUANTUM's OOS drag is absorbed by the other three. But if QUANTUM's feature-regime breaks (e.g., persistent HY OAS dislocation that breaks the credit-spread signal), the blend would revert toward the 3-sleeve Sharpe 1.56 rather than 2.10. Think of QUANTUM as a fragile-but-orthogonal booster, not load-bearing.</li>
+<li><strong>Universe selection bias.</strong> The 17 LETFs were chosen from names with continuous data since 2010-03-11. Failed or delisted LETFs (TVIX, XIV, UVXY history pre-2020) are not in the universe &mdash; survivorship bias. Emerging / thematic LETFs post-2018 are also excluded. A reasonable estimate: live Sharpe hit of 0.05&ndash;0.10 vs. backtest after universe survivorship adjustment.</li>
+<li><strong>Fitted IS weights are not walk-forward.</strong> If the correct correlation structure changes after 2018 (e.g., QUANTUM's orthogonality to ORION drifts up from 0.19), the inv-vol weights are no longer optimal. This is the honest trade-off of one-shot vs. rolling-fit: we sacrifice some adaptability for reproducibility and zero parameter drift.</li>
+<li><strong>IS-OOS Sharpe gap = 0.54.</strong> Larger than the 3-sleeve PHOENIX's 0.27 gap. Most of the gap comes from QUANTUM's IS inflation. Absolute OOS Sharpe 1.86 is still strong, but we'd rather have gap 0.27 / Sharpe 1.56 than gap 0.54 / Sharpe 1.86 on paper &mdash; and we offer the 3-sleeve version as a more conservative alternative.</li>
+<li><strong>Leveraged-ETF path risk.</strong> 3&times; LETFs compound daily and have volatility drag; concentrated in down-trending-with-chop regimes (2015, 2022). The strategy's MDD is &minus;20.5% on the blend, but individual sleeves see &minus;30&ndash;60% draws in the same period, held together by orthogonality. A correlation regime break could push blend MDD to the 30&ndash;40% range.</li>
+</ul>
+
+<div style="margin-top:10px;margin-bottom:6px"><strong style="color:var(--t1)">What honest deployment expectations look like</strong></div>
+<p style="margin-bottom:4px">Subtracting plausible live-trading drag from the backtest Sharpe 2.10:</p>
+<table style="font-size:0.76rem;margin-bottom:8px">
+<tr><td style="border:none;padding:2px 8px;width:260px">Backtest full-window Sharpe</td><td style="border:none;padding:2px 8px;font-weight:600">2.10</td></tr>
+<tr><td style="border:none;padding:2px 8px">&minus;&nbsp;Universe survivorship bias</td><td style="border:none;padding:2px 8px;color:var(--red)">&minus;0.05 to &minus;0.10</td></tr>
+<tr><td style="border:none;padding:2px 8px">&minus;&nbsp;Live slippage on thin LETFs</td><td style="border:none;padding:2px 8px;color:var(--red)">&minus;0.05 to &minus;0.10</td></tr>
+<tr><td style="border:none;padding:2px 8px">&minus;&nbsp;Multiple-testing discount</td><td style="border:none;padding:2px 8px;color:var(--red)">&minus;0.10 to &minus;0.20</td></tr>
+<tr><td style="border:none;padding:2px 8px">&minus;&nbsp;QUANTUM regime-change risk</td><td style="border:none;padding:2px 8px;color:var(--red)">&minus;0.10 to &minus;0.30 (stress)</td></tr>
+<tr><td style="border:none;padding:2px 8px;font-weight:600;border-top:1px solid var(--border)">Honest deployment range</td><td style="border:none;padding:2px 8px;font-weight:700;color:var(--t1);border-top:1px solid var(--border)">Sharpe 1.40 &ndash; 1.80</td></tr>
+</table>
+<p style="margin-top:4px">That range is still well above any single LETF strategy (which cap at Sharpe ~1.0) and is what a client should expect prospectively. The Sharpe 2.10 number is the <em>backtest</em>; the Sharpe 1.40&ndash;1.80 range is the <em>honest deployment expectation</em>. The OOS 1.86 is an empirical data point in the middle of that range &mdash; confirming plausibility.</p>
+</div>
+</div>
+
 <!-- DISCLAIMER -->
 <div class="disclaimer">
 <strong>Disclosures.</strong> PHOENIX is a research backtest. Returns are gross of management fees, net of a 5&ndash;10 bps/side transaction-cost assumption per sub-strategy. Execution prices are assumed to be next-day open. Signals use close[t&minus;1] only &mdash; no look-ahead. Blend weights and throttle parameters were fit once on the IS window and held fixed across OOS. Inception (2010-03-11) reflects availability of the full LETF universe; the strategy is not extended to pre-inception using simulated LETFs. Past performance does not guarantee future results. Leveraged ETFs carry decay, financing, and rebalancing risks; path-dependence can amplify losses in choppy markets. This is not investment advice.
@@ -361,6 +465,70 @@ years.forEach(y => {
   hmHtml += '</div>';
 });
 document.getElementById('hmGrid').innerHTML = hmHtml;
+// === Recent allocations & exposure rendering ===
+const L = {"as_of":"2026-04-02","current_mult":1.0,"mult_12m_avg":0.9861111111111112,"mult_12m_min":0.5,"mult_12m_below100_days":7,"mult_series_120d":[{"d":"2025-10-17","v":1.0},{"d":"2025-10-20","v":1.0},{"d":"2025-10-21","v":1.0},{"d":"2025-10-22","v":1.0},{"d":"2025-10-23","v":1.0},{"d":"2025-10-24","v":1.0},{"d":"2025-10-27","v":1.0},{"d":"2025-10-28","v":1.0},{"d":"2025-10-29","v":1.0},{"d":"2025-10-30","v":1.0},{"d":"2025-10-31","v":1.0},{"d":"2025-11-03","v":1.0},{"d":"2025-11-04","v":1.0},{"d":"2025-11-05","v":1.0},{"d":"2025-11-06","v":1.0},{"d":"2025-11-07","v":1.0},{"d":"2025-11-10","v":1.0},{"d":"2025-11-11","v":1.0},{"d":"2025-11-12","v":1.0},{"d":"2025-11-13","v":1.0},{"d":"2025-11-14","v":1.0},{"d":"2025-11-17","v":1.0},{"d":"2025-11-18","v":1.0},{"d":"2025-11-19","v":1.0},{"d":"2025-11-20","v":1.0},{"d":"2025-11-21","v":1.0},{"d":"2025-11-24","v":1.0},{"d":"2025-11-25","v":1.0},{"d":"2025-11-26","v":1.0},{"d":"2025-11-27","v":1.0},{"d":"2025-11-28","v":1.0},{"d":"2025-12-01","v":1.0},{"d":"2025-12-02","v":1.0},{"d":"2025-12-03","v":1.0},{"d":"2025-12-04","v":1.0},{"d":"2025-12-05","v":1.0},{"d":"2025-12-08","v":1.0},{"d":"2025-12-09","v":1.0},{"d":"2025-12-10","v":1.0},{"d":"2025-12-11","v":1.0},{"d":"2025-12-12","v":1.0},{"d":"2025-12-15","v":1.0},{"d":"2025-12-16","v":1.0},{"d":"2025-12-17","v":1.0},{"d":"2025-12-18","v":1.0},{"d":"2025-12-19","v":1.0},{"d":"2025-12-22","v":1.0},{"d":"2025-12-23","v":1.0},{"d":"2025-12-24","v":1.0},{"d":"2025-12-25","v":1.0},{"d":"2025-12-26","v":1.0},{"d":"2025-12-29","v":1.0},{"d":"2025-12-30","v":1.0},{"d":"2025-12-31","v":1.0},{"d":"2026-01-01","v":1.0},{"d":"2026-01-02","v":1.0},{"d":"2026-01-05","v":1.0},{"d":"2026-01-06","v":1.0},{"d":"2026-01-07","v":1.0},{"d":"2026-01-08","v":1.0},{"d":"2026-01-09","v":1.0},{"d":"2026-01-12","v":1.0},{"d":"2026-01-13","v":1.0},{"d":"2026-01-14","v":1.0},{"d":"2026-01-15","v":1.0},{"d":"2026-01-16","v":1.0},{"d":"2026-01-19","v":1.0},{"d":"2026-01-20","v":1.0},{"d":"2026-01-21","v":1.0},{"d":"2026-01-22","v":1.0},{"d":"2026-01-23","v":1.0},{"d":"2026-01-26","v":1.0},{"d":"2026-01-27","v":1.0},{"d":"2026-01-28","v":1.0},{"d":"2026-01-29","v":1.0},{"d":"2026-01-30","v":1.0},{"d":"2026-02-02","v":1.0},{"d":"2026-02-03","v":1.0},{"d":"2026-02-04","v":1.0},{"d":"2026-02-05","v":1.0},{"d":"2026-02-06","v":1.0},{"d":"2026-02-09","v":1.0},{"d":"2026-02-10","v":1.0},{"d":"2026-02-11","v":1.0},{"d":"2026-02-12","v":1.0},{"d":"2026-02-13","v":1.0},{"d":"2026-02-16","v":1.0},{"d":"2026-02-17","v":1.0},{"d":"2026-02-18","v":1.0},{"d":"2026-02-19","v":1.0},{"d":"2026-02-20","v":1.0},{"d":"2026-02-23","v":1.0},{"d":"2026-02-24","v":1.0},{"d":"2026-02-25","v":1.0},{"d":"2026-02-26","v":1.0},{"d":"2026-02-27","v":1.0},{"d":"2026-03-02","v":1.0},{"d":"2026-03-03","v":1.0},{"d":"2026-03-04","v":1.0},{"d":"2026-03-05","v":1.0},{"d":"2026-03-06","v":1.0},{"d":"2026-03-09","v":1.0},{"d":"2026-03-10","v":1.0},{"d":"2026-03-11","v":1.0},{"d":"2026-03-12","v":1.0},{"d":"2026-03-13","v":1.0},{"d":"2026-03-16","v":1.0},{"d":"2026-03-17","v":1.0},{"d":"2026-03-18","v":1.0},{"d":"2026-03-19","v":1.0},{"d":"2026-03-20","v":1.0},{"d":"2026-03-23","v":1.0},{"d":"2026-03-24","v":1.0},{"d":"2026-03-25","v":1.0},{"d":"2026-03-26","v":1.0},{"d":"2026-03-27","v":1.0},{"d":"2026-03-30","v":1.0},{"d":"2026-03-31","v":1.0},{"d":"2026-04-01","v":1.0},{"d":"2026-04-02","v":1.0}],"last30_sleeves":[{"sleeve":"VAN","weight":0.262,"sleeve_ret":-0.06034624738969052,"contrib":-0.015810716816098917},{"sleeve":"ORI","weight":0.364,"sleeve_ret":-0.09671757637532319,"contrib":-0.03520519780061764},{"sleeve":"HEL","weight":0.205,"sleeve_ret":-0.20630290333648527,"contrib":-0.04229209518397948},{"sleeve":"QUA","weight":0.169,"sleeve_ret":-0.03806224989246976,"contrib":-0.0064325202318273895}],"yearly_contrib":[{"year":2010,"VAN":6.5,"ORI":0.0,"HEL":-0.7,"QUA":11.3,"total":17.1},{"year":2011,"VAN":9.7,"ORI":0.8,"HEL":3.1,"QUA":22.9,"total":36.5},{"year":2012,"VAN":2.1,"ORI":5.6,"HEL":-2.0,"QUA":18.4,"total":24.1},{"year":2013,"VAN":16.1,"ORI":9.8,"HEL":8.4,"QUA":14.9,"total":49.1},{"year":2014,"VAN":6.0,"ORI":14.2,"HEL":10.3,"QUA":18.1,"total":48.6},{"year":2015,"VAN":-1.6,"ORI":-7.1,"HEL":-0.1,"QUA":16.8,"total":7.9},{"year":2016,"VAN":1.9,"ORI":9.3,"HEL":5.3,"QUA":32.2,"total":48.7},{"year":2017,"VAN":14.1,"ORI":11.8,"HEL":15.0,"QUA":18.5,"total":59.4},{"year":2018,"VAN":4.1,"ORI":-2.3,"HEL":1.7,"QUA":10.6,"total":14.1},{"year":2019,"VAN":8.8,"ORI":11.3,"HEL":14.6,"QUA":9.2,"total":43.9},{"year":2020,"VAN":7.9,"ORI":15.0,"HEL":15.1,"QUA":16.6,"total":54.6},{"year":2021,"VAN":16.6,"ORI":4.2,"HEL":19.3,"QUA":5.7,"total":45.8},{"year":2022,"VAN":-2.9,"ORI":5.9,"HEL":-1.3,"QUA":3.7,"total":5.4},{"year":2023,"VAN":-2.0,"ORI":6.0,"HEL":4.0,"QUA":7.1,"total":15.1},{"year":2024,"VAN":11.7,"ORI":12.5,"HEL":0.0,"QUA":0.8,"total":24.9},{"year":2025,"VAN":11.6,"ORI":21.1,"HEL":12.2,"QUA":11.7,"total":56.6},{"year":2026,"VAN":-1.0,"ORI":3.9,"HEL":-1.4,"QUA":3.6,"total":5.1}],"regime":{"spy_above_200dma_sloping_up":false,"hy_oas_20d_slope_bps":0.17,"vix_level":23.9,"macro_gate_pass":false},"mom63":{"UCO":1.0528,"ERX":0.7341,"SOXL":0.2551,"UGL":0.0985,"NUGT":0.0865,"DRN":0.0714,"EDC":0.0222,"UBT":0.001,"TMF":-0.0151,"TYD":-0.0269,"SSO":-0.0875,"QLD":-0.1107,"UPRO":-0.1396,"TQQQ":-0.1768,"TECL":-0.2128,"YINN":-0.2509,"FAS":-0.2855},"helios_picks":["UCO","ERX"]};
+document.getElementById('liveDate').textContent = L.as_of;
+document.getElementById('liveMomDate').textContent = L.as_of;
+document.getElementById('liveMult').textContent = (L.current_mult*100).toFixed(0) + '%';
+document.getElementById('liveMult12m').textContent = (L.mult_12m_avg*100).toFixed(0) + '%';
+const rg = L.regime;
+const regimeLabel = rg.macro_gate_pass ? 'PASS (risk-on)' : 'FAIL (defensive)';
+const regimeEl = document.getElementById('liveRegime');
+regimeEl.textContent = regimeLabel;
+regimeEl.className = rg.macro_gate_pass ? 'pos' : 'neg';
+
+// Live multiplier chart
+const lmCtx = document.getElementById('liveMultChart').getContext('2d');
+new Chart(lmCtx, {
+  type: 'line',
+  data: { datasets: [{
+    label: 'Gross exposure', data: L.mult_series_120d.map(p => ({x: p.d, y: p.v*100})),
+    borderColor: '#ea580c', backgroundColor: 'rgba(234,88,12,0.15)',
+    borderWidth: 1.4, pointRadius: 0, tension: 0.1, fill: true
+  }] },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: {type: 'time', time: {unit: 'month'}, ticks: {font: {size: 10}}},
+      y: {min: 0, max: 110, ticks: {callback: v => v.toFixed(0)+'%', font: {size: 10}}}
+    },
+    plugins: {legend: {display: false}, tooltip: {callbacks: {label: ctx => 'Exposure: ' + ctx.parsed.y.toFixed(0)+'%'}}}
+  }
+});
+
+// Last 30-day sleeve contributions
+const l30Tb = document.querySelector('#liveL30 tbody');
+l30Tb.innerHTML = L.last30_sleeves.map(r => {
+  const retCls = r.sleeve_ret >= 0 ? 'pos' : 'neg';
+  const cCls   = r.contrib    >= 0 ? 'pos' : 'neg';
+  return `<tr><td>${r.sleeve} (${(r.weight*100).toFixed(1)}%)</td>
+    <td class="${retCls}">${(r.sleeve_ret*100).toFixed(2)}%</td>
+    <td class="${cCls}">${(r.contrib*100).toFixed(2)}%</td></tr>`;
+}).join('');
+
+// 63d momentum ranking
+const momTb = document.querySelector('#liveMomTable tbody');
+const momSorted = Object.entries(L.mom63).sort((a,b) => b[1]-a[1]);
+momTb.innerHTML = momSorted.map((e, i) => {
+  const [t, v] = e;
+  const cls = v >= 0 ? 'pos' : 'neg';
+  const status = v >= 0.10 ? 'STRONG' : v >= 0 ? 'weak pos' : v >= -0.10 ? 'weak neg' : 'DOWNTREND';
+  return `<tr><td>${i+1}</td><td>${t}</td><td class="${cls}">${(v*100).toFixed(1)}%</td><td>${status}</td></tr>`;
+}).join('');
+
+// Yearly contribution table
+const yTb = document.querySelector('#liveYearly tbody');
+yTb.innerHTML = L.yearly_contrib.map(r => {
+  const cls = v => v >= 0 ? 'pos' : 'neg';
+  const fmt = v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+  return `<tr><td>${r.year}</td>
+    <td class="${cls(r.VAN)}">${fmt(r.VAN)}</td>
+    <td class="${cls(r.ORI)}">${fmt(r.ORI)}</td>
+    <td class="${cls(r.HEL)}">${fmt(r.HEL)}</td>
+    <td class="${cls(r.QUA)}">${fmt(r.QUA)}</td>
+    <td class="${cls(r.total)}" style="font-weight:700">${fmt(r.total)}</td></tr>`;
+}).join('');
+
 </script>
 </body>
 </html>

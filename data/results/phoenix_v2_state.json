@@ -1,0 +1,32 @@
+{
+  "as_of": "2026-04-02",
+  "mom63_ranking": {
+    "UCO": 1.0528,
+    "ERX": 0.7341,
+    "SOXL": 0.2551,
+    "UGL": 0.0985,
+    "NUGT": 0.0865,
+    "DRN": 0.0714,
+    "EDC": 0.0222,
+    "UBT": 0.001,
+    "TMF": -0.0151,
+    "TYD": -0.0269,
+    "SSO": -0.0875,
+    "QLD": -0.1107,
+    "UPRO": -0.1396,
+    "TQQQ": -0.1768,
+    "TECL": -0.2128,
+    "YINN": -0.2509,
+    "FAS": -0.2855
+  },
+  "regime": {
+    "spy_above_200dma_sloping_up": false,
+    "hy_oas_20d_slope_bps": 0.17,
+    "vix_level": 23.9,
+    "macro_gate_pass": false
+  },
+  "helios_topk_approx": [
+    "UCO",
+    "ERX"
+  ]
+}
