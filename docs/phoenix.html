@@ -124,6 +124,34 @@ Live signal has not yet been generated. A GitHub Actions cron job runs the strat
 </table></div>
 <div id="liveNoTrades" style="font-size:0.85rem;color:var(--green);padding:8px;font-weight:600;display:none">No changes &mdash; hold current positions.</div>
 
+<!-- Share calculator -->
+<div style="margin-top:16px;padding:12px;background:var(--card2);border-radius:6px;border:1px solid var(--border)">
+<h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:8px">&#x1F4B0; Calculate exact shares to trade</h3>
+<div style="font-size:0.76rem;color:var(--t2);margin-bottom:10px;line-height:1.5">
+Enter your current portfolio value (total account $, including cash). The calculator uses today&apos;s closing prices and the target weights to show exactly how many shares of each ETF to buy or sell. Share counts are rounded <strong>down</strong> to whole shares (safer: never over-buys). Residual goes into cash (BIL) automatically.
+</div>
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+<label style="font-size:0.82rem;font-weight:600">Portfolio value ($):</label>
+<input id="portfolioValInput" type="number" min="0" step="100" placeholder="e.g. 100000"
+       style="padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:0.95rem;width:160px">
+<button onclick="calcShares()" style="padding:8px 16px;border-radius:4px;background:var(--accent);color:#fff;font-size:0.82rem;font-weight:600;border:none;cursor:pointer">Calculate</button>
+<span id="portfolioValSaved" style="font-size:0.72rem;color:var(--t3)"></span>
+</div>
+<div id="sharesOutput" style="display:none">
+<h4 style="font-size:0.85rem;color:var(--t1);margin:8px 0 6px 0">Trades to execute tomorrow at open</h4>
+<div style="overflow-x:auto"><table id="sharesTradesTable" style="font-size:0.82rem">
+<thead><tr><th>Side</th><th>Ticker</th><th>Price</th><th>Current shares</th><th>Target shares</th><th>Shares to trade</th><th>$ amount</th></tr></thead>
+<tbody></tbody>
+</table></div>
+<h4 style="font-size:0.85rem;color:var(--t1);margin:12px 0 6px 0">Final target holdings (after tomorrow&apos;s trades)</h4>
+<div style="overflow-x:auto"><table id="sharesTargetTable" style="font-size:0.82rem">
+<thead><tr><th>Ticker</th><th>Price</th><th>Target %</th><th>Target $</th><th>Target shares</th><th>Actual $ (whole shares)</th></tr></thead>
+<tbody></tbody>
+</table></div>
+<div id="sharesLeftover" style="font-size:0.76rem;color:var(--t2);margin-top:8px"></div>
+</div>
+</div>
+
 <div class="g2" style="margin-top:16px">
 <div>
 <h3 style="color:var(--t1);font-size:0.9rem;margin-bottom:6px">Positions BEFORE (currently holding)</h3>
@@ -1372,6 +1400,118 @@ if (LIVE && LIVE.context && LIVE.target_positions) {
   document.getElementById('liveContent').style.display = 'none';
 }
 
+// === Share calculator ===
+function calcShares() {
+  const input = document.getElementById('portfolioValInput');
+  const val = parseFloat(input.value);
+  if (!val || val <= 0) {
+    alert('Enter a portfolio value greater than 0');
+    return;
+  }
+  // Persist for future page loads
+  try { localStorage.setItem('phoenixPortfolioVal', val.toString()); } catch (e) {}
+
+  const out = document.getElementById('sharesOutput');
+  out.style.display = 'block';
+
+  // Build a ticker → price lookup from LIVE.price_context (BIL not in it, handle separately)
+  const priceMap = {};
+  if (LIVE.price_context) {
+    for (const [t, p] of Object.entries(LIVE.price_context)) {
+      priceMap[t] = p.price;
+    }
+  }
+  // BIL price: ~$100 stable ETF; use a default if not available
+  if (!priceMap.BIL) priceMap.BIL = 100.00;
+
+  // Build map of prev_weight by ticker (as fractions)
+  const prevW = {};
+  if (LIVE.previous_positions) {
+    for (const p of LIVE.previous_positions) prevW[p.ticker] = p.weight;
+  }
+  // Build map of target weights
+  const targetW = {};
+  for (const p of LIVE.target_positions) targetW[p.ticker] = p.weight;
+
+  // Compute trades (weight deltas) including BIL
+  const allTickers = new Set([...Object.keys(prevW), ...Object.keys(targetW)]);
+  const trades = [];
+  for (const t of allTickers) {
+    const before = prevW[t] || 0;
+    const after = targetW[t] || 0;
+    const delta = after - before;
+    if (Math.abs(delta) < 0.001) continue;  // skip < 0.1%
+    trades.push({ticker: t, before, after, delta});
+  }
+  // SELLs first (raise cash), then BUYs, largest moves first within each side
+  trades.sort((a, b) => {
+    const aSell = a.delta < 0, bSell = b.delta < 0;
+    if (aSell !== bSell) return aSell ? -1 : 1;
+    return Math.abs(b.delta) - Math.abs(a.delta);
+  });
+
+  // Render the trades table: shares to buy/sell
+  const trTb = document.querySelector('#sharesTradesTable tbody');
+  const rows = [];
+  for (const tr of trades) {
+    const price = priceMap[tr.ticker];
+    if (!price) continue;
+    // Current and target share counts, rounded DOWN
+    const curShares = Math.floor((tr.before * val) / price);
+    const tgtShares = Math.floor((tr.after * val) / price);
+    const dShares = tgtShares - curShares;
+    if (dShares === 0) continue;
+    const side = dShares > 0 ? 'BUY' : 'SELL';
+    const cls = dShares > 0 ? 'pos' : 'neg';
+    const amount = Math.abs(dShares) * price;
+    rows.push(`<tr>
+      <td class="${cls}"><strong>${side}</strong></td>
+      <td><strong>${tr.ticker}</strong></td>
+      <td>$${price.toFixed(2)}</td>
+      <td>${curShares}</td>
+      <td>${tgtShares}</td>
+      <td class="${cls}">${dShares > 0 ? '+' : ''}${dShares}</td>
+      <td>$${amount.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+    </tr>`);
+  }
+  trTb.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="7" style="color:var(--t3);font-style:italic">No trades needed (current positions match target at this portfolio size)</td></tr>';
+
+  // Target holdings table (final state after trades)
+  const tgtTb = document.querySelector('#sharesTargetTable tbody');
+  let totalActual = 0;
+  const tgtRows = [];
+  for (const p of LIVE.target_positions) {
+    const price = priceMap[p.ticker] || 100;
+    const dollarsTarget = p.weight * val;
+    const shares = Math.floor(dollarsTarget / price);
+    const actualDollars = shares * price;
+    totalActual += actualDollars;
+    tgtRows.push(`<tr>
+      <td><strong>${p.ticker}</strong></td>
+      <td>$${price.toFixed(2)}</td>
+      <td>${p.pct.toFixed(2)}%</td>
+      <td>$${dollarsTarget.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+      <td><strong>${shares}</strong></td>
+      <td>$${actualDollars.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+    </tr>`);
+  }
+  tgtTb.innerHTML = tgtRows.join('');
+
+  // Leftover cash (from rounding-down to whole shares)
+  const leftover = val - totalActual;
+  document.getElementById('sharesLeftover').innerHTML =
+    `<strong>Uninvested cash from share rounding: $${leftover.toLocaleString(undefined, {maximumFractionDigits: 2})}</strong> (this stays in your brokerage cash sweep — or add to BIL manually if you want exact 100% deployment).`;
+}
+
+// Restore saved portfolio value if any
+try {
+  const saved = localStorage.getItem('phoenixPortfolioVal');
+  if (saved) {
+    document.getElementById('portfolioValInput').value = saved;
+    document.getElementById('portfolioValSaved').textContent = ' (saved from previous session)';
+    calcShares();
+  }
+} catch (e) {}
 </script>
 </body>
 </html>
