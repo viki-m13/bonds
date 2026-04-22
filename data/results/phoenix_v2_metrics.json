@@ -1,0 +1,125 @@
+{
+  "weights": {
+    "VANGUARD": 0.2621163302956748,
+    "ORION": 0.36360597992492677,
+    "HELIOS": 0.20538096874371883,
+    "QUANTUM": 0.16889672103567954
+  },
+  "throttle": {
+    "dd_win": 252,
+    "dd_floor": -0.1,
+    "vol_win": 60,
+    "vol_pct": 0.99,
+    "pct_lookback": 252
+  },
+  "raw": {
+    "full": {
+      "label": "RAW FULL",
+      "n": 4191,
+      "start": "2010-03-11",
+      "end": "2026-04-02",
+      "sharpe": 2.0283,
+      "sortino": 2.804,
+      "cagr": 0.3898,
+      "ann_vol": 0.1695,
+      "mdd": -0.2094,
+      "navx": 238.5818,
+      "calmar": 1.862
+    },
+    "is": {
+      "label": "RAW IS",
+      "n": 2298,
+      "start": "2010-03-11",
+      "end": "2018-12-31",
+      "sharpe": 2.3537,
+      "sortino": 3.3754,
+      "cagr": 0.3987,
+      "ann_vol": 0.1473,
+      "mdd": -0.191,
+      "navx": 21.3176,
+      "calmar": 2.087
+    },
+    "oos": {
+      "label": "RAW OOS",
+      "n": 1892,
+      "start": "2019-01-02",
+      "end": "2026-04-02",
+      "sharpe": 1.7631,
+      "sortino": 2.4241,
+      "cagr": 0.3794,
+      "ann_vol": 0.1932,
+      "mdd": -0.2094,
+      "navx": 11.1918,
+      "calmar": 1.8124
+    }
+  },
+  "v2": {
+    "full": {
+      "label": "FULL",
+      "n": 4191,
+      "start": "2010-03-11",
+      "end": "2026-04-02",
+      "sharpe": 2.1031,
+      "sortino": 2.9861,
+      "cagr": 0.3798,
+      "ann_vol": 0.1592,
+      "mdd": -0.2051,
+      "navx": 211.535,
+      "calmar": 1.8519
+    },
+    "is": {
+      "label": "IS",
+      "n": 2298,
+      "start": "2010-03-11",
+      "end": "2018-12-31",
+      "sharpe": 2.3988,
+      "sortino": 3.4712,
+      "cagr": 0.384,
+      "ann_vol": 0.1396,
+      "mdd": -0.1819,
+      "navx": 19.3625,
+      "calmar": 2.1105
+    },
+    "oos": {
+      "label": "OOS",
+      "n": 1892,
+      "start": "2019-01-02",
+      "end": "2026-04-02",
+      "sharpe": 1.8582,
+      "sortino": 2.6587,
+      "cagr": 0.375,
+      "ann_vol": 0.1802,
+      "mdd": -0.2051,
+      "navx": 10.925,
+      "calmar": 1.8285
+    }
+  },
+  "is_oos_gap": 0.5406,
+  "avg_mult": 0.9523979957050823,
+  "corr_matrix": {
+    "VANGUARD": {
+      "VANGUARD": 1.0,
+      "ORION": -0.015,
+      "HELIOS": -0.049,
+      "QUANTUM": 0.036
+    },
+    "ORION": {
+      "VANGUARD": -0.015,
+      "ORION": 1.0,
+      "HELIOS": -0.018,
+      "QUANTUM": 0.187
+    },
+    "HELIOS": {
+      "VANGUARD": -0.049,
+      "ORION": -0.018,
+      "HELIOS": 1.0,
+      "QUANTUM": -0.036
+    },
+    "QUANTUM": {
+      "VANGUARD": 0.036,
+      "ORION": 0.187,
+      "HELIOS": -0.036,
+      "QUANTUM": 1.0
+    }
+  }
+}
