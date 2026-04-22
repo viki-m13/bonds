@@ -306,7 +306,7 @@ def backtest(opens: pd.DataFrame, closes: pd.DataFrame, preds: pd.DataFrame,
     all_dates = closes.index
     # rebalance dates: every N trading days starting from first valid date
     start_bt = pd.Timestamp(IS_START)
-    end_bt = dates_idx.max()  # latest available market date
+    end_bt = all_dates.max()  # latest available market date
     mask_bt = (all_dates >= start_bt) & (all_dates <= end_bt)
     bt_dates = all_dates[mask_bt]
 
@@ -446,11 +446,41 @@ def main():
         # Train final model on ALL of IS using chosen N
         tgt_col = f"fwd_{N}"
         train = data_is.dropna(subset=feature_cols + [tgt_col])
+        # If the chosen N produced an empty training set (rare edge case), try
+        # smaller N values. We need a model that's actually trained on data.
+        if len(train) == 0:
+            print(f"[WARN] N={N} gave 0 train rows; checking each feature for all-NaN...")
+            for fc in feature_cols:
+                n_nan = data_is[fc].isna().sum()
+                pct = n_nan / len(data_is) * 100
+                if pct > 90:
+                    print(f"   [{fc}] {n_nan}/{len(data_is)} NaN ({pct:.1f}%)")
+            for fallback_N in [5, 10, 42]:
+                fallback_tgt = f"fwd_{fallback_N}"
+                if fallback_tgt not in data_is.columns:
+                    continue
+                tr = data_is.dropna(subset=feature_cols + [fallback_tgt])
+                if len(tr) > 1000:
+                    print(f"[FALLBACK] Switching to N={fallback_N} ({len(tr)} train rows)")
+                    N = fallback_N
+                    K = 3
+                    tgt_col = fallback_tgt
+                    train = tr
+                    break
+        if len(train) == 0:
+            # Last resort: drop only rows with NaN target, fill features with 0
+            print(f"[LAST RESORT] All N choices empty; dropping NaN target only, zero-fill features")
+            train = data_is.dropna(subset=[tgt_col])
+            if len(train) > 0:
+                train = train.fillna(0)
         print(f"Final train rows: {len(train)}")
+        if len(train) < 100:
+            raise RuntimeError(f"QUANTUM: cannot train with only {len(train)} rows. "
+                               "Check data integrity (FRED files, ETF coverage).")
         final_model = make_model()
         final_model.fit(train[feature_cols].values, train[tgt_col].values, verbose=False)
 
-        # Persist the trained artifact
+        # Persist the trained artifact ONLY if it actually trained
         try:
             with open(cache_path, 'wb') as f:
                 pickle.dump({"model": final_model, "N": N, "K": K, "cv": cv,
