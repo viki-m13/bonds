@@ -1,12 +1,12 @@
 {
-  "generated_at_utc": "2026-04-22T03:33:42+00:00",
+  "generated_at_utc": "2026-04-22T03:38:05+00:00",
   "context": {
     "as_of": "2026-04-21",
     "regime_gate_pass": true,
     "regime_risk_on": true,
     "spy_vs_200dma": 0.06020230292682971,
-    "vix": 19.49,
-    "hy_oas_slope_20d": -0.29000000000000004,
+    "vix": 18.87,
+    "hy_oas_slope_20d": -0.31999999999999984,
     "overlay_mult": 0.6568583454303922,
     "overlay_reason": "Vol target 15% \u2192 mult 0.66x (realized vol 22.8%) \u00b7 All safety gates clear",
     "mom63_ranking": {
@@ -38,18 +38,28 @@
     },
     {
       "ticker": "ERX",
-      "weight": 0.2339510473641247,
-      "pct": 23.4
+      "weight": 0.1840298131114149,
+      "pct": 18.4
     },
     {
       "ticker": "UCO",
-      "weight": 0.2339510473641247,
-      "pct": 23.4
+      "weight": 0.1840298131114149,
+      "pct": 18.4
     },
     {
-      "ticker": "DRN",
-      "weight": 0.1232704161591036,
-      "pct": 12.33
+      "ticker": "SOXL",
+      "weight": 0.1565512389942434,
+      "pct": 15.66
+    },
+    {
+      "ticker": "TECL",
+      "weight": 0.0332808228351398,
+      "pct": 3.33
+    },
+    {
+      "ticker": "EDC",
+      "weight": 0.0332808228351398,
+      "pct": 3.33
     }
   ],
   "target_positions": [
@@ -84,56 +94,7 @@
       "pct": 3.33
     }
   ],
-  "trades_today": [
-    {
-      "ticker": "DRN",
-      "side": "SELL",
-      "weight_before": 0.1233,
-      "weight_after": 0.0,
-      "weight_delta": -0.1233,
-      "delta_pct": -12.33
-    },
-    {
-      "ticker": "ERX",
-      "side": "SELL",
-      "weight_before": 0.234,
-      "weight_after": 0.184,
-      "weight_delta": -0.0499,
-      "delta_pct": -4.99
-    },
-    {
-      "ticker": "UCO",
-      "side": "SELL",
-      "weight_before": 0.234,
-      "weight_after": 0.184,
-      "weight_delta": -0.0499,
-      "delta_pct": -4.99
-    },
-    {
-      "ticker": "SOXL",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.1566,
-      "weight_delta": 0.1566,
-      "delta_pct": 15.66
-    },
-    {
-      "ticker": "EDC",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.0333,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
-    },
-    {
-      "ticker": "TECL",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.0333,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
-    }
-  ],
+  "trades_today": [],
   "recent_trades_30d": [
     {
       "Date": "2026-04-21",
