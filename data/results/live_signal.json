@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-04-22T12:47:57+00:00",
+  "generated_at_utc": "2026-04-22T12:57:34+00:00",
   "context": {
     "as_of": "2026-04-21",
     "regime_gate_pass": true,
@@ -7,7 +7,7 @@
     "spy_vs_200dma": 0.06020230292682971,
     "vix": 18.87,
     "hy_oas_slope_20d": -0.31999999999999984,
-    "overlay_mult": 0.6200332787514427,
+    "overlay_mult": 0.6200332787514423,
     "overlay_reason": "Vol target 15% \u2192 mult 0.62x (realized vol 24.2%) \u00b7 All safety gates clear",
     "mom63_ranking": {
       "TQQQ": 0.07454805188407487,
@@ -33,101 +33,68 @@
   "previous_positions": [
     {
       "ticker": "BIL",
-      "weight": 0.3815126120158497,
-      "pct": 38.15
+      "weight": 0.4419700491237016,
+      "pct": 44.2
     },
     {
       "ticker": "ERX",
-      "weight": 0.1925328331854364,
-      "pct": 19.25
+      "weight": 0.1737126569301958,
+      "pct": 17.37
     },
     {
       "ticker": "UCO",
-      "weight": 0.1925328331854364,
-      "pct": 19.25
+      "weight": 0.1737126569301958,
+      "pct": 17.37
     },
     {
       "ticker": "SOXL",
-      "weight": 0.1637846231143212,
-      "pct": 16.38
+      "weight": 0.1477745981024271,
+      "pct": 14.78
     },
     {
       "ticker": "TECL",
-      "weight": 0.034818549249478,
-      "pct": 3.48
+      "weight": 0.0314150194567397,
+      "pct": 3.14
     },
     {
       "ticker": "EDC",
-      "weight": 0.034818549249478,
-      "pct": 3.48
+      "weight": 0.0314150194567397,
+      "pct": 3.14
     }
   ],
   "target_positions": [
     {
       "ticker": "BIL",
-      "weight": 0.44197004912370164,
+      "weight": 0.44197004912370186,
       "pct": 44.2
     },
     {
       "ticker": "ERX",
-      "weight": 0.17371265693019586,
+      "weight": 0.17371265693019577,
       "pct": 17.37
     },
     {
       "ticker": "UCO",
-      "weight": 0.17371265693019586,
+      "weight": 0.17371265693019577,
       "pct": 17.37
     },
     {
       "ticker": "SOXL",
-      "weight": 0.14777459810242716,
+      "weight": 0.14777459810242707,
       "pct": 14.78
     },
     {
       "ticker": "TECL",
-      "weight": 0.03141501945673976,
+      "weight": 0.031415019456739746,
       "pct": 3.14
     },
     {
       "ticker": "EDC",
-      "weight": 0.03141501945673976,
+      "weight": 0.031415019456739746,
       "pct": 3.14
     }
   ],
-  "trades_today": [
-    {
-      "ticker": "ERX",
-      "side": "SELL",
-      "weight_before": 0.1925,
-      "weight_after": 0.1737,
-      "weight_delta": -0.0188,
-      "delta_pct": -1.88
-    },
-    {
-      "ticker": "UCO",
-      "side": "SELL",
-      "weight_before": 0.1925,
-      "weight_after": 0.1737,
-      "weight_delta": -0.0188,
-      "delta_pct": -1.88
-    },
-    {
-      "ticker": "SOXL",
-      "side": "SELL",
-      "weight_before": 0.1638,
-      "weight_after": 0.1478,
-      "weight_delta": -0.016,
-      "delta_pct": -1.6
-    },
-    {
-      "ticker": "BIL",
-      "side": "BUY",
-      "weight_before": 0.3815,
-      "weight_after": 0.442,
-      "weight_delta": 0.0605,
-      "delta_pct": 6.05
-    }
-  ],
+  "trades_today": [],
   "recent_trades_30d": [
     {
       "Date": "2026-04-21",
