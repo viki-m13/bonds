@@ -128,7 +128,7 @@ Live signal has not yet been generated. A GitHub Actions cron job runs the strat
 <div>
 <h3 style="color:var(--t1);font-size:0.9rem;margin-bottom:6px">Positions BEFORE (currently holding)</h3>
 <table id="livePrevTable" style="font-size:0.82rem">
-<thead><tr><th>Ticker</th><th>Weight</th></tr></thead>
+<thead><tr><th>Ticker</th><th>Weight</th><th>Role</th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
@@ -1292,10 +1292,10 @@ if (LIVE && LIVE.context && LIVE.target_positions) {
   const prevTb = document.querySelector('#livePrevTable tbody');
   if (LIVE.previous_positions && LIVE.previous_positions.length > 0) {
     prevTb.innerHTML = LIVE.previous_positions.map(p =>
-      `<tr><td><strong>${p.ticker}</strong></td><td>${p.pct.toFixed(2)}%</td></tr>`
+      `<tr><td><strong>${p.ticker}</strong></td><td>${p.pct.toFixed(2)}%</td><td style="font-size:0.72rem;color:var(--t3)">${roleMap2[p.ticker] || 'LETF'}</td></tr>`
     ).join('');
   } else {
-    prevTb.innerHTML = '<tr><td colspan="2" style="color:var(--t3);font-style:italic">(first signal run — no prior positions)</td></tr>';
+    prevTb.innerHTML = '<tr><td colspan="3" style="color:var(--t3);font-style:italic">(first signal run — no prior positions)</td></tr>';
   }
   const tgtTb = document.querySelector('#liveTargetTable tbody');
   tgtTb.innerHTML = LIVE.target_positions.map(p =>
