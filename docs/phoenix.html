@@ -59,16 +59,30 @@ tr:hover{background:var(--card2)}
 </head>
 <body>
 <div class="page">
-<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-<a href="index.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">Sharpe Strategy</a>
-<a href="growth.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">Growth Strategy</a>
-<a href="blend.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">ZEPHYR</a>
-<a href="aurora.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">AURORA</a>
-<a href="hydra.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">HYDRA</a>
-<a href="nova34.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">NOVA</a>
-<a href="atlas.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">ATLAS</a>
+<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
 <a href="phoenix.html" style="padding:6px 16px;border-radius:20px;background:var(--accent);color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;border:1px solid var(--accent)">PHOENIX</a>
+<div style="position:relative;display:inline-block">
+<button id="otherStratBtn" onclick="document.getElementById('otherStratMenu').style.display = document.getElementById('otherStratMenu').style.display === 'block' ? 'none' : 'block'" style="padding:6px 14px;border-radius:20px;background:var(--card);color:var(--t1);font-size:0.82rem;font-weight:500;border:1px solid var(--border);cursor:pointer">Other strategies &#9662;</button>
+<div id="otherStratMenu" style="display:none;position:absolute;top:36px;left:0;background:var(--bg);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,0.08);padding:6px;z-index:100;min-width:180px">
+<a href="index.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">Sharpe Strategy</a>
+<a href="growth.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">Growth Strategy</a>
+<a href="blend.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">ZEPHYR</a>
+<a href="aurora.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">AURORA</a>
+<a href="hydra.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">HYDRA</a>
+<a href="nova34.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">NOVA</a>
+<a href="atlas.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">ATLAS</a>
 </div>
+</div>
+</div>
+<script>
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('otherStratBtn');
+  const menu = document.getElementById('otherStratMenu');
+  if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+</script>
 <div class="header">
 <div>
 <h1>PHOENIX</h1>
@@ -201,8 +215,12 @@ Live signal has not yet been generated. A GitHub Actions cron job runs the strat
 <div class="kpi-row" id="kpis"></div>
 <!-- GROWTH CHART -->
 <div class="section">
-<div class="section-title">Growth of $10,000 (PHOENIX vs raw blend vs 60/40 vs SPY)</div>
-<div class="card"><div class="chart-wrap"><canvas id="eqChart"></canvas></div></div>
+<div class="section-title">Growth of $10,000 since 2010</div>
+<div class="card">
+<div style="font-size:0.76rem;color:var(--t2);margin-bottom:8px;line-height:1.5">
+Backtest log-scale equity curve. <strong>PHOENIX</strong> (orange, solid) is the full production strategy with daily risk sizing. <strong>Raw blend</strong> (purple, dashed) is the same 5 sleeves at the same weights <em>without</em> the daily vol target / DD throttle / vol gate &mdash; shown for reference so you can see what the overlays contribute. <strong>SPY</strong> (grey) is the S&amp;P 500 total return. <strong>60/40</strong> (teal) is 60% SPY + 40% TLT (long bonds).
+</div>
+<div class="chart-wrap"><canvas id="eqChart"></canvas></div></div>
 </div>
 <!-- DRAWDOWN -->
 <div class="section">
@@ -270,7 +288,7 @@ Live signal has not yet been generated. A GitHub Actions cron job runs the strat
 </div>
 <!-- RECENT ALLOCATIONS & EXPOSURE -->
 <div class="section">
-<div class="section-title">Recent allocations &amp; exposure (as of <span id="liveDate"></span>)</div>
+<div class="section-title">Backtest composition &amp; overlay history</div>
 <div class="card">
 <div class="g3" style="margin-bottom:10px">
 <div><strong style="color:var(--t1);font-size:1.0rem" id="liveMult"></strong><div style="font-size:0.68rem;color:var(--t3)">CURRENT GROSS EXPOSURE</div></div>
@@ -278,7 +296,7 @@ Live signal has not yet been generated. A GitHub Actions cron job runs the strat
 <div><strong style="color:var(--t1);font-size:1.0rem" id="liveRegime"></strong><div style="font-size:0.68rem;color:var(--t3)">MACRO REGIME GATE</div></div>
 </div>
 <div style="font-size:0.76rem;color:var(--t2);line-height:1.6;margin-bottom:10px">
-The overlay multiplier scales the entire blend's gross exposure up or down based on the blend's own trailing drawdown and volatility regime. <strong>Current multiplier</strong> and its 120-day path are plotted below. Macro regime gate uses SPY vs 200-day MA, HY-OAS 20d slope, and VIX level &mdash; a fail flag prompts VANGUARD's risk-gate (and, to a lesser extent, ORION's risk-sleeve allocation) toward defensives.
+Analysis of the strategy's overlay behavior across the full backtest (2010-2026). The overlay multiplier scales the blend's gross exposure between 25% and 100% based on recent realized vol, drawdown from peak, and vol regime. This chart shows the <strong>last 120 days</strong> of the overlay multiplier; yearly contribution tables below show which sleeves drove returns in each calendar year.
 </div>
 <div class="chart-wrap chart-sm"><canvas id="liveMultChart"></canvas></div>
 </div>
@@ -328,38 +346,6 @@ The core input to all 4 sleeves is each LETF's trailing 63-day return (close[t&m
 <tbody></tbody>
 </table>
 </div>
-</div>
-</div>
-
-<!-- CURRENT POSITIONS -->
-<div class="section">
-<div class="section-title">Current portfolio positions (<span id="posDate"></span>)</div>
-<div class="card">
-<div style="font-size:0.76rem;color:var(--t2);line-height:1.6;margin-bottom:10px">
-Consolidated weighting across all 4 sleeves, after applying the overlay multiplier. <strong id="posRegime"></strong>.
-</div>
-<div class="g2">
-<div style="font-size:0.82rem"><table id="posTable">
-<thead><tr><th>LETF</th><th>Weight</th><th>Role</th></tr></thead>
-<tbody></tbody>
-</table></div>
-<div class="chart-wrap chart-sm"><canvas id="posChart"></canvas></div>
-</div>
-</div>
-</div>
-
-<!-- RECENT TRADES -->
-<div class="section">
-<div class="section-title">Recent trades (last 30 days across all 4 sleeves)</div>
-<div class="card">
-<div style="font-size:0.76rem;color:var(--t2);line-height:1.6;margin-bottom:10px">
-Every portfolio-level trade in the last 30 days with |&Delta;w| &gt; 1%. Aggregated across the 4 sleeves and weighted by blend allocation &times; overlay multiplier. Rationale inferred from sleeve-level signal conditions at trade date.
-</div>
-<div style="overflow-x:auto"><table id="tradesTable">
-<thead><tr><th>Date</th><th>Side</th><th>LETF</th><th>&Delta; weight</th><th>New weight</th><th>Rationale</th></tr></thead>
-<tbody></tbody>
-</table></div>
-<div style="font-size:0.7rem;color:var(--t3);margin-top:8px;line-height:1.5">Trade-level reconstruction: HELIOS uses its production logic directly; VANGUARD and ORION are re-implemented here to match the published strategies; QUANTUM uses a 63-day momentum approximation (the published XGBoost model closely tracks raw momentum when macro features are neutral). Execution is assumed at next-day open per the strategy spec.</div>
 </div>
 </div>
 
@@ -563,7 +549,7 @@ new Chart(eqCtx, {
   data: {
     datasets: [
       {label: 'PHOENIX', data: eqData.map(p => ({x: p.d, y: p.p})), borderColor: '#ea580c', borderWidth: 2, pointRadius: 0, tension: 0.1},
-      {label: 'Raw blend', data: eqData.map(p => ({x: p.d, y: p.r})), borderColor: '#7c3aed', borderWidth: 1.2, pointRadius: 0, borderDash: [4,3], tension: 0.1},
+      {label: 'Raw blend (no daily risk sizing)', data: eqData.map(p => ({x: p.d, y: p.r})), borderColor: '#7c3aed', borderWidth: 1.2, pointRadius: 0, borderDash: [4,3], tension: 0.1},
       {label: 'SPY', data: eqData.map(p => ({x: p.d, y: p.s})), borderColor: '#8888a0', borderWidth: 1, pointRadius: 0, tension: 0.1},
       {label: '60/40', data: eqData.map(p => ({x: p.d, y: p.b})), borderColor: '#0e7490', borderWidth: 1, pointRadius: 0, tension: 0.1},
     ]
