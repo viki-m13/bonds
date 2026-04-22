@@ -1,0 +1,56 @@
+[
+  {
+    "extra_bps_per_side": 0,
+    "total_bps_per_side": 10,
+    "ann_drag": 0.0,
+    "full_sharpe": 2.103107882654305,
+    "full_cagr": 0.3798203665761679,
+    "oos_sharpe": 1.858200160826676,
+    "is_sharpe": 2.398776951968429
+  },
+  {
+    "extra_bps_per_side": 5,
+    "total_bps_per_side": 15,
+    "ann_drag": 0.03,
+    "full_sharpe": 1.9146790184959193,
+    "full_cagr": 0.3390873962078895,
+    "oos_sharpe": 1.691755752208868,
+    "is_sharpe": 2.1839065200961363
+  },
+  {
+    "extra_bps_per_side": 10,
+    "total_bps_per_side": 20,
+    "ann_drag": 0.06,
+    "full_sharpe": 1.7262501543375346,
+    "full_cagr": 0.29955225153912357,
+    "oos_sharpe": 1.52531134359106,
+    "is_sharpe": 1.9690360882238434
+  },
+  {
+    "extra_bps_per_side": 15,
+    "total_bps_per_side": 25,
+    "ann_drag": 0.09,
+    "full_sharpe": 1.53782129017915,
+    "full_cagr": 0.26117984459529087,
+    "oos_sharpe": 1.3588669349732518,
+    "is_sharpe": 1.7541656563515502
+  },
+  {
+    "extra_bps_per_side": 20,
+    "total_bps_per_side": 30,
+    "ann_drag": 0.12,
+    "full_sharpe": 1.3493924260207653,
+    "full_cagr": 0.22393611124432256,
+    "oos_sharpe": 1.1924225263554447,
+    "is_sharpe": 1.539295224479258
+  },
+  {
+    "extra_bps_per_side": 30,
+    "total_bps_per_side": 40,
+    "ann_drag": 0.18,
+    "full_sharpe": 0.9725346977039955,
+    "full_cagr": 0.152703350315746,
+    "oos_sharpe": 0.859533709119829,
+    "is_sharpe": 1.109554360734672
+  }
+]

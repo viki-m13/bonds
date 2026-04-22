@@ -1,0 +1,200 @@
+{
+  "as_of": "2026-04-02",
+  "overlay_mult": 1.0,
+  "current_positions": [
+    {
+      "letf": "BIL",
+      "weight": 0.626,
+      "pct": 62.6
+    },
+    {
+      "letf": "UGL",
+      "weight": 0.205,
+      "pct": 20.5
+    },
+    {
+      "letf": "ERX",
+      "weight": 0.0563,
+      "pct": 5.63
+    },
+    {
+      "letf": "SOXL",
+      "weight": 0.0563,
+      "pct": 5.63
+    },
+    {
+      "letf": "UCO",
+      "weight": 0.0563,
+      "pct": 5.63
+    }
+  ],
+  "recent_trades_30d": [
+    {
+      "date": "2026-02-20",
+      "letf": "UGL",
+      "weight_change": -0.056333333333333346,
+      "new_weight": 0.15489999999999998,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-02-20",
+      "letf": "ERX",
+      "weight_change": 0.05633333333333332,
+      "new_weight": 0.23006666666666664,
+      "direction": "BUY"
+    },
+    {
+      "date": "2026-02-27",
+      "letf": "SOXL",
+      "weight_change": -0.10250000000000004,
+      "new_weight": 0.23006666666666664,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-02-27",
+      "letf": "TMF",
+      "weight_change": 0.1025,
+      "new_weight": 0.1025,
+      "direction": "BUY"
+    },
+    {
+      "date": "2026-03-06",
+      "letf": "EDC",
+      "weight_change": -0.12133333333333332,
+      "new_weight": 0.0524,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-06",
+      "letf": "ERX",
+      "weight_change": -0.12133333333333331,
+      "new_weight": 0.10873333333333333,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-06",
+      "letf": "SOXL",
+      "weight_change": -0.12133333333333331,
+      "new_weight": 0.10873333333333333,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-06",
+      "letf": "TMF",
+      "weight_change": -0.1025,
+      "new_weight": 0.0,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-06",
+      "letf": "TYD",
+      "weight_change": 0.1025,
+      "new_weight": 0.1025,
+      "direction": "BUY"
+    },
+    {
+      "date": "2026-03-06",
+      "letf": "UBT",
+      "weight_change": 0.182,
+      "new_weight": 0.182,
+      "direction": "BUY"
+    },
+    {
+      "date": "2026-03-06",
+      "letf": "UGL",
+      "weight_change": 0.182,
+      "new_weight": 0.3369,
+      "direction": "BUY"
+    },
+    {
+      "date": "2026-03-13",
+      "letf": "UBT",
+      "weight_change": -0.182,
+      "new_weight": 0.0,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-13",
+      "letf": "UGL",
+      "weight_change": 0.18200000000000005,
+      "new_weight": 0.5189,
+      "direction": "BUY"
+    },
+    {
+      "date": "2026-03-23",
+      "letf": "NUGT",
+      "weight_change": -0.10873333333333333,
+      "new_weight": 0.0,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-23",
+      "letf": "UGL",
+      "weight_change": -0.05240000000000006,
+      "new_weight": 0.46649999999999997,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-23",
+      "letf": "ERX",
+      "weight_change": -0.0524,
+      "new_weight": 0.05633333333333333,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-23",
+      "letf": "EDC",
+      "weight_change": -0.0524,
+      "new_weight": 0.0,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-23",
+      "letf": "SOXL",
+      "weight_change": -0.0524,
+      "new_weight": 0.05633333333333333,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-23",
+      "letf": "UCO",
+      "weight_change": 0.05633333333333333,
+      "new_weight": 0.05633333333333333,
+      "direction": "BUY"
+    },
+    {
+      "date": "2026-03-23",
+      "letf": "BIL",
+      "weight_change": 0.262,
+      "new_weight": 0.262,
+      "direction": "BUY"
+    },
+    {
+      "date": "2026-03-27",
+      "letf": "UGL",
+      "weight_change": -0.26149999999999995,
+      "new_weight": 0.205,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-27",
+      "letf": "TYD",
+      "weight_change": -0.1025,
+      "new_weight": 0.0,
+      "direction": "SELL"
+    },
+    {
+      "date": "2026-03-27",
+      "letf": "BIL",
+      "weight_change": 0.364,
+      "new_weight": 0.626,
+      "direction": "BUY"
+    }
+  ],
+  "sleeve_weights": {
+    "VANGUARD": 0.262,
+    "ORION": 0.364,
+    "HELIOS": 0.205,
+    "QUANTUM": 0.169
+  }
+}
