@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-04-22T04:01:30+00:00",
+  "generated_at_utc": "2026-04-22T04:03:52+00:00",
   "context": {
     "as_of": "2026-04-21",
     "regime_gate_pass": true,
@@ -98,30 +98,21 @@
   "recent_trades_30d": [
     {
       "Date": "2026-04-21",
-      "ticker": "DRN",
-      "side": "SELL",
-      "weight_before": 0.1233,
-      "weight_after": 0.0,
-      "weight_delta": -0.1233,
-      "delta_pct": -12.33
-    },
-    {
-      "Date": "2026-04-21",
-      "ticker": "EDC",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.0333,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
-    },
-    {
-      "Date": "2026-04-21",
-      "ticker": "ERX",
+      "ticker": "UCO",
       "side": "SELL",
       "weight_before": 0.234,
       "weight_after": 0.184,
       "weight_delta": -0.0499,
       "delta_pct": -4.99
+    },
+    {
+      "Date": "2026-04-21",
+      "ticker": "TECL",
+      "side": "BUY",
+      "weight_before": 0.0,
+      "weight_after": 0.0333,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
     },
     {
       "Date": "2026-04-21",
@@ -134,7 +125,16 @@
     },
     {
       "Date": "2026-04-21",
-      "ticker": "TECL",
+      "ticker": "ERX",
+      "side": "SELL",
+      "weight_before": 0.234,
+      "weight_after": 0.184,
+      "weight_delta": -0.0499,
+      "delta_pct": -4.99
+    },
+    {
+      "Date": "2026-04-21",
+      "ticker": "EDC",
       "side": "BUY",
       "weight_before": 0.0,
       "weight_after": 0.0333,
@@ -143,21 +143,12 @@
     },
     {
       "Date": "2026-04-21",
-      "ticker": "UCO",
+      "ticker": "DRN",
       "side": "SELL",
-      "weight_before": 0.234,
-      "weight_after": 0.184,
-      "weight_delta": -0.0499,
-      "delta_pct": -4.99
-    },
-    {
-      "Date": "2026-04-20",
-      "ticker": "ERX",
-      "side": "SELL",
-      "weight_before": 0.184,
-      "weight_after": 0.1233,
-      "weight_delta": -0.0608,
-      "delta_pct": -6.08
+      "weight_before": 0.1233,
+      "weight_after": 0.0,
+      "weight_delta": -0.1233,
+      "delta_pct": -12.33
     },
     {
       "Date": "2026-04-20",
@@ -169,6 +160,24 @@
       "delta_pct": 6.08
     },
     {
+      "Date": "2026-04-20",
+      "ticker": "ERX",
+      "side": "SELL",
+      "weight_before": 0.184,
+      "weight_after": 0.1233,
+      "weight_delta": -0.0608,
+      "delta_pct": -6.08
+    },
+    {
+      "Date": "2026-04-17",
+      "ticker": "UCO",
+      "side": "BUY",
+      "weight_before": 0.184,
+      "weight_after": 0.2173,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
+    },
+    {
       "Date": "2026-04-17",
       "ticker": "EDC",
       "side": "SELL",
@@ -178,7 +187,7 @@
       "delta_pct": -3.33
     },
     {
-      "Date": "2026-04-17",
+      "Date": "2026-04-16",
       "ticker": "UCO",
       "side": "BUY",
       "weight_before": 0.184,
@@ -196,7 +205,7 @@
       "delta_pct": -3.33
     },
     {
-      "Date": "2026-04-16",
+      "Date": "2026-04-15",
       "ticker": "UCO",
       "side": "BUY",
       "weight_before": 0.184,
@@ -214,7 +223,7 @@
       "delta_pct": -3.33
     },
     {
-      "Date": "2026-04-15",
+      "Date": "2026-04-14",
       "ticker": "UCO",
       "side": "BUY",
       "weight_before": 0.184,
@@ -232,22 +241,13 @@
       "delta_pct": -3.33
     },
     {
-      "Date": "2026-04-14",
+      "Date": "2026-04-13",
       "ticker": "UCO",
       "side": "BUY",
       "weight_before": 0.184,
       "weight_after": 0.2173,
       "weight_delta": 0.0333,
       "delta_pct": 3.33
-    },
-    {
-      "Date": "2026-04-13",
-      "ticker": "EDC",
-      "side": "SELL",
-      "weight_before": 0.0333,
-      "weight_after": 0.0,
-      "weight_delta": -0.0333,
-      "delta_pct": -3.33
     },
     {
       "Date": "2026-04-13",
@@ -257,15 +257,6 @@
       "weight_after": 0.0,
       "weight_delta": -0.0333,
       "delta_pct": -3.33
-    },
-    {
-      "Date": "2026-04-13",
-      "ticker": "UCO",
-      "side": "BUY",
-      "weight_before": 0.184,
-      "weight_after": 0.2173,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
     },
     {
       "Date": "2026-04-13",
@@ -275,6 +266,15 @@
       "weight_after": 0.2173,
       "weight_delta": 0.0333,
       "delta_pct": 3.33
+    },
+    {
+      "Date": "2026-04-13",
+      "ticker": "EDC",
+      "side": "SELL",
+      "weight_before": 0.0333,
+      "weight_after": 0.0,
+      "weight_delta": -0.0333,
+      "delta_pct": -3.33
     },
     {
       "Date": "2026-04-10",
