@@ -404,7 +404,12 @@ def main():
     print("\n=== Injecting into docs/phoenix.html ===")
     inject_into_html()
 
-    print("\n✅ Full refresh complete.")
+    # 9. Validate everything against frozen backtest expectations
+    print("\n=== Validating state against frozen backtest ===")
+    run(["python3", str(ALT / "validate_state.py")],
+        "State validation (IS metrics must match backtest exactly)")
+
+    print("\n✅ Refresh complete. See validation block above for pass/fail details.")
 
 
 if __name__ == "__main__":
