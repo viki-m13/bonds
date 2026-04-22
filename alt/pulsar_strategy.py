@@ -227,87 +227,96 @@ def build_filter(idx, filters_on):
 
 
 # ------------------------------------------------------------------
-# Backtest
-def backtest(C, O, flag_series, rebal_days, mom_lb, top_k):
-    """Returns a daily return series from open-to-open with fixed cadence."""
-    # daily open-to-open returns per asset (r[t] = O[t+1]/O[t] - 1)
-    O_shift = O.shift(-1)
-    daily_ret = (O_shift / O - 1.0)  # realized on day t by holding open->open
+# Backtest (vectorized)
+def backtest(C, O, flag_series, rebal_days, mom_lb, top_k,
+             mom_cached=None, daily_ret_cached=None, assets_cached=None):
+    """Vectorized. Returns a daily return series from open-to-open, fixed cadence."""
+    assets = assets_cached if assets_cached is not None else UNIVERSE + [CASH]
+    n_ast = len(assets)
+
+    # daily open-to-open returns per asset, shape (T, n_ast)
+    if daily_ret_cached is None:
+        O_sub = O[assets]
+        dr = (O_sub.shift(-1) / O_sub - 1.0).values
+    else:
+        dr = daily_ret_cached
+    dr = np.nan_to_num(dr, nan=0.0)
 
     dates = C.index
-    n = len(dates)
-    port_ret = pd.Series(0.0, index=dates)
+    T = len(dates)
 
-    # state
-    current_weights = None  # dict tkr -> w
-    last_rebal_i = -10**9
+    # momentum at close[t] (usable at t+1)
+    if mom_cached is None or mom_cached.get("lb") != mom_lb:
+        lc = np.log(C[UNIVERSE].replace(0, np.nan).values)
+        mom_vals = lc - np.roll(lc, mom_lb, axis=0)
+        mom_vals[:mom_lb] = np.nan
+    else:
+        mom_vals = mom_cached["v"]
 
-    # precompute momentum signals using close-to-close
-    log_close = np.log(C.replace(0, np.nan))
-    mom = (log_close - log_close.shift(mom_lb))  # signal from close[t-mom_lb..t-1] usable at t
+    # Build flag bool array
+    flags = flag_series.reindex(dates).fillna(False).values.astype(bool)
 
-    i = 0
-    while i < n - 1:
-        # Rebalance decision: using info through close[t-1], placed at open[t]
-        if i - last_rebal_i >= rebal_days:
-            # Look-ahead guard: use data at close[i-1]
-            if i == 0:
-                sig = None
+    # Precompute asset index lookups
+    uni_idx = np.array([assets.index(t) for t in UNIVERSE])
+    cash_idx = assets.index(CASH)
+
+    # rebalance days: 0, rebal_days, 2*rebal_days, ...
+    rebal_is = np.arange(0, T, rebal_days)
+
+    # For each rebalance day i, any flag in window [i, i+rebal_days-1]?
+    # Use a rolling-forward 'any'. Build cumulative to do it fast.
+    cflags = np.concatenate([[0], np.cumsum(flags.astype(int))])
+    # any in [i, j] = cflags[j+1] - cflags[i] > 0
+    window_any = np.zeros(len(rebal_is), dtype=bool)
+    for k, i in enumerate(rebal_is):
+        j = min(T - 1, i + rebal_days - 1)
+        window_any[k] = (cflags[j + 1] - cflags[i]) > 0
+
+    # Weights matrix: (T, n_ast). Start all zero; set on rebalance i, carry forward.
+    W = np.zeros((T, n_ast))
+
+    prev_w = np.zeros(n_ast)
+    port_ret = np.zeros(T)
+
+    for k, i in enumerate(rebal_is):
+        # Decision at close[i-1]
+        new_w = np.zeros(n_ast)
+        if i == 0:
+            new_w[cash_idx] = 1.0  # start in cash until first real rebalance
+        elif not window_any[k]:
+            new_w[cash_idx] = 1.0
+        else:
+            m_row = mom_vals[i - 1]  # momentum at close[i-1]
+            # valid: has momentum value AND next-day (i) open is valid
+            next_open = O[UNIVERSE].iloc[i].values if i < T else np.full(len(UNIVERSE), np.nan)
+            valid = ~np.isnan(m_row) & ~np.isnan(next_open)
+            if valid.sum() < top_k:
+                new_w[cash_idx] = 1.0
             else:
-                t_minus1 = dates[i - 1]
-                # Determine whether ANY day in the upcoming holding window [i..i+rebal_days-1]
-                # is flagged. A calendar rule is known in advance (dates), so this is allowed.
-                win_end = min(n - 1, i + rebal_days - 1)
-                window_flags = flag_series.iloc[i:win_end + 1]
-                any_on = bool(window_flags.any())
-
-                if not any_on:
-                    # Go to cash
-                    new_w = {CASH: 1.0}
+                m_masked = np.where(valid, m_row, -np.inf)
+                top_idx = np.argpartition(-m_masked, top_k)[:top_k]
+                if np.mean(m_row[top_idx]) <= 0:
+                    new_w[cash_idx] = 1.0
                 else:
-                    # Pick top_k by momentum at close[i-1]
-                    m_row = mom.loc[t_minus1, UNIVERSE].dropna()
-                    # Also require valid next-day open and close prices
-                    valid = [t for t in m_row.index if not np.isnan(C.loc[t_minus1, t])
-                             and not np.isnan(O.iloc[i][t])]
-                    m_row = m_row[valid]
-                    if len(m_row) < top_k:
-                        new_w = {CASH: 1.0}
-                    else:
-                        ranked = m_row.sort_values(ascending=False).head(top_k).index.tolist()
-                        # Long-only: if all momentum negative, degrade to cash
-                        if m_row[ranked].mean() <= 0:
-                            new_w = {CASH: 1.0}
-                        else:
-                            w = 1.0 / len(ranked)
-                            new_w = {t: w for t in ranked}
+                    w = 1.0 / top_k
+                    for ti in top_idx:
+                        new_w[uni_idx[ti]] = w
 
-                # Transaction cost on turnover at open[i]
-                prev = current_weights or {}
-                keys = set(prev) | set(new_w)
-                turnover = sum(abs(new_w.get(k, 0.0) - prev.get(k, 0.0)) for k in keys)
-                tc = turnover * (TC_BPS / 10000.0)
-                port_ret.iloc[i] -= tc  # charged on day of rebalance (absorbed by today's return)
+        # TC on turnover
+        turnover = np.abs(new_w - prev_w).sum()
+        tc = turnover * (TC_BPS / 10000.0)
+        port_ret[i] -= tc
+        prev_w = new_w
 
-                current_weights = new_w
-                last_rebal_i = i
+        # Fill weights from i to next rebalance - 1
+        end_i = rebal_is[k + 1] if k + 1 < len(rebal_is) else T
+        W[i:end_i] = new_w
 
-        # Accrue today's return from open[i] -> open[i+1]
-        if current_weights:
-            r = 0.0
-            for tkr, w in current_weights.items():
-                rr = daily_ret.iloc[i].get(tkr, np.nan)
-                if np.isnan(rr):
-                    # missing data -> treat as cash for that piece
-                    rr = daily_ret.iloc[i].get(CASH, 0.0)
-                    if np.isnan(rr):
-                        rr = 0.0
-                r += w * rr
-            port_ret.iloc[i] += r
+    # daily portfolio return = sum_j W[t,j] * dr[t,j]
+    daily_port = (W * dr).sum(axis=1)
+    port_ret += daily_port
 
-        i += 1
-
-    return port_ret
+    return pd.Series(port_ret, index=dates)
 
 
 # ------------------------------------------------------------------
@@ -358,18 +367,40 @@ def main():
     results = []
     print(f"Grid size: {len(cadences)*len(mom_lbs)*len(top_ks)*len(filter_sets)}")
 
-    # Precompute each filter once on full index to reuse
+    # Precompute daily returns and per-filter flags once
+    assets = UNIVERSE + [CASH]
+    O_sub = O[assets]
+    dr_cached = (O_sub.shift(-1) / O_sub - 1.0).values
+
+    # Precompute each filter once
+    filter_flags = {}
+    for fs in filter_sets:
+        filter_flags[fs] = build_filter(full, fs)
+
+    # Precompute momentum per lb
+    mom_cache = {}
+    for lb in mom_lbs:
+        lc = np.log(C[UNIVERSE].replace(0, np.nan).values)
+        mv = lc - np.roll(lc, lb, axis=0)
+        mv[:lb] = np.nan
+        mom_cache[lb] = {"lb": lb, "v": mv}
+
+    done = 0
     for cad in cadences:
         for mom_lb in mom_lbs:
             for top_k in top_ks:
                 for fs in filter_sets:
-                    flags_full = build_filter(full, fs)
-                    ret = backtest(C, O, flags_full, cad, mom_lb, top_k)
+                    ret = backtest(C, O, filter_flags[fs], cad, mom_lb, top_k,
+                                   mom_cached=mom_cache[mom_lb],
+                                   daily_ret_cached=dr_cached,
+                                   assets_cached=assets)
                     is_ret = ret.loc[is_idx]
                     m_is = metrics(is_ret)
                     results.append(dict(cadence=cad, mom_lb=mom_lb, top_k=top_k,
                                         filters=",".join(fs),
                                         **{f"is_{k}": v for k, v in m_is.items()}))
+                    done += 1
+        print(f"  cadence={cad} done ({done} configs)")
 
     res_df = pd.DataFrame(results)
     # Require CAGR>=20% IS, pick max Sharpe
