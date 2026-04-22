@@ -91,7 +91,7 @@ REBAL_DOW       = 2     # Wednesday
 COST_BPS        = 5.0
 
 START_DATE = "2010-03-11"   # all RISK LETFs available by this date
-END_DATE   = "2026-04-02"
+END_DATE   = None  # extend to latest available data
 IS_END     = "2018-12-31"
 OOS_START  = "2019-01-01"
 

@@ -48,7 +48,7 @@ RESDIR.mkdir(parents=True, exist_ok=True)
 
 IS_START  = pd.Timestamp("2010-03-11")
 OOS_START = pd.Timestamp("2019-01-01")
-OOS_END   = pd.Timestamp("2026-04-02")
+OOS_END   = None  # extend to latest available data
 
 # Underlying  ->  leveraged expression (2x or 3x)
 PAIRS = {
@@ -285,9 +285,9 @@ def main():
     bt = run_backtest(W, opens)
 
     # Trim to evaluation window
-    bt = bt.loc[IS_START:OOS_END]
+    bt = bt.loc[IS_START:]
     is_slice  = bt.loc[IS_START: OOS_START - pd.Timedelta(days=1)]
-    oos_slice = bt.loc[OOS_START: OOS_END]
+    oos_slice = bt.loc[OOS_START:]
 
     metrics = {
         "start":       str(bt.index.min().date()),

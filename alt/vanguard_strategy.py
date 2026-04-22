@@ -42,7 +42,8 @@ RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 IS_START = pd.Timestamp("2010-03-11")
 IS_END = pd.Timestamp("2018-12-31")
 OOS_START = pd.Timestamp("2019-01-01")
-OOS_END = pd.Timestamp("2026-04-02")
+# OOS_END not hardcoded — strategy extends to latest available data
+OOS_END = None
 
 TC_BPS = 5.0
 TC_RATE = TC_BPS / 1e4
@@ -250,11 +251,11 @@ def run(
     # Apply gate + gross
     w = basket_w.mul(part * gross, axis=0)
 
-    bt = backtest(opens, w, tc_rate=TC_RATE).loc[IS_START:OOS_END]
+    bt = backtest(opens, w, tc_rate=TC_RATE).loc[IS_START:]
     net = bt["net_ret"]
 
     is_r = net.loc[IS_START:IS_END]
-    oos_r = net.loc[OOS_START:OOS_END]
+    oos_r = net.loc[OOS_START:]
 
     metrics = {
         "full": perf_metrics(net),

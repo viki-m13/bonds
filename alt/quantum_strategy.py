@@ -74,7 +74,7 @@ BENCH = "SPY"
 IS_START = "2010-03-11"
 IS_END = "2018-12-31"
 OOS_START = "2019-01-02"
-OOS_END = "2026-04-02"
+OOS_END = None  # extend to latest available data
 
 TC_BPS = 10.0  # per side
 TRADING_DAYS = 252
@@ -276,6 +276,11 @@ def cv_select(df_is: pd.DataFrame, feature_cols: List[str]) -> Dict:
         if v["mean_ic"] > best_ic:
             best_ic = v["mean_ic"]
             best = (N, K)
+    # Fallback: if no fold produced a valid IC, use a safe default rather than crashing.
+    if best is None:
+        print(f"[WARN] CV produced no valid scores; falling back to default (N=21, K=3)")
+        best = (21, 3)
+        best_ic = 0.0
     return {"best_N": best[0], "best_K": best[1], "best_ic": best_ic, "scores": {f"{n}_{k}": v for (n, k), v in scores.items()}}
 
 
@@ -301,7 +306,7 @@ def backtest(opens: pd.DataFrame, closes: pd.DataFrame, preds: pd.DataFrame,
     all_dates = closes.index
     # rebalance dates: every N trading days starting from first valid date
     start_bt = pd.Timestamp(IS_START)
-    end_bt = pd.Timestamp(OOS_END)
+    end_bt = dates_idx.max()  # latest available market date
     mask_bt = (all_dates >= start_bt) & (all_dates <= end_bt)
     bt_dates = all_dates[mask_bt]
 
@@ -459,18 +464,18 @@ def main():
     fi_sorted = dict(sorted(fi.items(), key=lambda kv: -kv[1])[:15])
 
     # Predict over full window
-    full_mask = (dates_idx >= pd.Timestamp(IS_START)) & (dates_idx <= pd.Timestamp(OOS_END))
+    full_mask = (dates_idx >= pd.Timestamp(IS_START))
     data_full = data[full_mask].dropna(subset=feature_cols)
     preds_vec = final_model.predict(data_full[feature_cols].values)
     preds_df = pd.DataFrame({"pred": preds_vec}, index=data_full.index)
 
     print("Running backtest...")
     port_ret = backtest(opens, closes, preds_df, N=N, K=K)
-    port_ret = port_ret.loc[pd.Timestamp(IS_START):pd.Timestamp(OOS_END)]
+    port_ret = port_ret.loc[pd.Timestamp(IS_START):]
 
     # split IS / OOS / FULL
     is_r = port_ret.loc[IS_START:IS_END]
-    oos_r = port_ret.loc[OOS_START:OOS_END]
+    oos_r = port_ret.loc[OOS_START:]
     full_r = port_ret
     m_is = compute_metrics(is_r, "IS")
     m_oos = compute_metrics(oos_r, "OOS")
@@ -488,7 +493,7 @@ def main():
             "tc_bps_per_side": TC_BPS,
             "universe": UNIVERSE,
             "is": [IS_START, IS_END],
-            "oos": [OOS_START, OOS_END],
+            "oos": [OOS_START, str(port_ret.index[-1].date())],
             "model": "xgboost.XGBRegressor",
             "xgb_params": {
                 "n_estimators": 400, "max_depth": 4, "learning_rate": 0.03,

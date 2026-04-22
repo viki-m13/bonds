@@ -123,7 +123,7 @@ def main():
     close = pd.DataFrame(close); opn = pd.DataFrame(opn)
 
     dates = opn["SPY"].dropna().index
-    dates = dates[(dates >= pd.Timestamp("2010-03-11")) & (dates <= pd.Timestamp("2026-04-02"))]
+    dates = dates[(dates >= pd.Timestamp("2010-03-11"))]
     close = close.reindex(dates).ffill(limit=5)
     opn = opn.reindex(dates).ffill(limit=5)
 
