@@ -100,16 +100,30 @@ tr:hover{background:var(--card2)}
 <div class="page">
 
 <!-- HEADER -->
-<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-<a href="index.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">Sharpe Strategy</a>
-<a href="growth.html" style="padding:6px 16px;border-radius:20px;background:var(--accent);color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;border:1px solid var(--accent)">Growth Strategy</a>
-<a href="blend.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">ZEPHYR</a>
-<a href="aurora.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">AURORA</a>
-<a href="hydra.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">HYDRA</a>
-<a href="nova34.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">NOVA</a>
-<a href="atlas.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">ATLAS</a>
-<a href="phoenix.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">PHOENIX</a>
+<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+<a href="phoenix.html" style="padding:6px 16px;border-radius:20px;background:var(--accent,#ea580c);color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;border:1px solid var(--accent,#ea580c)">PHOENIX &rarr;</a>
+<a href="growth.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">Growth Strategy (current)</a>
+<div style="position:relative;display:inline-block">
+<button id="otherStratBtn" onclick="document.getElementById('otherStratMenu').style.display = document.getElementById('otherStratMenu').style.display === 'block' ? 'none' : 'block'" style="padding:6px 14px;border-radius:20px;background:var(--card);color:var(--t1);font-size:0.82rem;font-weight:500;border:1px solid var(--border);cursor:pointer">Other strategies &#9662;</button>
+<div id="otherStratMenu" style="display:none;position:absolute;top:36px;left:0;background:var(--bg);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,0.08);padding:6px;z-index:100;min-width:180px">
+<a href="index.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">Sharpe Strategy</a>
+<a href="blend.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">ZEPHYR</a>
+<a href="aurora.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">AURORA</a>
+<a href="hydra.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">HYDRA</a>
+<a href="nova34.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">NOVA</a>
+<a href="atlas.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">ATLAS</a>
 </div>
+</div>
+</div>
+<script>
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('otherStratBtn');
+  const menu = document.getElementById('otherStratMenu');
+  if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+</script>
 <div class="header">
 <div>
 <h1>Growth Strategy</h1>
