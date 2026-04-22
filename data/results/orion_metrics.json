@@ -3,59 +3,59 @@
   "IS_cagr": 0.1308177284580776,
   "IS_vol": 0.19489335804332628,
   "IS_mdd": -0.3031177735691776,
-  "OOS_sharpe": 1.0144224849696912,
-  "OOS_cagr": 0.2904792589937777,
-  "OOS_vol": 0.2943570950488375,
+  "OOS_sharpe": 1.0987327976255097,
+  "OOS_cagr": 0.3235217246112194,
+  "OOS_vol": 0.2949575776055682,
   "OOS_mdd": -0.24345492868658003,
-  "Full_sharpe": 0.8686520885967678,
-  "Full_cagr": 0.2002410629908491,
-  "Full_vol": 0.24483564270588504,
+  "Full_sharpe": 0.9149143341938211,
+  "Full_cagr": 0.21431936423684417,
+  "Full_vol": 0.24534120535605677,
   "Full_mdd": -0.3031177735691776,
-  "avg_turnover_annualised": 13.792130660727542,
-  "sharpe_gap_IS_OOS": 0.2855425685886266,
+  "avg_turnover_annualised": 13.78238341968912,
+  "sharpe_gap_IS_OOS": 0.36985288124444504,
   "per_signal_sharpe": {
-    "S1_momentum": 0.7441554538019288,
-    "S2_trend": 0.7691458028034592,
-    "S3_lowvol_safe": 0.3728859782666716,
-    "S4_regime": 0.47260129831798203
+    "S1_momentum": 0.7914352491840873,
+    "S2_trend": 0.8111845674781724,
+    "S3_lowvol_safe": 0.3770357460640617,
+    "S4_regime": 0.5093153133892822
   },
   "signal_return_corr": {
     "S1_momentum": {
       "S1_momentum": 1.0,
-      "S2_trend": 0.712,
-      "S3_lowvol_safe": -0.145,
-      "S4_regime": 0.594
+      "S2_trend": 0.713,
+      "S3_lowvol_safe": -0.142,
+      "S4_regime": 0.595
     },
     "S2_trend": {
-      "S1_momentum": 0.712,
+      "S1_momentum": 0.713,
       "S2_trend": 1.0,
       "S3_lowvol_safe": 0.074,
-      "S4_regime": 0.646
+      "S4_regime": 0.647
     },
     "S3_lowvol_safe": {
-      "S1_momentum": -0.145,
+      "S1_momentum": -0.142,
       "S2_trend": 0.074,
       "S3_lowvol_safe": 1.0,
-      "S4_regime": -0.015
+      "S4_regime": -0.013
     },
     "S4_regime": {
-      "S1_momentum": 0.594,
-      "S2_trend": 0.646,
-      "S3_lowvol_safe": -0.015,
+      "S1_momentum": 0.595,
+      "S2_trend": 0.647,
+      "S3_lowvol_safe": -0.013,
       "S4_regime": 1.0
     }
   },
   "sleeve_sharpe": {
-    "RISK_sleeve": 0.7083250440114721,
-    "SAFE_sleeve": 0.45254639110401695
+    "RISK_sleeve": 0.7519712764832485,
+    "SAFE_sleeve": 0.4688819098710332
   },
   "sleeve_corr": {
     "RISK": {
       "RISK": 1.0,
-      "SAFE": -0.074
+      "SAFE": -0.071
     },
     "SAFE": {
-      "RISK": -0.074,
+      "RISK": -0.071,
       "SAFE": 1.0
     }
   },
@@ -73,7 +73,7 @@
     "COST_BPS": 5.0,
     "universe_size": 16,
     "start": "2010-03-11",
-    "end": "2026-04-02",
+    "end": null,
     "is_end": "2018-12-31",
     "oos_start": "2019-01-01"
   },
