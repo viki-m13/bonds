@@ -170,7 +170,7 @@ Live signal has not yet been generated. A GitHub Actions cron job runs the strat
 <li><strong>CRYPTO</strong> (10.1%) &mdash; weekly TSMOM on spot BTC (IBIT in live trading, GBTC in backtest pre-2024). Uncorrelated with the other four sleeves.</li>
 </ul>
 
-<p style="margin-top:6px"><strong style="color:var(--t1)">Why orthogonality + vol targeting is the edge.</strong> Individual long-only LETF strategies plateau at Sharpe ~1.0 because they all share broad-market beta. We engineered five sub-strategies whose returns are essentially uncorrelated (max pairwise |&rho;| = 0.19). Blending independent ~1.0-Sharpe streams approaches the &radic;N diversification bound &mdash; raw Sharpe of the 5-sleeve blend is 2.03. Daily vol targeting on top adds ~0.10 Sharpe by equalizing risk contribution across time: when the strategy&apos;s recent returns are calm, it stays close to 100% invested; when volatility spikes, it moves money into cash (T-bills). It never borrows. Average gross exposure: 85% (strategy holds 15% in T-bills on average to maintain the 15% vol target). It never exceeds 100% — no margin is used.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Why orthogonality + vol targeting is the edge.</strong> Individual long-only LETF strategies plateau at Sharpe ~1.0 because they all share broad-market beta. We engineered five sub-strategies whose returns are essentially uncorrelated (max pairwise |&rho;| = 0.19). Blending independent ~1.0-Sharpe streams approaches the &radic;N diversification bound &mdash; Daily vol targeting equalizes risk contribution across time: when the strategy&apos;s recent returns are calm, it stays close to 100% invested; when volatility spikes, it moves money into cash (T-bills). It never borrows. Average gross exposure: 85% (strategy holds 15% in T-bills on average to maintain the 15% vol target). It never exceeds 100% — no margin is used.</p>
 
 <p style="margin-top:6px"><strong style="color:var(--t1)">Three crash protections that <em>stack</em>.</strong> (1) The <em>vol target</em> itself de-levers into rising vol regimes. (2) The <em>DD throttle</em> linearly scales gross exposure as the blend's live NAV falls below its 252-day high-water mark, floor at &minus;10%. (3) The <em>vol regime gate</em> cuts exposure to 50% when the blend's 60-day vol breaches its 252-day 99th percentile. All three compute at close[t&minus;1]; no look-ahead. In the 2008 GFC stress test (synthetic LETF extension), this combination kept the strategy at <strong>MDD &minus;1.3%</strong> while raw 3&times; LETFs lost 85&ndash;99%.</p>
 
@@ -218,7 +218,7 @@ Live signal has not yet been generated. A GitHub Actions cron job runs the strat
 <div class="section-title">Growth of $10,000 since 2010</div>
 <div class="card">
 <div style="font-size:0.76rem;color:var(--t2);margin-bottom:8px;line-height:1.5">
-Backtest log-scale equity curve. <strong>PHOENIX</strong> (orange, solid) is the full production strategy with daily risk sizing. <strong>Raw blend</strong> (purple, dashed) is the same 5 sleeves at the same weights <em>without</em> the daily vol target / DD throttle / vol gate &mdash; shown for reference so you can see what the overlays contribute. <strong>SPY</strong> (grey) is the S&amp;P 500 total return. <strong>60/40</strong> (teal) is 60% SPY + 40% TLT (long bonds).
+Backtest log-scale equity curve. <strong>PHOENIX</strong> (orange) is the exact live strategy shown above. <strong>SPY</strong> (grey) is the S&amp;P 500 total return. <strong>60/40</strong> (teal) is 60% SPY + 40% TLT. Same $10,000 invested on 2010-03-11 grows to the values plotted.
 </div>
 <div class="chart-wrap"><canvas id="eqChart"></canvas></div></div>
 </div>
@@ -501,7 +501,6 @@ const rows = [
   {label: 'Full (2010-2026)', m: F.metrics.full},
   {label: 'In-sample (2010-2018)', m: F.metrics.is},
   {label: 'Out-of-sample (2019-2026)', m: F.metrics.oos},
-  {label: 'Raw blend (no overlays)', m: F.metrics.raw_full},
   {label: 'SPY benchmark', m: F.metrics.spy},
   {label: '60/40 SPY/TLT', m: F.metrics.s6040},
 ];
@@ -549,7 +548,6 @@ new Chart(eqCtx, {
   data: {
     datasets: [
       {label: 'PHOENIX', data: eqData.map(p => ({x: p.d, y: p.p})), borderColor: '#ea580c', borderWidth: 2, pointRadius: 0, tension: 0.1},
-      {label: 'Raw blend (no daily risk sizing)', data: eqData.map(p => ({x: p.d, y: p.r})), borderColor: '#7c3aed', borderWidth: 1.2, pointRadius: 0, borderDash: [4,3], tension: 0.1},
       {label: 'SPY', data: eqData.map(p => ({x: p.d, y: p.s})), borderColor: '#8888a0', borderWidth: 1, pointRadius: 0, tension: 0.1},
       {label: '60/40', data: eqData.map(p => ({x: p.d, y: p.b})), borderColor: '#0e7490', borderWidth: 1, pointRadius: 0, tension: 0.1},
     ]
