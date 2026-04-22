@@ -346,6 +346,60 @@ def get_latest_market_date():
     return min(dates) if dates else None
 
 
+def extend_sleeve_preserving_history(name, script, csv_name, date_col_name=None):
+    """Run a sleeve but preserve historical returns — APPEND new rows only.
+
+    Steps:
+      1. Back up current CSV to /tmp/<csv_name>.bak (this is the FROZEN history)
+      2. Run the sleeve script (which overwrites the CSV with a full regenerate)
+      3. Merge: keep backup's rows <= backup_last_date, take regenerated rows > backup_last_date
+      4. Write merged CSV
+
+    This protects historical returns from yfinance data revisions while still
+    extending the CSV with new trading days.
+    """
+    import pandas as pd
+    import shutil
+    csv_path = R / csv_name
+    backup_path = Path("/tmp") / f"{csv_name}.bak"
+    # VANGUARD uses first column as date (unnamed); others use "Date"
+    use_first_col = (date_col_name is None)
+
+    # 1. Back up current CSV as the frozen history
+    if not csv_path.exists():
+        print(f"  [WARN] No existing {csv_name}; running fresh build")
+        run([sys.executable, str(ALT / script)], f"Build {name}")
+        return
+
+    shutil.copy2(csv_path, backup_path)
+    bkp = pd.read_csv(backup_path)
+    bkp_dc = bkp.columns[0] if use_first_col else date_col_name
+    bkp[bkp_dc] = pd.to_datetime(bkp[bkp_dc])
+    freeze_until = bkp[bkp_dc].max()
+    print(f"  Freezing {name} history through {freeze_until.date()} ({len(bkp)} rows)")
+
+    # 2. Run the sleeve (overwrites csv_path with full history)
+    run([sys.executable, str(ALT / script)], f"Extend {name}")
+
+    # 3. Read regenerated CSV and extract only NEW rows
+    new = pd.read_csv(csv_path)
+    new_dc = new.columns[0] if use_first_col else date_col_name
+    new[new_dc] = pd.to_datetime(new[new_dc])
+    new_tail = new[new[new_dc] > freeze_until].copy()
+
+    # Align columns (new script may have different cols)
+    for c in bkp.columns:
+        if c not in new_tail.columns:
+            new_tail[c] = 0.0
+    new_tail = new_tail[bkp.columns]
+
+    merged = pd.concat([bkp, new_tail], ignore_index=True)
+    merged = merged.drop_duplicates(subset=[bkp_dc], keep="first").sort_values(bkp_dc)
+    merged.to_csv(csv_path, index=False)
+    print(f"  {name}: appended {len(new_tail)} new rows -> {len(merged)} total "
+          f"({merged[bkp_dc].iloc[0].date()} -> {merged[bkp_dc].iloc[-1].date()})")
+
+
 def main():
     # 1+2. Fetch fresh prices + FRED
     fetch_latest_prices()
@@ -356,38 +410,35 @@ def main():
     print(f"\nLatest common market date across SPY/QQQ/IBIT: {latest}")
 
     sleeve_map = [
-        ("VANGUARD", "vanguard_strategy.py", "vanguard_returns.csv"),
-        ("ORION",    "orion_strategy.py",    "orion_returns.csv"),
-        ("HELIOS",   "helios_strategy.py",   "helios_returns.csv"),
-        ("QUANTUM",  "quantum_strategy.py",  "quantum_returns.csv"),
+        ("VANGUARD", "vanguard_strategy.py", "vanguard_returns.csv", None),  # first-col date
+        ("ORION",    "orion_strategy.py",    "orion_returns.csv",    "Date"),
+        ("HELIOS",   "helios_strategy.py",   "helios_returns.csv",   "Date"),
+        ("QUANTUM",  "quantum_strategy.py",  "quantum_returns.csv",  "Date"),
     ]
-    any_extended = False
-    for name, script, csv_name in sleeve_map:
+    for name, script, csv_name, date_col in sleeve_map:
         last = get_sleeve_last_date(csv_name)
         if last is None:
             print(f"\n{name}: no existing returns; full run needed")
-            run(["python3", str(ALT / script)], f"Build {name}")
-            any_extended = True
+            run([sys.executable, str(ALT / script)], f"Build {name}")
         elif latest is not None and last >= latest:
             print(f"\n{name}: already at {last} (matches market date) — skip rerun ✓")
         else:
-            print(f"\n{name}: last date {last} < market {latest} — extend to today")
-            run(["python3", str(ALT / script)], f"Extend {name}")
-            any_extended = True
+            print(f"\n{name}: last date {last} < market {latest} — extend (preserving history)")
+            extend_sleeve_preserving_history(name, script, csv_name, date_col)
 
-    # CRYPTO sleeve is rebuilt by phoenix_v2_crypto.py (idempotent, ~3s)
+    # CRYPTO
     cry_last = get_sleeve_last_date("crypto_returns.csv")
     if cry_last is None or (latest and cry_last < latest):
-        print(f"\nCRYPTO: last date {cry_last} — extending")
-        run(["python3", str(ALT / "phoenix_v2_crypto.py")], "Extend CRYPTO sleeve")
-        any_extended = True
+        print(f"\nCRYPTO: last date {cry_last} — extending (preserving history)")
+        extend_sleeve_preserving_history("CRYPTO", "phoenix_v2_crypto.py",
+                                          "crypto_returns.csv", "Date")
     else:
         print(f"\nCRYPTO: already at {cry_last} — skip rerun ✓")
 
     # 4. Re-run production strategy (reads all 5 sleeves, blends + applies overlay)
     # This is fast (~2s) and should always run so the final net_ret reflects the
     # current sleeve data.
-    run(["python3", str(ALT / "phoenix_production.py")], "Re-run PHOENIX production")
+    run([sys.executable, str(ALT / "phoenix_production.py")], "Re-run PHOENIX production")
 
     # 5. Regenerate factsheet
     print("\n=== Regenerating factsheet ===")
