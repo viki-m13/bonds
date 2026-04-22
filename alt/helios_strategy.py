@@ -40,7 +40,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-ROOT   = Path("/home/user/bonds")
+ROOT = Path(__file__).resolve().parent.parent
 ETFDIR = ROOT / "data" / "etfs"
 FREDIR = ROOT / "data" / "fred"
 RESDIR = ROOT / "data" / "results"

@@ -57,7 +57,7 @@ except ImportError as e:
     raise SystemExit("xgboost required: pip install xgboost") from e
 
 
-ROOT = Path("/home/user/bonds")
+ROOT = Path(__file__).resolve().parent.parent
 ETF_DIR = ROOT / "data/etfs"
 FRED_DIR = ROOT / "data/fred"
 RESULTS = ROOT / "data/results"

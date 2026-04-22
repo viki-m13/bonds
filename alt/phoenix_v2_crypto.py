@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path("/home/user/bonds")
+ROOT = Path(__file__).resolve().parent.parent
 ETF = ROOT / "data/etfs"
 FRED = ROOT / "data/fred"
 R = ROOT / "data/results"

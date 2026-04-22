@@ -102,8 +102,19 @@ def main():
               f"weight {k} expected {v:.3f} but got {got}")
 
     # ------- 2. Sleeve CSVs: coverage -------
-    print("\n[2/6] Sleeve CSV coverage")
-    latest = None
+    print("\n[2/6] Sleeve CSV coverage (start + rows + MUST be current)")
+    # Find the latest common market close across SPY/QQQ/IBIT — this is the
+    # "truth" date that sleeves should extend to.
+    market_latest = None
+    for t in ["SPY", "QQQ", "IBIT"]:
+        p = ROOT / "data/etfs" / f"{t}.csv"
+        if p.exists():
+            df = pd.read_csv(p, parse_dates=["Date"])
+            d = df["Date"].iloc[-1].date()
+            market_latest = min(market_latest, d) if market_latest else d
+    log("INFO", f"Latest common market date (SPY/QQQ/IBIT): {market_latest}")
+
+    sleeve_end_dates = {}
     for name, fn, col in [("VANGUARD", "vanguard_returns.csv", "net_ret"),
                            ("ORION", "orion_returns.csv", "orion"),
                            ("HELIOS", "helios_returns.csv", "ret"),
@@ -113,7 +124,6 @@ def main():
         if not fp.exists():
             log("FAIL", f"{name}: {fn} missing!"); checks["fail"] += 1; continue
         df = pd.read_csv(fp, parse_dates=[0] if name == "VANGUARD" else ["Date"])
-        # index setup
         if name == "VANGUARD":
             df = df.set_index(df.columns[0])
         else:
@@ -121,13 +131,32 @@ def main():
         start = df.index[0].date()
         end = df.index[-1].date()
         n = len(df)
+        sleeve_end_dates[name] = end
         check(start <= pd.Timestamp("2010-04-01").date(),
               f"{name:9s}  start {start} (covers 2010-IS)",
               f"{name} start {start} is AFTER 2010-04-01")
         check(n > 4000,
               f"{name:9s}  {n} rows",
               f"{name} only {n} rows (expected > 4000)")
-        latest = end if latest is None else max(latest, end)
+        # CRITICAL: sleeve MUST be current (within 5 business days of market close)
+        # If it's not, it means today's cron didn't actually extend it (paths broken,
+        # yfinance failed, strategy crashed, etc.) and the live signal is running
+        # on STALE backtest data.
+        if market_latest is not None:
+            gap_days = (market_latest - end).days
+            check(gap_days <= 5,
+                  f"{name:9s}  end   {end} (≤ 5 cal days from market {market_latest})",
+                  f"{name:9s}  end   {end} is {gap_days} cal days BEHIND market {market_latest} — sleeve did NOT extend this cron!")
+
+    # Also check sleeves agree with each other (all at same end date)
+    if len(set(sleeve_end_dates.values())) > 1:
+        log("WARN", f"Sleeves disagree on end date: {sleeve_end_dates}")
+        checks["warn"] += 1
+    else:
+        log("PASS", f"All 5 sleeves at same end date: {list(sleeve_end_dates.values())[0]}")
+        checks["pass"] += 1
+
+    latest = max(sleeve_end_dates.values()) if sleeve_end_dates else None
 
     # ------- 3. IS metrics stability (frozen expectations) -------
     print("\n[3/6] IS metrics (FROZEN — should match backtest exactly)")

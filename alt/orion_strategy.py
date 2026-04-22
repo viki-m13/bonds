@@ -45,7 +45,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path("/home/user/bonds")
+ROOT = Path(__file__).resolve().parent.parent
 ETF_DIR = ROOT / "data" / "etfs"
 FRED_DIR = ROOT / "data" / "fred"
 OUT_DIR = ROOT / "data" / "results"
