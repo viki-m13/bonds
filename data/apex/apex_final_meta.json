@@ -1,24 +1,13 @@
 {
-  "version": "v11_final",
-  "sleeves": [
-    "PX_VANGUARD",
-    "PX_ORION",
-    "PX_HELIOS",
-    "V3_SECTOR",
-    "V4_ML5",
-    "V6_SHORT_MR",
-    "CRYPTO"
-  ],
-  "blend_weights_letf": {
-    "PX_VANGUARD": 0.10833333333333334,
-    "PX_ORION": 0.10833333333333334,
-    "PX_HELIOS": 0.10833333333333334,
-    "V3_SECTOR": 0.10833333333333334,
-    "V4_ML5": 0.10833333333333334,
-    "V6_SHORT_MR": 0.10833333333333334
+  "version": "v14_final",
+  "letf_sleeves": ["PX_VANGUARD", "PX_ORION", "PX_HELIOS", "SL_DUALBEAR", "SL_CALENDAR", "SL_VRP"],
+  "blend_base": {
+    "PX_VANGUARD": 0.20, "PX_ORION": 0.20, "PX_HELIOS": 0.20,
+    "SL_DUALBEAR": 0.20, "SL_CALENDAR": 0.12, "SL_VRP": 0.08
   },
-  "crypto_weight": 0.35,
-  "target_vol": 0.22,
-  "dd_floor": -0.1,
+  "crypto_weight": 0.40,
+  "target_vol": 0.18,
+  "dd_floor": -0.10,
+  "dbs_override": "strict",
   "sleeve_vol": 0.15
 }

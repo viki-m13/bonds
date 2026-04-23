@@ -1,0 +1,11 @@
+{
+  "best_config": "tilt to PX",
+  "blend": {
+    "PX_VANGUARD": 0.22,
+    "PX_ORION": 0.22,
+    "PX_HELIOS": 0.22,
+    "SL_DUALBEAR": 0.15,
+    "SL_CALENDAR": 0.1,
+    "SL_VRP": 0.09
+  }
+}

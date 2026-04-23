@@ -1,0 +1,15 @@
+{
+  "best": {
+    "cw": 0.4,
+    "dbs": "strict",
+    "tv": 0.18
+  },
+  "blend": {
+    "PX_VANGUARD": 0.2,
+    "PX_ORION": 0.2,
+    "PX_HELIOS": 0.2,
+    "SL_DUALBEAR": 0.2,
+    "SL_CALENDAR": 0.12,
+    "SL_VRP": 0.08
+  }
+}
