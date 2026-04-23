@@ -120,7 +120,7 @@ document.addEventListener('click', function(e) {
 <!-- HONESTY -->
 <div class="section">
 <div class="honesty">
-<strong style="color:var(--yellow)">&#9888; Honest reporting:</strong> The stated design objective was Sharpe 3+ / CAGR 50%+ OOS. <strong>APEX does not meet this target.</strong> Achieved OOS (2019+) Sharpe is <strong>0.97</strong>, CAGR <strong>20.5%</strong>. Full-sample (1999-2026) is Sharpe <strong>0.91</strong>, CAGR <strong>16.6%</strong>. In-sample (2005-2018) is Sharpe <strong>1.08</strong>, CAGR <strong>22.1%</strong>. The OOS ≥ IS Sharpe gap reflects a robust design: parameters were locked on IS, never re-fit. Sharpe 3+ long-only no-margin on a broad LETF universe with pre-2008 stress testing appears to be at or above the achievable frontier &mdash; PHOENIX&apos;s 2.37 Sharpe (on a narrower 2010+ window without pre-2008 stress) is probably close to the ceiling. APEX was built over eight iterations (v1-v8) experimenting with trend, cross-sectional momentum, risk parity, credit regime, vol regime, ML, mean-reversion, calendar, and yield-curve signals. The research code for every experiment is preserved in <code>apex/</code> for audit.
+<strong style="color:var(--yellow)">&#9888; Honest reporting:</strong> The stated design objective was <strong>Sharpe 3+ OOS / CAGR 50%+</strong>. <strong>APEX does not meet this target.</strong> Achieved: OOS Sharpe <strong>0.97</strong>, CAGR <strong>20.5%</strong>. Full-sample (1999-2026) Sharpe <strong>0.91</strong>, CAGR <strong>16.6%</strong>. APEX <em>does</em> beat PHOENIX-Extended (the apples-to-apples 2005+ synthetic comparison) on full-period Sharpe (1.04 vs 0.52), but loses badly to real PHOENIX on its native 2010+ window (1.03 vs 2.33) &mdash; and most painfully, loses &minus;35.9% in 2022 where PHOENIX was flat. See the head-to-head table below. Sharpe 3+ OOS long-only, no-margin, on a broad LETF universe with pre-2008 stress testing appears to be above the achievable frontier &mdash; PHOENIX at 2.14 OOS is the repo&apos;s frontier and even it fell short of 3. APEX was built over eight iterations (v1-v8) experimenting with trend, cross-sectional momentum, risk parity, credit regime, vol regime, ML, mean-reversion, calendar, and yield-curve signals. The research code for every experiment is preserved in <code>apex/</code> for audit.
 </div>
 </div>
 
@@ -156,6 +156,49 @@ document.addEventListener('click', function(e) {
 <div class="section">
 <div class="section-title">Comparison vs benchmarks</div>
 <div class="card" style="overflow-x:auto"><table id="benchTable"></table></div>
+</div>
+
+<!-- PHOENIX HEAD-TO-HEAD -->
+<div class="section">
+<div class="section-title">Head-to-head vs PHOENIX (apples-to-apples)</div>
+<div class="card" style="overflow-x:auto;font-size:0.78rem;color:var(--t2);line-height:1.6">
+<p style="margin-bottom:8px">PHOENIX exists in two forms in this repo: <em>real Phoenix</em> (2010+ onwards with an XGBoost Quantum sleeve trained on real data) and <em>Phoenix-Extended</em> (2005+ with synthetic-LETF analog sleeves, the same synthetic data APEX uses). A fair head-to-head depends on the window.</p>
+<table style="margin-bottom:10px">
+<thead><tr><th>Window</th><th>PHOENIX</th><th>APEX</th><th>Winner</th></tr></thead>
+<tbody>
+<tr><td>2010-2026 (Phoenix native)</td>
+    <td>SR <strong>2.33</strong>, CAGR 36.5%, MDD &minus;17.6%</td>
+    <td>SR 1.03, CAGR 21.6%, MDD &minus;41.0%</td>
+    <td class="neg">PHOENIX (+1.30 SR)</td></tr>
+<tr><td>2005-2026 (Phoenix-Extended synthetic)</td>
+    <td>SR 0.52, CAGR 13%, MDD &minus;64%</td>
+    <td>SR <strong>1.04</strong>, CAGR 22%, MDD &minus;41%</td>
+    <td class="pos">APEX (+0.52 SR)</td></tr>
+<tr><td>2005-2018 IS (incl GFC, both on synth)</td>
+    <td>SR 0.42, CAGR 8.5%, MDD &minus;64%</td>
+    <td>SR <strong>1.08</strong>, CAGR 22%, MDD &minus;24%</td>
+    <td class="pos">APEX (+0.66 SR)</td></tr>
+<tr><td>2019-2026 OOS (Phoenix-real)</td>
+    <td>SR <strong>2.14</strong>, CAGR 35%, MDD &minus;18%</td>
+    <td>SR 0.97, CAGR 20.5%, MDD &minus;41%</td>
+    <td class="neg">PHOENIX (+1.17 SR)</td></tr>
+<tr><td>2008 calendar year (stress test)</td>
+    <td>SR 1.14, CAGR 4.1%, <strong class="pos">MDD &minus;1.3%</strong></td>
+    <td>SR <strong>1.41</strong>, CAGR 31.1%, MDD &minus;18.2%</td>
+    <td>split (PHOENIX safer, APEX higher return)</td></tr>
+<tr><td>2020 COVID</td>
+    <td>SR <strong>3.35</strong>, CAGR 66%, MDD &minus;12.5%</td>
+    <td>SR 1.87, CAGR 47%, MDD &minus;22.7%</td>
+    <td class="neg">PHOENIX (+1.48 SR)</td></tr>
+<tr><td>2022 rate-hike bear</td>
+    <td>SR <strong>+0.22</strong>, CAGR 2.2%, MDD &minus;12.8%</td>
+    <td>SR &minus;2.12, CAGR &minus;35.9%, MDD &minus;40.3%</td>
+    <td class="neg">PHOENIX (+2.34 SR)</td></tr>
+</tbody>
+</table>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Takeaway.</strong> PHOENIX dominates in post-GFC regimes (2010+) because of two features APEX lacks: (i) the QUANTUM XGBoost sleeve trained on a clean post-GFC dataset, and (ii) a tight composite macro gate (VIX + HY-OAS + yield-curve + SPY 200-MA) that exits aggressively ahead of crashes &mdash; the reason PHOENIX&apos;s 2008 MDD is only &minus;1.3%. APEX wins whenever the test window is the 2005+ synthetic set Phoenix-Extended uses, because APEX was engineered with that deeper stress test in view. <strong>Neither strategy hits the 3+ Sharpe / 50%+ CAGR objective on an OOS 2019+ basis; PHOENIX at 2.14 OOS is closest, and that appears to be near the achievable frontier for long-only, no-margin LETF strategies.</strong></p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">APEX-Phoenix return correlation (2010-2026):</strong> 0.44 &mdash; the two strategies share less than half of their daily variance, so a 50/50 blend would further diversify.</p>
+</div>
 </div>
 
 <!-- DRAWDOWN -->
