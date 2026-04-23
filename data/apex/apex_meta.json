@@ -1,0 +1,6 @@
+{
+  "sleeve_vol_target": 0.1,
+  "port_vol_target": 0.2,
+  "dd_floor": -0.15,
+  "blend_scheme": "EW"
+}
