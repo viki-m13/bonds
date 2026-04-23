@@ -1,7 +1,8 @@
-"""APEX — ML sleeve (XGBoost regressor on per-asset features).
+"""APEX — ML sleeve v2 (fixed).
 
-Trains on IS (2005-2018) to predict each LETF's next-21-day log return.
-Rebalances every 21 days; holds top K by predicted return.
+Trains XGBoost on IS (2005-2018) to predict each LETF's next-21-day log return.
+Fixed issues: stack long-format properly, use Date as primary key, predict on
+full data (including OOS) from a single IS-trained model.
 """
 from __future__ import annotations
 
@@ -23,7 +24,6 @@ UNIVERSE = ["UPRO", "TQQQ", "TECL", "SOXL", "FAS", "EDC", "YINN",
 
 IS_START = "2005-01-03"
 IS_END = "2018-12-31"
-OOS_START = "2019-01-02"
 
 N_FORWARD = 21
 K_TOP = 3
@@ -38,92 +38,97 @@ def _fred(name, idx):
     return df[df.columns[0]].astype(float).reindex(idx).ffill()
 
 
-def feature_frame_for(tic: str, cp: pd.DataFrame,
-                      macro: pd.DataFrame) -> pd.DataFrame:
-    p = cp[tic]
-    lr = np.log(p / p.shift(1))
+def build_features_long(cp: pd.DataFrame) -> pd.DataFrame:
+    """Build long-format DataFrame: rows = (Date, tic), cols = features + y."""
     spy = cp["SPY"]
-    spy_lr = np.log(spy / spy.shift(1))
-    feat = pd.DataFrame(index=cp.index)
-    feat["mom_5"] = np.log(p / p.shift(5))
-    feat["mom_21"] = np.log(p / p.shift(21))
-    feat["mom_63"] = np.log(p / p.shift(63))
-    feat["mom_126"] = np.log(p / p.shift(126))
-    feat["mom_252"] = np.log(p / p.shift(252))
-    feat["vol_21"] = lr.rolling(21).std()
-    feat["vol_63"] = lr.rolling(63).std()
-    feat["sr_21"] = lr.rolling(21).mean() / lr.rolling(21).std().replace(0, np.nan)
-    feat["sr_63"] = lr.rolling(63).mean() / lr.rolling(63).std().replace(0, np.nan)
-    feat["rel_spy_21"] = feat["mom_21"] - np.log(spy / spy.shift(21))
-    feat["rel_spy_63"] = feat["mom_63"] - np.log(spy / spy.shift(63))
-    feat["dist_200"] = p / p.rolling(200).mean() - 1
-    for c in macro.columns:
-        feat[c] = macro[c]
-    return feat
-
-
-def train_predict(cp: pd.DataFrame) -> pd.DataFrame:
-    """Returns a (Date, Ticker) wide DF of predicted next-21d return."""
-    spy = cp["SPY"]
-    hy = _fred("BAMLH0A0HYM2", cp.index)
     slope = _fred("T10Y2Y", cp.index)
 
-    macro = pd.DataFrame(index=cp.index)
-    macro["hy_level"] = hy
-    macro["hy_slope"] = hy - hy.rolling(21).mean()
-    macro["curve"] = slope
-    macro["spy_rv21"] = spy.pct_change().rolling(21).std() * np.sqrt(util.DPY)
-    macro["spy_ma_spread"] = spy.rolling(21).mean() / spy.rolling(63).mean() - 1
-    macro = macro.ffill()
+    # Macro features (skip HY — data only from 2023 in this repo)
+    mac = pd.DataFrame(index=cp.index)
+    mac["curve"] = slope
+    mac["spy_rv21"] = spy.pct_change().rolling(21).std() * np.sqrt(util.DPY)
+    mac["spy_rv63"] = spy.pct_change().rolling(63).std() * np.sqrt(util.DPY)
+    mac["spy_ma_spread"] = spy.rolling(21).mean() / spy.rolling(63).mean() - 1
+    mac["spy_dist200"] = spy / spy.rolling(200).mean() - 1
+    mac = mac.ffill()
 
-    # Stack all tickers' feature frames into one long DF
-    long_rows = []
+    rows = []
     for tic in UNIVERSE:
         if tic not in cp.columns:
             continue
-        f = feature_frame_for(tic, cp, macro)
         p = cp[tic]
-        f["y"] = np.log(p.shift(-N_FORWARD) / p)
-        f["tic"] = tic
-        long_rows.append(f.reset_index().rename(columns={"index": "Date"}))
+        lr = np.log(p / p.shift(1))
+        df = pd.DataFrame(index=cp.index)
+        df["mom_5"] = np.log(p / p.shift(5))
+        df["mom_21"] = np.log(p / p.shift(21))
+        df["mom_63"] = np.log(p / p.shift(63))
+        df["mom_126"] = np.log(p / p.shift(126))
+        df["mom_252"] = np.log(p / p.shift(252))
+        df["vol_21"] = lr.rolling(21).std()
+        df["vol_63"] = lr.rolling(63).std()
+        df["sr_21"] = lr.rolling(21).mean() / lr.rolling(21).std().replace(0, np.nan)
+        df["sr_63"] = lr.rolling(63).mean() / lr.rolling(63).std().replace(0, np.nan)
+        df["rel_spy_21"] = df["mom_21"] - np.log(spy / spy.shift(21))
+        df["rel_spy_63"] = df["mom_63"] - np.log(spy / spy.shift(63))
+        df["dist_200"] = p / p.rolling(200).mean() - 1
+        for c in mac.columns:
+            df[c] = mac[c]
+        df["y"] = np.log(p.shift(-N_FORWARD) / p)
+        df["tic"] = tic
+        df = df.reset_index().rename(columns={"index": "Date"})
+        rows.append(df)
+    return pd.concat(rows, ignore_index=True)
 
-    long_df = pd.concat(long_rows, ignore_index=True)
+
+def train_predict(cp: pd.DataFrame) -> pd.DataFrame:
+    """Returns wide (Date x tic) predicted next-21d log return."""
+    long_df = build_features_long(cp)
     # Cross-sectional ranks per Date for each feature
-    feat_cols = [c for c in long_df.columns if c not in ("Date", "tic", "y")]
-    for c in feat_cols:
+    feat_base = [c for c in long_df.columns if c not in ("Date", "tic", "y")]
+    for c in feat_base:
         long_df[c + "_r"] = long_df.groupby("Date")[c].rank(pct=True)
 
-    all_feats = [c for c in long_df.columns if c not in ("Date", "tic", "y")]
-    train = long_df[(long_df["Date"] >= pd.Timestamp(IS_START)) &
-                    (long_df["Date"] <= pd.Timestamp(IS_END) - pd.Timedelta(days=N_FORWARD + 5))]
-    train = train.dropna(subset=all_feats + ["y"])
-    X_train = train[all_feats]
-    y_train = train["y"]
+    feat_cols = [c for c in long_df.columns if c not in ("Date", "tic", "y")]
 
+    train_mask = ((long_df["Date"] >= pd.Timestamp(IS_START)) &
+                  (long_df["Date"] <= pd.Timestamp(IS_END) - pd.Timedelta(days=N_FORWARD + 5)))
+    train = long_df[train_mask].dropna(subset=feat_cols + ["y"])
+    print(f"[ML] train rows: {len(train)}, features: {len(feat_cols)}")
+
+    # Split train into train/validation (last 15% of train dates for val)
+    train_dates_sorted = sorted(train["Date"].unique())
+    cutoff = train_dates_sorted[int(len(train_dates_sorted) * 0.85)]
+    tr = train[train["Date"] <= cutoff]
+    va = train[train["Date"] > cutoff]
+    # Heavily regularized, small ensemble, early stopping
     model = xgb.XGBRegressor(
-        n_estimators=300, max_depth=4, learning_rate=0.03,
-        min_child_weight=20, subsample=0.7, colsample_bytree=0.7,
-        reg_lambda=5.0, n_jobs=4, verbosity=0,
+        n_estimators=200, max_depth=3, learning_rate=0.02,
+        min_child_weight=50, subsample=0.7, colsample_bytree=0.6,
+        reg_lambda=10.0, reg_alpha=1.0, gamma=0.1,
+        n_jobs=4, verbosity=0,
+        early_stopping_rounds=20,
     )
-    model.fit(X_train, y_train)
+    model.fit(tr[feat_cols], tr["y"],
+              eval_set=[(va[feat_cols], va["y"])], verbose=False)
+    print(f"[ML] best_iter: {model.best_iteration}")
 
-    # Predict on ALL (drop any rows with missing features)
-    pred_df = long_df.dropna(subset=all_feats).copy()
-    pred_df["pred"] = model.predict(pred_df[all_feats])
+    # Predict across ALL rows (including OOS)
+    valid = long_df.dropna(subset=feat_cols).copy()
+    valid["pred"] = model.predict(valid[feat_cols])
 
-    # Pivot to Date x tic
-    pred_wide = pred_df.pivot(index="Date", columns="tic", values="pred")
-    pred_wide = pred_wide.reindex(cp.index)
-    return pred_wide
+    wide = valid.pivot(index="Date", columns="tic", values="pred")
+    wide = wide.reindex(cp.index)
+    return wide
 
 
-def sleeve_ml(cp: pd.DataFrame, target_vol: float = 0.10,
-              k_top: int = K_TOP, rebal_every: int = REBAL_EVERY) -> pd.Series:
+def sleeve_ml(cp: pd.DataFrame, target_vol: float = 0.20,
+              k_top: int = K_TOP, rebal: int = REBAL_EVERY) -> pd.DataFrame:
+    """Returns weights DataFrame (T x N_assets)."""
     preds = train_predict(cp)
     idx = cp.index
 
     mask = pd.Series(range(len(idx)), index=idx)
-    is_rebal = mask % rebal_every == 0
+    is_rebal = mask % rebal == 0
 
     rnk = preds.rank(axis=1, ascending=False, method="first")
     sel = (rnk <= k_top)
@@ -136,27 +141,22 @@ def sleeve_ml(cp: pd.DataFrame, target_vol: float = 0.10,
             continue
         W[tic] = (sel_m[tic].astype(float) / n_sel.replace(0, np.nan)).fillna(0.0)
 
-    rets = cp.pct_change()
-    w_eff = W.shift(1).fillna(0.0)
-    pr = (w_eff * rets.reindex_like(W).fillna(0.0)).sum(axis=1)
-    tc = util.tc_map()
-    dw = W.diff().abs().fillna(W.abs())
-    tc_vec = pd.Series({c: tc.get(c, 5.0) for c in W.columns})
-    drag = (dw * tc_vec / 1e4).sum(axis=1).shift(1).fillna(0.0)
-    pr = pr - drag
-
-    rv = pr.rolling(60, min_periods=20).std() * np.sqrt(util.DPY)
-    m = (target_vol / rv.replace(0, np.nan)).clip(lower=0.2, upper=2.5).shift(1).fillna(1.0)
-    return pr * m
+    return W
 
 
 if __name__ == "__main__":
     op, cp = util.load_prices()
-    print("Training ML sleeve...")
-    r = sleeve_ml(cp, target_vol=0.10)
+    W = sleeve_ml(cp)
+    # Diagnose
+    print(f"Total days with non-zero weights: {(W.sum(axis=1) > 0).sum()}")
+    print(f"Mean gross weight: {W.sum(axis=1).mean():.3f}")
+    # Compute naive return
+    rets = cp.pct_change()
+    r = (W.shift(1).fillna(0.0) * rets.reindex_like(W).fillna(0.0)).sum(axis=1)
     util.summarize(r, "ML FULL")
     util.summarize(util.regime_slice(r, "2005-01-01", "2018-12-31"), "IS 05-18")
     util.summarize(util.regime_slice(r, "2019-01-02", "2027-12-31"), "OOS 19+")
     util.summarize(util.regime_slice(r, "2022-01-01", "2022-12-31"), "2022")
     util.summarize(util.regime_slice(r, "2007-01-01", "2009-12-31"), "GFC")
-    r.to_frame("ml").to_csv("/home/user/bonds/data/apex/ml_sleeve.csv")
+    r.to_frame("ml").to_csv("/home/user/bonds/data/apex/ml_sleeve_v2.csv")
+    W.to_csv("/home/user/bonds/data/apex/ml_sleeve_v2_weights.csv")
