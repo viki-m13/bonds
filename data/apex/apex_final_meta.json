@@ -1,15 +1,10 @@
 {
-  "version": "v15_final",
-  "letf_sleeves": ["PX_VANGUARD","PX_ORION","PX_HELIOS","SL_DUALBEAR","SL_CALENDAR","SL_VRP","SL_INVERSE"],
-  "blend_base": {
-    "PX_VANGUARD": 0.18, "PX_ORION": 0.18, "PX_HELIOS": 0.18,
-    "SL_DUALBEAR": 0.18, "SL_CALENDAR": 0.10, "SL_VRP": 0.08,
-    "SL_INVERSE": 0.10
-  },
-  "crypto_weight": 0.45,
-  "crypto_type": "multi (BTC+ETH+SOL)",
-  "target_vol": 0.22,
+  "version": "v16_final",
+  "letf_sleeves": ["PX_VANGUARD","PX_ORION","PX_HELIOS","SL_DUALBEAR","SL_CALENDAR","SL_VRP","SL_INVERSE","SL_CRASH_CONTRA","SL_REAL_YIELD","SL_CROSS_DECORR"],
+  "crypto_sleeve": "MULTI (BTC+ETH+SOL)",
+  "crypto_weight": 0.50,
+  "target_vol": 0.18,
   "dd_floor": -0.10,
   "dbs_override": "strict",
-  "sleeve_vol": 0.15
+  "blend": "equal-weight LETF sleeves (10 sleeves × 5% = 50% LETF book)"
 }

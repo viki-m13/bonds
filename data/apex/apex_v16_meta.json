@@ -1,0 +1,14 @@
+{
+  "best": {
+    "adaptive": false,
+    "cw": 0.5,
+    "tv": 0.18,
+    "full_sr": 1.0663,
+    "full_cagr": 0.1089,
+    "full_mdd": -0.2506,
+    "oos_sr": 1.5717,
+    "oos_cagr": 0.2386,
+    "y22_sr": -1.15,
+    "y08_sr": 0.1902
+  }
+}
