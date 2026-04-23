@@ -1,13 +1,28 @@
 {
-  "blend_weights": {
-    "ML5": 0.5,
-    "TREND": 0.12,
-    "RPAR_CF": 0.15,
-    "PAA": 0.08,
-    "ORION": 0.08,
-    "HELIOS": 0.07
-  },
-  "target_vol": 0.25,
-  "dd_floor": -0.1,
-  "sleeve_vol": 0.15
+  "version": "v7_final",
+  "sleeves": [
+    {
+      "name": "V1_MOM_LEV",
+      "target_vol": 0.18
+    },
+    {
+      "name": "V2_RISK_SAFE",
+      "target_vol": 0.18
+    },
+    {
+      "name": "V3_SECTOR",
+      "target_vol": 0.18
+    },
+    {
+      "name": "V4_ML5",
+      "target_vol": 0.28
+    },
+    {
+      "name": "V6_SHORT_MR",
+      "target_vol": 0.18
+    }
+  ],
+  "blend": "equal_weight",
+  "port_vol_target": 0.22,
+  "dd_floor": -0.12
 }
