@@ -1,0 +1,18 @@
+{
+  "best": {
+    "sel": "all14",
+    "cw": 0.5,
+    "tv": 0.18,
+    "full_sr": 1.0483,
+    "oos_sr": 1.5465,
+    "oos_cagr": 0.2272,
+    "y22": -1.5195,
+    "mdd": -0.2421
+  },
+  "greedy_selected": [
+    "PX_ORION",
+    "SL_CROSS_DECORR",
+    "SL_CALENDAR",
+    "SL_CRASH_CONTRA"
+  ]
+}
