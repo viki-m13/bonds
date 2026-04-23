@@ -1,0 +1,13 @@
+{
+  "blend_weights": {
+    "ML5": 0.5,
+    "TREND": 0.12,
+    "RPAR_CF": 0.15,
+    "PAA": 0.08,
+    "ORION": 0.08,
+    "HELIOS": 0.07
+  },
+  "target_vol": 0.25,
+  "dd_floor": -0.1,
+  "sleeve_vol": 0.15
+}
