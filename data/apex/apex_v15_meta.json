@@ -1,0 +1,24 @@
+{
+  "best": {
+    "blend": "v14+inverse10",
+    "cw": 0.45,
+    "tv": 0.22,
+    "multi": true,
+    "full_sr": 1.0343,
+    "full_cagr": 0.1166,
+    "full_mdd": -0.2546,
+    "oos_sr": 1.5549,
+    "oos_cagr": 0.2499,
+    "y22_sr": -0.7353,
+    "y08_sr": 0.4176
+  },
+  "blend": {
+    "PX_VANGUARD": 0.18,
+    "PX_ORION": 0.18,
+    "PX_HELIOS": 0.18,
+    "SL_DUALBEAR": 0.18,
+    "SL_CALENDAR": 0.1,
+    "SL_VRP": 0.08,
+    "SL_INVERSE": 0.1
+  }
+}
