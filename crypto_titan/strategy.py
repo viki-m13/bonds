@@ -156,11 +156,16 @@ def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
             dir_W = dir_W + Wc
 
     # ============================================================
-    # STEP 3 — Consensus × master gate (stability gate tested but too lossy)
+    # STEP 3 — NONLINEAR conviction curve + master gate
+    # Power-curve so low conviction → near-cash, high conviction → amplified.
+    # This captures "concentrate when model suggests" while preserving diversif.
     # ============================================================
     conv_vote = SV.consensus_signal(cp, sleeves).shift(1).fillna(0.0)
     gate = _master_gate(cp).shift(1).fillna(0.0)
-    conv_scale = ((conv_vote - 0.10).clip(lower=0.0) / 0.60).clip(upper=1.0)
+    # Cash below 0.15 conviction; mild power curve above.
+    conv_clean = (conv_vote - 0.15).clip(lower=0.0) / 0.55
+    conv_scale = conv_clean ** 1.1 * 1.35
+    conv_scale = conv_scale.clip(upper=1.35)
     dir_W = dir_W.mul(conv_scale, axis=0).mul(gate, axis=0)
     P = dir_W.add(pair_W, fill_value=0.0)
 
@@ -190,17 +195,27 @@ def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
     vm = (TARGET_VOL / rv_d.replace(0, np.nan)).clip(lower=0.3, upper=1.5)
     vm = vm.shift(1).fillna(1.0)
 
-    # Daily strategy-level DD floor
+    # Daily strategy-level DD floor (vs 365d high)
     c = (1 + raw_r).cumprod()
     hwm = c.rolling(365, min_periods=30).max()
     dd = c / hwm - 1
     dd_mult = (1 + dd / DD_FLOOR).clip(0, 1).shift(1).fillna(1.0)
 
+    # NOVEL: Strategy self-stop — when own 30d realised return < -4%,
+    # apply 50% reduction for 21 days. This catches slow bleeds in chop
+    # regimes (2025+) that the 365d DD floor alone can't see.
+    roll_30d = (1 + raw_r).rolling(30, min_periods=20).apply(
+        lambda x: x.prod() - 1, raw=True)
+    self_stop_active = (roll_30d < -0.04).astype(float)
+    # Hold the stop active for 21 days after trigger (rolling max)
+    self_stop_held = self_stop_active.rolling(21, min_periods=1).max()
+    self_stop_mult = (1.0 - 0.5 * self_stop_held).shift(1).fillna(1.0)
+
     # Daily per-coin catastrophic-DD overlay
     elig_nocrash = eligibility(cp, min_history=1, catastrophe_dd=-0.28,
                                 dd_window=60).shift(1).fillna(0.0).reindex_like(P_weekly)
 
-    W_eff = P_weekly.mul(vm * dd_mult, axis=0) * elig_nocrash
+    W_eff = P_weekly.mul(vm * dd_mult * self_stop_mult, axis=0) * elig_nocrash
 
     # Gross re-cap after vol target leverage
     gs = W_eff.abs().sum(axis=1)
