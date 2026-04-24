@@ -1,9 +1,9 @@
 {
-  "version": "v30_final",
+  "version": "v33_final",
   "sleeves_count": 6,
   "letf_sleeves": ["PX_HELIOS", "HMM_REGIME", "DIVERGENCE", "ACCEL_MOM", "SKEW_MOM", "HURST"],
-  "crypto_weight": 0.50,
+  "crypto_weight": "dynamic base=0.40 swing=+/-0.15",
   "target_vol": 0.18,
   "dd_floor": -0.10,
-  "approach": "6 uncorrelated sleeves, half novel mathematical methods"
+  "approach": "6 sleeves + dynamic crypto weight (0.25-0.55) based on BTC regime"
 }

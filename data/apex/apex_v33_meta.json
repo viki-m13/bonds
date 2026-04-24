@@ -1,0 +1,21 @@
+{
+  "best": {
+    "combo": [
+      "PX_HELIOS",
+      "HMM_REGIME",
+      "DIVERGENCE",
+      "ACCEL_MOM",
+      "SKEW_MOM",
+      "HURST"
+    ],
+    "mode": "dynamic",
+    "cw": 0.4,
+    "swing": 0.15,
+    "full_sr": 1.1334,
+    "full_cagr": 0.1503,
+    "oos_sr": 1.9836,
+    "oos_cagr": 0.3722,
+    "mdd": -0.1703,
+    "y22": -1.2163
+  }
+}
