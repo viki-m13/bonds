@@ -1,0 +1,20 @@
+{
+  "best": {
+    "cfg": "core4_cleanest",
+    "cw": 0.55,
+    "tv": 0.18,
+    "full_sr": 1.1996,
+    "oos_sr": 1.8947,
+    "oos_cagr": 0.3424,
+    "full_cagr": 0.1419,
+    "y22": -1.0894,
+    "mdd": -0.1817,
+    "avg_corr": 0.35497985409873856
+  },
+  "cfg_sleeves": [
+    "PX_HELIOS",
+    "HMM_REGIME",
+    "DIVERGENCE",
+    "BREAKOUT52"
+  ]
+}
