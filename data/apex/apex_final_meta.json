@@ -1,9 +1,9 @@
 {
-  "version": "v24_final",
-  "sleeves_count": 3,
-  "letf_sleeves": ["PX_HELIOS", "HMM_REGIME", "DIVERGENCE"],
+  "version": "v28_final",
+  "sleeves_count": 4,
+  "letf_sleeves": ["PX_HELIOS", "HMM_REGIME", "DIVERGENCE", "ACCEL_MOM"],
   "crypto_weight": 0.55,
   "target_vol": 0.18,
   "dd_floor": -0.10,
-  "approach": "MINIMUM VIABLE: 3 strongest uncorrelated sleeves + MULTI_CRYPTO"
+  "approach": "4 STRONGEST uncorrelated sleeves (incl. novel ACCEL_MOM) + MULTI_CRYPTO"
 }
