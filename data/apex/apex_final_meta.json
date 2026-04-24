@@ -1,9 +1,8 @@
 {
-  "version": "v18_final",
-  "sleeves_count": 16,
-  "new_in_v18": ["SL_BREAKOUT52", "SL_HMM", "SL_DIVERGENCE"],
-  "crypto_weight": 0.50,
+  "version": "v19_final",
+  "sleeves_count": 19,
+  "new_in_v19": ["SL_VOLZ_MOM", "SL_RANGE_BREAK", "SL_VIX_EXPAND"],
+  "crypto_weight": 0.55,
   "target_vol": 0.18,
-  "dd_floor": -0.10,
-  "dbs_override": "strict"
+  "dd_floor": -0.10
 }

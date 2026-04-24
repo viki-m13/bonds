@@ -1,0 +1,33 @@
+{
+  "best": {
+    "sel": "all19",
+    "cw": 0.55,
+    "tv": 0.18,
+    "full_sr": 1.1476,
+    "oos_sr": 1.6575,
+    "oos_cagr": 0.2602,
+    "y22": -1.915,
+    "mdd": -0.226
+  },
+  "sleeves": [
+    "PX_VANGUARD",
+    "PX_ORION",
+    "PX_HELIOS",
+    "SL_DUALBEAR",
+    "SL_CALENDAR",
+    "SL_VRP",
+    "SL_INVERSE",
+    "SL_CRASH_CONTRA",
+    "SL_REAL_YIELD",
+    "SL_CROSS_DECORR",
+    "SL_FOMC",
+    "SL_PCA",
+    "SL_VOL_OF_VOL",
+    "SL_BREAKOUT52",
+    "SL_HMM",
+    "SL_DIVERGENCE",
+    "SL_VOLZ_MOM",
+    "SL_RANGE_BREAK",
+    "SL_VIX_EXPAND"
+  ]
+}
