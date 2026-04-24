@@ -1,0 +1,16 @@
+{
+  "version": "v34_max5pos",
+  "sleeves": [
+    "PX_HELIOS",
+    "HMM_REGIME",
+    "DIVERGENCE",
+    "ACCEL_MOM",
+    "SKEW_MOM",
+    "HURST"
+  ],
+  "max_positions": 5,
+  "base_crypto_w": 0.4,
+  "swing": 0.15,
+  "target_vol": 0.18,
+  "dd_floor": -0.1
+}
