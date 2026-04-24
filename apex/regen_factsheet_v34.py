@@ -13,11 +13,25 @@ import util
 OUT = Path("/home/user/bonds/data/apex")
 
 
-def equity_curve_dict(r: pd.Series) -> dict:
+def equity_curve_dict(r: pd.Series, start: str = None) -> dict:
+    if start:
+        r = r.loc[start:]
     c = (1 + r.fillna(0)).cumprod()
     m = c.resample("ME").last().dropna()
     return {"dates": [d.strftime("%Y-%m-%d") for d in m.index],
             "values": [round(float(v), 4) for v in m.values]}
+
+
+def overlay_series(weights_fp: Path) -> dict:
+    """Daily gross LETF exposure = sum of row weights. Phoenix-style overlay chart."""
+    if not weights_fp.exists():
+        return {"dates": [], "values": []}
+    W = pd.read_csv(weights_fp, parse_dates=["Date"]).set_index("Date")
+    gross = W.sum(axis=1).clip(lower=0)
+    # Weekly resample to keep file tidy
+    gw = gross.resample("W-FRI").last().dropna()
+    return {"dates": [d.strftime("%Y-%m-%d") for d in gw.index],
+            "values": [round(float(v), 4) for v in gw.values]}
 
 
 def drawdown_dict(r: pd.Series) -> dict:
@@ -145,9 +159,11 @@ def main():
         "benchmarks": bench,
         "sleeve_metrics": sleeves,
         "equity_curve": equity_curve_dict(net),
+        "equity_curve_phx": equity_curve_dict(net, start="2010-01-01"),
         "drawdown": drawdown_dict(net),
         "rolling_3y_sharpe": rolling_sharpe_dict(net, 756),
         "rolling_1y_sharpe": rolling_sharpe_dict(net, 252),
+        "overlay_exposure": overlay_series(OUT / "apex_v34_weights.csv"),
         "yearly_returns": yearly_returns(net),
         "monthly_heatmap": monthly_heatmap(net),
         "current_allocation": current_alloc,
