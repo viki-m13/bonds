@@ -22,9 +22,33 @@ OUT.mkdir(parents=True, exist_ok=True)
 DPY = 365  # crypto trades 7 days/week
 
 # Full universe — survivors and dead together (survivorship-aware by design).
-SURVIVORS = ["BTC", "ETH", "SOL", "ADA", "DOGE", "LTC", "BCH", "XRP", "LINK",
-             "DOT", "AVAX", "ATOM", "XLM", "TRX", "ALGO"]
-DEAD = ["LUNA1", "USTC", "FTT", "MATIC", "UNI"]
+# Expanded from 20 → 50 coins in v4 to stress-test survivorship handling:
+# many more dead/collapsed/abandoned coins, plus previously-missing majors.
+SURVIVORS = [
+    # Original majors
+    "BTC", "ETH", "SOL", "ADA", "DOGE", "LTC", "BCH", "XRP", "LINK",
+    "DOT", "AVAX", "ATOM", "XLM", "TRX", "ALGO",
+    # Added majors
+    "BNB", "XMR", "DASH", "EOS", "NEO", "ETC", "ZEC", "HBAR", "VET",
+    "FIL", "THETA", "XTZ", "QTUM", "MKR", "BAT",
+    # Weakened but technically still trading
+    "IOTA", "DCR", "ZRX", "LRC", "ICX",
+]
+# Dead / collapsed / depegged / delisted / abandoned — known to have lost
+# 90%+ of ATH market-cap and largely ceased development.
+DEAD = [
+    "LUNA1", "USTC", "FTT", "MATIC", "UNI",   # original
+    "XEM",     # NEM — ATH -99%, essentially dead
+    "BTG",     # Bitcoin Gold — collapsed, 51% attacked repeatedly
+    "STEEM",   # Steem — near zero, abandoned
+    "SC",      # Siacoin — abandoned
+    "OMG",     # OMG Network — delisted
+    "WAVES",   # Waves — USDN stablecoin collapse 2022, -99%
+    "CELR",    # Celer — delisted many venues
+    "ANT",     # Aragon — DAO dissolved
+    "GRT",     # Limited history in our data; treated as abandoned proxy
+    "KNC",     # Kyber — limited history
+]
 ALL_COINS = SURVIVORS + DEAD
 
 

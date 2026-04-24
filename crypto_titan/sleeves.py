@@ -512,6 +512,228 @@ def sleeve_triple_mom(cp, macro=None):
     return W
 
 
+# --- Proprietary orthogonal sleeves (v4) — invented, very different edges ---
+
+
+def sleeve_inv_vol_btc(cp, macro=None):
+    """Pure Moreira-Muir: size BTC position inversely proportional to realized
+    vol, with a simple 200MA gate. No momentum filter, no DD stop. This
+    decorrelates from all our trend sleeves because its TIMING is vol-driven,
+    not price-driven. Classic academic result boosts Sharpe ~0.3.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    s = cp["BTC"]
+    rv = s.pct_change().ewm(span=21, adjust=False).std() * np.sqrt(DPY)
+    # Size scales inversely with vol, heavily bounded
+    size = (0.20 / rv.replace(0, np.nan)).clip(lower=0.0, upper=2.0)
+    ma200 = s.rolling(200, min_periods=100).mean()
+    gate = (s > ma200).astype(float)
+    hwm = s.rolling(90, min_periods=30).max()
+    dd = s / hwm - 1
+    alive = (dd > -0.30).astype(float)
+    W["BTC"] = (size * gate * alive).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_vol_percentile(cp, macro=None):
+    """Novel: size BTC by PERCENTILE rank of current vol in its 365-day
+    distribution — not the absolute level. Low-vol regimes (bottom 30%) ARE
+    fertile ground for trend; size up. High-vol (top 30%) caution. Different
+    character than fixed-target vol sizing.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    s = cp["BTC"]
+    rv = s.pct_change().rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    # Percentile in trailing 365d — 0 = current vol is lowest in past year, 1 = highest
+    vp = rv.rolling(365, min_periods=90).apply(
+        lambda x: (x[-1] <= x).mean() if len(x) >= 30 else np.nan, raw=True)
+    # Size peaks at moderate-low vol (0.2-0.4), tapers at extremes
+    # Simple triangular function: max 1.0 at vp=0.3, 0 at vp=0 or vp=0.75
+    def _size_fn(v):
+        if pd.isna(v):
+            return 0.0
+        if v < 0.3:
+            return v / 0.3
+        elif v < 0.75:
+            return (0.75 - v) / 0.45
+        else:
+            return 0.0
+    size_shape = vp.apply(_size_fn)
+    # Trend filter
+    ma100 = s.rolling(100, min_periods=50).mean()
+    trend = (s > ma100).astype(float)
+    signal = size_shape * trend
+    # Absolute sizing: scale to target vol
+    size = (0.20 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+    hwm = s.rolling(90, min_periods=30).max()
+    dd = s / hwm - 1
+    alive = (dd > -0.28).astype(float)
+    W["BTC"] = (signal * size * alive).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_dispersion_timed(cp, macro=None):
+    """Cross-sectional dispersion regime: when coin-level 21d returns are
+    DISPERSED (std across coins high), alt stock-picking works → pick top-3
+    momentum alts. When COMPRESSED (everyone moving together), concentrate
+    in BTC only.
+
+    Measures dispersion of 21d returns across all eligible coins, not just
+    BTC. Truly cross-sectional signal.
+    """
+    alt_cols = [c for c in cp.columns if c not in ["BTC", "ETH"]]
+    if len(alt_cols) < 5:
+        return pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    cp_alt = cp[alt_cols]
+    elig = eligibility(cp_alt, 180, catastrophe_dd=-0.25, dd_window=60)
+    mom21_alt = cp_alt.pct_change(21)
+    # Dispersion = std of 21d returns across coins (per date)
+    disp = mom21_alt.where(elig.astype(bool)).std(axis=1)
+    disp_median = disp.rolling(180, min_periods=60).median()
+    high_disp = (disp > 1.3 * disp_median).astype(float).fillna(0.0)
+
+    btc = cp["BTC"]
+    btc_gate = ((btc > btc.rolling(150, min_periods=75).mean()) &
+                (btc.pct_change(63) > 0.0)).astype(float)
+
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+
+    # High-dispersion regime: long top-3 alts by 63d momentum
+    mom63 = cp_alt.pct_change(63).where(elig.astype(bool))
+    ranks = mom63.rank(axis=1, ascending=False, method="first")
+    pick = (ranks <= 3.0).astype(float)
+    rv = cp_alt.pct_change().rolling(60, min_periods=20).std() * np.sqrt(DPY)
+    inv = (1.0 / rv.replace(0, np.nan)).where(pick.astype(bool))
+    W_disp = inv.div(inv.sum(axis=1).replace(0, np.nan), axis=0).fillna(0.0)
+    W_disp = W_disp.clip(upper=0.10)
+    s_sum = W_disp.sum(axis=1).replace(0, np.nan)
+    W_disp = W_disp.mul((0.30 / s_sum).clip(upper=1.0).fillna(0.0), axis=0)
+    W_disp = W_disp.mul(high_disp * btc_gate, axis=0)
+
+    # Low-dispersion regime: BTC-only
+    low_disp = 1.0 - high_disp
+    rv_btc = btc.pct_change().ewm(span=21, adjust=False).std() * np.sqrt(DPY)
+    btc_size = (0.18 / rv_btc.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+    W_btc = (low_disp * btc_size * btc_gate)
+
+    for c in W_disp.columns:
+        W[c] = W_disp[c]
+    W["BTC"] = W_btc
+
+    return W.shift(1).fillna(0.0)
+
+
+def sleeve_spy_alpha(cp, macro=None):
+    """Extract BTC's alpha over SPY: long BTC when it's beating a
+    rolling-beta-scaled SPY return over last 63d. Orthogonal to pure trend
+    because it's a RELATIVE signal against equities.
+
+    Net position: just long BTC (beta-hedging vs SPY is not feasible without
+    an equity short leg, but we use SPY as a regime / threshold signal).
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    if macro is None or "spy" not in macro:
+        return W
+    spy = macro["spy"].reindex(cp.index).ffill()
+    s = cp["BTC"]
+    # Rolling 63d returns
+    r_btc = s.pct_change(63)
+    r_spy = spy.pct_change(63)
+    # Rolling beta estimate via ratio of covariances (Not OLS — simpler)
+    r_btc_d = s.pct_change()
+    r_spy_d = spy.pct_change()
+    cov = r_btc_d.rolling(126, min_periods=60).cov(r_spy_d)
+    var_spy = r_spy_d.rolling(126, min_periods=60).var()
+    beta = (cov / var_spy.replace(0, np.nan)).clip(0.1, 3.0)
+    # Alpha = actual BTC return - beta * SPY return
+    alpha = r_btc - beta * r_spy
+    signal = (alpha > 0.10).astype(float)  # BTC beating SPY-adjusted hurdle
+
+    rv = r_btc_d.ewm(span=21, adjust=False).std() * np.sqrt(DPY)
+    size = (0.20 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+    ma100 = s.rolling(100, min_periods=50).mean()
+    trend = (s > ma100).astype(float)
+    hwm = s.rolling(90, min_periods=30).max()
+    dd = s / hwm - 1
+    alive = (dd > -0.28).astype(float)
+    W["BTC"] = (signal * trend * size * alive).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_skew_regime(cp, macro=None):
+    """Skewness-conditional sizing: when rolling 63d SKEWNESS of BTC daily
+    returns is positive (right-tail dominated = bullish asymmetry), size up.
+    When deeply negative (left-tail dominated = panic risk), size down or 0.
+
+    Simple defensive overlay that's orthogonal to price-based trend.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    s = cp["BTC"]
+    r = s.pct_change()
+    skew = r.rolling(63, min_periods=30).skew()
+    # Map skew to sizing multiplier:
+    #   skew > +0.5: 1.0 (full size)
+    #   skew = 0.0: 0.5
+    #   skew < -0.5: 0.0 (out)
+    scale = ((skew + 0.5) / 1.0).clip(lower=0.0, upper=1.0)
+
+    ma100 = s.rolling(100, min_periods=50).mean()
+    trend = ((s > ma100) & (s.pct_change(63) > 0.0)).astype(float)
+    rv = r.ewm(span=21, adjust=False).std() * np.sqrt(DPY)
+    size = (0.20 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+    hwm = s.rolling(90, min_periods=30).max()
+    dd = s / hwm - 1
+    alive = (dd > -0.28).astype(float)
+    W["BTC"] = (trend * scale * size * alive).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_breadth_thrust(cp, macro=None):
+    """Breadth-thrust (Zweig-style): when % of eligible coins in uptrend
+    jumps rapidly (10d rising avg of breadth crosses above 65% threshold),
+    strong kickoff signal. Long BTC+ETH basket for N days.
+
+    Fires rarely; strong historical track record at market turning points.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    elig = eligibility(cp, 150)
+    ma100 = cp.rolling(100, min_periods=50).mean()
+    trending = (cp > ma100).astype(float) * elig
+    breadth = trending.sum(axis=1) / elig.sum(axis=1).replace(0, np.nan)
+    breadth_smooth = breadth.ewm(span=10, adjust=False).mean()
+
+    # Thrust: breadth crosses above 65% having been below 50% in last 30d
+    below50 = (breadth.rolling(30, min_periods=15).min() < 0.50)
+    above65 = (breadth_smooth > 0.65)
+    thrust = (above65 & below50).astype(float)
+
+    # Hold 30 days after thrust signal
+    held = pd.Series(0.0, index=cp.index)
+    state = 0.0
+    days_in = 0
+    for i in range(len(cp)):
+        if thrust.iloc[i] == 1.0 and state == 0.0:
+            state = 1.0
+            days_in = 0
+        elif state == 1.0:
+            days_in += 1
+            if days_in > 30:
+                state = 0.0
+        held.iloc[i] = state
+
+    # Long BTC + ETH 50/50
+    btc = cp["BTC"]
+    rv_b = btc.pct_change().ewm(span=21, adjust=False).std() * np.sqrt(DPY)
+    size_b = (0.18 / rv_b.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+    W["BTC"] = (held * size_b * 0.5).shift(1).fillna(0.0)
+    if "ETH" in cp.columns:
+        eth = cp["ETH"]
+        rv_e = eth.pct_change().ewm(span=21, adjust=False).std() * np.sqrt(DPY)
+        size_e = (0.18 / rv_e.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+        W["ETH"] = (held * size_e * 0.5).shift(1).fillna(0.0)
+    return W
+
+
 # --- Proprietary orthogonal sleeves (v3) ---
 # These use information sources the trend sleeves ignore: volume,
 # daily range, calendar, autocorrelation regime, efficiency ratio.
@@ -869,6 +1091,14 @@ BUILDERS = {
     "EFFICIENCY_TREND":     sleeve_efficiency_trend,
     "RANGE_EXPANSION":      sleeve_range_expansion,
     "AUTOCORR_REGIME":      sleeve_autocorr_regime,
+    # --- Proprietary novel sleeves (v4) ---
+    "INV_VOL_BTC":          sleeve_inv_vol_btc,      # pure Moreira-Muir
+    "VOL_PERCENTILE":       sleeve_vol_percentile,   # percentile-based sizing
+    "BREADTH_THRUST":       sleeve_breadth_thrust,   # Zweig-style kickoff (OOS 0.82)
+    "SPY_ALPHA":            sleeve_spy_alpha,        # BTC beating SPY-adj hurdle
+    # Dropped:
+    #   DISPERSION_TIMED (OOS 0.31 — marginal alt-rotation)
+    #   SKEW_REGIME      (OOS 0.52 — net drag on ensemble)
 }
 # Tested and dropped for weak OOS contribution (all OOS SR < 0.50):
 #   BTC_KAMA  (0.15), ADX_TREND (0.15), EWMA_CROSS (0.35),

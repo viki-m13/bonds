@@ -31,11 +31,12 @@ import sleeves as SV
 IS_END = "2022-06-30"
 OOS_START = "2022-07-01"
 
-TARGET_VOL = 0.15
+TARGET_VOL = 0.18
 DD_FLOOR = -0.12
-GROSS_CAP = 1.2
+GROSS_CAP = 1.3        # cap on weekly position selection
+GROSS_CAP_DAILY = 1.5  # cap after daily vol scaling
 TC_BPS = 20.0
-SMOOTH_SPAN = 7  # EMA smoothing on weights to reduce daily churn
+SMOOTH_SPAN = 7
 
 
 def _master_gate(cp: pd.DataFrame) -> pd.Series:
@@ -99,25 +100,33 @@ def _adaptive_sharpe_weights(sleeve_rets: dict, window: int = 252,
 
 
 def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
-    """Risk-parity aggregate sleeves → consensus scale → master gate →
-    catastrophic-DD daily overlay (long-only) → vol target → DD floor → TC."""
+    """Two-clock framework:
+      * WEEKLY clock — which coins to hold and at what *relative* weight
+        (position selection, risk-parity sleeve blending, consensus scale).
+      * DAILY clock — how much exposure to run in aggregate (portfolio-level
+        vol target, drawdown floor, per-coin catastrophic-DD overlay).
 
-    # Step 1: individual sleeve returns (no TC yet; used for RP weights).
+    This separation lets us respond fast to vol spikes without paying TC
+    for weekly churn on every coin.
+    """
+
+    # ============================================================
+    # WEEKLY CLOCK — relative position selection
+    # ============================================================
     sleeve_rets = {name: weights_to_ret(W.shift(1).fillna(0.0), cp, tc_bps=0.0)
                    for name, W in sleeves.items()}
 
-    # Step 2: vol-target each sleeve to ~18% for comparable scale.
+    # Vol-target each sleeve (equalises contribution)
     sw_adj = {}
     for name, W in sleeves.items():
         rv = sleeve_rets[name].rolling(60, min_periods=20).std() * np.sqrt(DPY)
         m = (0.18 / rv.replace(0, np.nan)).clip(lower=0.2, upper=1.5).shift(1).fillna(1.0)
         sw_adj[name] = W.mul(m, axis=0)
 
-    # Step 3: risk-parity sleeve weights (inverse realised vol).
+    # Risk-parity sleeve blend (inverse realised vol)
     rp_w = _inverse_vol_sleeve_weights(sleeve_rets, window=90).shift(1).fillna(
         1.0 / len(sleeves))
 
-    # Step 4: separate directional vs market-neutral aggregation.
     first = next(iter(sw_adj.values()))
     dir_W = pd.DataFrame(0.0, index=first.index, columns=first.columns)
     pair_W = pd.DataFrame(0.0, index=first.index, columns=first.columns)
@@ -130,55 +139,68 @@ def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
         else:
             dir_W = dir_W + Wc
 
-    # Step 5: consensus overlay on directional only. With ~12 sleeves,
-    # want 3/12 → 0.25, 6/12 → 0.65, 10/12 → 1.0. Low floor so single-signal
-    # periods still participate modestly.
+    # Consensus overlay on directional
     conv = SV.consensus_signal(cp, sleeves).shift(1).fillna(0.0)
     conv_scale = ((conv - 0.10).clip(lower=0.0) / 0.60).clip(upper=1.0)
     dir_W = dir_W.mul(conv_scale, axis=0)
 
-    # Step 6: master gate on directional only.
+    # Master gate on directional
     gate = _master_gate(cp).shift(1).fillna(0.0)
     dir_W = dir_W.mul(gate, axis=0)
 
-    P = dir_W.add(pair_W, fill_value=0.0)
+    P_raw = dir_W.add(pair_W, fill_value=0.0)
 
-    # Step 6: gross cap (pre-overlays).
-    gross_abs = P.abs().sum(axis=1)
-    scale = np.minimum(1.0, GROSS_CAP / gross_abs.replace(0, np.nan)).fillna(1.0)
-    P = P.mul(scale, axis=0)
+    # EMA-smooth to reduce high-frequency noise before weekly snap
+    P_raw = P_raw.ewm(span=SMOOTH_SPAN, adjust=False).mean()
 
-    # Step 7: daily catastrophic-DD overlay (LONG-ONLY protection).
-    elig_nocrash = eligibility(cp, min_history=1, catastrophe_dd=-0.28,
-                                dd_window=60).shift(1).fillna(0.0).reindex_like(P)
-    P = P * elig_nocrash
+    # --- WEEKLY SNAP: positions held constant between Wednesdays ---
+    is_rebal = pd.Series(P_raw.index.dayofweek == 2, index=P_raw.index)
+    P_weekly = P_raw.where(is_rebal, other=np.nan).ffill().fillna(0.0)
 
-    # Step 8: portfolio-level vol targeting (based on raw returns).
+    # Gross cap on the weekly positions (before daily scalings).
+    gross_abs_w = P_weekly.abs().sum(axis=1)
+    scale_w = np.minimum(1.0, GROSS_CAP / gross_abs_w.replace(0, np.nan)).fillna(1.0)
+    P_weekly = P_weekly.mul(scale_w, axis=0)
+
+    # ============================================================
+    # DAILY CLOCK — per-day risk scaling on held positions
+    # ============================================================
     rets = safe_returns(cp, cap=0.22)
-    raw_r = (P.shift(1).fillna(0.0) * rets.reindex_like(P).fillna(0.0)).sum(axis=1)
-    rv_port = raw_r.rolling(60, min_periods=20).std() * np.sqrt(DPY)
-    vm = (TARGET_VOL / rv_port.replace(0, np.nan)).clip(lower=0.2, upper=1.5).shift(1).fillna(1.0)
 
-    # Step 9: DD floor.
+    # Raw portfolio return from weekly positions (used to estimate vol)
+    raw_r = (P_weekly.shift(1).fillna(0.0) * rets.reindex_like(P_weekly).fillna(0.0)
+             ).sum(axis=1)
+
+    # DAILY vol targeting with asymmetric clip:
+    #   * upper cap 1.5 allows modest leverage on vol dips
+    #   * lower cap 0.3 = aggressive de-risking on vol spikes
+    # EWMA(60) is smooth (vs rolling window) to avoid single-day whipsaw
+    # while still being daily-updated.
+    rv_d = raw_r.ewm(span=60, adjust=False).std() * np.sqrt(DPY)
+    vm = (TARGET_VOL / rv_d.replace(0, np.nan)).clip(lower=0.3, upper=1.5)
+    vm = vm.shift(1).fillna(1.0)
+
+    # DAILY DD-floor — recomputed every day on realised equity curve
     c = (1 + raw_r).cumprod()
     hwm = c.rolling(365, min_periods=30).max()
     dd = c / hwm - 1
     dd_mult = (1 + dd / DD_FLOOR).clip(0, 1).shift(1).fillna(1.0)
 
-    W_eff = P.mul(vm * dd_mult, axis=0)
+    # DAILY per-coin catastrophic-DD overlay
+    elig_nocrash = eligibility(cp, min_history=1, catastrophe_dd=-0.28,
+                                dd_window=60).shift(1).fillna(0.0).reindex_like(P_weekly)
 
-    # Step 10: EMA-smooth weights, then snap to weekly rebalance (Wednesdays).
-    # Weekly holds cut turnover ~4x vs daily rebal — big TC savings, and
-    # evidence shows slightly better OOS Sharpe in our tests.
-    W_eff = W_eff.ewm(span=SMOOTH_SPAN, adjust=False).mean()
-    is_rebal = pd.Series(W_eff.index.dayofweek == 2, index=W_eff.index)
-    W_eff = W_eff.where(is_rebal, other=np.nan).ffill().fillna(0.0)
+    # Combine: weekly position × daily scalings
+    W_eff = P_weekly.mul(vm * dd_mult, axis=0) * elig_nocrash
 
+    # Gross re-cap after daily scalings (in case vol-target leverage pushes over)
     gs = W_eff.abs().sum(axis=1)
-    fs = np.minimum(1.0, GROSS_CAP / gs.replace(0, np.nan)).fillna(1.0)
+    fs = np.minimum(1.0, GROSS_CAP_DAILY / gs.replace(0, np.nan)).fillna(1.0)
     W_eff = W_eff.mul(fs, axis=0)
 
-    # Step 11: TC drag on daily turnover.
+    # ============================================================
+    # RETURNS + TC
+    # ============================================================
     W_held = W_eff.shift(1).fillna(0.0)
     gross_ret = (W_held * rets.reindex_like(W_held).fillna(0.0)).sum(axis=1)
     dw = W_eff.diff().abs().fillna(W_eff.abs())
