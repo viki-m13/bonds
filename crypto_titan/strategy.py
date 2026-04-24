@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 
 from util import (DPY, OUT, SURVIVORS, DEAD, ALL_COINS, load_prices,
-                  safe_returns, eligibility, metrics, regime_slice,
+                  load_macro, safe_returns, eligibility, metrics, regime_slice,
                   summarize, weights_to_ret)
 import sleeves as SV
 
@@ -31,38 +31,40 @@ import sleeves as SV
 IS_END = "2022-06-30"
 OOS_START = "2022-07-01"
 
-TARGET_VOL = 0.14
-DD_FLOOR = -0.12
-GROSS_CAP = 1.0
+TARGET_VOL = 0.20
+DD_FLOOR = -0.15
+GROSS_CAP = 1.5
 TC_BPS = 20.0
-SMOOTH_SPAN = 5  # EMA smoothing on weights to reduce daily churn
+SMOOTH_SPAN = 7  # EMA smoothing on weights to reduce daily churn
 
 
 def _master_gate(cp: pd.DataFrame) -> pd.Series:
-    """Master kill-switch. All three must hold:
-      * BTC above 200MA
-      * BTC 63d momentum > -5%
-      * BTC not in >30% drawdown from 90d high
-      * Breadth > 30% of eligible coins trending
+    """Master risk-on multiplier ∈ [0, 1], SOFT version.
+
+    Weighted vote over four risk-on conditions; each absent condition merely
+    reduces the multiplier instead of killing it. This preserves exposure
+    during borderline regimes where the hard binary gate would have zeroed
+    out and missed the subsequent recovery.
     """
     elig = eligibility(cp, 150)
     ma100 = cp.rolling(100, min_periods=50).mean()
     trending = (cp > ma100).astype(float) * elig
     breadth = trending.sum(axis=1) / elig.sum(axis=1).replace(0, np.nan)
-    breadth_ok = (breadth > 0.30).astype(float).fillna(0.0)
+    breadth_ok = (breadth > 0.25).astype(float).fillna(0.0)
 
     btc = cp["BTC"]
     btc_above_200 = (btc > btc.rolling(200, min_periods=100).mean()).astype(float)
     btc_hwm90 = btc.rolling(90, min_periods=30).max()
     btc_dd = btc / btc_hwm90 - 1
     btc_dd_ok = (btc_dd > -0.30).astype(float)
-    btc_mom_ok = (btc.pct_change(63) > -0.05).astype(float)
+    btc_mom_ok = (btc.pct_change(63) > -0.08).astype(float)
 
-    gate = breadth_ok * btc_above_200 * btc_dd_ok * btc_mom_ok
-    # EMA-smooth the gate to reduce flip-flop churn.
-    gate_smooth = gate.ewm(span=5, adjust=False).mean()
-    gate_final = (gate_smooth > 0.5).astype(float)
-    return gate_final.fillna(0.0)
+    # Weighted average of conditions (each 25%). Zero conditions → 0, all four → 1.
+    gate = 0.25 * (breadth_ok + btc_above_200 + btc_dd_ok + btc_mom_ok)
+    gate = gate.ewm(span=7, adjust=False).mean()
+    # Below 0.25 (only 1/4 conditions) force hard cash.
+    gate = gate.where(gate > 0.25, 0.0)
+    return gate.fillna(0.0)
 
 
 def _inverse_vol_sleeve_weights(sleeve_rets: dict, window: int = 90) -> pd.DataFrame:
@@ -72,6 +74,27 @@ def _inverse_vol_sleeve_weights(sleeve_rets: dict, window: int = 90) -> pd.DataF
     inv = 1.0 / vols.replace(0, np.nan)
     w = inv.div(inv.sum(axis=1).replace(0, np.nan), axis=0).fillna(
         1.0 / len(sleeve_rets))
+    return w
+
+
+def _adaptive_sharpe_weights(sleeve_rets: dict, window: int = 252,
+                              floor: float = 0.0) -> pd.DataFrame:
+    """Per-date softmax-weights of sleeves by trailing Sharpe over `window`.
+
+    A sleeve with negative trailing Sharpe gets zero weight (floor); positives
+    get weight ∝ Sharpe. Normalised to sum to 1. Smooth with 30d EMA.
+    """
+    sharpes = {}
+    for n, r in sleeve_rets.items():
+        mu = r.rolling(window, min_periods=60).mean() * DPY
+        sd = r.rolling(window, min_periods=60).std() * np.sqrt(DPY)
+        sharpes[n] = (mu / sd.replace(0, np.nan)).fillna(0.0)
+    sh = pd.DataFrame(sharpes).clip(lower=floor)
+    sm = sh.ewm(span=30, adjust=False).mean()
+    tot = sm.sum(axis=1).replace(0, np.nan)
+    w = sm.div(tot, axis=0)
+    # Fallback to equal weight when no sleeve has positive trailing Sharpe
+    w = w.fillna(1.0 / len(sleeve_rets))
     return w
 
 
@@ -90,23 +113,35 @@ def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
         m = (0.18 / rv.replace(0, np.nan)).clip(lower=0.2, upper=1.5).shift(1).fillna(1.0)
         sw_adj[name] = W.mul(m, axis=0)
 
-    # Step 3: risk-parity across sleeves (inverse realised vol of each sleeve).
-    rp_w = _inverse_vol_sleeve_weights(sleeve_rets, window=90).shift(1).fillna(1.0 / len(sleeves))
+    # Step 3: risk-parity sleeve weights (inverse realised vol).
+    rp_w = _inverse_vol_sleeve_weights(sleeve_rets, window=90).shift(1).fillna(
+        1.0 / len(sleeves))
 
+    # Step 4: separate directional vs market-neutral aggregation.
     first = next(iter(sw_adj.values()))
-    P = pd.DataFrame(0.0, index=first.index, columns=first.columns)
+    dir_W = pd.DataFrame(0.0, index=first.index, columns=first.columns)
+    pair_W = pd.DataFrame(0.0, index=first.index, columns=first.columns)
     for name, W in sw_adj.items():
-        P = P + W.mul(rp_w[name], axis=0).fillna(0.0)
+        rp_series = rp_w[name] if name in rp_w.columns else pd.Series(
+            1.0 / len(sw_adj), index=W.index)
+        Wc = W.mul(rp_series, axis=0).fillna(0.0)
+        if name in SV.MARKET_NEUTRAL:
+            pair_W = pair_W + Wc
+        else:
+            dir_W = dir_W + Wc
 
-    # Step 4: CONSENSUS overlay — scale by agreement ratio raised to power.
+    # Step 5: consensus overlay on directional only. With ~12 sleeves,
+    # want 3/12 → 0.25, 6/12 → 0.65, 10/12 → 1.0. Low floor so single-signal
+    # periods still participate modestly.
     conv = SV.consensus_signal(cp, sleeves).shift(1).fillna(0.0)
-    # When 4/4 agree: full size. 3/4 → 0.75. 2/4 → 0.25. ≤1/4 → 0.
-    conv_scale = ((conv - 0.25).clip(lower=0.0) / 0.75).clip(upper=1.0)
-    P = P.mul(conv_scale, axis=0)
+    conv_scale = ((conv - 0.10).clip(lower=0.0) / 0.60).clip(upper=1.0)
+    dir_W = dir_W.mul(conv_scale, axis=0)
 
-    # Step 5: master gate.
+    # Step 6: master gate on directional only.
     gate = _master_gate(cp).shift(1).fillna(0.0)
-    P = P.mul(gate, axis=0)
+    dir_W = dir_W.mul(gate, axis=0)
+
+    P = dir_W.add(pair_W, fill_value=0.0)
 
     # Step 6: gross cap (pre-overlays).
     gross_abs = P.abs().sum(axis=1)
@@ -153,7 +188,8 @@ def main():
     print(f"  Survivors ({len(SURVIVORS)}): {SURVIVORS}")
     print(f"  Dead/delisted ({len(DEAD)}): {DEAD}")
 
-    sleeves = SV.build_all(cp)
+    macro = load_macro(cp.index)
+    sleeves = SV.build_all(cp, macro)
     net, W_eff = build_portfolio(cp, sleeves)
     net = net.fillna(0.0)
 
@@ -187,7 +223,8 @@ def main():
 
     print("\n=== SURVIVORSHIP BIAS ANALYSIS ===")
     cp_surv = load_prices(coins=SURVIVORS)
-    sw_surv = SV.build_all(cp_surv)
+    macro_surv = load_macro(cp_surv.index)
+    sw_surv = SV.build_all(cp_surv, macro_surv)
     net_surv, _ = build_portfolio(cp_surv, sw_surv)
     net_surv = net_surv.fillna(0.0)
     m_full = metrics(net)

@@ -14,6 +14,8 @@ import numpy as np
 import pandas as pd
 
 DATA = Path("/home/user/bonds/data/crypto")
+ETF = Path("/home/user/bonds/data/etfs")
+FRED = Path("/home/user/bonds/data/fred")
 OUT = Path("/home/user/bonds/data/crypto_titan")
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -40,6 +42,34 @@ def load_prices(coins=None) -> pd.DataFrame:
     cp.index = pd.to_datetime(cp.index)
     cp = cp.loc[~cp.index.duplicated(keep="last")]
     return cp
+
+
+def load_macro(idx: pd.DatetimeIndex) -> dict:
+    """Load SPY / VIX / DXY aligned to the crypto index (ffill over weekends)."""
+    def _etf(t):
+        fp = ETF / f"{t}.csv"
+        if not fp.exists():
+            return pd.Series(np.nan, index=idx)
+        df = pd.read_csv(fp, parse_dates=["Date"]).set_index("Date").sort_index()
+        return df["Close"].astype(float).reindex(idx).ffill()
+
+    def _fred(n):
+        fp = FRED / f"{n}.csv"
+        if not fp.exists():
+            return pd.Series(np.nan, index=idx)
+        df = pd.read_csv(fp, parse_dates=["Date"]).set_index("Date").sort_index()
+        return df[df.columns[0]].astype(float).reindex(idx).ffill()
+
+    return {
+        "spy": _etf("SPY"),
+        "uup": _etf("UUP"),
+        "vix": _fred("VIXCLS"),
+        "ust10": _fred("DGS10"),
+    }
+
+
+# Historical BTC halvings (deterministic, known in advance).
+HALVING_DATES = ["2012-11-28", "2016-07-09", "2020-05-11", "2024-04-19"]
 
 
 def safe_returns(cp: pd.DataFrame, cap: float = 0.25) -> pd.DataFrame:
