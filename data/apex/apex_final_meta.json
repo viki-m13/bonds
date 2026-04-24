@@ -1,9 +1,9 @@
 {
-  "version": "v23_final",
-  "sleeves_count": 4,
-  "letf_sleeves": ["PX_HELIOS", "BREAKOUT52", "HMM_REGIME", "DIVERGENCE"],
+  "version": "v24_final",
+  "sleeves_count": 3,
+  "letf_sleeves": ["PX_HELIOS", "HMM_REGIME", "DIVERGENCE"],
   "crypto_weight": 0.55,
   "target_vol": 0.18,
   "dd_floor": -0.10,
-  "approach": "ULTRA-LEAN - 4 STRONG uncorrelated sleeves + MULTI_CRYPTO"
+  "approach": "MINIMUM VIABLE: 3 strongest uncorrelated sleeves + MULTI_CRYPTO"
 }

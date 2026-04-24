@@ -1,0 +1,61 @@
+{
+  "best_combo": [
+    "PX_HELIOS",
+    "HMM_REGIME",
+    "DIVERGENCE"
+  ],
+  "best_oos_sr": 1.9088,
+  "best_full_sr": 1.1994,
+  "top_5_combos": [
+    [
+      [
+        "PX_HELIOS",
+        "HMM_REGIME",
+        "DIVERGENCE"
+      ],
+      1.9088,
+      1.1994
+    ],
+    [
+      [
+        "PX_HELIOS",
+        "BREAKOUT52",
+        "HMM_REGIME",
+        "DIVERGENCE"
+      ],
+      1.8947,
+      1.1996
+    ],
+    [
+      [
+        "PX_HELIOS",
+        "HMM_REGIME",
+        "DIVERGENCE",
+        "DUALBEAR"
+      ],
+      1.8696,
+      1.203
+    ],
+    [
+      [
+        "PX_HELIOS",
+        "BREAKOUT52",
+        "HMM_REGIME",
+        "DIVERGENCE",
+        "DUALBEAR"
+      ],
+      1.8692,
+      1.189
+    ],
+    [
+      [
+        "PX_HELIOS",
+        "BREAKOUT52",
+        "HMM_REGIME",
+        "DUALBEAR"
+      ],
+      1.841,
+      1.2014
+    ]
+  ]
+}
