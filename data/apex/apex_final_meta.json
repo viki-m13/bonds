@@ -1,11 +1,9 @@
 {
-  "version": "v17_final",
-  "sleeves_count": 14,
-  "letf_sleeves": ["PX_VANGUARD","PX_ORION","PX_HELIOS","SL_DUALBEAR","SL_CALENDAR","SL_VRP","SL_INVERSE","SL_CRASH_CONTRA","SL_REAL_YIELD","SL_CROSS_DECORR","SL_FOMC","SL_PCA","SL_BUY_FEAR","SL_VOL_OF_VOL"],
-  "crypto_sleeve": "MULTI (BTC+ETH+SOL)",
+  "version": "v18_final",
+  "sleeves_count": 16,
+  "new_in_v18": ["SL_BREAKOUT52", "SL_HMM", "SL_DIVERGENCE"],
   "crypto_weight": 0.50,
   "target_vol": 0.18,
   "dd_floor": -0.10,
-  "dbs_override": "strict",
-  "blend": "equal-weight 14 LETF sleeves x 3.57% = 50% LETF book"
+  "dbs_override": "strict"
 }

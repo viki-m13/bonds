@@ -1,0 +1,31 @@
+{
+  "best": {
+    "sel": "all16",
+    "cw": 0.5,
+    "tv": 0.18,
+    "full_sr": 1.1034,
+    "oos_sr": 1.6324,
+    "oos_cagr": 0.2522,
+    "y22": -1.6817,
+    "mdd": -0.2299
+  },
+  "greedy_selected": [
+    "SL_HMM",
+    "PX_ORION",
+    "SL_CROSS_DECORR",
+    "PX_VANGUARD",
+    "SL_PCA",
+    "SL_CALENDAR",
+    "SL_CRASH_CONTRA"
+  ],
+  "top8_by_is": [
+    "SL_HMM",
+    "PX_ORION",
+    "SL_CROSS_DECORR",
+    "PX_HELIOS",
+    "PX_VANGUARD",
+    "SL_PCA",
+    "SL_CALENDAR",
+    "SL_CRASH_CONTRA"
+  ]
+}
