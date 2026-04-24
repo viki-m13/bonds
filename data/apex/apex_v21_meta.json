@@ -1,0 +1,23 @@
+{
+  "best": {
+    "cw": 0.6,
+    "tv": 0.18,
+    "full_sr": 1.1203,
+    "oos_sr": 1.5487,
+    "oos_cagr": 0.2217,
+    "full_cagr": 0.0972,
+    "y22": -2.0565,
+    "mdd": -0.2506
+  },
+  "sleeves": [
+    "TREND_MOM",
+    "RATE_MOM",
+    "USD_STRENGTH",
+    "VOL_OF_VOL",
+    "HMM_REGIME",
+    "CALENDAR",
+    "BOND_FLIGHT",
+    "DUALBEAR"
+  ],
+  "avg_oos_correlation": 0.09517767513790679
+}

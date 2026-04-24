@@ -1,0 +1,23 @@
+{
+  "best": {
+    "cw": 0.55,
+    "tv": 0.15,
+    "full_sr": 1.1917,
+    "oos_sr": 1.76,
+    "oos_cagr": 0.2834,
+    "full_cagr": 0.1223,
+    "y22": -1.3137,
+    "mdd": -0.1959
+  },
+  "sleeves": [
+    "PX_HELIOS",
+    "BREAKOUT52",
+    "VOLZ_MOM",
+    "DIVERGENCE",
+    "HMM_REGIME",
+    "RATE_MOM",
+    "CALENDAR",
+    "DUALBEAR"
+  ],
+  "avg_oos_correlation": 0.19545714873232395
+}
