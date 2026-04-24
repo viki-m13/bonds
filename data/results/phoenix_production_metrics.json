@@ -17,14 +17,14 @@
     "tc_bps_per_lev_chg": 10.0
   },
   "full": {
-    "sharpe": 2.3315,
-    "sortino": 3.4521,
-    "cagr": 0.3651,
+    "sharpe": 2.3299,
+    "sortino": 3.4501,
+    "cagr": 0.3648,
     "vol": 0.1376,
     "mdd": -0.1765,
-    "calmar": 2.0682,
-    "navx": 180.3024,
-    "n": 4206
+    "calmar": 2.0662,
+    "navx": 179.7631,
+    "n": 4207
   },
   "is": {
     "sharpe": 2.5228,
@@ -37,18 +37,18 @@
     "n": 2298
   },
   "oos": {
-    "sharpe": 2.1366,
-    "sortino": 3.142,
-    "cagr": 0.353,
+    "sharpe": 2.1332,
+    "sortino": 3.1377,
+    "cagr": 0.3522,
     "vol": 0.1466,
     "mdd": -0.1765,
-    "calmar": 1.9994,
-    "navx": 9.852,
-    "n": 1907
+    "calmar": 1.9952,
+    "navx": 9.8225,
+    "n": 1908
   },
-  "is_oos_gap": 0.3862,
-  "avg_total_mult": 0.8535276916587003,
-  "avg_vol_target_mult": 0.8935757639476074,
+  "is_oos_gap": 0.3896,
+  "avg_total_mult": 0.8534899653325108,
+  "avg_vol_target_mult": 0.8935285182317604,
   "correlations": {
     "VANGUARD": {
       "VANGUARD": 1.0,

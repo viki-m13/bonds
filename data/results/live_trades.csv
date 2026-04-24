@@ -28,3 +28,4 @@ Date,ticker,side,weight_before,weight_after,weight_delta,delta_pct
 2026-04-23,ERX,BUY,0.1247,0.1304,0.0057,0.57
 2026-04-23,SOXL,BUY,0.2198,0.2299,0.01,1.0
 2026-04-23,UCO,BUY,0.1862,0.2299,0.0437,4.37
+2026-04-24,BIL,SELL,0.3747,0.3647,-0.01,-1.0
