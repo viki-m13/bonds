@@ -1,7 +1,7 @@
 {
-  "version": "v19_final",
-  "sleeves_count": 19,
-  "new_in_v19": ["SL_VOLZ_MOM", "SL_RANGE_BREAK", "SL_VIX_EXPAND"],
+  "version": "v20_final",
+  "sleeves_count": 24,
+  "new_in_v20": ["SL_RATE_MOM","SL_USD_STRENGTH","SL_SMART_MONEY","SL_CREDIT_TIGHT","SL_COMMOD_REGIME","SL_BOND_FLIGHT"],
   "crypto_weight": 0.55,
   "target_vol": 0.18,
   "dd_floor": -0.10
