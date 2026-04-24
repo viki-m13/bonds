@@ -1,0 +1,215 @@
+{
+  "version": "crypto_apex_v1",
+  "sleeves": [
+    "ACCEL",
+    "HURST",
+    "DOMINANCE"
+  ],
+  "universe_full": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "ADA",
+    "DOGE",
+    "LTC",
+    "BCH",
+    "XRP",
+    "LINK",
+    "DOT",
+    "AVAX",
+    "ATOM",
+    "XLM",
+    "TRX",
+    "ALGO",
+    "LUNA1",
+    "USTC",
+    "FTT",
+    "MATIC",
+    "UNI"
+  ],
+  "survivors": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "ADA",
+    "DOGE",
+    "LTC",
+    "BCH",
+    "XRP",
+    "LINK",
+    "DOT",
+    "AVAX",
+    "ATOM",
+    "XLM",
+    "TRX",
+    "ALGO"
+  ],
+  "dead": [
+    "LUNA1",
+    "USTC",
+    "FTT",
+    "MATIC",
+    "UNI"
+  ],
+  "target_vol": 0.25,
+  "dd_floor": -0.25,
+  "tc_bps": 30.0,
+  "benchmarks": {
+    "btc_hold": {
+      "sharpe": 1.013,
+      "sortino": 1.36,
+      "cagr": 0.5716,
+      "vol": 0.6662,
+      "mdd": -0.834,
+      "calmar": 0.6854,
+      "hit": 0.5247,
+      "nav": 190.196,
+      "n": 4237
+    },
+    "equal_weight_survivors": {
+      "sharpe": 1.1363,
+      "sortino": 1.5395,
+      "cagr": 0.8135,
+      "vol": 0.8239,
+      "mdd": -0.8971,
+      "calmar": 0.9068,
+      "hit": 0.5386,
+      "nav": 1002.3,
+      "n": 4237
+    },
+    "btc_hold_oos": {
+      "sharpe": 0.9804,
+      "sortino": 1.4563,
+      "cagr": 0.4329,
+      "vol": 0.4881,
+      "mdd": -0.4974,
+      "calmar": 0.8703,
+      "hit": 0.4961,
+      "nav": 3.946,
+      "n": 1393
+    },
+    "eq_weight_oos": {
+      "sharpe": 0.592,
+      "sortino": 0.8412,
+      "cagr": 0.1894,
+      "vol": 0.6384,
+      "mdd": -0.6582,
+      "calmar": 0.2878,
+      "hit": 0.5126,
+      "nav": 1.939,
+      "n": 1393
+    }
+  },
+  "metrics": {
+    "full": {
+      "sharpe": 1.249,
+      "sortino": 1.3889,
+      "cagr": 0.2984,
+      "vol": 0.2301,
+      "mdd": -0.4144,
+      "calmar": 0.7202,
+      "hit": 0.2945,
+      "nav": 20.733,
+      "n": 4237
+    },
+    "is": {
+      "sharpe": 1.6336,
+      "sortino": 1.7829,
+      "cagr": 0.4159,
+      "vol": 0.2288,
+      "mdd": -0.2196,
+      "calmar": 1.894,
+      "hit": 0.2978,
+      "nav": 15.027,
+      "n": 2844
+    },
+    "oos": {
+      "sharpe": 0.4779,
+      "sortino": 0.5482,
+      "cagr": 0.088,
+      "vol": 0.2326,
+      "mdd": -0.4144,
+      "calmar": 0.2123,
+      "hit": 0.2879,
+      "nav": 1.38,
+      "n": 1393
+    },
+    "y2018": {
+      "sharpe": -0.9157,
+      "sortino": -0.2514,
+      "cagr": -0.0255,
+      "vol": 0.0278,
+      "mdd": -0.0436,
+      "calmar": -0.5847,
+      "hit": 0.0164,
+      "nav": 0.974,
+      "n": 365
+    },
+    "y2020": {
+      "sharpe": 1.918,
+      "sortino": 2.233,
+      "cagr": 0.652,
+      "vol": 0.2826,
+      "mdd": -0.1856,
+      "calmar": 3.5124,
+      "hit": 0.4317,
+      "nav": 1.654,
+      "n": 366
+    },
+    "y2021": {
+      "sharpe": 1.6893,
+      "sortino": 2.2901,
+      "cagr": 0.4445,
+      "vol": 0.2337,
+      "mdd": -0.1113,
+      "calmar": 3.9925,
+      "hit": 0.3589,
+      "nav": 1.445,
+      "n": 365
+    },
+    "y2022": {
+      "sharpe": 0,
+      "sortino": 0,
+      "cagr": 0.0,
+      "vol": 0.0,
+      "mdd": 0.0,
+      "calmar": 0,
+      "hit": 0.0,
+      "nav": 1.0,
+      "n": 365
+    },
+    "y2324": {
+      "sharpe": 0.6869,
+      "sortino": 0.9031,
+      "cagr": 0.1649,
+      "vol": 0.278,
+      "mdd": -0.4144,
+      "calmar": 0.3979,
+      "hit": 0.3762,
+      "nav": 1.358,
+      "n": 731
+    },
+    "y2025plus": {
+      "sharpe": 0.1604,
+      "sortino": 0.1756,
+      "cagr": 0.0124,
+      "vol": 0.199,
+      "mdd": -0.1652,
+      "calmar": 0.0752,
+      "hit": 0.2636,
+      "nav": 1.016,
+      "n": 478
+    }
+  },
+  "survivorship_bias": {
+    "full_universe_sr": 1.249,
+    "survivors_only_sr": 1.2925,
+    "bias_sr": 0.04349999999999987,
+    "bias_cagr": 0.014100000000000001
+  },
+  "sleeve_oos": {
+    "ACCEL": 0.3001,
+    "HURST": -0.1259,
+    "DOMINANCE": 0.5201
+  }
+}
