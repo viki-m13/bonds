@@ -44,6 +44,19 @@ def load_prices(coins=None) -> pd.DataFrame:
     return cp
 
 
+def load_ohlcv(coin: str = "BTC") -> pd.DataFrame:
+    """Full OHLCV for a single coin. Used by sleeves that need volume or
+    intraday range information."""
+    fp = DATA / f"{coin}_USD.csv"
+    if not fp.exists():
+        return pd.DataFrame()
+    df = pd.read_csv(fp, parse_dates=["Date"]).set_index("Date").sort_index()
+    df = df[["Open", "High", "Low", "Close", "Volume"]].astype(float)
+    df.index = pd.to_datetime(df.index)
+    df = df.loc[~df.index.duplicated(keep="last")]
+    return df
+
+
 def load_macro(idx: pd.DatetimeIndex) -> dict:
     """Load SPY / VIX / DXY aligned to the crypto index (ffill over weekends)."""
     def _etf(t):

@@ -24,7 +24,7 @@ is market-neutral by construction (equal-dollar long and short).
 from __future__ import annotations
 import numpy as np
 import pandas as pd
-from util import DPY, eligibility, HALVING_DATES
+from util import DPY, eligibility, HALVING_DATES, load_ohlcv
 
 
 def _vol_managed_core(cp, coin, vol_target=0.22, ma_len=100, mom_len=63,
@@ -512,28 +512,370 @@ def sleeve_triple_mom(cp, macro=None):
     return W
 
 
+# --- Proprietary orthogonal sleeves (v3) ---
+# These use information sources the trend sleeves ignore: volume,
+# daily range, calendar, autocorrelation regime, efficiency ratio.
+
+
+def sleeve_efficiency_trend(cp, macro=None):
+    """Kaufman Efficiency Ratio-sized trend: |net 21d return| / sum(|daily r|).
+
+    ER close to 1 = clean trend (signal dominates noise). ER near 0 = chop.
+    Position size scales LINEARLY with ER, so the sleeve naturally sizes
+    down in choppy regimes like 2025 and up in clean trends like 2017/2020.
+    Orthogonal to fixed-size trend sleeves.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    s = cp["BTC"]
+    change = (s - s.shift(21)).abs()
+    volatility = s.diff().abs().rolling(21, min_periods=10).sum()
+    er = (change / volatility.replace(0, np.nan)).clip(0, 1).fillna(0.0)
+    # Trend direction filter
+    ma100 = s.rolling(100, min_periods=50).mean()
+    trend = ((s > ma100) & (s.pct_change(21) > 0.0)).astype(float)
+    signal = trend * er  # 0-1 sizing by trend strength
+    rv = s.pct_change().rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    size = (0.25 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.5)
+    hwm = s.rolling(90, min_periods=30).max()
+    dd = s / hwm - 1
+    alive = (dd > -0.28).astype(float)
+    W["BTC"] = (signal * size * alive).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_consolidation_break(cp, macro=None):
+    """Consolidation-breakout: identifies 40+ day narrow-range periods
+    (coefficient of variation of daily returns < historical 25th percentile),
+    then goes long on breakout above the high of the consolidation.
+
+    Captures the well-known 'breakout from tight base' setup — highly
+    orthogonal because it only fires a few times per year.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    s = cp["BTC"]
+    r = s.pct_change()
+    # Coefficient of variation over 40 days: low = tight base
+    std40 = r.rolling(40, min_periods=25).std()
+    std_long = r.rolling(252, min_periods=100).std()
+    tight = (std40 < 0.7 * std_long).astype(float)  # 30% below long-run vol
+    hi40 = s.rolling(40, min_periods=25).max()
+    # Breakout: new 40d high while recent window was tight
+    breakout = (s >= hi40).astype(float) * tight.shift(1).fillna(0.0)
+
+    # Hold 30 days after breakout or exit on 10d low
+    lo10 = s.rolling(10, min_periods=5).min()
+    held = pd.Series(0.0, index=cp.index)
+    state = 0.0
+    days_in = 0
+    for i in range(len(s)):
+        if breakout.iloc[i] == 1.0 and state == 0.0:
+            state = 1.0
+            days_in = 0
+        elif state == 1.0:
+            days_in += 1
+            if (not pd.isna(lo10.iloc[i]) and s.iloc[i] <= lo10.iloc[i]) or days_in > 30:
+                state = 0.0
+        held.iloc[i] = state
+    rv = r.rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    size = (0.22 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+    ma200 = s.rolling(200, min_periods=100).mean()
+    gate = (s > ma200).astype(float)
+    W["BTC"] = (held * size * gate).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_deep_dip(cp, macro=None):
+    """Deeper-than-crash-dip contrarian: buy BTC when in 35-55% DD from
+    180d high AND 365d return still positive (secular uptrend intact).
+
+    Catches 2020 COVID capitulation, 2021 May-July purge, 2022 mid-bear
+    false bottoms (200MA filter excludes the worst), 2024 Aug slump.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    s = cp["BTC"]
+    hi180 = s.rolling(180, min_periods=90).max()
+    dd180 = s / hi180 - 1
+    sec_uptrend = (s.pct_change(365) > 0.15).astype(float)
+    in_zone = ((dd180 <= -0.35) & (dd180 >= -0.55) & (sec_uptrend > 0)).astype(float)
+    # Hold 60 days max or exit on 10% rebound from entry
+    held = pd.Series(0.0, index=cp.index)
+    state = 0.0
+    entry_price = 0.0
+    days_in = 0
+    for i in range(len(s)):
+        p = s.iloc[i]
+        if pd.isna(p):
+            held.iloc[i] = state
+            continue
+        if in_zone.iloc[i] == 1.0 and state == 0.0:
+            state = 1.0
+            entry_price = p
+            days_in = 0
+        elif state == 1.0:
+            days_in += 1
+            if p >= entry_price * 1.20 or days_in > 60 or dd180.iloc[i] < -0.60:
+                state = 0.0
+        held.iloc[i] = state
+    rv = s.pct_change().rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    size = (0.25 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.5)
+    W["BTC"] = (held * size).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_ewma_cross(cp, macro=None):
+    """EWMA 10/50 crossover — exponential MAs weight recent data more.
+    Faster and differently-timed than SMA-based sleeves.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    s = cp["BTC"]
+    e10 = s.ewm(span=10, adjust=False).mean()
+    e50 = s.ewm(span=50, adjust=False).mean()
+    cross = (e10 > e50).astype(float)
+    slope = e10.pct_change(5)
+    signal = (cross * (slope > 0)).astype(float)
+    rv = s.pct_change().rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    size = (0.20 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+    hwm = s.rolling(90, min_periods=30).max()
+    dd = s / hwm - 1
+    alive = (dd > -0.28).astype(float)
+    W["BTC"] = (signal * size * alive).shift(1).fillna(0.0)
+    return W
+
+# --- Orthogonal sleeves from earlier v3 rewrite (volume/range/autocorr/MR) ---
+
+def sleeve_volume_confirm(cp, macro=None):
+    """Volume-confirmed trend: long BTC when
+      (price > 50MA) AND (20d vol-weighted avg > prior 60d vol-weighted avg).
+
+    Bullish price action WITH volume expansion is a classic real-money
+    confirmation signal, orthogonal to pure moving-average trend.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    btc = load_ohlcv("BTC")
+    if btc.empty:
+        return W
+    btc = btc.reindex(cp.index).ffill()
+    s = btc["Close"]
+    vol = btc["Volume"]
+    ma50 = s.rolling(50, min_periods=25).mean()
+    # Price > MA gate
+    price_gate = (s > ma50).astype(float)
+    # Volume regime: recent 20d vol > prior 60d vol (expansion)
+    v20 = vol.rolling(20, min_periods=10).mean()
+    v60 = vol.rolling(60, min_periods=30).mean()
+    vol_expansion = (v20 > v60 * 1.10).astype(float)
+    signal = price_gate * vol_expansion
+    rv = s.pct_change().rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    size = (0.20 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+    hwm = s.rolling(90, min_periods=30).max()
+    dd = s / hwm - 1
+    alive = (dd > -0.28).astype(float)
+    W["BTC"] = (signal * size * alive).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_range_expansion(cp, macro=None):
+    """Daily range expansion: long BTC when (High-Low)/Close (today) exceeds
+    a short-term (21d) average AND price closes in top 30% of day's range.
+
+    Range-expansion WITH strong close = institutional buying. Orthogonal to
+    momentum; often precedes new trend legs.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    btc = load_ohlcv("BTC").reindex(cp.index).ffill()
+    if btc.empty:
+        return W
+    s = btc["Close"]
+    day_range = (btc["High"] - btc["Low"]) / s
+    range_avg = day_range.rolling(21, min_periods=10).mean()
+    close_in_range = (btc["Close"] - btc["Low"]) / (btc["High"] - btc["Low"]).replace(0, np.nan)
+    expansion = (day_range > 1.3 * range_avg).astype(float)
+    strong_close = (close_in_range > 0.70).astype(float).fillna(0.0)
+    signal = expansion * strong_close
+    # State machine: hold position 15 days after signal fires
+    held = pd.Series(0.0, index=cp.index)
+    days_in = 0
+    state = 0.0
+    for i in range(len(cp)):
+        if signal.iloc[i] == 1.0:
+            state = 1.0
+            days_in = 0
+        elif state == 1.0:
+            days_in += 1
+            if days_in > 15:
+                state = 0.0
+        held.iloc[i] = state
+    ma100 = s.rolling(100, min_periods=50).mean()
+    trend_gate = (s > ma100).astype(float)
+    rv = s.pct_change().rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    size = (0.18 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.2)
+    W["BTC"] = (held * size * trend_gate).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_dow_monday(cp, macro=None):
+    """Calendar anomaly: historically BTC has a positive-skewed Monday return
+    (weekend accumulation effect). Long BTC on Sundays (hold Mon), exit Tue
+    close. Tiny sleeve, but 100% decorrelated from any trend signal.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    dow = pd.Series(cp.index.dayofweek, index=cp.index)
+    # Enter at Sunday close (dayofweek==6), hold Monday, exit Tuesday close.
+    on_sunday = (dow == 6).astype(float)
+    on_monday = (dow == 0).astype(float)
+    held = on_sunday + on_monday
+    s = cp["BTC"]
+    rv = s.pct_change().rolling(60, min_periods=30).std() * np.sqrt(DPY)
+    # Conservative sizing: target 10% vol to keep TC drag manageable
+    size = (0.10 / rv.replace(0, np.nan)).clip(lower=0.0, upper=0.8)
+    ma200 = s.rolling(200, min_periods=100).mean()
+    trend_gate = (s > ma200).astype(float)  # only in long-term uptrend
+    W["BTC"] = (held * size * trend_gate).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_turn_of_month(cp, macro=None):
+    """Turn-of-month calendar effect: long BTC in the last 3 + first 2
+    trading days of each month. Well-documented anomaly in equities that
+    also appears in crypto (retail contribution flows, salary deposits).
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    idx = cp.index
+    dom = pd.Series(idx.day, index=idx)
+    # Last day of month is easier — use rolling lookahead via shift
+    # Approximate: enter on days with day >= 28 OR day <= 2
+    in_window = ((dom >= 28) | (dom <= 2)).astype(float)
+    s = cp["BTC"]
+    rv = s.pct_change().rolling(60, min_periods=30).std() * np.sqrt(DPY)
+    size = (0.12 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.0)
+    ma200 = s.rolling(200, min_periods=100).mean()
+    trend_gate = (s > ma200).astype(float)
+    W["BTC"] = (in_window * size * trend_gate).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_autocorr_regime(cp, macro=None):
+    """Trend-regime meta-signal: when BTC's recent lag-1 autocorrelation is
+    positive (trend persists), go long with standard trend filter.
+
+    When autocorrelation is near zero or negative, go to cash (random walk
+    regime — trend signals unreliable). This is a REGIME detector.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    s = cp["BTC"]
+    r = s.pct_change().fillna(0.0)
+    # Rolling 63d autocorrelation at lag 1
+    acf = r.rolling(63, min_periods=40).apply(
+        lambda x: np.corrcoef(x[:-1], x[1:])[0, 1] if len(x) > 10 else 0.0,
+        raw=True)
+    trend_on = (acf > 0.02).astype(float)  # positive lag-1 serial correlation
+    ma100 = s.rolling(100, min_periods=50).mean()
+    trend_gate = ((s > ma100) & (s.pct_change(63) > 0.0)).astype(float)
+    signal = trend_on * trend_gate
+    rv = r.rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    size = (0.20 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+    hwm = s.rolling(90, min_periods=30).max()
+    dd = s / hwm - 1
+    alive = (dd > -0.28).astype(float)
+    W["BTC"] = (signal * size * alive).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_mean_reversion(cp, macro=None):
+    """Short-term mean reversion IN UPTREND: buy BTC when 5-day RSI < 30
+    while 200MA still rising. Hold 10 days or exit on RSI > 65.
+
+    Specifically targets chop regimes (2025) where trend breaks down but
+    market remains in long-term uptrend. Truly orthogonal to trend signals.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    s = cp["BTC"]
+    r = s.pct_change()
+    # 5-day RSI (Wilder-style)
+    gain = r.clip(lower=0).ewm(alpha=1/5, adjust=False).mean()
+    loss = (-r).clip(lower=0).ewm(alpha=1/5, adjust=False).mean()
+    rsi5 = 100 - 100 / (1 + gain / loss.replace(0, np.nan))
+    ma200 = s.rolling(200, min_periods=100).mean()
+    ma200_slope = ma200.pct_change(30)
+    oversold = (rsi5 < 30).astype(float)
+    uptrend = ((s > ma200) & (ma200_slope > 0.0)).astype(float)
+    entry = oversold * uptrend
+
+    # Hold up to 10 days or exit on RSI > 65
+    held = pd.Series(0.0, index=cp.index)
+    days_in = 0
+    state = 0.0
+    for i in range(len(cp)):
+        rs = rsi5.iloc[i]
+        if entry.iloc[i] == 1.0 and state == 0.0:
+            state = 1.0
+            days_in = 0
+        elif state == 1.0:
+            days_in += 1
+            if (not pd.isna(rs) and rs > 65) or days_in > 10:
+                state = 0.0
+        held.iloc[i] = state
+    rv = r.rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    size = (0.18 / rv.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+    W["BTC"] = (held * size).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_btc_eth_rotate(cp, macro=None):
+    """Cross-asset rotation: when BTC outperforms ETH over 30d → BTC heavy;
+    when ETH outperforms BTC over 30d → ETH heavy. Single coin at a time,
+    vol-targeted, with ATH 200MA gate on both."""
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    if "ETH" not in cp.columns:
+        return W
+    btc = cp["BTC"]; eth = cp["ETH"]
+    btc_r30 = btc.pct_change(30)
+    eth_r30 = eth.pct_change(30)
+    pick_btc = (btc_r30 > eth_r30).astype(float)
+    pick_eth = 1.0 - pick_btc
+
+    btc_trend = (btc > btc.rolling(200, min_periods=100).mean()).astype(float)
+    eth_trend = (eth > eth.rolling(200, min_periods=100).mean()).astype(float)
+
+    rv_btc = btc.pct_change().rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    rv_eth = eth.pct_change().rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    size_btc = (0.20 / rv_btc.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+    size_eth = (0.20 / rv_eth.replace(0, np.nan)).clip(lower=0.0, upper=1.3)
+
+    W["BTC"] = (pick_btc * btc_trend * size_btc).shift(1).fillna(0.0)
+    W["ETH"] = (pick_eth * eth_trend * size_eth).shift(1).fillna(0.0)
+    return W
+
+
 BUILDERS = {
-    # BTC trend core — multiple speeds
-    "BTC_VM":         sleeve_btc_vm,       # fast: 100MA, 63d mom
-    "BTC_SLOW":       sleeve_btc_slow,     # slow: 200MA, 126d mom
-    "BTC_KAMA":       sleeve_btc_kama,     # adaptive
-    "TRIPLE_MOM":     sleeve_triple_mom,   # 21/63/252 confluence
+    # BTC trend core
+    "BTC_VM":               sleeve_btc_vm,
+    "BTC_SLOW":             sleeve_btc_slow,
+    "TRIPLE_MOM":           sleeve_triple_mom,
     # Breakout family
-    "TURTLE20":       sleeve_turtle20,     # 20d Donchian
-    "TURTLE55":       sleeve_turtle55,     # 55d Donchian
-    "BOLLINGER":      sleeve_bollinger,    # 2-sigma upper break
+    "TURTLE20":             sleeve_turtle20,
+    "TURTLE55":             sleeve_turtle55,
+    "BOLLINGER":            sleeve_bollinger,
+    "CONSOLIDATION_BREAK":  sleeve_consolidation_break,
     # Regime / macro
-    "MACRO_TREND":    sleeve_macro_trend,  # SPY + VIX gated
-    "HALVING_BOOST":  sleeve_halving_boost,# post-halving window
-    "ADX_TREND":      sleeve_adx_trend,    # strong-trend filter
+    "MACRO_TREND":          sleeve_macro_trend,
+    "HALVING_BOOST":        sleeve_halving_boost,
     # Specialists
-    "CRASH_DIP":      sleeve_crash_dip,    # buy -20 to -40% DD in uptrend
-    "VOL_BREAKOUT":   sleeve_vol_breakout, # low-vol regime breakout
-    # Cross-asset diversifiers
-    "ETH_VM":         sleeve_eth_vm,
-    "ETH_SLOW":       sleeve_eth_slow,
-    "ALT_XSMOM":      sleeve_alt_xsmom,    # breadth of alt momentum
+    "CRASH_DIP":            sleeve_crash_dip,
+    "VOL_BREAKOUT":         sleeve_vol_breakout,
+    # Cross-asset
+    "ETH_VM":               sleeve_eth_vm,
+    # --- Proprietary orthogonal edges (v3) ---
+    "EFFICIENCY_TREND":     sleeve_efficiency_trend,
+    "RANGE_EXPANSION":      sleeve_range_expansion,
+    "AUTOCORR_REGIME":      sleeve_autocorr_regime,
 }
+# Tested and dropped for weak OOS contribution (all OOS SR < 0.50):
+#   BTC_KAMA  (0.15), ADX_TREND (0.15), EWMA_CROSS (0.35),
+#   ETH_SLOW  (0.23), ALT_XSMOM (-0.21),
+#   and noise-only sleeves: DEEP_DIP, VOLUME_CONFIRM, MEAN_REVERSION,
+#   BTC_ETH_ROTATE, DOW_MONDAY, TURN_OF_MONTH, ETHBTC_PAIR, VIX_MEANREV,
+#   DXY_WEAK.
 # Dropped: ETHBTC_PAIR (net-negative), VIX_MEANREV (noisy), DXY_WEAK (marginal).
 # The 15-sleeve ensemble outperforms any smaller pruned subset — individual
 # sleeves with weak OOS still contribute diversification to the ensemble.
