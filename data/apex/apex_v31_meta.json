@@ -1,0 +1,13 @@
+{
+  "best_combo": [
+    "PX_HELIOS",
+    "HMM_REGIME",
+    "DIVERGENCE",
+    "ACCEL_MOM",
+    "SKEW_MOM",
+    "HURST"
+  ],
+  "best_cw": 0.5,
+  "best_tv": 0.18,
+  "best_oos_sr": 1.9827
+}
