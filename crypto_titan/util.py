@@ -21,35 +21,42 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 DPY = 365  # crypto trades 7 days/week
 
-# Full universe — survivors and dead together (survivorship-aware by design).
-# Expanded from 20 → 50 coins in v4 to stress-test survivorship handling:
-# many more dead/collapsed/abandoned coins, plus previously-missing majors.
+# v5 universe: 111 coins available in data/crypto, but only enable a
+# curated subset for the STRATEGY because broader universes dilute many
+# sleeves (except BREADTH_THRUST which benefits). The curated set keeps
+# all liquid majors + enough dead coins to stress-test survivorship.
 SURVIVORS = [
-    # Original majors
+    # Original core (15)
     "BTC", "ETH", "SOL", "ADA", "DOGE", "LTC", "BCH", "XRP", "LINK",
     "DOT", "AVAX", "ATOM", "XLM", "TRX", "ALGO",
-    # Added majors
+    # Wave 2 liquid majors (15)
     "BNB", "XMR", "DASH", "EOS", "NEO", "ETC", "ZEC", "HBAR", "VET",
     "FIL", "THETA", "XTZ", "QTUM", "MKR", "BAT",
-    # Weakened but technically still trading
+    # Still-alive but weakened (5)
     "IOTA", "DCR", "ZRX", "LRC", "ICX",
-]
-# Dead / collapsed / depegged / delisted / abandoned — known to have lost
-# 90%+ of ATH market-cap and largely ceased development.
+]  # 35 survivors
+
 DEAD = [
-    "LUNA1", "USTC", "FTT", "MATIC", "UNI",   # original
-    "XEM",     # NEM — ATH -99%, essentially dead
-    "BTG",     # Bitcoin Gold — collapsed, 51% attacked repeatedly
-    "STEEM",   # Steem — near zero, abandoned
-    "SC",      # Siacoin — abandoned
-    "OMG",     # OMG Network — delisted
-    "WAVES",   # Waves — USDN stablecoin collapse 2022, -99%
-    "CELR",    # Celer — delisted many venues
-    "ANT",     # Aragon — DAO dissolved
-    "GRT",     # Limited history in our data; treated as abandoned proxy
-    "KNC",     # Kyber — limited history
-]
+    "LUNA1", "USTC", "FTT", "MATIC", "UNI",
+    "XEM", "BTG", "STEEM", "SC", "OMG", "WAVES", "CELR", "ANT", "GRT", "KNC",
+]  # 15 dead
 ALL_COINS = SURVIVORS + DEAD
+
+# Extended universe: all 111 coins — used ONLY for the broader-breadth
+# sleeves (BREADTH_THRUST) that benefit from a wider lens. Not used for
+# coin-level allocations because naive XSMOM across 100+ coins buys
+# recently-popular tokens right before they crash.
+EXTENDED_UNIVERSE = SURVIVORS + DEAD + [
+    "SHIB", "NEAR", "APT", "ARB", "OP", "SUI", "INJ", "TIA",
+    "STX", "AR", "RNDR", "SEI", "KAS", "PYTH", "JUP", "PEPE",
+    "AAVE", "CRV", "YFI", "SNX", "1INCH", "BAL", "DYDX", "COMP",
+    "ZIL", "ONT", "LSK", "ARK", "CHZ",
+    "MANA", "SAND", "AXS", "GALA", "ENJ", "ILV", "SUSHI",
+    "BNT", "POWR", "STORJ", "REP", "GNT", "CDT", "WTC",
+    "PIVX", "DGB", "XVG", "NANO", "VTC", "BCD", "BCN",
+    "HEX", "KIN", "REN", "MIR", "ANC", "RUNE",
+    "ONE", "FTM", "KSM", "KAVA", "IOST",
+]
 
 
 def load_prices(coins=None) -> pd.DataFrame:

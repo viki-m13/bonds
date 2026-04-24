@@ -24,7 +24,7 @@ is market-neutral by construction (equal-dollar long and short).
 from __future__ import annotations
 import numpy as np
 import pandas as pd
-from util import DPY, eligibility, HALVING_DATES, load_ohlcv
+from util import DPY, eligibility, HALVING_DATES, load_ohlcv, load_prices, EXTENDED_UNIVERSE
 
 
 def _vol_managed_core(cp, coin, vol_target=0.22, ma_len=100, mom_len=63,
@@ -688,6 +688,81 @@ def sleeve_skew_regime(cp, macro=None):
     return W
 
 
+def sleeve_broad_xsmom(cp, macro=None):
+    """Broad cross-sectional momentum — concentrate in top-5 highest-momentum
+    coins in the ENTIRE universe (not just alts). Rebalances weekly.
+
+    This sleeve leverages the 111-coin universe: we can find the 5 strongest
+    trends out of 100+ candidates rather than a tiny basket. Survivorship-
+    aware (eligibility + catastrophic-DD filter on every coin).
+
+    Per-coin cap 15%, total basket ~50% gross.
+    """
+    elig = eligibility(cp, min_history=180,
+                       catastrophe_dd=-0.25, dd_window=60)
+    # 90-day momentum, skip-5-day (avoid short-term reversion noise)
+    mom90 = cp.pct_change(90).shift(5)
+    score = mom90.where(elig.astype(bool)).where(mom90 > 0.30)  # 30% hurdle
+    # Rank, pick top 5
+    ranks = score.rank(axis=1, ascending=False, method="first")
+    pick = (ranks <= 5.0).astype(float)
+    rv = cp.pct_change().rolling(60, min_periods=20).std() * np.sqrt(DPY)
+    inv = (1.0 / rv.replace(0, np.nan)).where(pick.astype(bool))
+    W = inv.div(inv.sum(axis=1).replace(0, np.nan), axis=0).fillna(0.0)
+    W = W.clip(upper=0.15)
+    # Scale basket to 0.5 gross
+    s_sum = W.sum(axis=1).replace(0, np.nan)
+    scale = (0.50 / s_sum).clip(upper=1.0).fillna(0.0)
+    W = W.mul(scale, axis=0)
+
+    # BTC-regime gate on top
+    btc = cp["BTC"]
+    btc_gate = ((btc > btc.rolling(150, min_periods=75).mean()) &
+                (btc.pct_change(63) > 0.0)).astype(float)
+    W = W.mul(btc_gate, axis=0)
+    return W.shift(1).fillna(0.0)
+
+
+def sleeve_quintile_spread(cp, macro=None):
+    """Cross-sectional quintile spread (long-only version): with a 100+ coin
+    universe we can do a proper quintile sort. Long top quintile by 63d
+    momentum (20 coins), small weight each (5% cap per coin, ~60% gross).
+
+    Different from broad_xsmom because:
+      * Wider basket (top 20% rather than top-5)
+      * 63d lookback (shorter = more turnover but captures regime shifts)
+      * Equal-weighted within quintile (not inverse-vol)
+    """
+    elig = eligibility(cp, min_history=150,
+                       catastrophe_dd=-0.25, dd_window=60)
+    mom63 = cp.pct_change(63)
+    # Keep only positive-momentum eligible coins, then rank
+    score = mom63.where(elig.astype(bool)).where(mom63 > 0.0)
+    # Pick top 20% of eligible by date
+    n_elig = elig.sum(axis=1)
+    top_n = (n_elig * 0.20).clip(lower=5).round().astype(int)
+    ranks = score.rank(axis=1, ascending=False, method="first")
+    # Build pick mask per row (ranks <= top_n_per_row)
+    pick = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    for i, dt in enumerate(cp.index):
+        n = top_n.iloc[i]
+        if n >= 1:
+            pick.loc[dt] = (ranks.loc[dt] <= n).astype(float)
+    # Equal-weight within quintile, 5% cap per coin
+    n_picked = pick.sum(axis=1).replace(0, np.nan)
+    W = pick.div(n_picked, axis=0).fillna(0.0)
+    W = W.clip(upper=0.05)
+    # Scale to 0.60 gross
+    s_sum = W.sum(axis=1).replace(0, np.nan)
+    scale = (0.60 / s_sum).clip(upper=1.0).fillna(0.0)
+    W = W.mul(scale, axis=0)
+
+    btc = cp["BTC"]
+    btc_gate = ((btc > btc.rolling(200, min_periods=100).mean())).astype(float)
+    W = W.mul(btc_gate, axis=0)
+    return W.shift(1).fillna(0.0)
+
+
 def sleeve_breadth_thrust(cp, macro=None):
     """Breadth-thrust (Zweig-style): when % of eligible coins in uptrend
     jumps rapidly (10d rising avg of breadth crosses above 65% threshold),
@@ -1092,13 +1167,15 @@ BUILDERS = {
     "RANGE_EXPANSION":      sleeve_range_expansion,
     "AUTOCORR_REGIME":      sleeve_autocorr_regime,
     # --- Proprietary novel sleeves (v4) ---
-    "INV_VOL_BTC":          sleeve_inv_vol_btc,      # pure Moreira-Muir
-    "VOL_PERCENTILE":       sleeve_vol_percentile,   # percentile-based sizing
-    "BREADTH_THRUST":       sleeve_breadth_thrust,   # Zweig-style kickoff (OOS 0.82)
-    "SPY_ALPHA":            sleeve_spy_alpha,        # BTC beating SPY-adj hurdle
+    "INV_VOL_BTC":          sleeve_inv_vol_btc,
+    "VOL_PERCENTILE":       sleeve_vol_percentile,
+    "BREADTH_THRUST":       sleeve_breadth_thrust,
+    "SPY_ALPHA":            sleeve_spy_alpha,
     # Dropped:
-    #   DISPERSION_TIMED (OOS 0.31 — marginal alt-rotation)
-    #   SKEW_REGIME      (OOS 0.52 — net drag on ensemble)
+    #   DISPERSION_TIMED (OOS 0.31)
+    #   SKEW_REGIME      (OOS 0.52)
+    #   BROAD_XSMOM      (OOS -0.26, MDD -60% — picks alts before crashes)
+    #   QUINTILE_SPREAD  (OOS -0.58, MDD -67% — same failure mode)
 }
 # Tested and dropped for weak OOS contribution (all OOS SR < 0.50):
 #   BTC_KAMA  (0.15), ADX_TREND (0.15), EWMA_CROSS (0.35),

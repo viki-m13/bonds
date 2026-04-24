@@ -31,10 +31,11 @@ import sleeves as SV
 IS_END = "2022-06-30"
 OOS_START = "2022-07-01"
 
+# v5: weekly rebal, RP ensemble, curated 50-coin strategy + extended 111-coin
+# universe for breadth measurement only
 TARGET_VOL = 0.18
 DD_FLOOR = -0.12
-GROSS_CAP = 1.3        # cap on weekly position selection
-GROSS_CAP_DAILY = 1.5  # cap after daily vol scaling
+GROSS_CAP = 1.3
 TC_BPS = 20.0
 SMOOTH_SPAN = 7
 
@@ -43,9 +44,9 @@ def _master_gate(cp: pd.DataFrame) -> pd.Series:
     """Master risk-on multiplier ∈ [0, 1], SOFT version.
 
     Weighted vote over four risk-on conditions; each absent condition merely
-    reduces the multiplier instead of killing it. This preserves exposure
-    during borderline regimes where the hard binary gate would have zeroed
-    out and missed the subsequent recovery.
+    reduces the multiplier instead of killing it. Breadth computed against
+    ONLY the curated strategy universe (not the extended universe) so dead
+    coins in the extended set don't distort breadth.
     """
     elig = eligibility(cp, 150)
     ma100 = cp.rolling(100, min_periods=50).mean()
@@ -60,10 +61,8 @@ def _master_gate(cp: pd.DataFrame) -> pd.Series:
     btc_dd_ok = (btc_dd > -0.30).astype(float)
     btc_mom_ok = (btc.pct_change(63) > -0.08).astype(float)
 
-    # Weighted average of conditions (each 25%). Zero conditions → 0, all four → 1.
     gate = 0.25 * (breadth_ok + btc_above_200 + btc_dd_ok + btc_mom_ok)
     gate = gate.ewm(span=7, adjust=False).mean()
-    # Below 0.25 (only 1/4 conditions) force hard cash.
     gate = gate.where(gate > 0.25, 0.0)
     return gate.fillna(0.0)
 
@@ -99,34 +98,51 @@ def _adaptive_sharpe_weights(sleeve_rets: dict, window: int = 252,
     return w
 
 
-def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
-    """Two-clock framework:
-      * WEEKLY clock — which coins to hold and at what *relative* weight
-        (position selection, risk-parity sleeve blending, consensus scale).
-      * DAILY clock — how much exposure to run in aggregate (portfolio-level
-        vol target, drawdown floor, per-coin catastrophic-DD overlay).
+def _signal_stability(sleeves: dict, window: int = 14) -> pd.Series:
+    """Meta-regime: 'how much are the sleeve signals flipping?'
+    High instability = chop regime → reduce exposure. Returns [0, 1] score
+    where 1 = stable (low flipping) and 0 = very unstable."""
+    votes = []
+    for name, W in sleeves.items():
+        v = (W.sum(axis=1) > 1e-4).astype(float)
+        votes.append(v)
+    vote_df = pd.concat(votes, axis=1)
+    # How many sleeve-vote FLIPS per sleeve per day, averaged?
+    flips = vote_df.diff().abs().rolling(window, min_periods=7).mean().mean(axis=1)
+    # Normalise: <0.05 flips/sleeve = stable, >0.15 = unstable
+    stability = (1.0 - (flips / 0.15).clip(0, 1)).fillna(0.5)
+    return stability
 
-    This separation lets us respond fast to vol spikes without paying TC
-    for weekly churn on every coin.
+
+def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
+    """CONVICTION-CONCENTRATION framework (v5):
+      * Compute per-coin aggregated signal strength across all sleeves
+      * Measure CONVICTION = fraction of sleeves voting long × stability
+      * If conviction < LOW: 100% cash
+      * If conviction HIGH: concentrate in TOP_K coins with highest signal,
+        run full leverage
+      * Otherwise: proportional diversified RP allocation
+      * Weekly rebalance, daily catastrophic-DD overlay only
+
+    Philosophy: step aside during chop; swing hard when signals align.
     """
 
     # ============================================================
-    # WEEKLY CLOCK — relative position selection
+    # STEP 1 — per-sleeve vol-targeted weights
     # ============================================================
     sleeve_rets = {name: weights_to_ret(W.shift(1).fillna(0.0), cp, tc_bps=0.0)
                    for name, W in sleeves.items()}
-
-    # Vol-target each sleeve (equalises contribution)
     sw_adj = {}
     for name, W in sleeves.items():
         rv = sleeve_rets[name].rolling(60, min_periods=20).std() * np.sqrt(DPY)
         m = (0.18 / rv.replace(0, np.nan)).clip(lower=0.2, upper=1.5).shift(1).fillna(1.0)
         sw_adj[name] = W.mul(m, axis=0)
 
-    # Risk-parity sleeve blend (inverse realised vol)
+    # ============================================================
+    # STEP 2 — risk-parity blended aggregated signal
+    # ============================================================
     rp_w = _inverse_vol_sleeve_weights(sleeve_rets, window=90).shift(1).fillna(
         1.0 / len(sleeves))
-
     first = next(iter(sw_adj.values()))
     dir_W = pd.DataFrame(0.0, index=first.index, columns=first.columns)
     pair_W = pd.DataFrame(0.0, index=first.index, columns=first.columns)
@@ -139,67 +155,60 @@ def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
         else:
             dir_W = dir_W + Wc
 
-    # Consensus overlay on directional
-    conv = SV.consensus_signal(cp, sleeves).shift(1).fillna(0.0)
-    conv_scale = ((conv - 0.10).clip(lower=0.0) / 0.60).clip(upper=1.0)
-    dir_W = dir_W.mul(conv_scale, axis=0)
-
-    # Master gate on directional
+    # ============================================================
+    # STEP 3 — Consensus × master gate (stability gate tested but too lossy)
+    # ============================================================
+    conv_vote = SV.consensus_signal(cp, sleeves).shift(1).fillna(0.0)
     gate = _master_gate(cp).shift(1).fillna(0.0)
-    dir_W = dir_W.mul(gate, axis=0)
+    conv_scale = ((conv_vote - 0.10).clip(lower=0.0) / 0.60).clip(upper=1.0)
+    dir_W = dir_W.mul(conv_scale, axis=0).mul(gate, axis=0)
+    P = dir_W.add(pair_W, fill_value=0.0)
 
-    P_raw = dir_W.add(pair_W, fill_value=0.0)
-
-    # EMA-smooth to reduce high-frequency noise before weekly snap
-    P_raw = P_raw.ewm(span=SMOOTH_SPAN, adjust=False).mean()
-
-    # --- WEEKLY SNAP: positions held constant between Wednesdays ---
-    is_rebal = pd.Series(P_raw.index.dayofweek == 2, index=P_raw.index)
-    P_weekly = P_raw.where(is_rebal, other=np.nan).ffill().fillna(0.0)
-
-    # Gross cap on the weekly positions (before daily scalings).
-    gross_abs_w = P_weekly.abs().sum(axis=1)
-    scale_w = np.minimum(1.0, GROSS_CAP / gross_abs_w.replace(0, np.nan)).fillna(1.0)
-    P_weekly = P_weekly.mul(scale_w, axis=0)
+    # EMA smooth
+    P = P.ewm(span=SMOOTH_SPAN, adjust=False).mean()
 
     # ============================================================
-    # DAILY CLOCK — per-day risk scaling on held positions
+    # STEP 4 — WEEKLY SNAP (Wednesdays)
+    # ============================================================
+    is_rebal = pd.Series(P.index.dayofweek == 2, index=P.index)
+    P_weekly = P.where(is_rebal, other=np.nan).ffill().fillna(0.0)
+
+    gs = P_weekly.abs().sum(axis=1)
+    fs = np.minimum(1.0, GROSS_CAP / gs.replace(0, np.nan)).fillna(1.0)
+    P_weekly = P_weekly.mul(fs, axis=0)
+
+    # ============================================================
+    # STEP 5 — DAILY VOL TARGET + DAILY SAFETY OVERLAYS
     # ============================================================
     rets = safe_returns(cp, cap=0.22)
 
-    # Raw portfolio return from weekly positions (used to estimate vol)
     raw_r = (P_weekly.shift(1).fillna(0.0) * rets.reindex_like(P_weekly).fillna(0.0)
              ).sum(axis=1)
 
-    # DAILY vol targeting with asymmetric clip:
-    #   * upper cap 1.5 allows modest leverage on vol dips
-    #   * lower cap 0.3 = aggressive de-risking on vol spikes
-    # EWMA(60) is smooth (vs rolling window) to avoid single-day whipsaw
-    # while still being daily-updated.
+    # DAILY vol targeting — EWMA(60) updated every day, asymmetric clip
     rv_d = raw_r.ewm(span=60, adjust=False).std() * np.sqrt(DPY)
     vm = (TARGET_VOL / rv_d.replace(0, np.nan)).clip(lower=0.3, upper=1.5)
     vm = vm.shift(1).fillna(1.0)
 
-    # DAILY DD-floor — recomputed every day on realised equity curve
+    # Daily strategy-level DD floor
     c = (1 + raw_r).cumprod()
     hwm = c.rolling(365, min_periods=30).max()
     dd = c / hwm - 1
     dd_mult = (1 + dd / DD_FLOOR).clip(0, 1).shift(1).fillna(1.0)
 
-    # DAILY per-coin catastrophic-DD overlay
+    # Daily per-coin catastrophic-DD overlay
     elig_nocrash = eligibility(cp, min_history=1, catastrophe_dd=-0.28,
                                 dd_window=60).shift(1).fillna(0.0).reindex_like(P_weekly)
 
-    # Combine: weekly position × daily scalings
     W_eff = P_weekly.mul(vm * dd_mult, axis=0) * elig_nocrash
 
-    # Gross re-cap after daily scalings (in case vol-target leverage pushes over)
+    # Gross re-cap after vol target leverage
     gs = W_eff.abs().sum(axis=1)
-    fs = np.minimum(1.0, GROSS_CAP_DAILY / gs.replace(0, np.nan)).fillna(1.0)
+    fs = np.minimum(1.0, 1.8 / gs.replace(0, np.nan)).fillna(1.0)
     W_eff = W_eff.mul(fs, axis=0)
 
     # ============================================================
-    # RETURNS + TC
+    # STEP 6 — RETURNS + TC
     # ============================================================
     W_held = W_eff.shift(1).fillna(0.0)
     gross_ret = (W_held * rets.reindex_like(W_held).fillna(0.0)).sum(axis=1)
