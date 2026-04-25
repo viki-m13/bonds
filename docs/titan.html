@@ -196,6 +196,52 @@ After v1 → v8 (each commit on the feature branch is preserved), CRYPTO-TITAN r
 </div>
 </div>
 
+<!-- ALLOCATIONS — CURRENT -->
+<div class="section">
+<div class="section-title">Current week allocation</div>
+<div class="card">
+<div id="currentAllocBox" style="font-size:0.85rem;line-height:1.7"></div>
+<div style="margin-top:8px;font-size:0.74rem;color:var(--t3)">
+<strong>Important:</strong> despite the universe of 50 coins, the strategy in practice ONLY ever allocates to <strong>BTC and/or ETH</strong>. Other coins (SOL, ADA, XRP, etc.) and the 15 dead coins (LUNA1, FTT, USTC, etc.) are in the universe to stress-test survivorship-bias robustness — they are never bought. The 21 sleeves are designed around BTC/ETH; alt sleeves (ALT_XSMOM, ALT_DIVERS) were tested and dropped because alt selection on daily bars introduces noise without alpha (and blew up on dead-coin crashes).
+</div>
+</div>
+</div>
+
+<!-- ALLOCATIONS — RECENT 12 WEEKS -->
+<div class="section">
+<div class="section-title">Recent 12 weekly snapshots</div>
+<div class="card" style="overflow-x:auto"><table id="recentSnapshotsTable"></table></div>
+</div>
+
+<!-- EXPOSURE HISTORY CHART -->
+<div class="section">
+<div class="section-title">Historical exposure (BTC + ETH stack, 2014-2026)</div>
+<div class="card">
+<div class="chart-wrap chart-sm"><canvas id="exposureChart"></canvas></div>
+<div style="margin-top:6px;font-size:0.72rem;color:var(--t3)">
+Stacked weekly exposure to BTC and ETH. The whitespace gaps are CASH periods where the master gate or self-stop fired (notably most of 2018, all of 2022 winter, and large parts of 2025). Above 1.0 = leveraged exposure (1× to 3.2× via Hyperliquid perps / OKX leveraged tokens).
+</div>
+</div>
+</div>
+
+<!-- COIN FREQUENCY TABLE -->
+<div class="section">
+<div class="section-title">Coin holding frequency (entire backtest)</div>
+<div class="g2">
+<div class="card">
+<h3>Coins ever allocated to</h3>
+<table id="coinFreqTable"></table>
+</div>
+<div class="card">
+<h3>Position count distribution</h3>
+<table id="posCountTable"></table>
+<div style="margin-top:8px;font-size:0.74rem;color:var(--t3)">
+The strategy holds <strong>at most 2 positions</strong> simultaneously (BTC + ETH). Median day in-market: 1 position. The high cash percentage reflects the strict master gate that pulls everything to zero in confirmed bear regimes (2018, 2022) and chop (much of 2025).
+</div>
+</div>
+</div>
+</div>
+
 <!-- IS / OOS -->
 <div class="section">
 <div class="section-title">In-sample vs Out-of-sample</div>
@@ -404,6 +450,116 @@ function fillBiasTable() {
     "</tbody>";
 }
 
+function fillCurrentAlloc(d) {
+  const cur = d.current_positions || [];
+  const lastDate = d.last_active_date;
+  const lastPos = d.last_active_positions || [];
+  let html = "";
+  if (cur.length === 0) {
+    html += `<p style="color:var(--t3)"><strong>Strategy is currently in CASH</strong> (master gate or self-stop is active — typically during chop or confirmed bear regimes).</p>`;
+    if (lastDate && lastPos.length) {
+      html += `<p style="margin-top:8px"><strong>Most recent active allocation:</strong> ${lastDate}</p>`;
+      html += `<table style="margin-top:6px"><thead><tr><th>Coin</th><th>Weight</th></tr></thead><tbody>`;
+      for (const p of lastPos) {
+        html += `<tr><td>${p.coin}</td><td class="${SGN(p.weight)}">${PCT(p.weight, 2)}</td></tr>`;
+      }
+      const gross = lastPos.reduce((a, b) => a + Math.abs(b.weight), 0);
+      html += `<tr style="background:var(--card2);font-weight:600"><td>GROSS</td><td>${PCT(gross, 2)}</td></tr>`;
+      html += `</tbody></table>`;
+    }
+  } else {
+    html += `<p><strong>Current target weights (as of ${d.as_of}):</strong></p>`;
+    html += `<table style="margin-top:6px"><thead><tr><th>Coin</th><th>Weight</th></tr></thead><tbody>`;
+    for (const p of cur) {
+      html += `<tr><td>${p.coin}</td><td class="${SGN(p.weight)}">${PCT(p.weight, 2)}</td></tr>`;
+    }
+    const gross = cur.reduce((a, b) => a + Math.abs(b.weight), 0);
+    html += `<tr style="background:var(--card2);font-weight:600"><td>GROSS</td><td>${PCT(gross, 2)}</td></tr>`;
+    html += `</tbody></table>`;
+  }
+  document.getElementById("currentAllocBox").innerHTML = html;
+}
+
+function fillRecentSnapshots(snaps) {
+  if (!snaps || !snaps.length) return;
+  const html =
+    "<thead><tr><th>Date (Wed)</th><th>Gross</th><th># Pos</th><th>Positions</th></tr></thead><tbody>" +
+    snaps.slice().reverse().map(s => {
+      const posStr = s.positions.length === 0
+        ? '<span style="color:var(--t3)">cash</span>'
+        : s.positions.map(p => `<strong>${p.coin}</strong> ${PCT(p.weight, 1)}`).join(", ");
+      return `<tr><td>${s.date}</td>` +
+        `<td>${PCT(s.gross, 1)}</td>` +
+        `<td>${s.n_positions}</td>` +
+        `<td style="text-align:left;font-size:0.78rem">${posStr}</td></tr>`;
+    }).join("") + "</tbody>";
+  document.getElementById("recentSnapshotsTable").innerHTML = html;
+}
+
+function fillCoinFreq(rows) {
+  if (!rows) return;
+  document.getElementById("coinFreqTable").innerHTML =
+    "<thead><tr><th>Coin</th><th>Days held</th><th>% days</th><th>Avg weight when held</th></tr></thead>" +
+    "<tbody>" + rows.map(r =>
+      `<tr><td><strong>${r.coin}</strong></td>` +
+      `<td>${r.days_held.toLocaleString()}</td>` +
+      `<td>${r.pct_of_days.toFixed(1)}%</td>` +
+      `<td>${PCT(r.avg_weight_when_held, 1)}</td></tr>`
+    ).join("") + "</tbody>";
+}
+
+function fillPosCountDist(d) {
+  if (!d) return;
+  const total = d.cash + d.one + d.two + (d["three+"] || 0);
+  const rows = [
+    ["Cash (0 positions)", d.cash],
+    ["1 position", d.one],
+    ["2 positions", d.two],
+    ["3+ positions", d["three+"] || 0],
+  ];
+  document.getElementById("posCountTable").innerHTML =
+    "<thead><tr><th>State</th><th>Days</th><th>% of total</th></tr></thead>" +
+    "<tbody>" + rows.map(([l, v]) =>
+      `<tr><td>${l}</td><td>${v.toLocaleString()}</td><td>${(v/total*100).toFixed(1)}%</td></tr>`
+    ).join("") + "</tbody>";
+}
+
+function drawExposureChart(eh) {
+  if (!eh || !eh.dates.length) return;
+  new Chart(document.getElementById("exposureChart"), {
+    type: "line",
+    data: {
+      labels: eh.dates,
+      datasets: [
+        {
+          label: "BTC",
+          data: eh.btc.map(v => v * 100),
+          borderColor: "#f7931a", backgroundColor: "rgba(247,147,26,0.6)",
+          borderWidth: 1, pointRadius: 0, fill: "origin", tension: 0.0
+        },
+        {
+          label: "ETH",
+          data: eh.eth.map(v => v * 100),
+          borderColor: "#627eea", backgroundColor: "rgba(98,126,234,0.6)",
+          borderWidth: 1, pointRadius: 0, fill: "-1", tension: 0.0
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, labels: { font: {size: 10} } },
+        tooltip: { mode: "index" }
+      },
+      scales: {
+        x: { type: "time", time: { unit: "year" }, ticks: { maxTicksLimit: 12, font: {size: 10} } },
+        y: { stacked: true, ticks: { callback: v => v.toFixed(0) + "%", font: {size: 10} },
+             title: { display: true, text: "Weight (%)", font: {size: 10} } }
+      }
+    }
+  });
+}
+
 function fillIterations(its) {
   document.getElementById("iterTable").innerHTML =
     "<thead><tr><th>Version</th><th>Full SR</th><th>OOS SR</th><th>CAGR</th><th>Note</th></tr></thead>" +
@@ -505,7 +661,12 @@ fetch("titan_data.json")
     fillSleeveTable(d.sleeve_metrics);
     fillBiasTable();
     fillIterations(d.iterations);
+    fillCurrentAlloc(d);
+    fillRecentSnapshots(d.recent_snapshots);
+    fillCoinFreq(d.coin_frequency);
+    fillPosCountDist(d.position_count_dist);
     drawCharts();
+    drawExposureChart(d.exposure_history);
   })
   .catch(e => {
     console.error("titan_data.json load failed:", e);
