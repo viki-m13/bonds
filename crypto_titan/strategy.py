@@ -31,12 +31,17 @@ import sleeves as SV
 IS_END = "2022-06-30"
 OOS_START = "2022-07-01"
 
-# v5: weekly rebal, RP ensemble, curated 50-coin strategy + extended 111-coin
-# universe for breadth measurement only
+# v6: long+short on Hyperliquid/OKX inverse perps. Full 111-coin universe
+# (no cherry-picking — dead coins are alpha source for shorts).
 TARGET_VOL = 0.18
 DD_FLOOR = -0.12
-GROSS_CAP = 1.3
-TC_BPS = 20.0
+GROSS_CAP = 1.5
+TC_BPS = 20.0          # spot longs round-trip
+TC_BPS_SHORT = 30.0    # perp shorts round-trip (slightly higher fees)
+# Hyperliquid/OKX BTC perp funding rates (avg historical ~ ±0.01% per 8h).
+# Annualised: ~11%. Daily: ~0.03% = 3 bps/day.
+FUNDING_BULL_BPS_DAY = 3.0     # short PAYS this in long-heavy market
+FUNDING_BEAR_BPS_DAY = -3.0    # short RECEIVES this in bear regime
 SMOOTH_SPAN = 7
 
 
@@ -211,11 +216,18 @@ def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
     self_stop_held = self_stop_active.rolling(21, min_periods=1).max()
     self_stop_mult = (1.0 - 0.5 * self_stop_held).shift(1).fillna(1.0)
 
-    # Daily per-coin catastrophic-DD overlay
+    # SIGN-AWARE catastrophic-DD overlay — protects LONGS from coin crashes
+    # (LUNA, FTT) but ALLOWS SHORTS to ride the crash down. This is the
+    # central asymmetry that makes long+short on a wide universe profitable.
+    elig_live = eligibility(cp, min_history=1, catastrophe_dd=-0.99,
+                            dd_window=60).shift(1).fillna(0.0).reindex_like(P_weekly)
     elig_nocrash = eligibility(cp, min_history=1, catastrophe_dd=-0.28,
                                 dd_window=60).shift(1).fillna(0.0).reindex_like(P_weekly)
+    long_mask = (P_weekly > 0).astype(float)
+    short_mask = (P_weekly < 0).astype(float)
+    sign_aware = (long_mask * elig_nocrash) + (short_mask * elig_live)
 
-    W_eff = P_weekly.mul(vm * dd_mult * self_stop_mult, axis=0) * elig_nocrash
+    W_eff = P_weekly.mul(vm * dd_mult * self_stop_mult, axis=0) * sign_aware
 
     # Gross re-cap after vol target leverage
     gs = W_eff.abs().sum(axis=1)
@@ -223,13 +235,29 @@ def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
     W_eff = W_eff.mul(fs, axis=0)
 
     # ============================================================
-    # STEP 6 — RETURNS + TC
+    # STEP 6 — RETURNS + TC + PERP FUNDING COST
     # ============================================================
     W_held = W_eff.shift(1).fillna(0.0)
     gross_ret = (W_held * rets.reindex_like(W_held).fillna(0.0)).sum(axis=1)
-    dw = W_eff.diff().abs().fillna(W_eff.abs())
-    drag = dw.sum(axis=1) * TC_BPS / 1e4
-    return gross_ret - drag, W_eff
+
+    # Sign-aware TC: shorts cost a bit more on perps than spot longs
+    long_turn = W_eff.where(W_eff > 0, 0.0).diff().abs().fillna(0.0)
+    short_turn = W_eff.where(W_eff < 0, 0.0).diff().abs().fillna(0.0)
+    long_drag = long_turn.sum(axis=1) * TC_BPS / 1e4
+    short_drag = short_turn.sum(axis=1) * TC_BPS_SHORT / 1e4
+
+    # PERP FUNDING — shorts PAY when long-heavy market (BTC trending up),
+    # RECEIVE when short-heavy (BTC trending down). Magnitudes calibrated
+    # to typical Hyperliquid/OKX funding (~10%/yr each side).
+    btc_r63 = cp["BTC"].pct_change(63).fillna(0.0)
+    funding_per_day = pd.Series(
+        np.where(btc_r63 > 0, FUNDING_BULL_BPS_DAY, FUNDING_BEAR_BPS_DAY),
+        index=cp.index) / 1e4
+    short_notional = (-W_held.where(W_held < 0, 0.0)).sum(axis=1)
+    funding_drag = short_notional * funding_per_day
+
+    net_ret = gross_ret - long_drag - short_drag - funding_drag
+    return net_ret, W_eff
 
 
 def main():
@@ -272,19 +300,33 @@ def main():
               f"MDD={m_full['mdd']*100:>6.1f}%")
 
     print("\n=== SURVIVORSHIP BIAS ANALYSIS ===")
+    # Survivors-only test (classical survivorship-biased backtest)
     cp_surv = load_prices(coins=SURVIVORS)
     macro_surv = load_macro(cp_surv.index)
     sw_surv = SV.build_all(cp_surv, macro_surv)
     net_surv, _ = build_portfolio(cp_surv, sw_surv)
     net_surv = net_surv.fillna(0.0)
+
+    # FULL 111-coin universe test (no cherry-picking — all dead coins in)
+    from util import EXTENDED_UNIVERSE
+    cp_ext = load_prices(coins=EXTENDED_UNIVERSE)
+    macro_ext = load_macro(cp_ext.index)
+    sw_ext = SV.build_all(cp_ext, macro_ext)
+    net_ext, _ = build_portfolio(cp_ext, sw_ext)
+    net_ext = net_ext.fillna(0.0)
+    m_ext = metrics(net_ext)
+    m_ext_oos = metrics(regime_slice(net_ext, OOS_START, "2027-12-31"))
     m_full = metrics(net)
     m_surv = metrics(net_surv)
-    print(f"  FULL (survivors+dead):   SR={m_full['sharpe']:.2f}  "
+    print(f"  STRATEGY (50: survivors+dead):     SR={m_full['sharpe']:.2f}  "
           f"CAGR={m_full['cagr']*100:.1f}%  MDD={m_full['mdd']*100:.1f}%")
-    print(f"  SURVIVORS-only (biased): SR={m_surv['sharpe']:.2f}  "
+    print(f"  SURVIVORS-only (biased, n=35):     SR={m_surv['sharpe']:.2f}  "
           f"CAGR={m_surv['cagr']*100:.1f}%  MDD={m_surv['mdd']*100:.1f}%")
-    print(f"  Bias impact:  ΔSR={m_surv['sharpe']-m_full['sharpe']:+.2f}  "
-          f"ΔCAGR={(m_surv['cagr']-m_full['cagr'])*100:+.1f}%")
+    print(f"  EXTENDED (111: all dead included): SR={m_ext['sharpe']:.2f}  "
+          f"CAGR={m_ext['cagr']*100:.1f}%  MDD={m_ext['mdd']*100:.1f}%")
+    print(f"  Bias delta (survivors - strategy):    ΔSR={m_surv['sharpe']-m_full['sharpe']:+.2f}")
+    print(f"  Robustness (extended - strategy):     ΔSR={m_ext['sharpe']-m_full['sharpe']:+.2f}  "
+          f"OOS ΔSR={m_ext_oos['sharpe']-metrics(regime_slice(net,OOS_START,'2027-12-31'))['sharpe']:+.2f}")
 
     print("\n=== BENCHMARKS ===")
     btc_r = cp["BTC"].pct_change().clip(-0.25, 0.25).fillna(0.0)

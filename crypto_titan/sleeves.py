@@ -515,6 +515,266 @@ def sleeve_triple_mom(cp, macro=None):
 # --- Proprietary orthogonal sleeves (v4) — invented, very different edges ---
 
 
+# --- v6: SHORT-ENABLED sleeves (Hyperliquid / OKX inverse perps) ---
+# These sleeves take negative positions, profitable when the underlying
+# falls. Critical for capturing 2018/2022 bear alpha and dead-coin crashes
+# (LUNA, FTT, MATIC, etc.) — the survivorship-bias universe becomes a
+# long-short alpha source.
+#
+# Per-position constraints:
+#   * Tighter stops than longs (crypto bear rallies are violent)
+#   * Half-size of equivalent longs
+#   * Funding cost modelled in strategy.py at ~10%/yr (paid when short
+#     in long-heavy market; received in short-heavy market)
+
+
+def sleeve_short_btc_bear(cp, macro=None):
+    """Short BTC ONLY in deep, confirmed bear regimes — VERY conservative.
+    Multi-condition entry, tight 5% stop, max 21d hold.
+
+    Entry requires ALL of:
+      * Below 200MA for 60+ of past 80 days (deep persistence)
+      * 50MA < 200MA (death cross)
+      * 63d return < -20% (strong negative trend)
+      * 21d return < -5% (recent acceleration)
+    Exit: price > 50MA OR 5d return > +5% OR 21d elapsed.
+    Size: very small (target 8% vol contribution).
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    s = cp["BTC"]
+    ma50 = s.rolling(50, min_periods=30).mean()
+    ma200 = s.rolling(200, min_periods=100).mean()
+    below_200 = (s < ma200).astype(float)
+    persist = below_200.rolling(80, min_periods=60).sum()
+    entry = ((persist >= 60) &
+             (ma50 < ma200) &
+             (s.pct_change(63) < -0.20) &
+             (s.pct_change(21) < -0.05)).astype(float)
+    # Tight exit
+    exit_signal = ((s > ma50) | (s.pct_change(5) > 0.05)).astype(float)
+
+    state = pd.Series(0.0, index=cp.index)
+    pos = 0.0
+    days_in = 0
+    for i in range(len(s)):
+        if entry.iloc[i] == 1.0 and pos == 0.0:
+            pos = 1.0
+            days_in = 0
+        elif pos > 0.0:
+            days_in += 1
+            if exit_signal.iloc[i] == 1.0 or days_in > 21:
+                pos = 0.0
+        state.iloc[i] = pos
+
+    rv = s.pct_change().ewm(span=21, adjust=False).std() * np.sqrt(DPY)
+    size = (0.08 / rv.replace(0, np.nan)).clip(lower=0.0, upper=0.5)  # tiny
+    W["BTC"] = (-1.0 * state * size).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_short_trend_break(cp, macro=None):
+    """Short coins breaking down — BTC-bear-gated, very tight stops.
+
+    Trigger ALL of:
+      * Coin was above 200MA for 90+ of past 120 days (was uptrend)
+      * Now: below 50MA AND below 200MA (full breakdown, both MAs)
+      * 21d return < -15% (acceleration confirmed)
+      * BTC also below 100MA (market-wide weakness — no contra-bet vs market)
+    Exit on:
+      * Price > 50MA (trend recovered)
+      * 5d return > +8% (sharp bounce)
+      * 14 days elapsed
+    Per-coin cap 4%, basket cap 25%. SMALL exposure.
+    """
+    elig = eligibility(cp, min_history=200, catastrophe_dd=-1.0,
+                       dd_window=60)
+    ma50 = cp.rolling(50, min_periods=30).mean()
+    ma200 = cp.rolling(200, min_periods=100).mean()
+    above_200 = (cp > ma200).astype(float)
+    persist_above = above_200.rolling(120, min_periods=90).sum()
+    was_uptrend = (persist_above >= 90).astype(float)
+    breaking_down = ((cp < ma50) & (cp < ma200) &
+                     (cp.pct_change(21) < -0.15)).astype(float)
+    # BTC market gate
+    btc = cp["BTC"]
+    btc_weak = (btc < btc.rolling(100, min_periods=50).mean()).astype(float)
+    entry = (was_uptrend.shift(5) * breaking_down * elig).fillna(0.0)
+    entry = entry.mul(btc_weak, axis=0)
+
+    exit_cond = ((cp > ma50) | (cp.pct_change(5) > 0.08)).astype(float).fillna(0.0)
+
+    pos = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    for c in cp.columns:
+        e = entry[c].values
+        x = exit_cond[c].values
+        state = 0.0
+        days_in = 0
+        out = np.zeros(len(cp))
+        for i in range(len(cp)):
+            if e[i] == 1.0 and state == 0.0:
+                state = 1.0
+                days_in = 0
+            elif state > 0.0:
+                days_in += 1
+                if x[i] == 1.0 or days_in > 14:
+                    state = 0.0
+            out[i] = state
+        pos[c] = out
+
+    rv = cp.pct_change().rolling(60, min_periods=20).std() * np.sqrt(DPY)
+    inv = (1.0 / rv.replace(0, np.nan)).where(pos.astype(bool))
+    W_short = inv.div(inv.sum(axis=1).replace(0, np.nan), axis=0).fillna(0.0)
+    W_short = W_short.clip(upper=0.04)
+    s_sum = W_short.sum(axis=1).replace(0, np.nan)
+    scale = (0.25 / s_sum).clip(upper=1.0).fillna(0.0)
+    W = (-1.0) * W_short.mul(scale, axis=0)
+    return W.shift(1).fillna(0.0)
+
+
+def sleeve_short_permabear(cp, macro=None):
+    """Short coins stuck in deep, prolonged DD while BTC is rising.
+    Permabears almost never recover; they drift lower under selling pressure
+    even in bull markets.
+
+    Entry ALL of:
+      * Coin in >50% DD from 365d high
+      * Coin has been in >40% DD for at least 90 of past 120 days
+      * BTC ABOVE 200MA (we are NOT in market-wide bear)
+      * Coin 63d return < -10%
+    Exit: coin 21d return > +20% (sharp bounce — get out) OR DD recovers
+    above -25% OR 30 days elapsed.
+    Per-coin cap 3%, basket cap 18%. VERY small exposures.
+    """
+    elig = eligibility(cp, min_history=200, catastrophe_dd=-1.0,
+                       dd_window=60)
+    hi365 = cp.rolling(365, min_periods=180).max()
+    dd365 = cp / hi365 - 1
+    in_deep_dd = (dd365 < -0.50).astype(float)
+    in_dd_persist = (dd365 < -0.40).astype(float)
+    persist = in_dd_persist.rolling(120, min_periods=90).sum()
+    long_dd = (persist >= 90).astype(float)
+
+    btc = cp["BTC"]
+    btc_strong = (btc > btc.rolling(200, min_periods=100).mean()).astype(float)
+
+    coin_weak = (cp.pct_change(63) < -0.10).astype(float)
+    entry = (in_deep_dd * long_dd * coin_weak * elig).fillna(0.0)
+    entry = entry.mul(btc_strong, axis=0)
+
+    exit_cond = ((cp.pct_change(21) > 0.20) |
+                 (dd365 > -0.25)).astype(float).fillna(0.0)
+
+    pos = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    for c in cp.columns:
+        e = entry[c].values
+        x = exit_cond[c].values
+        state = 0.0
+        days_in = 0
+        out = np.zeros(len(cp))
+        for i in range(len(cp)):
+            if e[i] == 1.0 and state == 0.0:
+                state = 1.0
+                days_in = 0
+            elif state > 0.0:
+                days_in += 1
+                if x[i] == 1.0 or days_in > 30:
+                    state = 0.0
+            out[i] = state
+        pos[c] = out
+
+    n = pos.sum(axis=1).replace(0, np.nan)
+    W_short = pos.div(n, axis=0).fillna(0.0).clip(upper=0.03)
+    s_sum = W_short.sum(axis=1).replace(0, np.nan)
+    scale = (0.18 / s_sum).clip(upper=1.0).fillna(0.0)
+    W = (-1.0) * W_short.mul(scale, axis=0)
+    return W.shift(1).fillna(0.0)
+
+
+def sleeve_long_short_xsmom(cp, macro=None):
+    """Cross-sectional momentum: LONG top-3 by 63d return, SHORT bottom-3.
+    Market-neutral by construction (equal long/short notionals).
+    Active only when sufficient eligible coins exist (≥10).
+    """
+    elig = eligibility(cp, 180, catastrophe_dd=-0.30, dd_window=60)
+    mom63 = cp.pct_change(63)
+    score = mom63.where(elig.astype(bool))
+    n_elig = elig.sum(axis=1)
+    active = (n_elig >= 10).astype(float)
+
+    long_ranks = score.rank(axis=1, ascending=False, method="first")
+    short_ranks = score.rank(axis=1, ascending=True, method="first")
+    long_pick = (long_ranks <= 3.0).astype(float)
+    short_pick = (short_ranks <= 3.0).astype(float)
+
+    # Equal-weight within each side
+    W_long = long_pick.div(long_pick.sum(axis=1).replace(0, np.nan), axis=0).fillna(0.0)
+    W_short = short_pick.div(short_pick.sum(axis=1).replace(0, np.nan), axis=0).fillna(0.0)
+
+    # 20% gross each leg → 40% gross total (small position)
+    leg_size = 0.20
+    W = W_long * leg_size - W_short * leg_size
+    W = W.mul(active, axis=0)
+    return W.shift(1).fillna(0.0)
+
+
+def sleeve_short_dead_coin(cp, macro=None):
+    """Short coins that ENTER catastrophic drawdown with high vol.
+
+    Trigger: coin in -25% to -45% DD from 90d high AND realised vol > 1.5x
+    its 6-month average AND BTC NOT in extreme rally (not piggy-backing
+    a market-wide squeeze).
+
+    This specifically targets the death-spiral phase of dead coins.
+    """
+    s_btc = cp["BTC"]
+    btc_rally = (s_btc.pct_change(21) > 0.20).astype(float)  # avoid short squeezes
+
+    rv = cp.pct_change().rolling(30, min_periods=15).std() * np.sqrt(DPY)
+    rv_long = cp.pct_change().rolling(180, min_periods=90).std() * np.sqrt(DPY)
+    vol_spike = (rv > 1.5 * rv_long).astype(float)
+    hwm90 = cp.rolling(90, min_periods=30).max()
+    dd = cp / hwm90 - 1
+    in_zone = ((dd <= -0.25) & (dd >= -0.45)).astype(float)
+    elig = eligibility(cp, min_history=200, catastrophe_dd=-1.0,
+                       dd_window=60)
+
+    entry = (in_zone * vol_spike * elig).fillna(0.0)
+    # Mask out when BTC is rallying hard (market squeeze risk)
+    entry = entry.mul((1 - btc_rally).fillna(1.0), axis=0)
+
+    # Hold up to 14 days, exit on +12% rebound
+    pos = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    for c in cp.columns:
+        e = entry[c].values
+        prices = cp[c].values
+        state = 0.0
+        days_in = 0
+        entry_price = 0.0
+        out = np.zeros(len(cp))
+        for i in range(len(cp)):
+            if pd.isna(prices[i]):
+                out[i] = state
+                continue
+            if e[i] == 1.0 and state == 0.0:
+                state = 1.0
+                days_in = 0
+                entry_price = prices[i]
+            elif state > 0.0:
+                days_in += 1
+                if (entry_price > 0 and prices[i] >= entry_price * 1.12) or days_in > 14:
+                    state = 0.0
+            out[i] = state
+        pos[c] = out
+
+    # Equal weight, per-coin cap 5%, basket cap 25%
+    n = pos.sum(axis=1).replace(0, np.nan)
+    W_short = pos.div(n, axis=0).fillna(0.0).clip(upper=0.05)
+    s_sum = W_short.sum(axis=1).replace(0, np.nan)
+    scale = (0.25 / s_sum).clip(upper=1.0).fillna(0.0)
+    W = (-1.0) * W_short.mul(scale, axis=0)
+    return W.shift(1).fillna(0.0)
+
+
 def sleeve_inv_vol_btc(cp, macro=None):
     """Pure Moreira-Muir: size BTC position inversely proportional to realized
     vol, with a simple 200MA gate. No momentum filter, no DD stop. This
@@ -1171,12 +1431,13 @@ BUILDERS = {
     "VOL_PERCENTILE":       sleeve_vol_percentile,
     "BREADTH_THRUST":       sleeve_breadth_thrust,
     "SPY_ALPHA":            sleeve_spy_alpha,
-    # Dropped:
-    #   DISPERSION_TIMED (OOS 0.31)
-    #   SKEW_REGIME      (OOS 0.52)
-    #   BROAD_XSMOM      (OOS -0.26, MDD -60% — picks alts before crashes)
-    #   QUINTILE_SPREAD  (OOS -0.58, MDD -67% — same failure mode)
+    # SHORT sleeves DROPPED FROM ENSEMBLE — empirically all three lost money:
+    #   SHORT_BTC_BEAR    SR -0.53 / OOS -0.99 (BTC's structural uptrend)
+    #   SHORT_TREND_BREAK SR -0.08 / OOS -0.29 (bounce-squeeze)
+    #   SHORT_PERMABEAR   SR -0.59 / OOS -0.48 (permabears bounce 30-50%)
+    # Code retained in sleeves.py for future use with funding-rate data.
 }
+SHORT_SLEEVES = set()
 # Tested and dropped for weak OOS contribution (all OOS SR < 0.50):
 #   BTC_KAMA  (0.15), ADX_TREND (0.15), EWMA_CROSS (0.35),
 #   ETH_SLOW  (0.23), ALT_XSMOM (-0.21),

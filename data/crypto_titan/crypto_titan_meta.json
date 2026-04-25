@@ -2,7 +2,7 @@
   "version": "crypto_titan_v1",
   "target_vol": 0.18,
   "dd_floor": -0.12,
-  "gross_cap": 1.3,
+  "gross_cap": 1.5,
   "tc_bps": 20.0,
   "smooth_span": 7,
   "sleeves": [
