@@ -31,18 +31,27 @@ import sleeves as SV
 IS_END = "2022-06-30"
 OOS_START = "2022-07-01"
 
-# v6: long+short on Hyperliquid/OKX inverse perps. Full 111-coin universe
-# (no cherry-picking — dead coins are alpha source for shorts).
-TARGET_VOL = 0.18
-DD_FLOOR = -0.12
+# v7: leveraged ensemble for CAGR 50%+ via Hyperliquid perps / OKX
+# leveraged tokens. Conviction-scaled: 1× exposure baseline, up to 3×
+# when MTF Fractal + Convex Breakout both fire (rare high-edge windows).
+TARGET_VOL = 0.20
+DD_FLOOR = -0.18
 GROSS_CAP = 1.5
 TC_BPS = 20.0          # spot longs round-trip
-TC_BPS_SHORT = 30.0    # perp shorts round-trip (slightly higher fees)
-# Hyperliquid/OKX BTC perp funding rates (avg historical ~ ±0.01% per 8h).
-# Annualised: ~11%. Daily: ~0.03% = 3 bps/day.
-FUNDING_BULL_BPS_DAY = 3.0     # short PAYS this in long-heavy market
-FUNDING_BEAR_BPS_DAY = -3.0    # short RECEIVES this in bear regime
+TC_BPS_SHORT = 30.0    # perp shorts round-trip
+# Funding rate model — leveraged longs PAY funding on the lever portion
+# (typical Hyperliquid/OKX BTC perp ~5-15%/yr avg in bull, less in bear).
+# Daily on the LEVERAGED EXTRA notional (= max(0, gross - 1.0)):
+LEVERAGE_FUNDING_BPS_DAY = 4.0   # 4 bps/day ≈ 15%/yr on lever portion
+FUNDING_BULL_BPS_DAY = 3.0
+FUNDING_BEAR_BPS_DAY = -3.0
 SMOOTH_SPAN = 7
+
+# v7 LEVERAGE — conviction-scaled
+BASE_LEVERAGE = 1.0       # default 1× (no leverage)
+MAX_LEVERAGE = 3.0        # max 3× when conviction is at peak
+LEVER_RAMP_LOW = 0.40     # below this conviction → 1× only
+LEVER_RAMP_HIGH = 0.85    # at/above this → MAX_LEVERAGE
 
 
 def _master_gate(cp: pd.DataFrame) -> pd.Series:
@@ -229,9 +238,21 @@ def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
 
     W_eff = P_weekly.mul(vm * dd_mult * self_stop_mult, axis=0) * sign_aware
 
-    # Gross re-cap after vol target leverage
+    # ============================================================
+    # CONVICTION-SCALED LEVERAGE (v7) — Hyperliquid perps / OKX
+    # ============================================================
+    # Use the conv_vote (sleeve agreement) as the conviction proxy.
+    # Below 0.40: 1× (no leverage). 0.40 → 0.85: ramp linearly. ≥0.85: 3×.
+    lever_curve = ((conv_vote - LEVER_RAMP_LOW) /
+                    (LEVER_RAMP_HIGH - LEVER_RAMP_LOW)).clip(0, 1)
+    leverage = (BASE_LEVERAGE +
+                 (MAX_LEVERAGE - BASE_LEVERAGE) * lever_curve).shift(1).fillna(1.0)
+    # Apply leverage as a multiplier on W_eff
+    W_eff = W_eff.mul(leverage, axis=0)
+
+    # Final gross cap (allow up to MAX_LEVERAGE on the day-of-rebalance)
     gs = W_eff.abs().sum(axis=1)
-    fs = np.minimum(1.0, 1.8 / gs.replace(0, np.nan)).fillna(1.0)
+    fs = np.minimum(1.0, MAX_LEVERAGE / gs.replace(0, np.nan)).fillna(1.0)
     W_eff = W_eff.mul(fs, axis=0)
 
     # ============================================================
@@ -246,17 +267,22 @@ def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
     long_drag = long_turn.sum(axis=1) * TC_BPS / 1e4
     short_drag = short_turn.sum(axis=1) * TC_BPS_SHORT / 1e4
 
-    # PERP FUNDING — shorts PAY when long-heavy market (BTC trending up),
-    # RECEIVE when short-heavy (BTC trending down). Magnitudes calibrated
-    # to typical Hyperliquid/OKX funding (~10%/yr each side).
+    # PERP FUNDING on shorts (when active — currently no shorts).
     btc_r63 = cp["BTC"].pct_change(63).fillna(0.0)
     funding_per_day = pd.Series(
         np.where(btc_r63 > 0, FUNDING_BULL_BPS_DAY, FUNDING_BEAR_BPS_DAY),
         index=cp.index) / 1e4
     short_notional = (-W_held.where(W_held < 0, 0.0)).sum(axis=1)
-    funding_drag = short_notional * funding_per_day
+    short_funding = short_notional * funding_per_day
 
-    net_ret = gross_ret - long_drag - short_drag - funding_drag
+    # LEVERAGE FUNDING on the levered portion of LONG notionals.
+    # Hyperliquid/OKX charge funding on the borrowed (leveraged) part —
+    # the part above 1× of capital. Conservative ~15%/yr = 4 bps/day.
+    long_notional = W_held.where(W_held > 0, 0.0).sum(axis=1)
+    levered_extra = (long_notional - 1.0).clip(lower=0.0)
+    leverage_funding = levered_extra * LEVERAGE_FUNDING_BPS_DAY / 1e4
+
+    net_ret = gross_ret - long_drag - short_drag - short_funding - leverage_funding
     return net_ret, W_eff
 
 

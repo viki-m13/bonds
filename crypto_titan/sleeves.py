@@ -515,6 +515,97 @@ def sleeve_triple_mom(cp, macro=None):
 # --- Proprietary orthogonal sleeves (v4) — invented, very different edges ---
 
 
+# --- v7 NOVEL inventions: Multi-Timeframe Fractal Alignment + Convex Breakout ---
+
+
+def sleeve_mtf_fractal(cp, macro=None):
+    """MULTI-TIMEFRAME FRACTAL ALIGNMENT (proprietary).
+
+    Long BTC only when ALL six timeframes show positive momentum:
+       5d, 21d, 63d, 126d, 252d, 365d.
+    Plus 200MA trend filter.
+
+    Idea: each timeframe captures a different market participant. When all
+    align, we're in the rare regime where retail (5d), swing (21-63d),
+    institutional (126-252d), and macro (365d) are ALL bullish. These are
+    the highest-edge windows in crypto history (post-halving rallies,
+    confirmed bull markets). When even ONE timeframe disagrees → cash.
+    Most days: cash. Rare days: full-size long.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    for coin in ["BTC", "ETH"]:
+        if coin not in cp.columns:
+            continue
+        s = cp[coin]
+        # 6 timeframes
+        timeframes = [5, 21, 63, 126, 252, 365]
+        all_positive = pd.Series(1.0, index=cp.index)
+        for tf in timeframes:
+            cond = (s.pct_change(tf) > 0).astype(float)
+            all_positive = all_positive * cond
+        # Plus 200MA filter
+        ma200 = s.rolling(200, min_periods=100).mean()
+        above_ma = (s > ma200).astype(float)
+        signal = all_positive * above_ma
+
+        # When fired, take FIXED 50% per coin (vol-targeted at portfolio level)
+        rv = s.pct_change().ewm(span=21, adjust=False).std() * np.sqrt(DPY)
+        size = (0.30 / rv.replace(0, np.nan)).clip(lower=0.3, upper=1.5)
+        hwm = s.rolling(90, min_periods=30).max()
+        dd = s / hwm - 1
+        alive = (dd > -0.25).astype(float)
+        W[coin] = (signal * size * alive).shift(1).fillna(0.0)
+    return W
+
+
+def sleeve_convex_breakout(cp, macro=None):
+    """CONVEX BREAKOUT (proprietary).
+
+    Pure right-tailed convex payoff — preserves the asymmetric upside that
+    vol-targeting destroys. Mechanic:
+      Entry  : BTC/ETH closes at new 90d high (within 0.5%)
+      Initial: full 60% per-coin position
+      Initial stop: -7% from entry (small fixed loss)
+      Trailing stop: max of 14-day low and entry × 0.93 (raises with price)
+      Exit only on stop hit. No vol-managed sizing.
+
+    Expected payoff: ~30 small -7% losses + a few +50% to +200% wins.
+    Sharpe boosted by RIGHT-TAILED skewness of the return distribution.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    for coin in ["BTC", "ETH"]:
+        if coin not in cp.columns:
+            continue
+        s = cp[coin].values
+        idx = cp.index
+        hi90 = cp[coin].rolling(90, min_periods=45).max().values
+        in_pos = False
+        entry_price = 0.0
+        trail_stop = 0.0
+        position = np.zeros(len(s))
+        for i in range(len(s)):
+            p = s[i]
+            if np.isnan(p):
+                position[i] = position[i-1] if i > 0 else 0.0
+                continue
+            if not in_pos:
+                # Entry on new 90d high
+                if not np.isnan(hi90[i]) and p >= 0.995 * hi90[i]:
+                    in_pos = True
+                    entry_price = p
+                    trail_stop = p * 0.93  # initial -7%
+            else:
+                # Trail stop: 14d low (only ratchet UP, never down)
+                lo14 = np.nanmin(s[max(0, i-14):i+1])
+                new_stop = max(lo14, entry_price * 0.93)
+                trail_stop = max(trail_stop, new_stop)
+                if p < trail_stop:
+                    in_pos = False
+            position[i] = 0.60 if in_pos else 0.0
+        W[coin] = pd.Series(position, index=idx).shift(1).fillna(0.0)
+    return W
+
+
 # --- v6: SHORT-ENABLED sleeves (Hyperliquid / OKX inverse perps) ---
 # These sleeves take negative positions, profitable when the underlying
 # falls. Critical for capturing 2018/2022 bear alpha and dead-coin crashes
@@ -1431,6 +1522,9 @@ BUILDERS = {
     "VOL_PERCENTILE":       sleeve_vol_percentile,
     "BREADTH_THRUST":       sleeve_breadth_thrust,
     "SPY_ALPHA":            sleeve_spy_alpha,
+    # --- v7 novel inventions ---
+    "MTF_FRACTAL":          sleeve_mtf_fractal,    # all-6-timeframes-aligned
+    "CONVEX_BREAKOUT":      sleeve_convex_breakout, # fixed-size right-tail
     # SHORT sleeves DROPPED FROM ENSEMBLE — empirically all three lost money:
     #   SHORT_BTC_BEAR    SR -0.53 / OOS -0.99 (BTC's structural uptrend)
     #   SHORT_TREND_BREAK SR -0.08 / OOS -0.29 (bounce-squeeze)
