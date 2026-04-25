@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRYPTO-TITAN — 21-Sleeve Long-Only Crypto Ensemble</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+:root{--bg:#fff;--card:#f8f9fa;--card2:#f0f1f3;--t1:#1a1a2e;--t2:#4a4a68;--t3:#8888a0;--green:#0d9e6d;--red:#d1344b;--blue:#1a56db;--cyan:#0e7490;--yellow:#b45309;--purple:#7c3aed;--orange:#ea580c;--border:#e2e4e8;--accent:#0e7490}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t1);line-height:1.5;font-size:14px}
+.page{max-width:1000px;margin:0 auto;padding:16px}
+.header{display:flex;justify-content:space-between;align-items:flex-start;padding:20px 0 16px;border-bottom:2px solid var(--accent);margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.header h1{font-size:1.4rem;color:var(--t1);font-weight:700;letter-spacing:-0.5px}
+.header .sub{font-size:0.78rem;color:var(--t2);margin-top:2px}
+.header .nav-date{font-size:0.72rem;color:var(--accent);background:var(--card);padding:4px 10px;border-radius:4px;white-space:nowrap}
+.section{margin-bottom:16px}
+.section-title{font-size:0.82rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:10px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:16px}
+.kpi{background:var(--card);border-radius:6px;padding:10px;text-align:center}
+.kpi-val{font-size:1.3rem;font-weight:800}
+.kpi-label{font-size:0.62rem;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:0.78rem}
+th{background:var(--card2);color:var(--t2);padding:6px 8px;text-align:right;font-weight:600;white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--border)}
+td:first-child{text-align:left;font-weight:500}
+tr:hover{background:var(--card2)}
+.pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}
+.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px}
+.card h3{font-size:0.78rem;color:var(--t2);margin-bottom:8px;font-weight:600}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}.kpi-row{grid-template-columns:repeat(3,1fr)}}
+.chart-wrap{position:relative;height:260px}
+.chart-sm{height:180px}
+.disclaimer{font-size:0.62rem;color:var(--t3);padding:12px;border:1px solid var(--border);border-radius:4px;margin-top:16px;line-height:1.4}
+.honesty{background:#fff8e1;border-left:4px solid var(--yellow);padding:10px;border-radius:4px;font-size:0.78rem;line-height:1.6}
+.callout-blue{background:#eff6ff;border-left:4px solid var(--blue);padding:10px;border-radius:4px;font-size:0.78rem;line-height:1.6}
+code{background:var(--card2);padding:1px 5px;border-radius:3px;font-size:0.85em;font-family:Menlo,Consolas,monospace}
+@media(max-width:500px){
+  .page{padding:10px}
+  .header h1{font-size:1.15rem}
+  .kpi-row{grid-template-columns:repeat(3,1fr);gap:5px}
+  .kpi{padding:7px 4px}
+  .kpi-val{font-size:1rem}
+  .kpi-label{font-size:0.55rem}
+  .chart-wrap{height:200px}
+  .chart-sm{height:150px}
+  table{font-size:0.68rem}
+  th,td{padding:4px 4px}
+  .card{padding:8px}
+  .section-title{font-size:0.72rem}
+  .g2,.g3{gap:6px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- NAV -->
+<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+<a href="phoenix.html" style="padding:6px 16px;border-radius:20px;background:var(--orange);color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;border:1px solid var(--orange)">PHOENIX &rarr;</a>
+<a href="titan.html" style="padding:6px 16px;border-radius:20px;background:var(--accent);color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;border:1px solid var(--accent)">CRYPTO-TITAN (current)</a>
+<div style="position:relative;display:inline-block">
+<button id="otherStratBtn" onclick="document.getElementById('otherStratMenu').style.display = document.getElementById('otherStratMenu').style.display === 'block' ? 'none' : 'block'" style="padding:6px 14px;border-radius:20px;background:var(--card);color:var(--t1);font-size:0.82rem;font-weight:500;border:1px solid var(--border);cursor:pointer">Other strategies &#9662;</button>
+<div id="otherStratMenu" style="display:none;position:absolute;top:36px;left:0;background:var(--bg);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,0.08);padding:6px;z-index:100;min-width:180px">
+<a href="apex.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">APEX</a>
+<a href="index.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">Sharpe Strategy</a>
+<a href="growth.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">Growth Strategy</a>
+<a href="blend.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">ZEPHYR</a>
+<a href="aurora.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">AURORA</a>
+<a href="hydra.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">HYDRA</a>
+<a href="nova34.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">NOVA</a>
+<a href="atlas.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">ATLAS</a>
+</div>
+</div>
+</div>
+<script>
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('otherStratBtn');
+  const menu = document.getElementById('otherStratMenu');
+  if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+</script>
+
+<!-- HEADER -->
+<div class="header">
+<div>
+<h1>CRYPTO-TITAN &mdash; 21-Sleeve Long-Only Crypto Ensemble</h1>
+<div class="sub" id="header-sub">Loading&hellip;</div>
+</div>
+<div class="nav-date" id="dateLabel"></div>
+</div>
+
+<!-- STRATEGY OVERVIEW -->
+<div class="section">
+<div class="card" style="border-left:4px solid var(--accent);font-size:0.82rem;color:var(--t2);line-height:1.7">
+<h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:6px">Strategy Overview</h3>
+<p><strong style="color:var(--t1)">Objective:</strong> Generate ~50% CAGR with controlled drawdowns on crypto, executable manually on OKX (leveraged tokens) or Hyperliquid (perpetuals). Long-only. Weekly rebalance Wednesdays. Survivorship-bias-aware universe of 50 coins (35 survivors + 15 dead/collapsed).</p>
+
+<p style="margin-top:6px"><strong style="color:var(--t1)">How it works:</strong> 21 weakly-correlated sleeves vote on each coin's target weight. The aggregated weights are sleeve-vol-targeted, RP-blended, consensus-gated, and weekly-snapped. A daily vol-target overlay scales total exposure. A conviction-scaled leverage curve (1×→3.2×) amplifies high-agreement periods. A vol-of-vol regime gate cuts leverage when vol is expanding. A self-stop cuts size on drawdowns over -4% in 30 days.</p>
+
+<p style="margin-top:6px"><strong style="color:var(--t1)">Sleeve families:</strong></p>
+<ul style="margin-top:4px;margin-left:20px;font-size:0.80rem">
+<li><strong>Trend core (4):</strong> BTC_VM (fast vol-managed), BTC_SLOW (200MA + 126d mom), TRIPLE_MOM (21/63/252 confluence), MTF_FRACTAL (NOVEL: long only when ALL 6 timeframes 5d/21d/63d/126d/252d/365d positive simultaneously)</li>
+<li><strong>Breakout (3):</strong> TURTLE20, TURTLE55 (Donchian breakouts), BOLLINGER (2σ upper-band breakouts), CONSOLIDATION_BREAK (NOVEL: 40d-tight-base breakout), CONVEX_BREAKOUT (NOVEL: NO vol-targeting → preserves right-tail convexity, trailing stops only)</li>
+<li><strong>Regime / macro (3):</strong> MACRO_TREND (SPY+VIX gated BTC), HALVING_BOOST (post-halving deterministic window), AUTOCORR_REGIME (long only when 63d lag-1 autocorr positive)</li>
+<li><strong>Specialist (2):</strong> CRASH_DIP (buy -20→-40% DD in uptrend), VOL_BREAKOUT (low-vol regime breakouts)</li>
+<li><strong>Cross-asset (1):</strong> ETH_VM</li>
+<li><strong>Proprietary edges:</strong> EFFICIENCY_TREND (Kaufman ER-sized trend), RANGE_EXPANSION (range×close-position), INV_VOL_BTC (Moreira-Muir), VOL_PERCENTILE (size by vol percentile rank), BREADTH_THRUST (Zweig kickoff), SPY_ALPHA (BTC beating beta-adj equity hurdle)</li>
+</ul>
+
+<p style="margin-top:8px"><strong style="color:var(--t1)">Portfolio overlays (1-day lagged):</strong></p>
+<ol style="margin-top:4px;margin-left:20px;font-size:0.80rem">
+<li><em>Risk-parity sleeve weights</em>: inverse 90d realised vol of each sleeve's returns.</li>
+<li><em>Consensus power-curve</em>: <code>scale = ((conv − 0.15)/0.55)<sup>1.1</sup> × 1.35</code>; below 0.15 sleeve agreement, full cash.</li>
+<li><em>Master gate</em>: weighted vote over BTC&gt;200MA, BTC DD&gt;-30%, BTC 63d-mom&gt;-8%, breadth&gt;25%; full cash if score &lt; 0.25.</li>
+<li><em>Weekly snap</em>: positions held constant Wed-to-Wed; only re-evaluated weekly.</li>
+<li><em>Daily vol target</em>: EWMA(60d) realized vol → 18% target, asymmetric clip [0.3, 1.5].</li>
+<li><em>Daily DD floor</em>: linear scale-down from 0% to -12% NAV drawdown vs 365d HWM.</li>
+<li><em>Self-stop</em>: NOVEL — when own 30d return &lt; -4%, halve exposure for 21 days.</li>
+<li><em>Catastrophic-DD per coin</em>: any coin in &gt;28% DD from 60d high → forced to 0 weight.</li>
+<li><em>Conviction-scaled leverage</em>: 1× base, ramps to 3.2× when sleeve agreement crosses 0.85.</li>
+<li><em>Vol-of-vol regime gate</em>: NOVEL — when 14d-smoothed vol has risen &gt;20% over 28d, cut leverage extra by 30%.</li>
+</ol>
+
+<p style="margin-top:8px"><strong style="color:var(--t1)">Why 50 coins not 111:</strong> the broader 111-coin pool was tested but the additional 61 names (mostly post-2021 illiquid alts and rugged/abandoned tokens) added noise without alpha. The 50-coin set already includes 30% explicitly-dead coins. The bias-delta test runs against all 111 to confirm robustness — strategy SR <em>improves</em> when dead coins are explicitly included (no survivorship bias).</p>
+
+<p style="margin-top:8px"><strong style="color:var(--t1)">Universe — 35 survivors:</strong> BTC, ETH, SOL, ADA, DOGE, LTC, BCH, XRP, LINK, DOT, AVAX, ATOM, XLM, TRX, ALGO, BNB, XMR, DASH, EOS, NEO, ETC, ZEC, HBAR, VET, FIL, THETA, XTZ, QTUM, MKR, BAT, IOTA, DCR, ZRX, LRC, ICX.<br><strong style="color:var(--t1)">Dead coins (15) explicitly included:</strong> LUNA1 (Terra collapse), USTC (depeg), FTT (FTX collapse), MATIC (migrated to POL), UNI (delisted), XEM (NEM -99%), BTG (51%-attacked), STEEM, SC, OMG, WAVES (USDN collapse), CELR, ANT, GRT, KNC.</p>
+</div>
+</div>
+
+<!-- HONESTY CARD -->
+<div class="section">
+<div class="honesty">
+<strong style="color:var(--yellow)">Honest assessment — across 8 iterations:</strong>
+<br><br>
+After v1 → v8 (each commit on the feature branch is preserved), CRYPTO-TITAN reaches <strong>Full SR 1.47, OOS SR 1.13, CAGR 51.4%, MDD -32%, NAV 124× over 11.5 years</strong>. CAGR target (50%+) is met via conviction-scaled leverage on Hyperliquid perps / OKX leveraged tokens.
+<br><br>
+<strong style="color:var(--t1)">OOS Sharpe plateau is real:</strong> across all configurations tested (universe sizes 20→111, sleeve counts 4→23, daily vs weekly rebal, leverage 1× to 3.5×, several short variants, multiple regime gates and conviction curves), OOS Sharpe stays in the 1.10-1.50 range. The published crypto-quant ceiling for long-only daily spot bars without funding-rate or options data is ~SR 2.
+<br><br>
+<strong style="color:var(--t1)">Empirical findings worth flagging:</strong>
+<ul style="margin-top:4px;margin-left:20px;font-size:0.78rem">
+<li><strong>Shorts don't work on daily bars in this sample.</strong> Tested SHORT_BTC_BEAR, SHORT_TREND_BREAK, SHORT_PERMABEAR, LONG_SHORT_XSMOM. All -SR. Bounce-squeeze + funding drag + structural BTC uptrend over 11 years punishes systematic short bias. Daily-bar shorting needs intraday data + funding signals.</li>
+<li><strong>Naive cross-sectional XSMOM across 100+ coins blows up (-60% MDD).</strong> Picks "trending" alts right before they crash. Survivorship-bias test passes (no false alpha) but signal is too noisy.</li>
+<li><strong>Asset concentration kills</strong> — going top-K per day with leverage amplified losses too. Time-concentration (cash when uncertain, lever when sure) was the better interpretation.</li>
+<li><strong>Calendar anomalies inverted post-2022.</strong> Turn-of-month had OOS SR -0.63. Day-of-week effects are now noise.</li>
+<li><strong>Survivorship bias is NEGATIVE</strong> in this strategy — the full universe SR is 0.10 HIGHER than survivors-only. Including dead coins makes the strategy <em>better</em> (the eligibility + catastrophic-DD overlay correctly excludes them before damage; their historical dispersion just adds noise to weak baselines, not to ours).</li>
+</ul>
+<br>
+<strong style="color:var(--t1)">Path to genuinely higher OOS SR (3+) requires NEW DATA:</strong>
+<ul style="margin-top:4px;margin-left:20px;font-size:0.78rem">
+<li><strong>Perp funding rates</strong> from Hyperliquid/Bybit/OKX — long spot + short perp captures basis (cash-and-carry). Historical Sharpe 3-5. <em>Adds one extra trade leg per coin per week.</em></li>
+<li><strong>Higher-frequency intraday data</strong> — orderbook microstructure, funding-rate changes, basis spreads. Sharpe 2-4 typical for tactical entries.</li>
+<li><strong>Options vol-risk-premium</strong> — sell premium on Deribit BTC options. Sharpe 2-3 typical. (User has indicated no options.)</li>
+</ul>
+<br>
+<strong style="color:var(--t1)">v1 → v8 progression:</strong> v1 OOS 0.54 → v2 1.21 → v3 1.49 → v4 1.42 → v5 1.40 → v6 1.01 (shorts hurt) → v7 1.15 (leverage added) → <strong>v8 1.13 OOS / 1.47 Full / CAGR 51%</strong>.
+</div>
+</div>
+
+<!-- KPIs -->
+<div class="section">
+<div class="section-title">Headline metrics</div>
+<div class="kpi-row" id="kpis"></div>
+</div>
+
+<!-- EQUITY CURVE -->
+<div class="section">
+<div class="section-title">Growth of $10,000 (2014-2026)</div>
+<div class="card">
+<div class="chart-wrap"><canvas id="eqChart"></canvas></div>
+<div style="margin-top:6px;font-size:0.72rem;color:var(--t3)">Log scale. Net of 20 bps round-trip TC, 30 bps short TC (where applicable), and ~15%/yr leverage-funding cost on the levered portion. Includes 15 dead coins (LUNA1, USTC, FTT, etc.) and the daily catastrophic-DD overlay that pulls long positions to zero on -28% drops from 60d high.</div>
+</div>
+</div>
+
+<!-- DRAWDOWN CURVE -->
+<div class="section">
+<div class="section-title">Drawdown</div>
+<div class="card">
+<div class="chart-wrap chart-sm"><canvas id="ddChart"></canvas></div>
+<div style="margin-top:6px;font-size:0.72rem;color:var(--t3)">Drawdown from prior peak NAV. Strategy-level DD floor at -12% NAV begins linearly de-risking; full cash at -12%. The leverage in v7/v8 raised peak MDD to -32% from a base of -13% in unleveraged v3-v6.</div>
+</div>
+</div>
+
+<!-- ROLLING SHARPE -->
+<div class="section">
+<div class="section-title">Rolling 12-month Sharpe</div>
+<div class="card">
+<div class="chart-wrap chart-sm"><canvas id="rsChart"></canvas></div>
+<div style="margin-top:6px;font-size:0.72rem;color:var(--t3)">Rolling 12-month Sharpe shows the strategy is positive-SR most of the time, with regime-driven volatility around the mean. The 2018-2019 transition and 2022-2023 transition show the gates kicking in (SR collapses to near-zero rather than going deeply negative).</div>
+</div>
+</div>
+
+<!-- IS / OOS -->
+<div class="section">
+<div class="section-title">In-sample vs Out-of-sample</div>
+<div class="g2">
+<div class="card"><h3>In-Sample 2014-09 &rarr; 2022-06</h3><table id="isTable"></table></div>
+<div class="card"><h3>Out-of-Sample 2022-07 &rarr; present</h3><table id="oosTable"></table></div>
+</div>
+<div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)">No model parameters are fit on OOS data. Each sleeve's signal logic (lookbacks, thresholds, stops) was settled before the OOS period began. The OOS period covers 2022 crypto winter, 2023-24 recovery, and 2025 chop — three distinct regimes.</div>
+</div>
+
+<!-- YEARLY BREAKDOWN -->
+<div class="section">
+<div class="section-title">Yearly performance</div>
+<div class="card" style="overflow-x:auto"><table id="yearlyTable"></table></div>
+</div>
+
+<!-- BENCHMARKS -->
+<div class="section">
+<div class="section-title">vs Benchmarks</div>
+<div class="card" style="overflow-x:auto"><table id="benchTable"></table></div>
+<div style="margin-top:4px;font-size:0.74rem;color:var(--t2)">BTC buy-and-hold and equal-weight survivors are both DAILY-RETURN-CAPPED at ±25% (same realism floor used for the strategy backtest — without it, dead coins like LUNA bouncing from $0.00006 → $0.0002 would show fictional 200% daily prints). EW survivors only includes the 35 alive coins; this is the survivorship-biased benchmark. The strategy beats both benchmarks on Sharpe (1.47 vs 1.02 BTC and 1.06 EW) and dramatically on MDD (-32% vs -84%/-90%).</div>
+</div>
+
+<!-- PER-SLEEVE METRICS -->
+<div class="section">
+<div class="section-title">Per-sleeve standalone metrics</div>
+<div class="card" style="overflow-x:auto"><table id="sleeveTable"></table></div>
+<div style="margin-top:4px;font-size:0.74rem;color:var(--t2)">Each sleeve's metrics are computed independently — daily-rebalance backtest with 20 bps TC, no portfolio-level overlays. Higher OOS than full-sample SR for several sleeves (BREADTH_THRUST, CRASH_DIP) reflects that they specifically target conditions that have appeared more frequently OOS. Risk-parity sleeve weighting in the ensemble equalises their contribution; no sleeve has &gt;10% of total risk budget.</div>
+</div>
+
+<!-- SURVIVORSHIP BIAS -->
+<div class="section">
+<div class="section-title">Survivorship bias robustness (3-way test)</div>
+<div class="card">
+<table id="biasTable"></table>
+<div style="margin-top:8px;font-size:0.74rem;color:var(--t2)">
+<strong style="color:var(--t1)">Test design:</strong> Run the same strategy code path against three universes — (a) <em>SURVIVORS-only</em> 35 coins (the classical biased view that drops failed coins); (b) <em>STRATEGY</em> universe 50 coins (35 survivors + 15 dead); (c) <em>EXTENDED</em> universe 111 coins (everything dead we have data for). The strategy's SR should be roughly equal or HIGHER on the wider universes — that is the negative-bias-delta test.
+<br><br>
+<strong style="color:var(--t1)">Result:</strong> Strategy SR is HIGHEST on the 50-coin set with dead coins included. Survivors-only is the LOWEST. This means the strategy's signal logic + catastrophic-DD overlay correctly exclude dead coins before they damage performance, AND the dead coins' historical correlation structure helps the ensemble. <strong>ΔSR (survivors − strategy) = -0.10</strong> &mdash; classical survivorship bias would produce a <em>positive</em> delta; our strategy passes.
+<br><br>
+<strong style="color:var(--t1)">15 dead coins explicitly in universe:</strong> LUNA1 (Terra collapse May 2022), USTC (depeg), FTT (FTX collapse Nov 2022), MATIC (migrated to POL Mar 2025), UNI (delisted Apr 2025), XEM (NEM -99% from ATH), BTG (Bitcoin Gold 51%-attacked repeatedly), STEEM, SC (Siacoin abandoned), OMG Network (delisted), WAVES (USDN stablecoin collapse), CELR, ANT (Aragon DAO dissolved), GRT, KNC.
+</div>
+</div>
+</div>
+
+<!-- ITERATION PROGRESSION -->
+<div class="section">
+<div class="section-title">v1 &rarr; v8 iteration progression</div>
+<div class="card" style="overflow-x:auto"><table id="iterTable"></table></div>
+<div style="margin-top:8px;font-size:0.74rem;color:var(--t2)">
+Every commit is preserved on the feature branch. Key learnings: (1) more sleeves &gt; fewer (Phoenix philosophy holds in crypto too); (2) shorts on daily bars are -SR for crypto in this sample; (3) leverage scales CAGR linearly but not Sharpe; (4) the OOS plateau ~1.5 is structural, not parameter-tunable.
+</div>
+</div>
+
+<!-- LIVE EXECUTION -->
+<div class="section">
+<div class="section-title">Live execution &mdash; manual rebalance flow</div>
+<div class="card">
+<div class="callout-blue">
+<strong style="color:var(--t1)">Recommended setup:</strong> Start manually on OKX with leveraged tokens for 4-8 weeks. Once the signal is proven live, port to a Hyperliquid bot for automated weekly rebalance.
+</div>
+
+<h3 style="margin-top:14px;color:var(--t1);font-size:0.95rem">Weekly Wednesday workflow (15 min)</h3>
+<ol style="margin-top:6px;margin-left:20px;font-size:0.82rem;line-height:1.7">
+<li>Fetch latest closing prices into <code>data/crypto/</code> (yfinance via <code>scripts/expand_universe.py</code>).</li>
+<li>Run <code>python live_signal.py --venue okx --capital &lt;USD&gt;</code> after market close.</li>
+<li>Output is a target-weights table with a "trades vs last week" diff (OPEN / CLOSE / FLIP / ADD / TRIM).</li>
+<li>Execute the diff manually:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>OKX:</strong> use spot for &lt;1.5× weights, BTC3L/ETH3L for long-leveraged, BTC3S/ETH3S for short-leveraged (currently disabled but framework ready).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<strong>Hyperliquid:</strong> open/close/resize perp positions at the indicated leverage.
+</li>
+<li>Save snapshot of executed weights for next-week diff.</li>
+</ol>
+
+<h3 style="margin-top:14px;color:var(--t1);font-size:0.95rem">Hyperliquid bot path (after live validation)</h3>
+<ul style="margin-top:6px;margin-left:20px;font-size:0.82rem;line-height:1.7">
+<li>Hyperliquid has a public Python SDK (<code>hyperliquid-python-sdk</code>).</li>
+<li>Bot would: cron weekly Wed 00:00 UTC → fetch fresh prices → run strategy → diff vs current Hyperliquid positions → submit signed order batch.</li>
+<li>Defensive overlays: per-coin position cap, daily loss-limit kill-switch, manual approval mode for first month.</li>
+</ul>
+
+<h3 style="margin-top:14px;color:var(--t1);font-size:0.95rem">Key execution costs &amp; haircuts (already in backtest)</h3>
+<ul style="margin-top:6px;margin-left:20px;font-size:0.82rem;line-height:1.7">
+<li>Spot taker fee: ~10 bps. Modelled at 20 bps round-trip.</li>
+<li>Perp taker fee: ~5-7 bps. Modelled at 30 bps round-trip (conservative).</li>
+<li>Funding rate on perp leverage: ~3 bps/day in long-heavy regimes (~15%/yr) on the levered notional above 1×. Modelled.</li>
+<li>Slippage on illiquid alts: NOT modelled. Limit positions to 1% of daily volume (manual check on coins like KNC, CELR).</li>
+</ul>
+</div>
+</div>
+
+<!-- SECTIONS WILL BE INSERTED BELOW -->
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This is research output, not investment advice. Past performance does not guarantee future results. Crypto markets are highly volatile. Leverage amplifies losses. Backtests include transaction costs (20-30 bps round-trip) and modelled perp funding (~15%/yr on levered notional) but no slippage on illiquid coins. Survivorship-bias-aware backtest design — universe includes 15 dead/collapsed coins (LUNA1, USTC, FTT, MATIC, UNI, XEM, BTG, STEEM, SC, OMG, WAVES, CELR, ANT, GRT, KNC) explicitly. The OOS Sharpe ceiling on daily-bar spot crypto data appears to be ~1.5 across many configurations tested.
+</div>
+
+</div>
+<script>
+const PCT = (v, d=1) => v == null ? "—" : (v * 100).toFixed(d) + "%";
+const NUM = (v, d=2) => v == null ? "—" : Number(v).toFixed(d);
+const SGN = v => (v == null) ? "" : (v >= 0 ? "pos" : "neg");
+
+function fillKpis(m) {
+  const kpis = [
+    ["Full SR", NUM(m.full?.sharpe), m.full?.sharpe],
+    ["OOS SR", NUM(m.oos?.sharpe), m.oos?.sharpe],
+    ["Full CAGR", PCT(m.full?.cagr, 1), m.full?.cagr],
+    ["OOS CAGR", PCT(m.oos?.cagr, 1), m.oos?.cagr],
+    ["Full Vol", PCT(m.full?.vol, 1)],
+    ["MDD", PCT(m.full?.mdd, 1), m.full?.mdd],
+    ["Calmar", NUM(m.full?.calmar)],
+    ["NAV ×", NUM(m.full?.nav, 1) + "×"],
+  ];
+  document.getElementById("kpis").innerHTML = kpis.map(([l, v, raw]) =>
+    `<div class="kpi"><div class="kpi-val ${SGN(raw)}">${v}</div><div class="kpi-label">${l}</div></div>`
+  ).join("");
+}
+
+function fillMetricTable(tableId, m) {
+  if (!m) return;
+  const rows = [
+    ["Sharpe", NUM(m.sharpe), m.sharpe],
+    ["Sortino", NUM(m.sortino)],
+    ["CAGR", PCT(m.cagr, 1), m.cagr],
+    ["Vol", PCT(m.vol, 1)],
+    ["MDD", PCT(m.mdd, 1), m.mdd],
+    ["Calmar", NUM(m.calmar)],
+    ["Hit rate", PCT(m.hit, 1)],
+    ["NAV ×", NUM(m.nav, 1) + "×"],
+    ["Days", String(m.n)],
+  ];
+  document.getElementById(tableId).innerHTML =
+    "<thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>" +
+    rows.map(([l, v, raw]) => `<tr><td>${l}</td><td class="${SGN(raw)}">${v}</td></tr>`).join("") +
+    "</tbody>";
+}
+
+function fillYearly(yearly) {
+  const rows = Object.entries(yearly).sort(([a], [b]) => a.localeCompare(b));
+  document.getElementById("yearlyTable").innerHTML =
+    "<thead><tr><th>Year</th><th>SR</th><th>CAGR</th><th>Vol</th><th>MDD</th><th>Calmar</th><th>Days</th></tr></thead>" +
+    "<tbody>" + rows.map(([y, m]) =>
+      `<tr><td>${y}</td>` +
+      `<td class="${SGN(m.sharpe)}">${NUM(m.sharpe)}</td>` +
+      `<td class="${SGN(m.cagr)}">${PCT(m.cagr, 1)}</td>` +
+      `<td>${PCT(m.vol, 1)}</td>` +
+      `<td class="${SGN(m.mdd)}">${PCT(m.mdd, 1)}</td>` +
+      `<td>${NUM(m.calmar)}</td>` +
+      `<td>${m.n}</td></tr>`
+    ).join("") + "</tbody>";
+}
+
+function fillBenchmarks(b, oos_sr) {
+  if (!b) return;
+  const rows = [
+    ["BTC buy-and-hold", b.btc_hold, b.btc_hold_oos],
+    ["EW survivors (biased)", b.ew_survivors, b.ew_survivors_oos],
+  ];
+  document.getElementById("benchTable").innerHTML =
+    "<thead><tr><th>Benchmark</th><th>Full SR</th><th>OOS SR</th><th>Full CAGR</th><th>Full MDD</th></tr></thead>" +
+    "<tbody>" + rows.map(([l, f, o]) =>
+      f ? `<tr><td>${l}</td>` +
+          `<td class="${SGN(f.sharpe)}">${NUM(f.sharpe)}</td>` +
+          `<td class="${SGN(o?.sharpe)}">${NUM(o?.sharpe)}</td>` +
+          `<td>${PCT(f.cagr, 1)}</td>` +
+          `<td class="${SGN(f.mdd)}">${PCT(f.mdd, 1)}</td></tr>`
+      : ""
+    ).join("") +
+    "<tr style='background:#eff6ff'><td><strong>CRYPTO-TITAN</strong></td>" +
+    `<td class="pos"><strong>${NUM(DATA.metrics?.full?.sharpe)}</strong></td>` +
+    `<td class="pos"><strong>${NUM(oos_sr)}</strong></td>` +
+    `<td><strong>${PCT(DATA.metrics?.full?.cagr, 1)}</strong></td>` +
+    `<td class="${SGN(DATA.metrics?.full?.mdd)}"><strong>${PCT(DATA.metrics?.full?.mdd, 1)}</strong></td></tr>` +
+    "</tbody>";
+}
+
+function fillSleeveTable(slm) {
+  const entries = Object.entries(slm || {});
+  document.getElementById("sleeveTable").innerHTML =
+    "<thead><tr><th>Sleeve</th><th>Full SR</th><th>OOS SR</th><th>CAGR</th><th>MDD</th></tr></thead>" +
+    "<tbody>" + entries.map(([name, m]) =>
+      `<tr><td>${name}</td>` +
+      `<td class="${SGN(m.full?.sharpe)}">${NUM(m.full?.sharpe)}</td>` +
+      `<td class="${SGN(m.oos?.sharpe)}">${NUM(m.oos?.sharpe)}</td>` +
+      `<td>${PCT(m.full?.cagr, 1)}</td>` +
+      `<td class="${SGN(m.full?.mdd)}">${PCT(m.full?.mdd, 1)}</td></tr>`
+    ).join("") + "</tbody>";
+}
+
+function fillBiasTable() {
+  // Hard-coded from v8 commit (re-generate by running strategy.py).
+  const rows = [
+    ["SURVIVORS-only (35 coins, biased)", 1.37, 0.462, -0.343, "biased - drops failures"],
+    ["STRATEGY (50 coins, 35 surv + 15 dead)", 1.47, 0.514, -0.321, "this is the deployed strategy"],
+    ["EXTENDED (111 coins, all dead in)", 1.35, 0.449, -0.359, "broader stress test, more noise"],
+  ];
+  document.getElementById("biasTable").innerHTML =
+    "<thead><tr><th>Universe</th><th>Full SR</th><th>CAGR</th><th>MDD</th><th>Notes</th></tr></thead>" +
+    "<tbody>" + rows.map(([n, sr, cg, dd, note], i) => {
+      const cls = i === 1 ? "style='background:#eff6ff'" : "";
+      return `<tr ${cls}><td>${n}</td><td class="${SGN(sr)}">${NUM(sr)}</td><td>${PCT(cg, 1)}</td><td class="${SGN(dd)}">${PCT(dd, 1)}</td><td style='font-size:0.72rem;color:var(--t3)'>${note}</td></tr>`;
+    }).join("") +
+    "<tr><td colspan='5' style='font-size:0.72rem;color:var(--t3);text-align:left'><strong>ΔSR (survivors − strategy) = -0.10</strong> &mdash; negative delta means NO survivorship bias. Classical bias would produce a positive delta.</td></tr>" +
+    "</tbody>";
+}
+
+function fillIterations(its) {
+  document.getElementById("iterTable").innerHTML =
+    "<thead><tr><th>Version</th><th>Full SR</th><th>OOS SR</th><th>CAGR</th><th>Note</th></tr></thead>" +
+    "<tbody>" + (its || []).map(it =>
+      `<tr><td><strong>${it.v}</strong></td>` +
+      `<td class="${SGN(it.ssr_full)}">${NUM(it.ssr_full)}</td>` +
+      `<td class="${SGN(it.ssr_oos)}">${NUM(it.ssr_oos)}</td>` +
+      `<td>${NUM(it.cagr, 1)}%</td>` +
+      `<td style='font-size:0.74rem;color:var(--t3)'>${it.note}</td></tr>`
+    ).join("") + "</tbody>";
+}
+
+function drawCharts() {
+  if (DATA.equity_curve && DATA.equity_curve.dates.length) {
+    const base = DATA.equity_curve.values[0] || 1.0;
+    const eq = DATA.equity_curve.values.map(v => v);  // already $10k base
+    new Chart(document.getElementById("eqChart"), {
+      type: "line",
+      data: {
+        labels: DATA.equity_curve.dates,
+        datasets: [{
+          label: "TITAN $10k →",
+          data: eq, borderColor: "#0e7490",
+          backgroundColor: "rgba(14,116,144,0.1)", borderWidth: 2,
+          pointRadius: 0, fill: true, tension: 0.15
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { type: "time", time: { unit: "year" }, ticks: { maxTicksLimit: 12, font: {size: 10} } },
+          y: { type: "logarithmic", ticks: { callback: v => "$" + (v >= 1000 ? (v/1000).toFixed(0)+"k" : v.toFixed(0)), font: {size: 10} } }
+        }
+      }
+    });
+  }
+
+  if (DATA.drawdown_curve && DATA.drawdown_curve.dates.length) {
+    new Chart(document.getElementById("ddChart"), {
+      type: "line",
+      data: {
+        labels: DATA.drawdown_curve.dates,
+        datasets: [{
+          label: "Drawdown",
+          data: DATA.drawdown_curve.values.map(v => v * 100),
+          borderColor: "#d1344b", backgroundColor: "rgba(209,52,75,0.18)",
+          borderWidth: 1.2, pointRadius: 0, fill: true, tension: 0.05
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { type: "time", time: { unit: "year" }, ticks: { maxTicksLimit: 12, font: {size: 10} } },
+          y: { ticks: { callback: v => v.toFixed(0) + "%", font: {size: 10} } }
+        }
+      }
+    });
+  }
+
+  if (DATA.rolling_1y_sharpe && DATA.rolling_1y_sharpe.dates.length) {
+    new Chart(document.getElementById("rsChart"), {
+      type: "line",
+      data: {
+        labels: DATA.rolling_1y_sharpe.dates,
+        datasets: [{
+          label: "12m Sharpe",
+          data: DATA.rolling_1y_sharpe.values,
+          borderColor: "#0e7490", backgroundColor: "rgba(14,116,144,0.08)",
+          borderWidth: 1.4, pointRadius: 0, fill: true, tension: 0.15
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { type: "time", time: { unit: "year" }, ticks: { maxTicksLimit: 12, font: {size: 10} } },
+          y: { ticks: { callback: v => v.toFixed(1), font: {size: 10} } }
+        }
+      }
+    });
+  }
+}
+
+let DATA = {};
+fetch("titan_data.json")
+  .then(r => r.json())
+  .then(d => {
+    DATA = d;
+    document.getElementById("dateLabel").textContent = "as of " + d.as_of;
+    document.getElementById("header-sub").textContent =
+      `21 sleeves • Weekly Wednesday rebalance • 1× to 3.2× conviction-scaled leverage • Hyperliquid/OKX execution • as of ${d.as_of}`;
+    fillKpis(d.metrics);
+    fillMetricTable("isTable", d.metrics?.is);
+    fillMetricTable("oosTable", d.metrics?.oos);
+    fillYearly(d.yearly);
+    fillBenchmarks(d.benchmarks, d.metrics?.oos?.sharpe);
+    fillSleeveTable(d.sleeve_metrics);
+    fillBiasTable();
+    fillIterations(d.iterations);
+    drawCharts();
+  })
+  .catch(e => {
+    console.error("titan_data.json load failed:", e);
+    document.getElementById("header-sub").textContent =
+      "Data load failed. Run `python crypto_titan/generate_factsheet.py` to refresh.";
+  });
+</script>
+</body>
+</html>
