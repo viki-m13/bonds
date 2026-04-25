@@ -47,11 +47,12 @@ FUNDING_BULL_BPS_DAY = 3.0
 FUNDING_BEAR_BPS_DAY = -3.0
 SMOOTH_SPAN = 7
 
-# v7 LEVERAGE — conviction-scaled
-BASE_LEVERAGE = 1.0       # default 1× (no leverage)
-MAX_LEVERAGE = 3.0        # max 3× when conviction is at peak
-LEVER_RAMP_LOW = 0.40     # below this conviction → 1× only
-LEVER_RAMP_HIGH = 0.85    # at/above this → MAX_LEVERAGE
+# v7 LEVERAGE — conviction-scaled.
+# Sweet spot empirically: ramp 0.45→0.85, max 3.0×.
+BASE_LEVERAGE = 1.0
+MAX_LEVERAGE = 3.0
+LEVER_RAMP_LOW = 0.45
+LEVER_RAMP_HIGH = 0.85
 
 
 def _master_gate(cp: pd.DataFrame) -> pd.Series:
@@ -241,13 +242,13 @@ def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
     # ============================================================
     # CONVICTION-SCALED LEVERAGE (v7) — Hyperliquid perps / OKX
     # ============================================================
-    # Use the conv_vote (sleeve agreement) as the conviction proxy.
-    # Below 0.40: 1× (no leverage). 0.40 → 0.85: ramp linearly. ≥0.85: 3×.
     lever_curve = ((conv_vote - LEVER_RAMP_LOW) /
                     (LEVER_RAMP_HIGH - LEVER_RAMP_LOW)).clip(0, 1)
     leverage = (BASE_LEVERAGE +
                  (MAX_LEVERAGE - BASE_LEVERAGE) * lever_curve).shift(1).fillna(1.0)
-    # Apply leverage as a multiplier on W_eff
+
+    # Chop detection tested but cut too much trending alpha. Removed.
+
     W_eff = W_eff.mul(leverage, axis=0)
 
     # Final gross cap (allow up to MAX_LEVERAGE on the day-of-rebalance)
