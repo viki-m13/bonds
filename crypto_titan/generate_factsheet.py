@@ -152,14 +152,17 @@ def main():
 
     data = {
         "name": "CRYPTO-TITAN",
-        "tagline": "21-Sleeve Long-Only Crypto Ensemble with Conviction-Scaled Leverage",
+        "tagline": "BTC + ETH Timing Strategy with 21-Model Conviction Ensemble",
         "description": (
-            "21 weakly-correlated sleeves spanning trend, breakout, regime, "
-            "calendar, volume, range, autocorrelation, and convex right-tail "
-            "models. Conviction-scaled leverage (1× → 3.2×) executed via "
-            "Hyperliquid perpetuals or OKX leveraged tokens. Weekly rebalance "
-            "(Wednesdays). Survivorship-bias-robust universe of 50 coins "
-            "(35 survivors + 15 dead/collapsed)."
+            "BTC + ETH + cash timing strategy. Tradable universe: BTC and ETH "
+            "only (max 2 simultaneous positions). Signal universe: 50 coins "
+            "(35 survivors + 15 explicitly-dead) used for breadth signals, "
+            "master gate, and survivorship-bias robustness. The 21 models "
+            "decide weekly: hold BTC, hold ETH, hold both, or stay in cash. "
+            "Conviction-scaled leverage (1× → 3.2×) executed via Hyperliquid "
+            "perpetuals or OKX leveraged tokens. Alt-trading sleeves were "
+            "tested empirically and dropped — daily-bar alt momentum picks "
+            "parabolic alts right before they reverse."
         ),
         "as_of": str(rets.index[-1].date()),
         "metrics": meta.get("metrics", {}),
