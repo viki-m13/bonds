@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRYPTO-TITAN — 21-Sleeve Long-Only Crypto Ensemble</title>
+<title>CRYPTO-TITAN — BTC + ETH Timing with 21-Model Conviction Ensemble</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <style>
@@ -62,7 +62,7 @@ code{background:var(--card2);padding:1px 5px;border-radius:3px;font-size:0.85em;
 <!-- NAV -->
 <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
 <a href="phoenix.html" style="padding:6px 16px;border-radius:20px;background:var(--orange);color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;border:1px solid var(--orange)">PHOENIX &rarr;</a>
-<a href="titan.html" style="padding:6px 16px;border-radius:20px;background:var(--accent);color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;border:1px solid var(--accent)">CRYPTO-TITAN (current)</a>
+<a href="titan.html" style="padding:6px 16px;border-radius:20px;background:var(--accent);color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;border:1px solid var(--accent)">TITAN — BTC+ETH timing (current)</a>
 <div style="position:relative;display:inline-block">
 <button id="otherStratBtn" onclick="document.getElementById('otherStratMenu').style.display = document.getElementById('otherStratMenu').style.display === 'block' ? 'none' : 'block'" style="padding:6px 14px;border-radius:20px;background:var(--card);color:var(--t1);font-size:0.82rem;font-weight:500;border:1px solid var(--border);cursor:pointer">Other strategies &#9662;</button>
 <div id="otherStratMenu" style="display:none;position:absolute;top:36px;left:0;background:var(--bg);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,0.08);padding:6px;z-index:100;min-width:180px">
@@ -90,7 +90,7 @@ document.addEventListener('click', function(e) {
 <!-- HEADER -->
 <div class="header">
 <div>
-<h1>CRYPTO-TITAN &mdash; 21-Sleeve Long-Only Crypto Ensemble</h1>
+<h1>CRYPTO-TITAN &mdash; BTC + ETH Timing Strategy</h1>
 <div class="sub" id="header-sub">Loading&hellip;</div>
 </div>
 <div class="nav-date" id="dateLabel"></div>
@@ -100,19 +100,27 @@ document.addEventListener('click', function(e) {
 <div class="section">
 <div class="card" style="border-left:4px solid var(--accent);font-size:0.82rem;color:var(--t2);line-height:1.7">
 <h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:6px">Strategy Overview</h3>
-<p><strong style="color:var(--t1)">Objective:</strong> Generate ~50% CAGR with controlled drawdowns on crypto, executable manually on OKX (leveraged tokens) or Hyperliquid (perpetuals). Long-only. Weekly rebalance Wednesdays. Survivorship-bias-aware universe of 50 coins (35 survivors + 15 dead/collapsed).</p>
+<p><strong style="color:var(--t1)">What this is:</strong> A <strong>BTC + ETH + cash timing strategy</strong> driven by a 21-model conviction ensemble. Every week the strategy decides: are we in BTC, are we in ETH, are we leveraged, or are we in cash. <strong>It never trades alts.</strong> Maximum 2 simultaneous positions. ~41% of historical days are full cash.</p>
 
-<p style="margin-top:6px"><strong style="color:var(--t1)">How it works:</strong> 21 weakly-correlated sleeves vote on each coin's target weight. The aggregated weights are sleeve-vol-targeted, RP-blended, consensus-gated, and weekly-snapped. A daily vol-target overlay scales total exposure. A conviction-scaled leverage curve (1×→3.2×) amplifies high-agreement periods. A vol-of-vol regime gate cuts leverage when vol is expanding. A self-stop cuts size on drawdowns over -4% in 30 days.</p>
+<div style="background:#eff6ff;border-left:4px solid var(--blue);padding:10px;margin-top:8px;border-radius:4px;font-size:0.78rem">
+<strong style="color:var(--t1)">Tradable universe vs Signal universe:</strong><br>
+<strong>Tradable:</strong> BTC, ETH only. Max 2 positions held simultaneously.<br>
+<strong>Signal:</strong> 50 coins (35 survivors + 15 explicitly-dead) used by the breadth signal, master gate, and survivorship-bias robustness check &mdash; but the strategy never opens a position in any alt.
+</div>
 
-<p style="margin-top:6px"><strong style="color:var(--t1)">Sleeve families:</strong></p>
+<p style="margin-top:8px"><strong style="color:var(--t1)">Why no alts?</strong> Five alt-trading sleeves were tested empirically and dropped: ALT_XSMOM (OOS SR -0.21), ALT_DIVERS (0.16), BROAD_XSMOM top-5-of-100 (-0.26, -60% MDD), QUINTILE_SPREAD (-0.58, -67% MDD), DISPERSION_TIMED (0.31). Daily-bar alt momentum systematically picks parabolic alts right before they reverse &mdash; the dead coins in our universe (LUNA, FTT, etc.) were exactly the kind of "top momentum" names this would have bought.</p>
+
+<p style="margin-top:8px"><strong style="color:var(--t1)">Objective:</strong> ~50% CAGR with -32% MDD on the BTC+ETH+cash space, executable manually on OKX (leveraged tokens) or Hyperliquid (perpetuals). Long-only. Weekly rebalance Wednesdays.</p>
+
+<p style="margin-top:6px"><strong style="color:var(--t1)">How the timing decision is made:</strong> 21 weakly-correlated sleeves each output a per-coin target weight (mostly 0 or some BTC weight, occasionally ETH). The aggregated weights are sleeve-vol-targeted, risk-parity-blended, consensus-gated, and weekly-snapped. A daily vol-target overlay scales total exposure. A conviction-scaled leverage curve (1&times;&rarr;3.2&times;) amplifies high-agreement weeks. A vol-of-vol regime gate cuts leverage when vol is expanding. A self-stop halves exposure on drawdowns over -4% in 30 days.</p>
+
+<p style="margin-top:6px"><strong style="color:var(--t1)">21 timing models (every model outputs only BTC and/or ETH weights):</strong></p>
 <ul style="margin-top:4px;margin-left:20px;font-size:0.80rem">
-<li><strong>Trend core (4):</strong> BTC_VM (fast vol-managed), BTC_SLOW (200MA + 126d mom), TRIPLE_MOM (21/63/252 confluence), MTF_FRACTAL (NOVEL: long only when ALL 6 timeframes 5d/21d/63d/126d/252d/365d positive simultaneously)</li>
-<li><strong>Breakout (3):</strong> TURTLE20, TURTLE55 (Donchian breakouts), BOLLINGER (2σ upper-band breakouts), CONSOLIDATION_BREAK (NOVEL: 40d-tight-base breakout), CONVEX_BREAKOUT (NOVEL: NO vol-targeting → preserves right-tail convexity, trailing stops only)</li>
-<li><strong>Regime / macro (3):</strong> MACRO_TREND (SPY+VIX gated BTC), HALVING_BOOST (post-halving deterministic window), AUTOCORR_REGIME (long only when 63d lag-1 autocorr positive)</li>
-<li><strong>Specialist (2):</strong> CRASH_DIP (buy -20→-40% DD in uptrend), VOL_BREAKOUT (low-vol regime breakouts)</li>
-<li><strong>Cross-asset (1):</strong> ETH_VM</li>
-<li><strong>Proprietary edges:</strong> EFFICIENCY_TREND (Kaufman ER-sized trend), RANGE_EXPANSION (range×close-position), INV_VOL_BTC (Moreira-Muir), VOL_PERCENTILE (size by vol percentile rank), BREADTH_THRUST (Zweig kickoff), SPY_ALPHA (BTC beating beta-adj equity hurdle)</li>
+<li><strong>17 BTC-only sleeves:</strong> BTC_VM, BTC_SLOW, TRIPLE_MOM, TURTLE20, TURTLE55, BOLLINGER, CONSOLIDATION_BREAK, MACRO_TREND (SPY+VIX gated), HALVING_BOOST, AUTOCORR_REGIME, CRASH_DIP, VOL_BREAKOUT, EFFICIENCY_TREND, RANGE_EXPANSION, INV_VOL_BTC (Moreira-Muir), VOL_PERCENTILE, SPY_ALPHA</li>
+<li><strong>3 BTC+ETH sleeves:</strong> BREADTH_THRUST (Zweig kickoff), MTF_FRACTAL (NOVEL: long only when ALL 6 timeframes 5/21/63/126/252/365d aligned), CONVEX_BREAKOUT (NOVEL: NO vol-targeting → preserves right-tail convexity, trailing stops only)</li>
+<li><strong>1 ETH-only sleeve:</strong> ETH_VM</li>
 </ul>
+<p style="margin-top:6px;font-size:0.78rem;color:var(--t3)"><em>The sleeves are deliberately heavy on BTC because empirically, 11 years of crypto data show BTC has the cleanest signal-to-noise ratio for daily-bar trend, breakout, and regime models. ETH adds a small uncorrelated layer; alts add noise.</em></p>
 
 <p style="margin-top:8px"><strong style="color:var(--t1)">Portfolio overlays (1-day lagged):</strong></p>
 <ol style="margin-top:4px;margin-left:20px;font-size:0.80rem">
@@ -128,18 +136,25 @@ document.addEventListener('click', function(e) {
 <li><em>Vol-of-vol regime gate</em>: NOVEL — when 14d-smoothed vol has risen &gt;20% over 28d, cut leverage extra by 30%.</li>
 </ol>
 
-<p style="margin-top:8px"><strong style="color:var(--t1)">Why 50 coins not 111:</strong> the broader 111-coin pool was tested but the additional 61 names (mostly post-2021 illiquid alts and rugged/abandoned tokens) added noise without alpha. The 50-coin set already includes 30% explicitly-dead coins. The bias-delta test runs against all 111 to confirm robustness — strategy SR <em>improves</em> when dead coins are explicitly included (no survivorship bias).</p>
+<p style="margin-top:8px"><strong style="color:var(--t1)">Why a 50-coin signal universe if we only trade BTC/ETH?</strong></p>
+<ol style="margin-top:4px;margin-left:20px;font-size:0.80rem">
+<li><strong>Survivorship-bias robustness</strong> &mdash; Including 15 explicitly-dead coins (LUNA1, FTT, USTC, MATIC, UNI, XEM, BTG, STEEM, SC, OMG, WAVES, CELR, ANT, GRT, KNC) is the test. The strategy SR is <em>higher</em> on the 50-coin universe than on survivors-only, ΔSR -0.10 &mdash; the eligibility + catastrophic-DD overlay correctly excludes the dead coins as they crash, and their presence doesn't generate spurious alpha.</li>
+<li><strong>Breadth signal</strong> &mdash; BREADTH_THRUST and the master gate use "% of 50 coins trending above 100MA". This produces a market-wide measure that's more meaningful than just BTC's own state. The resulting <em>position</em> is still BTC+ETH only.</li>
+<li><strong>Validation of the catastrophic-DD overlay</strong> &mdash; the dead-coin time series confirm the per-coin -28% DD filter triggers at the right moments (LUNA May 2022, FTT Nov 2022, etc.).</li>
+</ol>
 
-<p style="margin-top:8px"><strong style="color:var(--t1)">Universe — 35 survivors:</strong> BTC, ETH, SOL, ADA, DOGE, LTC, BCH, XRP, LINK, DOT, AVAX, ATOM, XLM, TRX, ALGO, BNB, XMR, DASH, EOS, NEO, ETC, ZEC, HBAR, VET, FIL, THETA, XTZ, QTUM, MKR, BAT, IOTA, DCR, ZRX, LRC, ICX.<br><strong style="color:var(--t1)">Dead coins (15) explicitly included:</strong> LUNA1 (Terra collapse), USTC (depeg), FTT (FTX collapse), MATIC (migrated to POL), UNI (delisted), XEM (NEM -99%), BTG (51%-attacked), STEEM, SC, OMG, WAVES (USDN collapse), CELR, ANT, GRT, KNC.</p>
+<p style="margin-top:8px"><strong style="color:var(--t1)">35 survivor coins (signal-only):</strong> BTC, ETH, SOL, ADA, DOGE, LTC, BCH, XRP, LINK, DOT, AVAX, ATOM, XLM, TRX, ALGO, BNB, XMR, DASH, EOS, NEO, ETC, ZEC, HBAR, VET, FIL, THETA, XTZ, QTUM, MKR, BAT, IOTA, DCR, ZRX, LRC, ICX.<br><strong style="color:var(--t1)">15 dead coins (signal-only):</strong> LUNA1 (Terra collapse), USTC (depeg), FTT (FTX collapse), MATIC (migrated to POL), UNI (delisted), XEM (NEM -99%), BTG (51%-attacked), STEEM, SC, OMG, WAVES (USDN collapse), CELR, ANT, GRT, KNC.<br><em style="font-size:0.78rem;color:var(--t3)">Of these 50 coins, only BTC and ETH ever appear in the actual position book.</em></p>
 </div>
 </div>
 
 <!-- HONESTY CARD -->
 <div class="section">
 <div class="honesty">
-<strong style="color:var(--yellow)">Honest assessment — across 8 iterations:</strong>
+<strong style="color:var(--yellow)">Honest assessment — what this strategy actually is:</strong>
 <br><br>
-After v1 → v8 (each commit on the feature branch is preserved), CRYPTO-TITAN reaches <strong>Full SR 1.47, OOS SR 1.13, CAGR 51.4%, MDD -32%, NAV 124× over 11.5 years</strong>. CAGR target (50%+) is met via conviction-scaled leverage on Hyperliquid perps / OKX leveraged tokens.
+This is a <strong>BTC + ETH + cash timing strategy</strong>, not a "broad crypto" strategy. The 21 models all output BTC and/or ETH weights — they never trade alts. Across the 4,238-day backtest the strategy held: <strong>0 positions (cash) 41% of days, 1 position (usually BTC) 30% of days, 2 positions (BTC+ETH) 29% of days, 3+ positions 0% of days</strong>. Across all alts in the 50-coin universe, total days held: <strong>zero</strong>. The wide universe is for signal/bias-test only.
+<br><br>
+After v1 → v10 iterations, CRYPTO-TITAN reaches <strong>Full SR 1.47, OOS SR 1.13, CAGR 51.4%, MDD -32%, NAV 124× over 11.5 years</strong>. CAGR target (50%+) is met via conviction-scaled leverage (1×→3.2×) on Hyperliquid perps / OKX leveraged tokens.
 <br><br>
 <strong style="color:var(--t1)">OOS Sharpe plateau is real:</strong> across all configurations tested (universe sizes 20→111, sleeve counts 4→23, daily vs weekly rebal, leverage 1× to 3.5×, several short variants, multiple regime gates and conviction curves), OOS Sharpe stays in the 1.10-1.50 range. The published crypto-quant ceiling for long-only daily spot bars without funding-rate or options data is ~SR 2.
 <br><br>
@@ -652,7 +667,7 @@ fetch("titan_data.json")
     DATA = d;
     document.getElementById("dateLabel").textContent = "as of " + d.as_of;
     document.getElementById("header-sub").textContent =
-      `21 sleeves • Weekly Wednesday rebalance • 1× to 3.2× conviction-scaled leverage • Hyperliquid/OKX execution • as of ${d.as_of}`;
+      `BTC + ETH + cash • Max 2 positions • 21-model conviction ensemble • Weekly Wednesday rebalance • 1× → 3.2× leverage on Hyperliquid/OKX • as of ${d.as_of}`;
     fillKpis(d.metrics);
     fillMetricTable("isTable", d.metrics?.is);
     fillMetricTable("oosTable", d.metrics?.oos);
