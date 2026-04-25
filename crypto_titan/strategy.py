@@ -47,10 +47,11 @@ FUNDING_BULL_BPS_DAY = 3.0
 FUNDING_BEAR_BPS_DAY = -3.0
 SMOOTH_SPAN = 7
 
-# v7 LEVERAGE — conviction-scaled.
-# Sweet spot empirically: ramp 0.45→0.85, max 3.0×.
+# v8 LEVERAGE — conviction-scaled, with vol-of-vol regime gate.
+# MAX_LEVERAGE 3.2× (slight bump from 3.0×) compensates for VoV gate's
+# leverage haircut in regime-shift periods.
 BASE_LEVERAGE = 1.0
-MAX_LEVERAGE = 3.0
+MAX_LEVERAGE = 3.2
 LEVER_RAMP_LOW = 0.45
 LEVER_RAMP_HIGH = 0.85
 
@@ -247,7 +248,23 @@ def build_portfolio(cp: pd.DataFrame, sleeves: dict) -> tuple:
     leverage = (BASE_LEVERAGE +
                  (MAX_LEVERAGE - BASE_LEVERAGE) * lever_curve).shift(1).fillna(1.0)
 
-    # Chop detection tested but cut too much trending alpha. Removed.
+    # NOVEL: VOL-OF-VOL REGIME DETECTOR.
+    # When BTC realized vol has been TRENDING UP for 4+ weeks, vol regime
+    # is shifting and trend signals become unreliable. Cut leverage. When
+    # vol is FALLING (compression), trend signals work cleanly. Allow lever.
+    btc = cp["BTC"]
+    rv21 = btc.pct_change().rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    # Smoothed vol with 14-day window
+    rv_smooth = rv21.rolling(14, min_periods=7).mean()
+    # 4-week change in smoothed vol (> 0 = vol expanding)
+    rv_change = rv_smooth.pct_change(28)
+    # Multiplier: vol expanding → 0.7, vol falling → 1.0
+    vov_mult = pd.Series(np.where(rv_change > 0.20, 0.7,
+                          np.where(rv_change < -0.10, 1.0, 0.85)),
+                          index=cp.index).shift(1).fillna(0.85)
+    # Apply only to the EXTRA leverage above 1× (preserves base exposure)
+    extra = (leverage - 1.0).clip(lower=0.0)
+    leverage = 1.0 + extra * vov_mult
 
     W_eff = W_eff.mul(leverage, axis=0)
 
