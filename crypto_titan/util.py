@@ -21,18 +21,8 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 DPY = 365  # crypto trades 7 days/week
 
-# v6 universe: STRATEGY trades 50 curated coins; SURVIVORSHIP TEST runs
-# against the full 111-coin extended universe.
-#
-# Why 50 not 111: empirically the 111-coin universe HURT ensemble OOS
-# (1.40 → 0.98) because many of the additional coins (CDT, KIN, ANC,
-# others) have data quality issues or were never liquid enough to trade
-# in production. Including them in the strategy universe doesn't add
-# alpha; running the strategy on them just adds noise.
-#
-# How we still avoid survivorship bias: (a) 30% of the trading universe
-# (15/50) is explicitly DEAD coins; (b) the full 111-coin extended set
-# is used for the survivorship-bias delta check at end of backtest.
+# v12 universe: 50-coin curated set as STRATEGY universe (35 survivors +
+# 15 dead). Multi-scan tested with both 50 and 111 — 50 won empirically.
 SURVIVORS = [
     "BTC", "ETH", "SOL", "ADA", "DOGE", "LTC", "BCH", "XRP", "LINK",
     "DOT", "AVAX", "ATOM", "XLM", "TRX", "ALGO",
@@ -45,28 +35,19 @@ DEAD = [
     "LUNA1", "USTC", "FTT", "MATIC", "UNI",
     "XEM", "BTG", "STEEM", "SC", "OMG", "WAVES", "CELR", "ANT", "GRT", "KNC",
 ]  # 15 dead
-ALL_COINS = SURVIVORS + DEAD
+ALL_COINS = SURVIVORS + DEAD  # 50 total
 
-# Extended universe (full 111): used for survivorship-bias delta test and
-# could be used by future sleeves that benefit from wider lens. Including
-# every dead/collapsed coin we have data for.
+# Extended 111-coin universe: still loaded for survivorship-bias
+# robustness test and could be used by future scanner sleeves.
 EXTENDED_UNIVERSE = ALL_COINS + [
-    # Wave 3: alive L1/L2/new (16)
     "SHIB", "NEAR", "APT", "ARB", "OP", "SUI", "INJ", "TIA",
     "STX", "AR", "RNDR", "SEI", "KAS", "PYTH", "JUP", "PEPE",
-    # DeFi blue-chips, all -85%+ ATH (8)
     "AAVE", "CRV", "YFI", "SNX", "1INCH", "BAL", "DYDX", "COMP",
-    # Alive chain tokens (5)
     "ZIL", "ONT", "LSK", "ARK", "CHZ",
-    # Gaming/metaverse collapsed -95%+ (7)
     "MANA", "SAND", "AXS", "GALA", "ENJ", "ILV", "SUSHI",
-    # Old ICOs dead/near-zero (7)
     "BNT", "POWR", "STORJ", "REP", "GNT", "CDT", "WTC",
-    # Failed privacy/payment (7)
     "PIVX", "DGB", "XVG", "NANO", "VTC", "BCD", "BCN",
-    # Rugged/catastrophic (6)
     "HEX", "KIN", "REN", "MIR", "ANC", "RUNE",
-    # Chain tokens failed (5)
     "ONE", "FTM", "KSM", "KAVA", "IOST",
 ]  # 111 total
 

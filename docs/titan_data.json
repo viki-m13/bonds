@@ -28907,6 +28907,13 @@
       "ssr_oos": 1.13,
       "cagr": 51.4,
       "note": "+ vol-of-vol regime gate"
+    },
+    {
+      "v": "v12",
+      "ssr_full": 1.47,
+      "ssr_oos": 1.13,
+      "cagr": 51.4,
+      "note": "alt-trading thoroughly tested (MULTI_SCAN sweep + 8 per-coin sleeves) \u2014 all hurt OOS, framework stays BTC+ETH"
     }
   ]
 }
