@@ -201,6 +201,7 @@ def main():
             {"v": "v6",   "ssr_full": 1.55, "ssr_oos": 1.01, "cagr": 19.5, "note": "shorts tested — failed empirically"},
             {"v": "v7",   "ssr_full": 1.46, "ssr_oos": 1.15, "cagr": 55.6, "note": "leverage 3× → CAGR target hit"},
             {"v": "v8",   "ssr_full": 1.47, "ssr_oos": 1.13, "cagr": 51.4, "note": "+ vol-of-vol regime gate"},
+            {"v": "v12",  "ssr_full": 1.47, "ssr_oos": 1.13, "cagr": 51.4, "note": "alt-trading thoroughly tested (MULTI_SCAN sweep + 8 per-coin sleeves) — all hurt OOS, framework stays BTC+ETH"},
         ],
     }
 

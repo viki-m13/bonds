@@ -57,6 +57,56 @@ def sleeve_eth_vm(cp, macro=None):
     return W
 
 
+def _per_coin_vm(cp, coin, vol_target=0.18, ma_len=100, mom_len=63,
+                  dd_cut=-0.30):
+    """Per-coin vol-managed trend sleeve, BTC-regime gated.
+    Outputs weight in `coin` only. Used for v12 alt sleeves.
+    """
+    W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
+    if coin not in cp.columns:
+        return W
+    pos = _vol_managed_core(cp, coin, vol_target=vol_target,
+                             ma_len=ma_len, mom_len=mom_len, dd_cut=dd_cut)
+    # BTC-regime gate: only trade alt when BTC is in confirmed uptrend
+    btc = cp["BTC"]
+    btc_ok = ((btc > btc.rolling(200, min_periods=100).mean()) &
+              (btc.pct_change(63) > 0.0)).astype(float).shift(1).fillna(0.0)
+    W[coin] = pos * btc_ok
+    return W
+
+
+def sleeve_sol_vm(cp, macro=None):
+    return _per_coin_vm(cp, "SOL")
+
+
+def sleeve_bnb_vm(cp, macro=None):
+    return _per_coin_vm(cp, "BNB")
+
+
+def sleeve_avax_vm(cp, macro=None):
+    return _per_coin_vm(cp, "AVAX")
+
+
+def sleeve_link_vm(cp, macro=None):
+    return _per_coin_vm(cp, "LINK")
+
+
+def sleeve_ada_vm(cp, macro=None):
+    return _per_coin_vm(cp, "ADA")
+
+
+def sleeve_xrp_vm(cp, macro=None):
+    return _per_coin_vm(cp, "XRP")
+
+
+def sleeve_ltc_vm(cp, macro=None):
+    return _per_coin_vm(cp, "LTC")
+
+
+def sleeve_doge_vm(cp, macro=None):
+    return _per_coin_vm(cp, "DOGE")
+
+
 def sleeve_btc_slow(cp, macro=None):
     W = pd.DataFrame(0.0, index=cp.index, columns=cp.columns)
     s = cp["BTC"]
@@ -513,6 +563,96 @@ def sleeve_triple_mom(cp, macro=None):
 
 
 # --- Proprietary orthogonal sleeves (v4) — invented, very different edges ---
+
+
+# --- v12: MULTI_SCAN — full-universe multi-signal confluence scanner ---
+#
+# Every rebalance, scan ALL 111 coins. For each, compute 5 independent
+# trend/quality signals. Require AT LEAST 4 of 5 signals to fire AND
+# strict eligibility AND BTC-regime gate. Select top-K by composite
+# momentum score, risk-parity within selection.
+#
+# Earlier "naive XSMOM top-K of 100" approaches blew up because they
+# selected on a SINGLE signal (recent momentum) — that's how you buy
+# parabolic alts at the local top. The 5-signal confluence filter is
+# what makes this fundamentally different.
+
+def sleeve_multi_scan(cp, macro=None, top_k=5, min_signals=4):
+    """Scan entire universe with 5-signal confluence; select top-K by score.
+
+    Per-coin signals (each binary 0/1, sum 0-5):
+      1. LONG_TREND   : price > 200MA AND 50MA > 200MA
+      2. SHORT_MOM    : 21d return > 5%
+      3. PERSISTENCE  : 63d return > 0 AND 252d return > 0
+      4. NOT_OVERBOUGHT: price within 7% of 21d high (avoid parabolic tops)
+      5. STABLE_VOL   : current 21d realised vol < 1.5× the 252d median vol
+
+    Eligibility:
+      * 252-day minimum history
+      * Not in catastrophic DD (-25% from 60d high)
+      * Coin's own 365d return > 0 (filter permabears)
+
+    Master gate:
+      * BTC > 200MA AND BTC 63d mom > 0.05
+
+    Selection:
+      * Among coins with confluence >= min_signals AND eligible AND BTC-up,
+        rank by 63d return, take top-K.
+      * Risk-parity by 60d realised vol; per-coin cap 12%, basket cap 50%.
+    """
+    elig_strict = eligibility(cp, min_history=252,
+                              catastrophe_dd=-0.25, dd_window=60)
+
+    ma50 = cp.rolling(50, min_periods=30).mean()
+    ma200 = cp.rolling(200, min_periods=100).mean()
+    long_trend = ((cp > ma200) & (ma50 > ma200)).astype(float)
+
+    mom21 = cp.pct_change(21)
+    mom63 = cp.pct_change(63)
+    mom252 = cp.pct_change(252)
+
+    short_mom = (mom21 > 0.05).astype(float)
+    persistence = ((mom63 > 0) & (mom252 > 0)).astype(float)
+
+    hi21 = cp.rolling(21, min_periods=10).max()
+    not_overbought = (cp < 0.93 * hi21).astype(float)
+    # NOTE: this is an inverse signal — coins NEAR 21d high score 0.
+    # It filters out parabolic moves that will mean-revert.
+
+    rv21 = cp.pct_change().rolling(21, min_periods=10).std() * np.sqrt(DPY)
+    rv252_med = rv21.rolling(252, min_periods=60).median()
+    stable_vol = (rv21 < 1.5 * rv252_med).astype(float)
+
+    # Permabear filter
+    not_permabear = (mom252 > 0).astype(float)
+
+    confluence = (long_trend + short_mom + persistence
+                  + not_overbought + stable_vol)
+    # Eligible if >= min_signals confluence AND alive AND positive 365d return
+    eligible_score = ((confluence >= min_signals)
+                      .astype(float) * elig_strict * not_permabear)
+
+    # BTC regime gate
+    btc = cp["BTC"]
+    btc_strong = ((btc > btc.rolling(200, min_periods=100).mean()) &
+                  (btc.pct_change(63) > 0.05)).astype(float)
+    eligible_score = eligible_score.mul(btc_strong, axis=0)
+
+    # Top-K by 63d momentum among eligible
+    score = mom63.where(eligible_score > 0)
+    ranks = score.rank(axis=1, ascending=False, method="first")
+    top_pick = (ranks <= top_k).astype(float)
+
+    # Risk-parity weighting within picks
+    rv60 = cp.pct_change().rolling(60, min_periods=20).std() * np.sqrt(DPY)
+    inv = (1.0 / rv60.replace(0, np.nan)).where(top_pick.astype(bool))
+    W = inv.div(inv.sum(axis=1).replace(0, np.nan), axis=0).fillna(0.0)
+    W = W.clip(upper=0.12)  # 12% per-coin cap
+    s = W.sum(axis=1).replace(0, np.nan)
+    scale = (0.50 / s).clip(upper=1.0).fillna(0.0)
+    W = W.mul(scale, axis=0)
+
+    return W.shift(1).fillna(0.0)
 
 
 # --- v7 NOVEL inventions: Multi-Timeframe Fractal Alignment + Convex Breakout ---
@@ -1525,6 +1665,28 @@ BUILDERS = {
     # --- v7 novel inventions ---
     "MTF_FRACTAL":          sleeve_mtf_fractal,    # all-6-timeframes-aligned
     "CONVEX_BREAKOUT":      sleeve_convex_breakout, # fixed-size right-tail
+    # --- v12 EMPIRICAL TESTS (all dropped, code retained) ---
+    # MULTI_SCAN: 5-signal-confluence universe scanner. Tested across
+    #   12 configs (top_k ∈ {3,5,7,10}, min_signals ∈ {3,4,5}). Standalone
+    #   OOS SR: best 0.04 on 111 universe / 0.17 on 50. ALL configurations
+    #   have negative or near-zero OOS SR. Ensemble impact: marginal -0.01
+    #   to -0.04 OOS SR; the only configs that lift OOS SR by +0.02-0.03
+    #   simultaneously cost 8.7% CAGR (NAV halves). NET-NEGATIVE.
+    # PER-COIN alt sleeves (SOL_VM, BNB_VM, AVAX_VM, LINK_VM, ADA_VM,
+    #   XRP_VM, LTC_VM, DOGE_VM): each a vol-managed BTC-style trend on
+    #   one specific coin, BTC-regime-gated. Tested as a basket.
+    #   Ensemble result: Full SR 1.47 → 1.17, OOS 1.13 → 0.92, CAGR 51% →
+    #   31%, NAV 124× → 22×. 2025+ year went from -3% to -14% loss
+    #   because alts crashed harder than BTC in 2025 chop. NET-NEGATIVE.
+    # "MULTI_SCAN":         sleeve_multi_scan,
+    # "SOL_VM":             sleeve_sol_vm,
+    # "BNB_VM":             sleeve_bnb_vm,
+    # "AVAX_VM":            sleeve_avax_vm,
+    # "LINK_VM":            sleeve_link_vm,
+    # "ADA_VM":             sleeve_ada_vm,
+    # "XRP_VM":             sleeve_xrp_vm,
+    # "LTC_VM":             sleeve_ltc_vm,
+    # "DOGE_VM":            sleeve_doge_vm,
     # SHORT sleeves DROPPED FROM ENSEMBLE — empirically all three lost money:
     #   SHORT_BTC_BEAR    SR -0.53 / OOS -0.99 (BTC's structural uptrend)
     #   SHORT_TREND_BREAK SR -0.08 / OOS -0.29 (bounce-squeeze)
