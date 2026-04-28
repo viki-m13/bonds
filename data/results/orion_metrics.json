@@ -3,27 +3,27 @@
   "IS_cagr": 0.1308177284580776,
   "IS_vol": 0.19489335804332628,
   "IS_mdd": -0.3031177735691776,
-  "OOS_sharpe": 1.1162032633602361,
-  "OOS_cagr": 0.33014666387564695,
-  "OOS_vol": 0.29476971590881096,
+  "OOS_sharpe": 1.084654179444336,
+  "OOS_cagr": 0.31866694838824006,
+  "OOS_vol": 0.29556931982075585,
   "OOS_mdd": -0.24345492868658003,
-  "Full_sharpe": 0.9246164290473349,
-  "Full_cagr": 0.21717418735572225,
-  "Full_vol": 0.24529650175690462,
+  "Full_sharpe": 0.9074930158189166,
+  "Full_cagr": 0.2124263165362137,
+  "Full_vol": 0.24573951272451855,
   "Full_mdd": -0.3031177735691776,
-  "avg_turnover_annualised": 13.76879467586887,
-  "sharpe_gap_IS_OOS": 0.3873233469791715,
+  "avg_turnover_annualised": 13.765401675702318,
+  "sharpe_gap_IS_OOS": 0.3557742630632714,
   "per_signal_sharpe": {
-    "S1_momentum": 0.8050252495809883,
-    "S2_trend": 0.8202256132744286,
-    "S3_lowvol_safe": 0.37327103870829864,
-    "S4_regime": 0.510401998591293
+    "S1_momentum": 0.7956654546833264,
+    "S2_trend": 0.8150205539325821,
+    "S3_lowvol_safe": 0.3706997676986579,
+    "S4_regime": 0.509508844205055
   },
   "signal_return_corr": {
     "S1_momentum": {
       "S1_momentum": 1.0,
       "S2_trend": 0.713,
-      "S3_lowvol_safe": -0.143,
+      "S3_lowvol_safe": -0.142,
       "S4_regime": 0.595
     },
     "S2_trend": {
@@ -33,7 +33,7 @@
       "S4_regime": 0.647
     },
     "S3_lowvol_safe": {
-      "S1_momentum": -0.143,
+      "S1_momentum": -0.142,
       "S2_trend": 0.074,
       "S3_lowvol_safe": 1.0,
       "S4_regime": -0.013
@@ -46,16 +46,16 @@
     }
   },
   "sleeve_sharpe": {
-    "RISK_sleeve": 0.7675117882109014,
-    "SAFE_sleeve": 0.46059876347156636
+    "RISK_sleeve": 0.7568015352984233,
+    "SAFE_sleeve": 0.44784930263743217
   },
   "sleeve_corr": {
     "RISK": {
       "RISK": 1.0,
-      "SAFE": -0.072
+      "SAFE": -0.07
     },
     "SAFE": {
-      "RISK": -0.072,
+      "RISK": -0.07,
       "SAFE": 1.0
     }
   },

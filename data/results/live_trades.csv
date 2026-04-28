@@ -30,3 +30,4 @@ Date,ticker,side,weight_before,weight_after,weight_delta,delta_pct
 2026-04-23,UCO,BUY,0.1862,0.2299,0.0437,4.37
 2026-04-24,BIL,SELL,0.3747,0.3647,-0.01,-1.0
 2026-04-27,BIL,SELL,0.3647,0.3573,-0.0074,-0.74
+2026-04-28,BIL,BUY,0.3573,0.3649,0.0077,0.77
