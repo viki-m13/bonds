@@ -1,91 +1,127 @@
 {
-  "generated_at_utc": "2026-04-30T23:50:44+00:00",
+  "generated_at_utc": "2026-05-01T23:50:29+00:00",
   "context": {
-    "as_of": "2026-04-30",
+    "as_of": "2026-05-01",
     "regime_gate_pass": true,
     "regime_risk_on": true,
-    "spy_vs_200dma": 0.07675827466321294,
-    "vix": 18.81,
-    "hy_oas_slope_20d": -0.3400000000000003,
-    "overlay_mult": 0.7101108446009029,
-    "overlay_reason": "Vol target 15% \u2192 mult 0.71x (realized vol 21.1%) \u00b7 All safety gates clear",
+    "spy_vs_200dma": 0.07891809563596963,
+    "vix": 16.89,
+    "hy_oas_slope_20d": -0.33999999999999986,
+    "overlay_mult": 0.7430601215525948,
+    "overlay_reason": "Vol target 15% \u2192 mult 0.74x (realized vol 20.2%) \u00b7 All safety gates clear",
     "mom63_ranking": {
-      "TQQQ": 0.08591440294264197,
-      "UPRO": 0.03537700195866411,
-      "QLD": 0.07122824578523401,
-      "SSO": 0.032931359861380294,
-      "SOXL": 0.6831218060276683,
-      "TECL": 0.1260144228474993,
-      "FAS": -0.08908711277377446,
-      "ERX": 0.37313727766812055,
-      "DRN": 0.19573071211227977,
-      "EDC": 0.00636390525409003,
-      "YINN": -0.3171878549494628,
-      "UCO": 1.099956275641234,
-      "UGL": -0.32593893941024776,
-      "NUGT": -0.47218595280417075,
-      "TMF": -0.062228859544840476,
-      "UBT": -0.035155600239307194,
-      "TYD": -0.03216447826668278,
-      "IBIT": -0.15363291584638594
+      "TQQQ": 0.1357076334380427,
+      "UPRO": 0.07230266660232298,
+      "QLD": 0.10265005247335779,
+      "SSO": 0.057251559989625056,
+      "SOXL": 0.8019015347998688,
+      "TECL": 0.19309881105792437,
+      "FAS": -0.10495718685594735,
+      "ERX": 0.37786180396869207,
+      "DRN": 0.2096816328709865,
+      "EDC": 0.08258640217940716,
+      "YINN": -0.30789246472549436,
+      "UCO": 0.9954051542231559,
+      "UGL": -0.3088063722640063,
+      "NUGT": -0.4017239509167706,
+      "TMF": -0.06592975450178307,
+      "UBT": -0.0393715635198012,
+      "TYD": -0.03127471151306749,
+      "IBIT": -0.08991594362390143
     }
   },
   "previous_positions": [
     {
       "ticker": "BIL",
-      "weight": 0.3609002398591874,
-      "pct": 36.09
+      "weight": 0.3312458906026647,
+      "pct": 33.12
     },
     {
       "ticker": "SOXL",
-      "weight": 0.2349283377554653,
-      "pct": 23.49
+      "weight": 0.2458290568803167,
+      "pct": 24.58
     },
     {
       "ticker": "UCO",
-      "weight": 0.2349283377554653,
-      "pct": 23.49
+      "weight": 0.2458290568803167,
+      "pct": 24.58
     },
     {
       "ticker": "ERX",
-      "weight": 0.1332641351701027,
-      "pct": 13.33
+      "weight": 0.1394476161447036,
+      "pct": 13.94
     },
     {
       "ticker": "TECL",
-      "weight": 0.035978949459779,
-      "pct": 3.6
+      "weight": 0.0376483794919981,
+      "pct": 3.76
     }
   ],
   "target_positions": [
     {
       "ticker": "BIL",
-      "weight": 0.3609002398591874,
-      "pct": 36.09
+      "weight": 0.33124589060266474,
+      "pct": 33.12
     },
     {
       "ticker": "SOXL",
-      "weight": 0.23492833775546537,
-      "pct": 23.49
+      "weight": 0.24582905688031678,
+      "pct": 24.58
     },
     {
       "ticker": "UCO",
-      "weight": 0.23492833775546537,
-      "pct": 23.49
+      "weight": 0.24582905688031678,
+      "pct": 24.58
     },
     {
       "ticker": "ERX",
-      "weight": 0.13326413517010277,
-      "pct": 13.33
+      "weight": 0.1394476161447036,
+      "pct": 13.94
     },
     {
       "ticker": "TECL",
-      "weight": 0.03597894945977908,
-      "pct": 3.6
+      "weight": 0.03764837949199814,
+      "pct": 3.76
     }
   ],
   "trades_today": [],
   "recent_trades_30d": [
+    {
+      "Date": "2026-05-01",
+      "ticker": "UCO",
+      "side": "BUY",
+      "weight_before": 0.2349,
+      "weight_after": 0.2458,
+      "weight_delta": 0.0109,
+      "delta_pct": 1.09
+    },
+    {
+      "Date": "2026-05-01",
+      "ticker": "SOXL",
+      "side": "BUY",
+      "weight_before": 0.2349,
+      "weight_after": 0.2458,
+      "weight_delta": 0.0109,
+      "delta_pct": 1.09
+    },
+    {
+      "Date": "2026-05-01",
+      "ticker": "ERX",
+      "side": "BUY",
+      "weight_before": 0.1333,
+      "weight_after": 0.1394,
+      "weight_delta": 0.0062,
+      "delta_pct": 0.62
+    },
+    {
+      "Date": "2026-05-01",
+      "ticker": "BIL",
+      "side": "SELL",
+      "weight_before": 0.3609,
+      "weight_after": 0.3312,
+      "weight_delta": -0.0297,
+      "delta_pct": -2.97
+    },
     {
       "Date": "2026-04-30",
       "ticker": "BIL",
@@ -196,12 +232,12 @@
     },
     {
       "Date": "2026-04-21",
-      "ticker": "BIL",
-      "side": "SELL",
-      "weight_before": 0.442,
-      "weight_after": 0.4023,
-      "weight_delta": -0.0397,
-      "delta_pct": -3.97
+      "ticker": "SOXL",
+      "side": "BUY",
+      "weight_before": 0.1478,
+      "weight_after": 0.1583,
+      "weight_delta": 0.0105,
+      "delta_pct": 1.05
     },
     {
       "Date": "2026-04-21",
@@ -214,21 +250,21 @@
     },
     {
       "Date": "2026-04-21",
-      "ticker": "SOXL",
-      "side": "BUY",
-      "weight_before": 0.1478,
-      "weight_after": 0.1583,
-      "weight_delta": 0.0105,
-      "delta_pct": 1.05
-    },
-    {
-      "Date": "2026-04-21",
       "ticker": "ERX",
       "side": "BUY",
       "weight_before": 0.1737,
       "weight_after": 0.1861,
       "weight_delta": 0.0124,
       "delta_pct": 1.24
+    },
+    {
+      "Date": "2026-04-21",
+      "ticker": "BIL",
+      "side": "SELL",
+      "weight_before": 0.442,
+      "weight_after": 0.4023,
+      "weight_delta": -0.0397,
+      "delta_pct": -3.97
     },
     {
       "Date": "2026-04-20",
@@ -286,21 +322,21 @@
     },
     {
       "Date": "2026-04-15",
-      "ticker": "UCO",
-      "side": "BUY",
-      "weight_before": 0.184,
-      "weight_after": 0.2173,
-      "weight_delta": 0.0333,
-      "delta_pct": 3.33
-    },
-    {
-      "Date": "2026-04-15",
       "ticker": "TECL",
       "side": "SELL",
       "weight_before": 0.0333,
       "weight_after": 0.0,
       "weight_delta": -0.0333,
       "delta_pct": -3.33
+    },
+    {
+      "Date": "2026-04-15",
+      "ticker": "UCO",
+      "side": "BUY",
+      "weight_before": 0.184,
+      "weight_after": 0.2173,
+      "weight_delta": 0.0333,
+      "delta_pct": 3.33
     },
     {
       "Date": "2026-04-14",
@@ -395,94 +431,94 @@
   ],
   "price_context": {
     "TQQQ": {
-      "price": 63.54,
-      "mom63": 0.1357,
-      "mom21": 0.5245
+      "price": 65.3,
+      "mom63": 0.2113,
+      "mom21": 0.5105
     },
     "UPRO": {
-      "price": 129.18,
-      "mom63": 0.0723,
-      "mom21": 0.332
+      "price": 130.3,
+      "mom63": 0.0918,
+      "mom21": 0.3139
     },
     "QLD": {
-      "price": 81.05,
-      "mom63": 0.1027,
-      "mom21": 0.3287
+      "price": 82.6,
+      "mom63": 0.1521,
+      "mom21": 0.3218
     },
     "SSO": {
-      "price": 62.96,
-      "mom63": 0.0573,
-      "mom21": 0.2136
+      "price": 63.31,
+      "mom63": 0.0701,
+      "mom21": 0.2025
     },
     "SOXL": {
-      "price": 126.98,
-      "mom63": 0.8019,
-      "mom21": 1.6504
+      "price": 130.4,
+      "mom63": 1.1104,
+      "mom21": 1.4952
     },
     "TECL": {
-      "price": 146.26,
-      "mom63": 0.1931,
-      "mom21": 0.6899
+      "price": 152.66,
+      "mom63": 0.324,
+      "mom21": 0.6898
     },
     "FAS": {
-      "price": 137.92,
-      "mom63": -0.105,
-      "mom21": 0.1639
+      "price": 136.01,
+      "mom63": -0.1125,
+      "mom21": 0.1474
     },
     "ERX": {
-      "price": 96.93,
-      "mom63": 0.3779,
-      "mom21": -0.059
+      "price": 94.22,
+      "mom63": 0.3137,
+      "mom21": -0.0124
     },
     "DRN": {
-      "price": 10.89,
-      "mom63": 0.2097,
-      "mom21": 0.2678
+      "price": 10.82,
+      "mom63": 0.1979,
+      "mom21": 0.248
     },
     "EDC": {
-      "price": 77.83,
-      "mom63": 0.0826,
-      "mom21": 0.3903
+      "price": 78.64,
+      "mom63": 0.1698,
+      "mom21": 0.3753
     },
     "YINN": {
-      "price": 34.82,
-      "mom63": -0.3079,
-      "mom21": 0.0613
+      "price": 34.84,
+      "mom63": -0.2431,
+      "mom21": 0.0905
     },
     "UCO": {
-      "price": 47.77,
-      "mom63": 0.9954,
-      "mom21": 0.2155
+      "price": 46.76,
+      "mom63": 0.9402,
+      "mom21": 0.257
     },
     "UGL": {
-      "price": 59.18,
-      "mom63": -0.3088,
-      "mom21": -0.0371
+      "price": 59.0,
+      "mom63": -0.1307,
+      "mom21": -0.0707
     },
     "NUGT": {
-      "price": 170.85,
-      "mom63": -0.4017,
-      "mom21": -0.0924
+      "price": 166.02,
+      "mom63": -0.2224,
+      "mom21": -0.1901
     },
     "TMF": {
-      "price": 34.82,
-      "mom63": -0.0659,
-      "mom21": -0.0344
+      "price": 35.13,
+      "mom63": -0.0428,
+      "mom21": -0.0231
     },
     "UBT": {
-      "price": 15.95,
-      "mom63": -0.0394,
-      "mom21": -0.0215
+      "price": 16.07,
+      "mom63": -0.0192,
+      "mom21": -0.0153
     },
     "TYD": {
-      "price": 24.2,
-      "mom63": -0.0313,
-      "mom21": -0.0126
+      "price": 24.26,
+      "mom63": -0.0252,
+      "mom21": -0.0084
     },
     "IBIT": {
-      "price": 43.32,
-      "mom63": -0.0899,
-      "mom21": 0.1275
+      "price": 44.47,
+      "mom63": -0.0636,
+      "mom21": 0.1509
     }
   },
   "blend_weights": {
