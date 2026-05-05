@@ -87,10 +87,34 @@ def main():
         print(f"  {series_id}: {description}...", end=' ', flush=True)
         df = download_fred_series(series_id)
         if df is not None:
-            print(f"{len(df)} observations")
-            all_series[series_id] = df
-            # Save individual series
-            df.to_csv(os.path.join(DATA_DIR, f'{series_id}.csv'), index=False)
+            print(f"{len(df)} observations", end='')
+            # MERGE with existing CSV instead of overwriting. FRED's free API
+            # only returns ~3 years for ICE BofA series (BAMLH0A0HYM2 etc.) due
+            # to license restrictions. Overwriting drops 20+ years of historical
+            # data the strategies need (HELIOS in particular regresses ~3% on
+            # 2022 if HY OAS history is lost).
+            csv_path = os.path.join(DATA_DIR, f'{series_id}.csv')
+            if os.path.exists(csv_path):
+                try:
+                    existing = pd.read_csv(csv_path, parse_dates=['Date'])
+                    existing[series_id] = pd.to_numeric(existing[series_id], errors='coerce')
+                    combined = pd.concat([existing, df], ignore_index=True)
+                    combined = combined.drop_duplicates(subset='Date', keep='last').sort_values('Date')
+                    if len(combined) >= len(existing):
+                        df_to_save = combined
+                        print(f"  (merged: {len(existing)} existing → {len(combined)} total)")
+                    else:
+                        # Sanity: never shrink the file
+                        print(f"  [WARN] merge would shrink ({len(existing)} → {len(combined)}); keeping existing")
+                        df_to_save = existing
+                except Exception as e:
+                    print(f"  [WARN] merge failed ({e}); keeping fresh download")
+                    df_to_save = df
+            else:
+                df_to_save = df
+                print()
+            df_to_save.to_csv(csv_path, index=False)
+            all_series[series_id] = df_to_save
         else:
             print("FAILED")
             failed.append(series_id)
