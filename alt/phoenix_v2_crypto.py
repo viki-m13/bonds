@@ -58,53 +58,116 @@ def metrics(r):
     return {"sharpe":float(sr),"cagr":float(cagr),"mdd":float(dd),"vol":float(sd)}
 
 
-def build_crypto_sleeve(dates, close, opn, regime_ok):
-    """Simple TSMOM on GBTC + ETHE with macro gate; weekly rebal."""
-    universe = [t for t in ["GBTC","ETHE"] if t in close.columns]
+def build_crypto_weights(dates, close, opn, regime_ok):
+    """Construct daily target-weight DataFrame for the CRYPTO sleeve.
+
+    Universe = {GBTC, ETHE} + BIL. Weights sum to 1.0. Weekly Friday rebal
+    of 63d-momentum, gated by regime; falls back to BIL when no positive
+    mom or gate is off.
+    """
+    universe = [t for t in ["GBTC", "ETHE"] if t in close.columns]
     if not universe:
-        # Full-zero sleeve
-        return pd.Series(0.0, index=dates)
+        cols = ["BIL"]
+        W = pd.DataFrame(1.0, index=dates, columns=cols)
+        return W
 
     mom63 = close[universe].pct_change(63).shift(1)
-
     cols = universe + ["BIL"]
     W = pd.DataFrame(0.0, index=dates, columns=cols)
     current = pd.Series(0.0, index=cols); current["BIL"] = 1.0
-
-    # Weekly (Friday) rebal
     for i, dt in enumerate(dates):
         is_fri = dt.dayofweek == 4
         if is_fri or i == 0:
             if regime_ok.iloc[i]:
                 m = mom63.iloc[i].dropna()
-                # Only consider names with valid data
                 tradable = [t for t in universe
                             if t in m.index and not np.isnan(opn[t].iloc[i])]
                 m = m[tradable]
                 m = m[m > 0]
                 new_w = pd.Series(0.0, index=cols)
                 if len(m) > 0:
-                    each = 1.0/len(m)
-                    for t in m.index: new_w[t] = each
+                    each = 1.0 / len(m)
+                    for t in m.index:
+                        new_w[t] = each
                 else:
                     new_w["BIL"] = 1.0
                 current = new_w
             else:
                 current = pd.Series(0.0, index=cols); current["BIL"] = 1.0
         W.iloc[i] = current.values
+    return W
 
-    # Compute returns
+
+def build_crypto_sleeve(dates, close, opn, regime_ok):
+    """Backtest-compatible: returns daily port_ret (open-to-open, lagged)."""
+    W = build_crypto_weights(dates, close, opn, regime_ok)
+    universe = [c for c in W.columns if c != "BIL"]
+    if not universe:
+        return pd.Series(0.0, index=dates)
     opn_ret = pd.DataFrame(0.0, index=dates, columns=universe)
     for u in universe:
         if u in opn.columns:
             opn_ret[u] = opn[u].pct_change().shift(-1).fillna(0)
     bil_ret = opn["BIL"].pct_change().shift(-1).fillna(0) if "BIL" in opn.columns else pd.Series(0.0, index=dates)
-
     port_ret = (W[universe] * opn_ret[universe]).sum(axis=1) + W["BIL"] * bil_ret
     dW = W.diff().abs().sum(axis=1).fillna(W.abs().sum(axis=1))
-    tc = dW * (TC_BPS/1e4)
+    tc = dW * (TC_BPS / 1e4)
     port_ret = port_ret - tc
     return port_ret.shift(1).fillna(0.0)
+
+
+def build_weights(use_live_proxy: bool = True,
+                   live_extend: bool = False) -> pd.DataFrame:
+    """Compute the canonical CRYPTO daily target-weight DataFrame.
+
+    Index: trading dates from 2010-03-11.
+    Columns: leveraged BTC/ETH proxies + 'BIL'. Weights sum to 1.0.
+
+    If use_live_proxy=True, GBTC weight is shifted to IBIT for dates where
+    IBIT is listed (Jan 2024 onwards) — IBIT is the live spot BTC ETF;
+    GBTC was the historical proxy (a closed-end Grayscale trust until
+    its 2024 ETF conversion).
+
+    live_extend: If True, extend the date index by one BDay forward
+        (ffilled) so the last row is W[t+1] using close[t] info.
+    """
+    close, opn = {}, {}
+    keys = ["GBTC", "ETHE", "SPY", "BIL"]
+    if use_live_proxy:
+        keys = list(set(keys + ["IBIT"]))
+    for t in keys:
+        df = load_etf(t)
+        if df is not None:
+            close[t] = df["Close"]; opn[t] = df["Open"]
+    close = pd.DataFrame(close); opn = pd.DataFrame(opn)
+    dates = opn["SPY"].dropna().index
+    dates = dates[dates >= pd.Timestamp("2010-03-11")]
+    if live_extend and len(dates) > 0:
+        next_day = dates[-1] + pd.tseries.offsets.BDay()
+        dates = dates.append(pd.DatetimeIndex([next_day]))
+    close = close.reindex(dates).ffill(limit=5)
+    opn = opn.reindex(dates).ffill(limit=5)
+
+    hy = load_fred("BAMLH0A0HYM2").reindex(dates).ffill()
+    vix = load_fred("VIXCLS").reindex(dates).ffill()
+    spy = close["SPY"]
+    spy_ma = spy.rolling(200).mean()
+    spy_ok = (spy > spy_ma) & (spy_ma.diff(20) > 0)
+    hy_slope = hy - hy.shift(20)
+    regime_ok = (spy_ok & (hy_slope < 1.0) & (vix < 30)).shift(1).fillna(False)
+
+    W = build_crypto_weights(dates, close, opn, regime_ok)
+
+    if use_live_proxy and "GBTC" in W.columns and "IBIT" in opn.columns:
+        ibit_first = opn["IBIT"].dropna().index.min()
+        if ibit_first is not None:
+            W = W.copy()
+            if "IBIT" not in W.columns:
+                W["IBIT"] = 0.0
+            mask = W.index >= ibit_first
+            W.loc[mask, "IBIT"] = W.loc[mask, "IBIT"] + W.loc[mask, "GBTC"]
+            W.loc[mask, "GBTC"] = 0.0
+    return W
 
 
 def main():

@@ -266,6 +266,39 @@ def max_dd(r: pd.Series) -> float:
     return float((eq / peak - 1).min())
 
 
+# --------------------------- Live-signal-friendly weight builder ---------------------------
+def build_weights(live_extend: bool = False) -> pd.DataFrame:
+    """Compute the canonical HELIOS daily target-weight DataFrame.
+
+    Index: trading dates from IS_START (or first date all LETFs are listed).
+    Columns: leveraged ETF tickers + 'BIL'. Weights sum to 1.0 each day.
+    Weekly Friday rebalance, forward-filled between rebalance dates.
+
+    live_extend: HELIOS's W[t] is already aligned for live execution
+        (signal at close[t] → trade at open[t+1] → hold to open[t+2]),
+        so the flag is accepted for API uniformity but adds a forward-
+        ffilled row only if t+1 is a Friday and would otherwise miss
+        a fresh rebalance.
+    """
+    close_u, opens = build_panel()
+    if live_extend and len(opens) > 0:
+        next_day = opens.index[-1] + pd.tseries.offsets.BDay()
+        opens.loc[next_day] = opens.iloc[-1]
+        close_u.loc[next_day] = close_u.iloc[-1]
+        opens = opens.sort_index()
+        close_u = close_u.sort_index()
+    lev_firsts = []
+    for lev in PAIRS.values():
+        s = opens[lev].dropna()
+        if len(s):
+            lev_firsts.append(s.index.min())
+    start = max(max(lev_firsts), IS_START)
+    close_u = close_u.loc[start:]
+    opens = opens.loc[start:]
+    W, _ = build_target_weights(close_u, opens)
+    return W
+
+
 # --------------------------- Main ---------------------------
 def main():
     close_u, opens = build_panel()

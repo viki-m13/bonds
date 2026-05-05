@@ -284,6 +284,75 @@ def cv_select(df_is: pd.DataFrame, feature_cols: List[str]) -> Dict:
     return {"best_N": best[0], "best_K": best[1], "best_ic": best_ic, "scores": {f"{n}_{k}": v for (n, k), v in scores.items()}}
 
 
+# ------------------------------------------------------------------ live weight builder
+def build_weights(live_extend: bool = False) -> pd.DataFrame:
+    """Compute the canonical QUANTUM daily target-weight DataFrame.
+
+    Index: trading dates from IS_START.
+    Columns: UNIVERSE (17 LETFs). Weights sum to 1.0 (or 0 if no prediction).
+    Top-K equal weight, rebalanced every N trading days. Uses the cached
+    model (RESULTS/quantum_model.pkl) trained on IS only — must be present.
+
+    live_extend: If True, extend the close index by one BDay forward
+        (ffilled) so the last row is W[t+1] using close[t] info.
+    """
+    import pickle
+    cache_path = RESULTS / "quantum_model.pkl"
+    if not cache_path.exists():
+        raise RuntimeError(
+            f"QUANTUM cache missing at {cache_path}. Run quantum_strategy.py first.")
+
+    opens, closes = load_all_prices()
+    if live_extend and len(closes) > 0:
+        next_day = closes.index[-1] + pd.tseries.offsets.BDay()
+        opens.loc[next_day] = opens.iloc[-1]
+        closes.loc[next_day] = closes.iloc[-1]
+        opens = opens.sort_index()
+        closes = closes.sort_index()
+    feats = build_features(opens, closes)
+    feature_cols_local = [c for c in feats.columns if c not in ("Ticker", "Date")]
+
+    with open(cache_path, "rb") as f:
+        cached = pickle.load(f)
+    model = cached["model"]
+    N = cached["N"]
+    K = cached["K"]
+    cached_cols = cached.get("feature_cols", feature_cols_local)
+    # Use cached feature_cols if present (in case build_features changes column order)
+    feature_cols_use = cached_cols if all(c in feats.columns for c in cached_cols) else feature_cols_local
+
+    dates_idx = feats.index.get_level_values("Date")
+    full_mask = dates_idx >= pd.Timestamp(IS_START)
+    data_full = feats[full_mask].dropna(subset=feature_cols_use)
+    preds_vec = model.predict(data_full[feature_cols_use].values)
+    preds_df = pd.DataFrame({"pred": preds_vec}, index=data_full.index)
+
+    all_dates = closes.index
+    start_bt = pd.Timestamp(IS_START)
+    end_bt = all_dates.max()
+    bt_dates = all_dates[(all_dates >= start_bt) & (all_dates <= end_bt)]
+    reb_dates = bt_dates[::N]
+    reb_set = set(reb_dates)
+
+    W = pd.DataFrame(0.0, index=bt_dates, columns=UNIVERSE)
+    current_w = pd.Series(0.0, index=UNIVERSE)
+    pred_dates = set(preds_df.index.get_level_values("Date"))
+    for d in bt_dates:
+        if d in reb_set:
+            if d in pred_dates:
+                sl = preds_df.xs(d, level="Date", drop_level=True)["pred"].dropna()
+                if len(sl) >= K:
+                    top = sl.nlargest(K).index
+                    current_w = pd.Series(0.0, index=UNIVERSE)
+                    current_w.loc[top] = 1.0 / K
+                else:
+                    current_w = pd.Series(0.0, index=UNIVERSE)
+            else:
+                current_w = pd.Series(0.0, index=UNIVERSE)
+        W.loc[d] = current_w.values
+    return W
+
+
 # ------------------------------------------------------------------ backtest
 def backtest(opens: pd.DataFrame, closes: pd.DataFrame, preds: pd.DataFrame,
              N: int, K: int) -> pd.Series:
