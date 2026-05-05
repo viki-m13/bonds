@@ -346,17 +346,27 @@ def get_latest_market_date():
     return min(dates) if dates else None
 
 
-def extend_sleeve_preserving_history(name, script, csv_name, date_col_name=None):
+def extend_sleeve_preserving_history(name, script, csv_name, date_col_name=None,
+                                      lookahead_days=0):
     """Run a sleeve but preserve historical returns — APPEND new rows only.
 
     Steps:
       1. Back up current CSV to /tmp/<csv_name>.bak (this is the FROZEN history)
-      2. Run the sleeve script (which overwrites the CSV with a full regenerate)
-      3. Merge: keep backup's rows <= backup_last_date, take regenerated rows > backup_last_date
-      4. Write merged CSV
+      2. Trim the last `lookahead_days` rows off the backup so they get
+         reclaimed by the fresh regeneration. This is required for sleeves
+         whose daily return depends on FUTURE opens (ORION needs open[t+1],
+         HELIOS needs opens[t+1] and [t+2]). Without this trim, the cron's
+         own backup-and-merge would freeze a stale 0.0 (NaN-filled because
+         the future open didn't exist when yesterday's cron ran) into the
+         saved history forever.
+      3. Run the sleeve script (which overwrites the CSV with a full regenerate)
+      4. Merge: keep backup's rows ≤ trimmed_freeze_until, take regenerated
+         rows > trimmed_freeze_until
+      5. Write merged CSV
 
     This protects historical returns from yfinance data revisions while still
-    extending the CSV with new trading days.
+    extending the CSV with new trading days, and lets forward-looking sleeves
+    repair their trailing window each cron.
     """
     import pandas as pd
     import shutil
@@ -375,13 +385,25 @@ def extend_sleeve_preserving_history(name, script, csv_name, date_col_name=None)
     bkp = pd.read_csv(backup_path)
     bkp_dc = bkp.columns[0] if use_first_col else date_col_name
     bkp[bkp_dc] = pd.to_datetime(bkp[bkp_dc])
+    bkp = bkp.sort_values(bkp_dc).reset_index(drop=True)
+
+    # 2. For forward-looking sleeves, drop the last `lookahead_days` rows so
+    # they get re-pulled from the fresh regenerate. Those rows were written
+    # as 0.0 by an earlier cron because the required future opens didn't
+    # exist yet — we want them recomputed now that the data has advanced.
+    if lookahead_days > 0 and len(bkp) > lookahead_days:
+        dropped = bkp.iloc[-lookahead_days:][bkp_dc].dt.date.tolist()
+        bkp = bkp.iloc[:-lookahead_days].copy()
+        print(f"  Dropping {lookahead_days} trailing row(s) from backup "
+              f"to refresh: {dropped}")
+
     freeze_until = bkp[bkp_dc].max()
     print(f"  Freezing {name} history through {freeze_until.date()} ({len(bkp)} rows)")
 
-    # 2. Run the sleeve (overwrites csv_path with full history)
+    # 3. Run the sleeve (overwrites csv_path with full history)
     run([sys.executable, str(ALT / script)], f"Extend {name}")
 
-    # 3. Read regenerated CSV and extract only NEW rows
+    # 4. Read regenerated CSV and extract only NEW rows
     new = pd.read_csv(csv_path)
     new_dc = new.columns[0] if use_first_col else date_col_name
     new[new_dc] = pd.to_datetime(new[new_dc])
@@ -409,29 +431,40 @@ def main():
     latest = get_latest_market_date()
     print(f"\nLatest common market date across SPY/QQQ/IBIT: {latest}")
 
+    # lookahead_days = how many trailing rows are unsafe to freeze each cron,
+    # because the sleeve's day-t return depends on opens[t+1...t+N]. Those
+    # values would be NaN→0 when yesterday's cron computed them, and must be
+    # reclaimed from a fresh regeneration today.
+    #   VANGUARD: backward-looking (o2o = opens / opens.shift(1)) — safe
+    #   ORION:    o2o = opens.pct_change().shift(-1)               — needs t+1
+    #   HELIOS:   r_fwd = opens.shift(-2)/opens.shift(-1) - 1       — needs t+1, t+2
+    #   QUANTUM:  c2c on closes (no future leakage)                 — safe
     sleeve_map = [
-        ("VANGUARD", "vanguard_strategy.py", "vanguard_returns.csv", None),  # first-col date
-        ("ORION",    "orion_strategy.py",    "orion_returns.csv",    "Date"),
-        ("HELIOS",   "helios_strategy.py",   "helios_returns.csv",   "Date"),
-        ("QUANTUM",  "quantum_strategy.py",  "quantum_returns.csv",  "Date"),
+        ("VANGUARD", "vanguard_strategy.py", "vanguard_returns.csv", None,   0),
+        ("ORION",    "orion_strategy.py",    "orion_returns.csv",    "Date", 1),
+        ("HELIOS",   "helios_strategy.py",   "helios_returns.csv",   "Date", 2),
+        ("QUANTUM",  "quantum_strategy.py",  "quantum_returns.csv",  "Date", 0),
     ]
-    for name, script, csv_name, date_col in sleeve_map:
+    for name, script, csv_name, date_col, lookahead in sleeve_map:
         last = get_sleeve_last_date(csv_name)
         if last is None:
             print(f"\n{name}: no existing returns; full run needed")
             run([sys.executable, str(ALT / script)], f"Build {name}")
-        elif latest is not None and last >= latest:
+        elif latest is not None and last >= latest and lookahead == 0:
             print(f"\n{name}: already at {last} (matches market date) — skip rerun ✓")
         else:
-            print(f"\n{name}: last date {last} < market {latest} — extend (preserving history)")
-            extend_sleeve_preserving_history(name, script, csv_name, date_col)
+            print(f"\n{name}: last date {last} vs market {latest} — extend "
+                  f"(preserving history, lookahead={lookahead})")
+            extend_sleeve_preserving_history(name, script, csv_name, date_col, lookahead)
 
-    # CRYPTO
+    # CRYPTO uses port_ret.shift(1) so the last saved date isn't NaN-filled —
+    # no lookahead trim needed.
     cry_last = get_sleeve_last_date("crypto_returns.csv")
     if cry_last is None or (latest and cry_last < latest):
         print(f"\nCRYPTO: last date {cry_last} — extending (preserving history)")
         extend_sleeve_preserving_history("CRYPTO", "phoenix_v2_crypto.py",
-                                          "crypto_returns.csv", "Date")
+                                          "crypto_returns.csv", "Date",
+                                          lookahead_days=0)
     else:
         print(f"\nCRYPTO: already at {cry_last} — skip rerun ✓")
 
