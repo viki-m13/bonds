@@ -229,6 +229,41 @@ def perf_metrics(rets: pd.Series, periods: int = 252) -> dict:
 # --------------------------------------------------------------------------- #
 # Main run
 # --------------------------------------------------------------------------- #
+def build_weights(
+    mom_lb: int = 189,
+    sma_lb: int = 200,
+    vol_lb: int = 60,
+    gross: float = 1.5,
+    live_extend: bool = False,
+) -> pd.DataFrame:
+    """Compute the canonical target-weight DataFrame indexed by date with
+    columns = CORE tickers. Weights can sum > 1 (gross 1.5x). Used by both
+    the backtest in run() and the live-signal aggregator.
+
+    Cash residual is implicit: gross_at_t < 1 means (1 - gross_at_t) sits
+    in cash earning ~0.
+
+    live_extend: If True, extend the date index by one BDay forward
+        (ffilling closes & opens) so the LAST row is W[t+1] using close[t]
+        info — the weight to hold at the next market open. Used by
+        alt/live_signal.py only.
+    """
+    opens, closes = build_panels(CORE)
+    if live_extend and len(opens) > 0:
+        next_day = opens.index[-1] + pd.tseries.offsets.BDay()
+        opens.loc[next_day] = opens.iloc[-1]
+        closes.loc[next_day] = closes.iloc[-1]
+        opens = opens.sort_index()
+        closes = closes.sort_index()
+    idx = opens.index
+    fred = build_fred(idx)
+    spy = load_spy(idx)
+    trg = compute_trigger_count(fred, spy)
+    part = participation_from_triggers(trg)
+    basket_w = build_basket_weights(opens, closes, mom_lb=mom_lb, sma_lb=sma_lb, vol_lb=vol_lb)
+    return basket_w.mul(part * gross, axis=0)
+
+
 def run(
     mom_lb: int = 189,
     sma_lb: int = 200,

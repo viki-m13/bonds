@@ -334,6 +334,38 @@ def standalone_signal_portfolios(opens, closes, macro):
 
 
 # ---------------------------------------------------------------------------
+# Live-signal-friendly weight builder (single source of truth)
+# ---------------------------------------------------------------------------
+def build_weights(live_extend: bool = False) -> pd.DataFrame:
+    """Compute the canonical ORION daily target-weight DataFrame.
+
+    Index: trading dates from START_DATE.
+    Columns: UNIVERSE (RISK + SAFE LETFs). Weights sum to <= 1.0 per day.
+
+    live_extend: If True, extend the date index by one BDay forward
+        (ffilling closes & opens) so the LAST row is W[t+1] computed from
+        close[t] info — i.e., the weight to hold at next-day open. The
+        signal layer's shift(1) automatically advances the lookback by one
+        day. Used by alt/live_signal.py only.
+    """
+    opens, closes = load_prices(UNIVERSE)
+    opens = opens.dropna(how="any")
+    closes = closes.loc[opens.index]
+    opens = opens.loc[START_DATE:END_DATE]
+    closes = closes.loc[START_DATE:END_DATE]
+    if live_extend and len(opens) > 0:
+        next_day = opens.index[-1] + pd.tseries.offsets.BDay()
+        opens.loc[next_day] = opens.iloc[-1]
+        closes.loc[next_day] = closes.iloc[-1]
+        opens = opens.sort_index()
+        closes = closes.sort_index()
+    macro = load_macro()
+    W_risk = build_risk_sleeve(opens, closes, macro)
+    W_safe = build_safe_sleeve(opens, closes)
+    return RISK_WEIGHT * W_risk + SAFE_WEIGHT * W_safe
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 def main():
