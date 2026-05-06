@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-05-06T16:47:42+00:00",
+  "generated_at_utc": "2026-05-06T23:50:34+00:00",
   "context": {
     "as_of": "2026-05-06",
     "raw_blend_gross": 1.1189999999999998,
@@ -67,14 +67,14 @@
       "QUA": 0.152,
       "CRY": 0.101
     },
-    "vol_target_mult": 0.7217335854634934,
+    "vol_target_mult": 0.7217335854634932,
     "dd_mult": 1.0,
     "vol_gate_mult": 1.0,
-    "overlay_mult": 0.7217335854634934,
+    "overlay_mult": 0.7217335854634932,
     "overlay_reason": "Vol target 15% \u2192 mult 0.72x (realized vol 20.8%) \u00b7 All safety gates clear",
-    "vix": 18.29,
-    "hy_oas_slope_20d": -0.27,
-    "spy_vs_200dma": 0.09242440856204426,
+    "vix": 17.38,
+    "hy_oas_slope_20d": -0.3500000000000001,
+    "spy_vs_200dma": 0.09613085397383037,
     "regime_gate_pass": true,
     "regime_risk_on": true
   },
@@ -128,47 +128,47 @@
   "target_positions": [
     {
       "ticker": "UGL",
-      "weight": 0.2820762889517191,
+      "weight": 0.28207628895171905,
       "pct": 28.21
     },
     {
       "ticker": "BIL",
-      "weight": 0.2652752099981637,
+      "weight": 0.2652752099981639,
       "pct": 26.53
     },
     {
       "ticker": "QLD",
-      "weight": 0.15818119818101187,
+      "weight": 0.1581811981810118,
       "pct": 15.82
     },
     {
       "ticker": "SOXL",
-      "weight": 0.09626121696119343,
+      "weight": 0.0962612169611934,
       "pct": 9.63
     },
     {
       "ticker": "UCO",
-      "weight": 0.06606869530263729,
+      "weight": 0.06606869530263727,
       "pct": 6.61
     },
     {
       "ticker": "TMF",
-      "weight": 0.036567834996817,
+      "weight": 0.03656783499681699,
       "pct": 3.66
     },
     {
       "ticker": "YINN",
-      "weight": 0.036567834996817,
+      "weight": 0.03656783499681699,
       "pct": 3.66
     },
     {
       "ticker": "EDC",
-      "weight": 0.029500860305820296,
+      "weight": 0.029500860305820286,
       "pct": 2.95
     },
     {
       "ticker": "TECL",
-      "weight": 0.029500860305820296,
+      "weight": 0.029500860305820286,
       "pct": 2.95
     }
   ],
