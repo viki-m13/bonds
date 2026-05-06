@@ -206,12 +206,20 @@ A virtual portfolio that fires every live signal at the next-day market open, us
 </div>
 <div class="g3" style="margin-bottom:12px">
 <div class="kpi"><div class="kpi-val" id="paperNavVal"></div><div class="kpi-label">CURRENT NAV</div></div>
-<div class="kpi"><div class="kpi-val" id="paperRetVal"></div><div class="kpi-label">TOTAL RETURN</div></div>
+<div class="kpi"><div class="kpi-val" id="paperRetVal"></div><div class="kpi-label">PHOENIX TOTAL RETURN</div></div>
+<div class="kpi"><div class="kpi-val" id="paperSpyVal"></div><div class="kpi-label">SPY TOTAL RETURN</div></div>
+</div>
+<div class="g3" style="margin-bottom:12px">
+<div class="kpi"><div class="kpi-val" id="paperSharpeVal"></div><div class="kpi-label">SHARPE (paper)</div></div>
+<div class="kpi"><div class="kpi-val" id="paperMddVal"></div><div class="kpi-label">MAX DRAWDOWN</div></div>
 <div class="kpi"><div class="kpi-val" id="paperTrackErr"></div><div class="kpi-label">TRACKING ERR/YR</div></div>
 </div>
 <div style="font-size:0.72rem;color:var(--t3);margin-bottom:12px" id="paperConfigLine"></div>
 
-<h3 style="color:var(--t1);font-size:0.9rem;margin:12px 0 6px 0">NAV vs initial $</h3>
+<h3 style="color:var(--t1);font-size:0.9rem;margin:12px 0 6px 0">NAV: paper vs SPY (same start date, same $10k)</h3>
+<div class="chart-wrap"><canvas id="paperChart"></canvas></div>
+
+<h3 style="color:var(--t1);font-size:0.9rem;margin:16px 0 6px 0">NAV history</h3>
 <div style="overflow-x:auto"><table id="paperNavTable" style="font-size:0.8rem">
 <thead><tr><th>Date</th><th>NAV ($)</th><th>Realized return</th><th>Turnover</th><th>TC drag</th></tr></thead>
 <tbody></tbody>
@@ -227,6 +235,62 @@ A virtual portfolio that fires every live signal at the next-day market open, us
 <div style="margin-top:12px;padding:10px;background:var(--card2);border-radius:4px;font-size:0.72rem;color:var(--t2);line-height:1.5">
 <strong style="color:var(--t1)">What this is.</strong> A research aid that mirrors what your live execution would have produced. <strong>Not your real account.</strong> Initial capital, TC bps, and trade-size threshold are configurable via env vars (<code>PAPER_INITIAL_NAV</code>, <code>PAPER_TC_BPS</code>). Tracking error below ~50&nbsp;bps annualized indicates the friction model is the only material gap from backtest. Larger tracking error usually points to a strategy switch (e.g., the analog &rarr; canonical changeover) or a data revision.
 </div>
+</div>
+</div>
+</div>
+
+<!-- HISTORICAL SIMULATOR -->
+<div class="section">
+<div class="section-title" style="color:var(--accent)">&#x1F4B5; What-if simulator &mdash; pick a $ and a date range</div>
+<div class="card" style="border-left:4px solid var(--accent);background:#fff8f0">
+<div style="font-size:0.78rem;color:var(--t2);margin-bottom:12px;line-height:1.5">
+Pick an amount and a date range. The simulator scales the Phoenix backtest's net-of-cost return curve to your inputs and compares against buying-and-holding SPY and a 60/40 portfolio over the same window. <strong>Same data, same overlay, same TC drag</strong> the live signal uses &mdash; this is the historical track record under the canonical strategy.
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px">
+<div>
+<label style="font-size:0.78rem;font-weight:600;color:var(--t1);display:block;margin-bottom:4px">Starting amount ($)</label>
+<input id="simAmount" type="number" min="100" step="1000" value="10000"
+       style="padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:0.95rem;width:100%;box-sizing:border-box">
+</div>
+<div>
+<label style="font-size:0.78rem;font-weight:600;color:var(--t1);display:block;margin-bottom:4px">Start date</label>
+<input id="simStart" type="date"
+       style="padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:0.95rem;width:100%;box-sizing:border-box">
+</div>
+<div>
+<label style="font-size:0.78rem;font-weight:600;color:var(--t1);display:block;margin-bottom:4px">End date</label>
+<input id="simEnd" type="date"
+       style="padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:0.95rem;width:100%;box-sizing:border-box">
+</div>
+<div style="display:flex;align-items:flex-end">
+<button onclick="runSimulator()" style="padding:9px 18px;border-radius:4px;background:var(--accent);color:#fff;font-size:0.85rem;font-weight:600;border:none;cursor:pointer;width:100%">Simulate</button>
+</div>
+</div>
+<div style="font-size:0.7rem;color:var(--t3);margin-bottom:12px">
+Quick presets:
+<a href="#" onclick="setSimRange('1y');return false" style="color:var(--accent)">last 1y</a> &middot;
+<a href="#" onclick="setSimRange('3y');return false" style="color:var(--accent)">last 3y</a> &middot;
+<a href="#" onclick="setSimRange('5y');return false" style="color:var(--accent)">last 5y</a> &middot;
+<a href="#" onclick="setSimRange('10y');return false" style="color:var(--accent)">last 10y</a> &middot;
+<a href="#" onclick="setSimRange('all');return false" style="color:var(--accent)">since 2010</a> &middot;
+<a href="#" onclick="setSimRange('2008-stress');return false" style="color:var(--accent)">2018 vol shock</a> &middot;
+<a href="#" onclick="setSimRange('2020-covid');return false" style="color:var(--accent)">2020 covid crash</a> &middot;
+<a href="#" onclick="setSimRange('2022-rates');return false" style="color:var(--accent)">2022 rate shock</a>
+</div>
+
+<div id="simResult" style="display:none">
+<div class="g3" style="margin-bottom:12px">
+<div class="kpi"><div class="kpi-val" id="simPhxFinal"></div><div class="kpi-label">PHOENIX FINAL</div></div>
+<div class="kpi"><div class="kpi-val" id="simSpyFinal"></div><div class="kpi-label">SPY FINAL</div></div>
+<div class="kpi"><div class="kpi-val" id="sim6040Final"></div><div class="kpi-label">60/40 FINAL</div></div>
+</div>
+<div class="g3" style="margin-bottom:12px">
+<div class="kpi"><div class="kpi-val" id="simPhxCagr"></div><div class="kpi-label">PHOENIX CAGR</div></div>
+<div class="kpi"><div class="kpi-val" id="simPhxMdd"></div><div class="kpi-label">PHOENIX MDD</div></div>
+<div class="kpi"><div class="kpi-val" id="simYears"></div><div class="kpi-label">PERIOD (years)</div></div>
+</div>
+<div style="font-size:0.72rem;color:var(--t3);margin-bottom:12px" id="simRangeLine"></div>
+<div class="chart-wrap"><canvas id="simChart"></canvas></div>
 </div>
 </div>
 </div>
@@ -1631,6 +1695,7 @@ const PAPER = {
   "start_date": "2026-04-13",
   "current_nav": 11545.66,
   "total_return_pct": 15.46,
+  "spy_total_return_pct": 6.3,
   "n_trade_days": 16,
   "ann_return_pct": 232.21,
   "ann_vol_pct": 26.22,
@@ -1949,67 +2014,181 @@ const PAPER = {
   "nav_series": [
     {
       "d": "2026-04-13",
-      "v": 9994.09
+      "v": 9994.09,
+      "ret": 0.0,
+      "turnover": 1.1823,
+      "tc": 0.000591
     },
     {
       "d": "2026-04-14",
-      "v": 10029.25
+      "v": 10029.25,
+      "ret": 0.003518,
+      "turnover": 0.0,
+      "tc": 0.0
     },
     {
       "d": "2026-04-15",
-      "v": 9927.22
+      "v": 9927.22,
+      "ret": -0.01014,
+      "turnover": 0.0666,
+      "tc": 3.3e-05
     },
     {
       "d": "2026-04-16",
-      "v": 9982.54
+      "v": 9982.54,
+      "ret": 0.005573,
+      "turnover": 0.0,
+      "tc": 0.0
     },
     {
       "d": "2026-04-17",
-      "v": 9821.4
+      "v": 9821.4,
+      "ret": -0.016142,
+      "turnover": 0.0,
+      "tc": 0.0
     },
     {
       "d": "2026-04-20",
-      "v": 10041.5
+      "v": 10041.5,
+      "ret": 0.022444,
+      "turnover": 0.0666,
+      "tc": 3.3e-05
     },
     {
       "d": "2026-04-21",
-      "v": 10120.29
+      "v": 10120.29,
+      "ret": 0.007941,
+      "turnover": 0.1881,
+      "tc": 9.4e-05
     },
     {
       "d": "2026-04-22",
-      "v": 10331.27
+      "v": 10331.27,
+      "ret": 0.020914,
+      "turnover": 0.1312,
+      "tc": 6.6e-05
     },
     {
       "d": "2026-04-23",
-      "v": 10529.54
+      "v": 10529.54,
+      "ret": 0.019254,
+      "turnover": 0.1233,
+      "tc": 6.2e-05
     },
     {
       "d": "2026-04-24",
-      "v": 10910.32
+      "v": 10910.32,
+      "ret": 0.036227,
+      "turnover": 0.122,
+      "tc": 6.1e-05
     },
     {
       "d": "2026-04-27",
-      "v": 11049.58
+      "v": 11049.58,
+      "ret": 0.012774,
+      "turnover": 0.02,
+      "tc": 1e-05
     },
     {
       "d": "2026-04-28",
-      "v": 10761.12
+      "v": 10761.12,
+      "ret": -0.026098,
+      "turnover": 0.0148,
+      "tc": 7e-06
     },
     {
       "d": "2026-04-29",
-      "v": 11075.88
+      "v": 11075.88,
+      "ret": 0.029257,
+      "turnover": 0.0153,
+      "tc": 8e-06
     },
     {
       "d": "2026-04-30",
-      "v": 11206.85
+      "v": 11206.85,
+      "ret": 0.011836,
+      "turnover": 0.0219,
+      "tc": 1.1e-05
     },
     {
       "d": "2026-05-01",
-      "v": 11311.36
+      "v": 11311.36,
+      "ret": 0.009332,
+      "turnover": 0.0138,
+      "tc": 7e-06
     },
     {
       "d": "2026-05-04",
-      "v": 11545.66
+      "v": 11545.66,
+      "ret": 0.020744,
+      "turnover": 0.0593,
+      "tc": 3e-05
+    }
+  ],
+  "spy_series": [
+    {
+      "d": "2026-04-13",
+      "v": 10000.0
+    },
+    {
+      "d": "2026-04-14",
+      "v": 10151.75
+    },
+    {
+      "d": "2026-04-15",
+      "v": 10263.5
+    },
+    {
+      "d": "2026-04-16",
+      "v": 10349.12
+    },
+    {
+      "d": "2026-04-17",
+      "v": 10424.12
+    },
+    {
+      "d": "2026-04-20",
+      "v": 10463.09
+    },
+    {
+      "d": "2026-04-21",
+      "v": 10485.23
+    },
+    {
+      "d": "2026-04-22",
+      "v": 10468.55
+    },
+    {
+      "d": "2026-04-23",
+      "v": 10473.72
+    },
+    {
+      "d": "2026-04-24",
+      "v": 10492.17
+    },
+    {
+      "d": "2026-04-27",
+      "v": 10527.89
+    },
+    {
+      "d": "2026-04-28",
+      "v": 10507.96
+    },
+    {
+      "d": "2026-04-29",
+      "v": 10495.86
+    },
+    {
+      "d": "2026-04-30",
+      "v": 10549.45
+    },
+    {
+      "d": "2026-05-01",
+      "v": 10647.17
+    },
+    {
+      "d": "2026-05-04",
+      "v": 10629.75
     }
   ]
 };
@@ -2019,10 +2198,26 @@ if (PAPER && PAPER.current_nav !== undefined) {
   document.getElementById('paperContent').style.display = 'block';
   const navEl = document.getElementById('paperNavVal');
   const retEl = document.getElementById('paperRetVal');
+  const spyEl = document.getElementById('paperSpyVal');
+  const shEl  = document.getElementById('paperSharpeVal');
+  const mddEl = document.getElementById('paperMddVal');
   const trkEl = document.getElementById('paperTrackErr');
+
   navEl.textContent = '$' + Number(PAPER.current_nav).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
   retEl.textContent = (PAPER.total_return_pct >= 0 ? '+' : '') + Number(PAPER.total_return_pct).toFixed(2) + '%';
   retEl.className = 'kpi-val ' + (PAPER.total_return_pct >= 0 ? 'pos' : 'neg');
+
+  if (PAPER.spy_total_return_pct !== null && PAPER.spy_total_return_pct !== undefined) {
+    spyEl.textContent = (PAPER.spy_total_return_pct >= 0 ? '+' : '') + Number(PAPER.spy_total_return_pct).toFixed(2) + '%';
+    spyEl.className = 'kpi-val ' + (PAPER.spy_total_return_pct >= 0 ? 'pos' : 'neg');
+  } else {
+    spyEl.textContent = '—';
+  }
+
+  shEl.textContent  = Number(PAPER.sharpe || 0).toFixed(2);
+  mddEl.textContent = Number(PAPER.mdd_pct || 0).toFixed(2) + '%';
+  mddEl.className = 'kpi-val ' + ((PAPER.mdd_pct || 0) >= 0 ? 'pos' : 'neg');
+
   if (PAPER.tracking_error_vs_backtest && PAPER.tracking_error_vs_backtest.ann_tracking_error_bps !== undefined) {
     trkEl.textContent = Number(PAPER.tracking_error_vs_backtest.ann_tracking_error_bps).toFixed(0) + ' bps';
   } else {
@@ -2034,21 +2229,67 @@ if (PAPER && PAPER.current_nav !== undefined) {
   cfgEl.textContent = 'Started ' + (PAPER.start_date || '?') +
                       ' with $' + Number(cfg.initial_nav || 0).toLocaleString() +
                       ' · TC ' + (cfg.tc_bps_per_side || 0) + ' bps/side · ' +
-                      (PAPER.n_trade_days || 0) + ' fill events · Sharpe ' +
-                      (PAPER.sharpe || 0).toFixed(2) + ' · MDD ' + (PAPER.mdd_pct || 0).toFixed(1) + '%';
+                      (PAPER.n_trade_days || 0) + ' fill events';
 
-  // NAV table — show last ~30 rows
+  // NAV table — show last ~30 rows with full detail
   const navTb = document.querySelector('#paperNavTable tbody');
   navTb.innerHTML = '';
   const navRows = (PAPER.nav_series || []).slice().reverse().slice(0, 30);
-  // We need realized_ret, turnover, tc_drag — they aren't in nav_series; pull from a parallel structure
-  // Actually nav_series is just {d, v}; richer rows live in recent_fills. Render NAV+date only.
-  // For richer view we'd need to fetch paper_nav.csv; keep it light for now.
   navRows.forEach(r => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${r.d}</td><td style="text-align:right">$${Number(r.v).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td><td colspan="3" style="color:var(--t3)">—</td>`;
+    const retPct = (r.ret || 0) * 100;
+    const turnoverPct = (r.turnover || 0) * 100;
+    const tcBps = (r.tc || 0) * 1e4;
+    const retCls = retPct >= 0 ? 'pos' : 'neg';
+    tr.innerHTML = `<td>${r.d}</td>` +
+                   `<td style="text-align:right">$${Number(r.v).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>` +
+                   `<td class="${retCls}" style="text-align:right">${retPct >= 0 ? '+' : ''}${retPct.toFixed(3)}%</td>` +
+                   `<td style="text-align:right">${turnoverPct.toFixed(1)}%</td>` +
+                   `<td style="text-align:right;color:var(--t3)">${tcBps.toFixed(1)} bps</td>`;
     navTb.appendChild(tr);
   });
+
+  // NAV vs SPY chart (degrade gracefully if Chart.js failed to load)
+  const paperCanvas = document.getElementById('paperChart');
+  if (paperCanvas && (PAPER.nav_series || []).length > 0 && typeof Chart !== 'undefined') try {
+    new Chart(paperCanvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        datasets: [
+          {
+            label: 'PHOENIX (paper)',
+            data: (PAPER.nav_series || []).map(p => ({x: p.d, y: p.v})),
+            borderColor: '#ea580c',
+            backgroundColor: 'rgba(234, 88, 12, 0.08)',
+            borderWidth: 2,
+            pointRadius: 3,
+            tension: 0.15,
+            fill: true,
+          },
+          {
+            label: 'SPY (buy & hold, same $)',
+            data: (PAPER.spy_series || []).map(p => ({x: p.d, y: p.v})),
+            borderColor: '#0e7490',
+            borderWidth: 1.5,
+            pointRadius: 2,
+            tension: 0.15,
+          },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {type: 'time', time: {unit: 'day'}, ticks: {maxRotation: 0, font: {size: 10}}},
+          y: {ticks: {callback: v => '$' + Number(v).toLocaleString(undefined, {maximumFractionDigits: 0}), font: {size: 10}}}
+        },
+        plugins: {
+          legend: {position: 'top', labels: {font: {size: 11}, boxWidth: 12}},
+          tooltip: {callbacks: {label: ctx => ctx.dataset.label + ': $' + Number(ctx.parsed.y).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}}
+        }
+      }
+    });
+  } catch (e) { console.warn('paper chart render failed:', e); }
 
   // Fills table
   const fillTb = document.querySelector('#paperFillsTable tbody');
@@ -2069,6 +2310,145 @@ if (PAPER && PAPER.current_nav !== undefined) {
   document.getElementById('paperEmpty').style.display = 'block';
   document.getElementById('paperContent').style.display = 'none';
 }
+
+// === What-if simulator ===
+let _simChart = null;
+
+function setSimRange(preset) {
+  const eq = (F && F.equity) || [];
+  if (eq.length === 0) return;
+  const lastDate = eq[eq.length - 1].d;
+  const endInput = document.getElementById('simEnd');
+  const startInput = document.getElementById('simStart');
+  endInput.value = lastDate;
+  if (preset === '1y') {
+    const d = new Date(lastDate); d.setFullYear(d.getFullYear() - 1);
+    startInput.value = d.toISOString().slice(0, 10);
+  } else if (preset === '3y') {
+    const d = new Date(lastDate); d.setFullYear(d.getFullYear() - 3);
+    startInput.value = d.toISOString().slice(0, 10);
+  } else if (preset === '5y') {
+    const d = new Date(lastDate); d.setFullYear(d.getFullYear() - 5);
+    startInput.value = d.toISOString().slice(0, 10);
+  } else if (preset === '10y') {
+    const d = new Date(lastDate); d.setFullYear(d.getFullYear() - 10);
+    startInput.value = d.toISOString().slice(0, 10);
+  } else if (preset === 'all') {
+    startInput.value = eq[0].d;
+  } else if (preset === '2008-stress') {
+    startInput.value = '2018-01-01';
+    endInput.value   = '2019-12-31';
+  } else if (preset === '2020-covid') {
+    startInput.value = '2020-01-01';
+    endInput.value   = '2020-12-31';
+  } else if (preset === '2022-rates') {
+    startInput.value = '2022-01-01';
+    endInput.value   = '2022-12-31';
+  }
+  runSimulator();
+}
+
+function runSimulator() {
+  const eq = (F && F.equity) || [];
+  if (eq.length === 0) return;
+  const amount = parseFloat(document.getElementById('simAmount').value) || 10000;
+  const startStr = document.getElementById('simStart').value || eq[0].d;
+  const endStr   = document.getElementById('simEnd').value   || eq[eq.length - 1].d;
+
+  const slice = eq.filter(p => p.d >= startStr && p.d <= endStr);
+  if (slice.length < 2) {
+    alert('Need at least 2 weekly samples in the chosen window.');
+    return;
+  }
+  const p0 = slice[0];
+  const p1 = slice[slice.length - 1];
+
+  // Scale all three curves so they start at `amount`
+  const scaleP = amount / p0.p;
+  const scaleS = amount / p0.s;
+  const scaleB = amount / p0.b;
+
+  const phxFinal = p1.p * scaleP;
+  const spyFinal = p1.s * scaleS;
+  const benFinal = p1.b * scaleB;
+
+  const startD = new Date(p0.d);
+  const endD = new Date(p1.d);
+  const years = (endD - startD) / (365.25 * 24 * 3600 * 1000);
+  const phxCagr = years > 0 ? Math.pow(phxFinal / amount, 1 / years) - 1 : 0;
+
+  // Phoenix MDD on the slice
+  const navs = slice.map(p => p.p * scaleP);
+  let peak = navs[0]; let mdd = 0;
+  for (const v of navs) {
+    if (v > peak) peak = v;
+    const dd = v / peak - 1;
+    if (dd < mdd) mdd = dd;
+  }
+
+  const fmt = v => '$' + Number(v).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+  const phxRet = (phxFinal / amount - 1) * 100;
+  const spyRet = (spyFinal / amount - 1) * 100;
+  const benRet = (benFinal / amount - 1) * 100;
+  document.getElementById('simPhxFinal').innerHTML =
+    fmt(phxFinal) + '<div style="font-size:0.6em;font-weight:400;margin-top:2px" class="' +
+    (phxRet >= 0 ? 'pos' : 'neg') + '">' + (phxRet >= 0 ? '+' : '') + phxRet.toFixed(1) + '%</div>';
+  document.getElementById('simSpyFinal').innerHTML =
+    fmt(spyFinal) + '<div style="font-size:0.6em;font-weight:400;margin-top:2px" class="' +
+    (spyRet >= 0 ? 'pos' : 'neg') + '">' + (spyRet >= 0 ? '+' : '') + spyRet.toFixed(1) + '%</div>';
+  document.getElementById('sim6040Final').innerHTML =
+    fmt(benFinal) + '<div style="font-size:0.6em;font-weight:400;margin-top:2px" class="' +
+    (benRet >= 0 ? 'pos' : 'neg') + '">' + (benRet >= 0 ? '+' : '') + benRet.toFixed(1) + '%</div>';
+
+  const cagrEl = document.getElementById('simPhxCagr');
+  cagrEl.textContent = (phxCagr * 100).toFixed(1) + '%';
+  cagrEl.className = 'kpi-val ' + (phxCagr >= 0 ? 'pos' : 'neg');
+  const simMddEl = document.getElementById('simPhxMdd');
+  simMddEl.textContent = (mdd * 100).toFixed(1) + '%';
+  simMddEl.className = 'kpi-val ' + (mdd >= 0 ? 'pos' : 'neg');
+  document.getElementById('simYears').textContent = years.toFixed(1);
+  document.getElementById('simRangeLine').textContent =
+    'From ' + p0.d + ' to ' + p1.d + ' · ' + slice.length + ' weekly samples · ' +
+    'Initial $' + Number(amount).toLocaleString();
+
+  document.getElementById('simResult').style.display = 'block';
+
+  if (typeof Chart === 'undefined') return;  // chart.js not loaded
+  const ctx = document.getElementById('simChart').getContext('2d');
+  if (_simChart) _simChart.destroy();
+  _simChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        {label: 'PHOENIX', data: slice.map(p => ({x: p.d, y: p.p * scaleP})),
+         borderColor: '#ea580c', borderWidth: 2.5, pointRadius: 0, tension: 0.15},
+        {label: 'SPY (buy & hold)', data: slice.map(p => ({x: p.d, y: p.s * scaleS})),
+         borderColor: '#0e7490', borderWidth: 1.5, pointRadius: 0, tension: 0.15},
+        {label: '60/40', data: slice.map(p => ({x: p.d, y: p.b * scaleB})),
+         borderColor: '#8888a0', borderWidth: 1.5, pointRadius: 0, tension: 0.15},
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: {type: 'time', time: {unit: years > 5 ? 'year' : (years > 1 ? 'month' : 'day')},
+            ticks: {maxRotation: 0, font: {size: 10}}},
+        y: {ticks: {callback: v => '$' + Number(v).toLocaleString(undefined, {maximumFractionDigits: 0}), font: {size: 10}}}
+      },
+      plugins: {
+        legend: {position: 'top', labels: {font: {size: 11}, boxWidth: 12}},
+        tooltip: {callbacks: {label: c => c.dataset.label + ': $' + Number(c.parsed.y).toLocaleString(undefined, {maximumFractionDigits: 0})}}
+      }
+    }
+  });
+}
+
+// Initialize simulator with sensible default range (last 5y) when page loads
+window.addEventListener('DOMContentLoaded', () => {
+  if (F && F.equity && F.equity.length > 0) {
+    setSimRange('5y');
+  }
+});
 
 if (LIVE && LIVE.context && LIVE.target_positions) {
   document.getElementById('liveEmpty').style.display = 'none';

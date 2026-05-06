@@ -216,9 +216,39 @@ def main():
                                .head(30)
                                .to_dict(orient="records")) if len(fill_df) > 0 else []
 
-        # NAV time series for charting
-        nav_series = [{"d": row["Date"], "v": row["NAV"]}
-                      for _, row in nav_df.iterrows()]
+        # Full NAV time series (all fields) for charting + table
+        nav_series = []
+        for _, row in nav_df.iterrows():
+            nav_series.append({
+                "d": row["Date"],
+                "v": float(row["NAV"]),
+                "ret": float(row["realized_ret"]),
+                "turnover": float(row["turnover"]),
+                "tc": float(row["tc_drag"]),
+            })
+
+        # Benchmark: SPY buy-and-hold with same initial_nav and same start date.
+        # Uses Open prices (open-to-open, identical convention to paper).
+        spy_series = []
+        spy_csv = ETF / "SPY.csv"
+        if spy_csv.exists() and len(nav_df) > 0:
+            spy_df = pd.read_csv(spy_csv, parse_dates=["Date"]).set_index("Date").sort_index()
+            spy_df = spy_df[~spy_df.index.duplicated(keep="first")]
+            spy_open = pd.to_numeric(spy_df["Open"], errors="coerce")
+            start_date = pd.Timestamp(first["Date"])
+            spy_at_start = spy_open.reindex([start_date], method="ffill").iloc[0]
+            if np.isfinite(spy_at_start) and spy_at_start > 0:
+                for _, row in nav_df.iterrows():
+                    d = pd.Timestamp(row["Date"])
+                    spy_at_d = spy_open.reindex([d], method="ffill").iloc[0]
+                    if np.isfinite(spy_at_d) and spy_at_d > 0:
+                        spy_nav = INITIAL_NAV * (spy_at_d / spy_at_start)
+                        spy_series.append({"d": row["Date"], "v": round(float(spy_nav), 2)})
+
+        # SPY total return over the same period (for KPI comparison)
+        spy_total_return = None
+        if spy_series:
+            spy_total_return = round((spy_series[-1]["v"] / INITIAL_NAV - 1) * 100, 2)
 
         summary = {
             "config": {
@@ -230,6 +260,7 @@ def main():
             "start_date": str(first["Date"]),
             "current_nav": float(latest["NAV"]),
             "total_return_pct": round(total_ret * 100, 2),
+            "spy_total_return_pct": spy_total_return,
             "n_trade_days": int(len(nav_df)),
             "ann_return_pct": round(ann_ret * 100, 2),
             "ann_vol_pct": round(ann_vol * 100, 2),
@@ -238,6 +269,7 @@ def main():
             "tracking_error_vs_backtest": tracking,
             "recent_fills": recent_fills,
             "nav_series": nav_series,
+            "spy_series": spy_series,
         }
     else:
         summary = {"config": {"initial_nav": INITIAL_NAV, "tc_bps_per_side": TC_BPS},
