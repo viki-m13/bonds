@@ -306,7 +306,11 @@ def inject_into_html():
     for name, path in [("F", R/"phoenix_factsheet.json"),
                        ("A", R/"phoenix_v2_audit.json"),
                        ("L", R/"phoenix_v2_live.json"),
-                       ("LIVE", R/"live_signal.json")]:
+                       ("LIVE", R/"live_signal.json"),
+                       ("PAPER", R/"paper_summary.json")]:
+        if not path.exists():
+            print(f"  [skip] {path.name} not yet generated")
+            continue
         data = path.read_text()
         pat = re.compile(rf'const {name} = \{{.*?\}};', re.DOTALL)
         replacement = f'const {name} = {data};'
@@ -485,6 +489,10 @@ def main():
 
     # 6b. Regenerate live_signal.json for TODAY's open orders
     run(["python3", str(ALT / "live_signal.py"), "--skip-fetch"], "Generate today's live_signal.json")
+
+    # 6c. Update paper-trading NAV and fills (executes the live signals at
+    # actual yfinance Open prices and tracks NAV vs backtest).
+    run(["python3", str(ALT / "paper_trader.py")], "Update paper-trading NAV")
 
     # 7. Regenerate audit bundle (needs live_signal.json to be current)
     print("\n=== Regenerating audit bundle ===")
