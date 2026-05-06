@@ -40,14 +40,24 @@ def run(cmd: list, desc: str):
 
 
 def fetch_latest_prices():
-    """Delegate to live_signal.py's fetch methods."""
+    """Delegate to live_signal.py's fetch methods, using the union of every
+    canonical sleeve's universe + SPY/BIL anchors + HELIOS underlyings."""
     sys.path.insert(0, str(ALT))
     import live_signal as ls
-    universe = list(set(ls.UNIVERSE + ["SPY", "BIL", "QQQ", "TLT", "IEF",
-                                         "GLD", "USO", "XLK", "XLE", "XLF", "SMH",
-                                         "VNQ", "EEM", "FXI"]))
+    import vanguard_strategy as van
+    import orion_strategy as ori
+    import helios_strategy as hel
+    import quantum_strategy as qua
+    universe = set()
+    universe.update(van.LEV_UNIVERSE)            # full leveraged universe screened by VAN
+    universe.update(ori.UNIVERSE)
+    universe.update(hel.PAIRS.keys())            # HEL underlyings (signal source)
+    universe.update(hel.PAIRS.values())          # HEL leveraged expressions
+    universe.update(qua.UNIVERSE)
+    universe.update(["GBTC", "ETHE", "IBIT"])    # crypto sleeve + live BTC proxy
+    universe.update(["SPY", "BIL"])              # anchors
     print("Fetching latest ETF prices via yfinance...")
-    ls.fetch_latest(universe)
+    ls.fetch_latest(sorted(universe))
     print("\nFetching latest FRED macro series...")
     ls.fetch_fred_latest()
 
