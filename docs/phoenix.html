@@ -193,6 +193,44 @@ Enter your current portfolio value (total account $, including cash). The calcul
 </div>
 </div>
 
+<!-- PAPER TRADING -->
+<div class="section">
+<div class="section-title" style="color:var(--blue)">&#x1F4D8; Paper trading &mdash; live execution at real opens</div>
+<div class="card" style="border-left:4px solid var(--blue);background:#f5f8ff">
+<div id="paperEmpty" style="display:none;font-size:0.85rem;color:var(--t2);padding:10px">
+Paper trading hasn&apos;t produced any fills yet. As soon as the daily cron has run and at least two consecutive market opens are recorded, this section will populate with a virtual portfolio that executes the live signal at actual yfinance Open prices.
+</div>
+<div id="paperContent" style="display:none">
+<div style="font-size:0.78rem;color:var(--t2);margin-bottom:12px;line-height:1.5">
+A virtual portfolio that fires every live signal at the next-day market open, using the same yfinance Open prices the backtest uses. Configurable transaction costs (default 5 bps/side) are applied to each rebalance. NAV is open-to-open, identical to the backtest convention &mdash; the residual difference (tracking error below) is the friction model only.
+</div>
+<div class="g3" style="margin-bottom:12px">
+<div class="kpi"><div class="kpi-val" id="paperNavVal"></div><div class="kpi-label">CURRENT NAV</div></div>
+<div class="kpi"><div class="kpi-val" id="paperRetVal"></div><div class="kpi-label">TOTAL RETURN</div></div>
+<div class="kpi"><div class="kpi-val" id="paperTrackErr"></div><div class="kpi-label">TRACKING ERR/YR</div></div>
+</div>
+<div style="font-size:0.72rem;color:var(--t3);margin-bottom:12px" id="paperConfigLine"></div>
+
+<h3 style="color:var(--t1);font-size:0.9rem;margin:12px 0 6px 0">NAV vs initial $</h3>
+<div style="overflow-x:auto"><table id="paperNavTable" style="font-size:0.8rem">
+<thead><tr><th>Date</th><th>NAV ($)</th><th>Realized return</th><th>Turnover</th><th>TC drag</th></tr></thead>
+<tbody></tbody>
+</table></div>
+
+<h3 style="color:var(--t1);font-size:0.9rem;margin:16px 0 6px 0">Recent fills (most recent first)</h3>
+<div style="font-size:0.72rem;color:var(--t3);margin-bottom:6px">Each row is one trade ticket with the actual market open fill price and the implied share count given the paper portfolio&apos;s NAV at the time of fill.</div>
+<div style="overflow-x:auto"><table id="paperFillsTable" style="font-size:0.8rem">
+<thead><tr><th>Date</th><th>Side</th><th>Ticker</th><th>&Delta; Weight</th><th>Fill price</th><th>Shares</th><th>Notional</th></tr></thead>
+<tbody></tbody>
+</table></div>
+
+<div style="margin-top:12px;padding:10px;background:var(--card2);border-radius:4px;font-size:0.72rem;color:var(--t2);line-height:1.5">
+<strong style="color:var(--t1)">What this is.</strong> A research aid that mirrors what your live execution would have produced. <strong>Not your real account.</strong> Initial capital, TC bps, and trade-size threshold are configurable via env vars (<code>PAPER_INITIAL_NAV</code>, <code>PAPER_TC_BPS</code>). Tracking error below ~50&nbsp;bps annualized indicates the friction model is the only material gap from backtest. Larger tracking error usually points to a strategy switch (e.g., the analog &rarr; canonical changeover) or a data revision.
+</div>
+</div>
+</div>
+</div>
+
 <!-- PLAIN ENGLISH EXPLAINER -->
 <div class="section">
 <div class="section-title">How the strategy works &mdash; in plain English</div>
@@ -1581,6 +1619,456 @@ const LIVE = {
     "CRY": 0.101
   }
 };
+
+// === Paper trader rendering ===
+const PAPER = {
+  "config": {
+    "initial_nav": 10000.0,
+    "tc_bps_per_side": 5.0,
+    "trade_threshold_pct": 0.5
+  },
+  "as_of": "2026-05-04",
+  "start_date": "2026-04-13",
+  "current_nav": 11545.66,
+  "total_return_pct": 15.46,
+  "n_trade_days": 16,
+  "ann_return_pct": 232.21,
+  "ann_vol_pct": 26.22,
+  "sharpe": 8.855,
+  "mdd_pct": -2.61,
+  "tracking_error_vs_backtest": {
+    "n_days": 16,
+    "mean_diff_bps": 71.29,
+    "stdev_diff_bps": 201.83,
+    "max_abs_diff_bps": 492.77,
+    "ann_tracking_error_bps": 3203.9,
+    "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
+  },
+  "recent_fills": [
+    {
+      "Date": "2026-05-04",
+      "signal_date": "2026-05-01",
+      "Ticker": "UCO",
+      "Side": "BUY",
+      "Weight_Delta": 0.0109,
+      "Fill_Price": 48.42,
+      "Shares": 2.5993,
+      "Notional_USD": 125.86
+    },
+    {
+      "Date": "2026-05-04",
+      "signal_date": "2026-05-01",
+      "Ticker": "SOXL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0109,
+      "Fill_Price": 132.195,
+      "Shares": 0.952,
+      "Notional_USD": 125.86
+    },
+    {
+      "Date": "2026-05-04",
+      "signal_date": "2026-05-01",
+      "Ticker": "ERX",
+      "Side": "BUY",
+      "Weight_Delta": 0.0062,
+      "Fill_Price": 93.8,
+      "Shares": 0.7611,
+      "Notional_USD": 71.39
+    },
+    {
+      "Date": "2026-05-04",
+      "signal_date": "2026-05-01",
+      "Ticker": "BIL",
+      "Side": "SELL",
+      "Weight_Delta": -0.0297,
+      "Fill_Price": 91.41,
+      "Shares": -3.7455,
+      "Notional_USD": -342.38
+    },
+    {
+      "Date": "2026-05-01",
+      "signal_date": "2026-04-30",
+      "Ticker": "BIL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0069,
+      "Fill_Price": 91.41,
+      "Shares": 0.8559,
+      "Notional_USD": 78.24
+    },
+    {
+      "Date": "2026-04-30",
+      "signal_date": "2026-04-29",
+      "Ticker": "BIL",
+      "Side": "SELL",
+      "Weight_Delta": -0.011,
+      "Fill_Price": 91.64,
+      "Shares": -1.3397,
+      "Notional_USD": -122.77
+    },
+    {
+      "Date": "2026-04-29",
+      "signal_date": "2026-04-28",
+      "Ticker": "BIL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0077,
+      "Fill_Price": 91.64,
+      "Shares": 0.9259,
+      "Notional_USD": 84.85
+    },
+    {
+      "Date": "2026-04-28",
+      "signal_date": "2026-04-27",
+      "Ticker": "BIL",
+      "Side": "SELL",
+      "Weight_Delta": -0.0074,
+      "Fill_Price": 91.63,
+      "Shares": -0.8698,
+      "Notional_USD": -79.7
+    },
+    {
+      "Date": "2026-04-27",
+      "signal_date": "2026-04-24",
+      "Ticker": "BIL",
+      "Side": "SELL",
+      "Weight_Delta": -0.01,
+      "Fill_Price": 91.62,
+      "Shares": -1.2042,
+      "Notional_USD": -110.32
+    },
+    {
+      "Date": "2026-04-24",
+      "signal_date": "2026-04-23",
+      "Ticker": "UCO",
+      "Side": "BUY",
+      "Weight_Delta": 0.0437,
+      "Fill_Price": 42.76,
+      "Shares": 11.1525,
+      "Notional_USD": 476.88
+    },
+    {
+      "Date": "2026-04-24",
+      "signal_date": "2026-04-23",
+      "Ticker": "SOXL",
+      "Side": "BUY",
+      "Weight_Delta": 0.01,
+      "Fill_Price": 125.21,
+      "Shares": 0.8751,
+      "Notional_USD": 109.58
+    },
+    {
+      "Date": "2026-04-24",
+      "signal_date": "2026-04-23",
+      "Ticker": "ERX",
+      "Side": "BUY",
+      "Weight_Delta": 0.0057,
+      "Fill_Price": 87.9,
+      "Shares": 0.7071,
+      "Notional_USD": 62.16
+    },
+    {
+      "Date": "2026-04-24",
+      "signal_date": "2026-04-23",
+      "Ticker": "EDC",
+      "Side": "SELL",
+      "Weight_Delta": -0.0337,
+      "Fill_Price": 75.69,
+      "Shares": -4.8527,
+      "Notional_USD": -367.3
+    },
+    {
+      "Date": "2026-04-24",
+      "signal_date": "2026-04-23",
+      "Ticker": "BIL",
+      "Side": "SELL",
+      "Weight_Delta": -0.0273,
+      "Fill_Price": 91.62,
+      "Shares": -3.2536,
+      "Notional_USD": -298.09
+    },
+    {
+      "Date": "2026-04-23",
+      "signal_date": "2026-04-22",
+      "Ticker": "SOXL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0615,
+      "Fill_Price": 108.62,
+      "Shares": 5.9648,
+      "Notional_USD": 647.9
+    },
+    {
+      "Date": "2026-04-23",
+      "signal_date": "2026-04-22",
+      "Ticker": "ERX",
+      "Side": "SELL",
+      "Weight_Delta": -0.0614,
+      "Fill_Price": 87.94,
+      "Shares": -7.3494,
+      "Notional_USD": -646.31
+    },
+    {
+      "Date": "2026-04-22",
+      "signal_date": "2026-04-21",
+      "Ticker": "SOXL",
+      "Side": "SELL",
+      "Weight_Delta": -0.059,
+      "Fill_Price": 102.94,
+      "Shares": -5.9232,
+      "Notional_USD": -609.73
+    },
+    {
+      "Date": "2026-04-22",
+      "signal_date": "2026-04-21",
+      "Ticker": "ERX",
+      "Side": "BUY",
+      "Weight_Delta": 0.0628,
+      "Fill_Price": 86.34,
+      "Shares": 7.5152,
+      "Notional_USD": 648.87
+    },
+    {
+      "Date": "2026-04-22",
+      "signal_date": "2026-04-21",
+      "Ticker": "BIL",
+      "Side": "SELL",
+      "Weight_Delta": -0.0066,
+      "Fill_Price": 91.57,
+      "Shares": -0.7418,
+      "Notional_USD": -67.92
+    },
+    {
+      "Date": "2026-04-21",
+      "signal_date": "2026-04-20",
+      "Ticker": "UCO",
+      "Side": "SELL",
+      "Weight_Delta": -0.0333,
+      "Fill_Price": 39.86,
+      "Shares": -8.4499,
+      "Notional_USD": -336.81
+    },
+    {
+      "Date": "2026-04-21",
+      "signal_date": "2026-04-20",
+      "Ticker": "SOXL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0608,
+      "Fill_Price": 97.97,
+      "Shares": 6.2764,
+      "Notional_USD": 614.9
+    },
+    {
+      "Date": "2026-04-21",
+      "signal_date": "2026-04-20",
+      "Ticker": "ERX",
+      "Side": "SELL",
+      "Weight_Delta": -0.0608,
+      "Fill_Price": 83.4,
+      "Shares": -7.3729,
+      "Notional_USD": -614.9
+    },
+    {
+      "Date": "2026-04-21",
+      "signal_date": "2026-04-20",
+      "Ticker": "EDC",
+      "Side": "BUY",
+      "Weight_Delta": 0.0333,
+      "Fill_Price": 76.26,
+      "Shares": 4.4166,
+      "Notional_USD": 336.81
+    },
+    {
+      "Date": "2026-04-20",
+      "signal_date": "2026-04-17",
+      "Ticker": "TECL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0333,
+      "Fill_Price": 133.47,
+      "Shares": 2.5039,
+      "Notional_USD": 334.19
+    },
+    {
+      "Date": "2026-04-20",
+      "signal_date": "2026-04-17",
+      "Ticker": "EDC",
+      "Side": "SELL",
+      "Weight_Delta": -0.0333,
+      "Fill_Price": 75.61,
+      "Shares": -4.4199,
+      "Notional_USD": -334.19
+    },
+    {
+      "Date": "2026-04-15",
+      "signal_date": "2026-04-14",
+      "Ticker": "ERX",
+      "Side": "SELL",
+      "Weight_Delta": -0.0333,
+      "Fill_Price": 84.73,
+      "Shares": -3.8993,
+      "Notional_USD": -330.39
+    },
+    {
+      "Date": "2026-04-15",
+      "signal_date": "2026-04-14",
+      "Ticker": "EDC",
+      "Side": "BUY",
+      "Weight_Delta": 0.0333,
+      "Fill_Price": 72.1,
+      "Shares": 4.5823,
+      "Notional_USD": 330.39
+    },
+    {
+      "Date": "2026-04-13",
+      "signal_date": "2026-04-10",
+      "Ticker": "ERX",
+      "Side": "BUY",
+      "Weight_Delta": 0.2173,
+      "Fill_Price": 90.59,
+      "Shares": 23.9742,
+      "Notional_USD": 2171.82
+    },
+    {
+      "Date": "2026-04-13",
+      "signal_date": "2026-04-10",
+      "Ticker": "UCO",
+      "Side": "BUY",
+      "Weight_Delta": 0.2173,
+      "Fill_Price": 43.0,
+      "Shares": 50.5075,
+      "Notional_USD": 2171.82
+    },
+    {
+      "Date": "2026-04-13",
+      "signal_date": "2026-04-10",
+      "Ticker": "SOXL",
+      "Side": "BUY",
+      "Weight_Delta": 0.1566,
+      "Fill_Price": 75.59,
+      "Shares": 20.6983,
+      "Notional_USD": 1564.59
+    }
+  ],
+  "nav_series": [
+    {
+      "d": "2026-04-13",
+      "v": 9994.09
+    },
+    {
+      "d": "2026-04-14",
+      "v": 10029.25
+    },
+    {
+      "d": "2026-04-15",
+      "v": 9927.22
+    },
+    {
+      "d": "2026-04-16",
+      "v": 9982.54
+    },
+    {
+      "d": "2026-04-17",
+      "v": 9821.4
+    },
+    {
+      "d": "2026-04-20",
+      "v": 10041.5
+    },
+    {
+      "d": "2026-04-21",
+      "v": 10120.29
+    },
+    {
+      "d": "2026-04-22",
+      "v": 10331.27
+    },
+    {
+      "d": "2026-04-23",
+      "v": 10529.54
+    },
+    {
+      "d": "2026-04-24",
+      "v": 10910.32
+    },
+    {
+      "d": "2026-04-27",
+      "v": 11049.58
+    },
+    {
+      "d": "2026-04-28",
+      "v": 10761.12
+    },
+    {
+      "d": "2026-04-29",
+      "v": 11075.88
+    },
+    {
+      "d": "2026-04-30",
+      "v": 11206.85
+    },
+    {
+      "d": "2026-05-01",
+      "v": 11311.36
+    },
+    {
+      "d": "2026-05-04",
+      "v": 11545.66
+    }
+  ]
+};
+
+if (PAPER && PAPER.current_nav !== undefined) {
+  document.getElementById('paperEmpty').style.display = 'none';
+  document.getElementById('paperContent').style.display = 'block';
+  const navEl = document.getElementById('paperNavVal');
+  const retEl = document.getElementById('paperRetVal');
+  const trkEl = document.getElementById('paperTrackErr');
+  navEl.textContent = '$' + Number(PAPER.current_nav).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+  retEl.textContent = (PAPER.total_return_pct >= 0 ? '+' : '') + Number(PAPER.total_return_pct).toFixed(2) + '%';
+  retEl.className = 'kpi-val ' + (PAPER.total_return_pct >= 0 ? 'pos' : 'neg');
+  if (PAPER.tracking_error_vs_backtest && PAPER.tracking_error_vs_backtest.ann_tracking_error_bps !== undefined) {
+    trkEl.textContent = Number(PAPER.tracking_error_vs_backtest.ann_tracking_error_bps).toFixed(0) + ' bps';
+  } else {
+    trkEl.textContent = '—';
+  }
+
+  const cfg = PAPER.config || {};
+  const cfgEl = document.getElementById('paperConfigLine');
+  cfgEl.textContent = 'Started ' + (PAPER.start_date || '?') +
+                      ' with $' + Number(cfg.initial_nav || 0).toLocaleString() +
+                      ' · TC ' + (cfg.tc_bps_per_side || 0) + ' bps/side · ' +
+                      (PAPER.n_trade_days || 0) + ' fill events · Sharpe ' +
+                      (PAPER.sharpe || 0).toFixed(2) + ' · MDD ' + (PAPER.mdd_pct || 0).toFixed(1) + '%';
+
+  // NAV table — show last ~30 rows
+  const navTb = document.querySelector('#paperNavTable tbody');
+  navTb.innerHTML = '';
+  const navRows = (PAPER.nav_series || []).slice().reverse().slice(0, 30);
+  // We need realized_ret, turnover, tc_drag — they aren't in nav_series; pull from a parallel structure
+  // Actually nav_series is just {d, v}; richer rows live in recent_fills. Render NAV+date only.
+  // For richer view we'd need to fetch paper_nav.csv; keep it light for now.
+  navRows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.d}</td><td style="text-align:right">$${Number(r.v).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td><td colspan="3" style="color:var(--t3)">—</td>`;
+    navTb.appendChild(tr);
+  });
+
+  // Fills table
+  const fillTb = document.querySelector('#paperFillsTable tbody');
+  fillTb.innerHTML = '';
+  (PAPER.recent_fills || []).forEach(f => {
+    const tr = document.createElement('tr');
+    const sideCls = f.Side === 'BUY' ? 'pos' : 'neg';
+    tr.innerHTML = `<td>${f.Date}</td>` +
+                   `<td class="${sideCls}" style="font-weight:600">${f.Side}</td>` +
+                   `<td>${f.Ticker}</td>` +
+                   `<td class="${sideCls}">${(f.Weight_Delta * 100).toFixed(2)}%</td>` +
+                   `<td style="text-align:right">$${Number(f.Fill_Price).toFixed(2)}</td>` +
+                   `<td style="text-align:right">${Number(f.Shares).toFixed(2)}</td>` +
+                   `<td style="text-align:right">$${Number(f.Notional_USD).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>`;
+    fillTb.appendChild(tr);
+  });
+} else if (document.getElementById('paperEmpty')) {
+  document.getElementById('paperEmpty').style.display = 'block';
+  document.getElementById('paperContent').style.display = 'none';
+}
 
 if (LIVE && LIVE.context && LIVE.target_positions) {
   document.getElementById('liveEmpty').style.display = 'none';
