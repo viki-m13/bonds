@@ -155,6 +155,48 @@ def regenerate_factsheet():
     rs_data = [{"d": d.strftime("%Y-%m-%d"), "v": round(float(v), 3)} for d, v in rs.items()]
 
     mult = prod["total_mult"]
+
+    # Per-sleeve cumulative ARITHMETIC contribution. Daily contribution from
+    # sleeve i is c_i[t] = blend_weight_i * sleeve_ret_i[t] * overlay_mult[t]
+    # (TC drag handled separately). Cumulative is the sum over time. Two
+    # sleeves' cumulative diff over any window [t0, t1] = arithmetic
+    # contribution over that window; the five sleeves' contributions sum to
+    # Phoenix's arithmetic return over the window. We report % share of total
+    # in the simulator (sums to 100%) plus the corresponding $ amount based
+    # on Phoenix's *compounded* return for the window.
+    SLEEVES = [("VANGUARD", "vanguard_returns.csv", "net_ret"),
+               ("ORION",    "orion_returns.csv",    "orion"),
+               ("HELIOS",   "helios_returns.csv",   "ret"),
+               ("QUANTUM",  "quantum_returns.csv",  "ret"),
+               ("CRYPTO",   "crypto_returns.csv",   "ret")]
+    BLEND = {"VANGUARD": 0.236, "ORION": 0.327, "HELIOS": 0.185,
+             "QUANTUM": 0.152, "CRYPTO": 0.101}
+    cum_df = pd.DataFrame(index=dates)
+    overlay_aligned = mult.reindex(dates).fillna(1.0)
+    for sname, fn, col in SLEEVES:
+        df = pd.read_csv(R/fn, parse_dates=[0] if sname == "VANGUARD" else ["Date"])
+        if sname == "VANGUARD":
+            s = df.set_index(df.columns[0])[col]
+        else:
+            s = df.set_index("Date")[col]
+        s = s.reindex(dates).fillna(0)
+        contrib_daily = BLEND[sname] * s * overlay_aligned
+        cum_df[sname] = contrib_daily.cumsum()
+    # Resample weekly to align with eq_data
+    cum_w = cum_df.resample("W").last().dropna(how="all")
+    sleeve_contribs = []
+    for d, row in cum_w.iterrows():
+        if any(pd.isna(row.values)):
+            continue
+        sleeve_contribs.append({
+            "d": d.strftime("%Y-%m-%d"),
+            "V": round(float(row["VANGUARD"]), 6),
+            "O": round(float(row["ORION"]),    6),
+            "H": round(float(row["HELIOS"]),   6),
+            "Q": round(float(row["QUANTUM"]),  6),
+            "C": round(float(row["CRYPTO"]),   6),
+        })
+
     out = {
         "meta": {"name": "PHOENIX",
                  "subtitle": "5 uncorrelated LETF strategies with daily risk sizing",
@@ -172,6 +214,7 @@ def regenerate_factsheet():
         "is_oos_gap": round(abs(m_is["sharpe"] - m_oos["sharpe"]), 4),
         "yearly": yearly, "monthly": monthly,
         "equity": eq_data, "drawdown": dd_data, "rolling_sharpe_12m": rs_data,
+        "sleeve_contribs": sleeve_contribs,
     }
     (R/"phoenix_factsheet.json").write_text(json.dumps(out, separators=(",", ":")))
     print(f"  Wrote phoenix_factsheet.json — Sharpe {m_full['sharpe']:.2f} / OOS {m_oos['sharpe']:.2f} / CAGR {m_full['cagr']*100:.1f}%")

@@ -278,6 +278,19 @@ Quick presets:
 <a href="#" onclick="setSimRange('2022-rates');return false" style="color:var(--accent)">2022 rate shock</a>
 </div>
 
+<!-- DCA mode -->
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:10px;background:var(--card2);border-radius:6px;border:1px solid var(--border)">
+<label style="font-size:0.8rem;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:6px;cursor:pointer">
+<input id="simDcaToggle" type="checkbox" onchange="runSimulator()"> Monthly DCA mode
+</label>
+<span style="font-size:0.72rem;color:var(--t3)">Add a recurring investment on the first market day of each month</span>
+<div id="simDcaAmountWrap" style="display:none;margin-left:auto">
+<label style="font-size:0.78rem;color:var(--t1);margin-right:6px">Monthly contribution ($):</label>
+<input id="simDcaAmount" type="number" min="0" step="50" value="500" oninput="runSimulator()"
+       style="padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:0.9rem;width:120px">
+</div>
+</div>
+
 <div id="simResult" style="display:none">
 <div class="g3" style="margin-bottom:12px">
 <div class="kpi"><div class="kpi-val" id="simPhxFinal"></div><div class="kpi-label">PHOENIX FINAL</div></div>
@@ -285,12 +298,18 @@ Quick presets:
 <div class="kpi"><div class="kpi-val" id="sim6040Final"></div><div class="kpi-label">60/40 FINAL</div></div>
 </div>
 <div class="g3" style="margin-bottom:12px">
-<div class="kpi"><div class="kpi-val" id="simPhxCagr"></div><div class="kpi-label">PHOENIX CAGR</div></div>
+<div class="kpi"><div class="kpi-val" id="simPhxCagr"></div><div class="kpi-label" id="simCagrLabel">PHOENIX CAGR</div></div>
 <div class="kpi"><div class="kpi-val" id="simPhxMdd"></div><div class="kpi-label">PHOENIX MDD</div></div>
 <div class="kpi"><div class="kpi-val" id="simYears"></div><div class="kpi-label">PERIOD (years)</div></div>
 </div>
+<div id="simDcaSummary" style="display:none;margin-bottom:12px;padding:10px;background:#fff8f0;border-left:3px solid var(--accent);border-radius:4px;font-size:0.82rem;color:var(--t1);line-height:1.7"></div>
 <div style="font-size:0.72rem;color:var(--t3);margin-bottom:12px" id="simRangeLine"></div>
 <div class="chart-wrap"><canvas id="simChart"></canvas></div>
+
+<h3 style="color:var(--t1);font-size:0.95rem;margin:18px 0 4px 0">Sleeve-level breakdown &mdash; where did the gain come from?</h3>
+<div style="font-size:0.72rem;color:var(--t3);margin-bottom:10px">Each sleeve&apos;s arithmetic contribution to Phoenix&apos;s return over the chosen window, scaled to your starting amount. Shares always sum to 100%; sign reflects direction (negative if the sleeve dragged).</div>
+<div id="simSleeveGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:8px"></div>
+<div style="font-size:0.7rem;color:var(--t3);margin-top:6px">Color code: VAN = teal, ORI = orange (the workhorse), HEL = blue, QUA = purple, CRY = gold.</div>
 </div>
 </div>
 </div>
@@ -2348,12 +2367,42 @@ function setSimRange(preset) {
   runSimulator();
 }
 
+// Helper: simulate a stream of cash flows compounded forward to end date
+// using a series of weekly NAV samples. Returns { final_value, total_invested, money_weighted_return }.
+function _simulateDcaSeries(slice, navKey, initialAmount, dcaAmount) {
+  // slice = sorted array of {d, p|s|b}; navKey = 'p' | 's' | 'b'
+  // initialAmount: invested at slice[0]
+  // dcaAmount: invested at the first sample in each new calendar month after slice[0].d
+  const navs = slice.map(p => p[navKey]);
+  const finalNav = navs[navs.length - 1];
+
+  let totalInvested = initialAmount;
+  // Each contribution grows by finalNav / nav_at_contribution
+  let finalValue = initialAmount * (finalNav / navs[0]);
+
+  if (dcaAmount > 0) {
+    let lastMonth = slice[0].d.slice(0, 7);  // 'YYYY-MM'
+    for (let i = 1; i < slice.length; i++) {
+      const ym = slice[i].d.slice(0, 7);
+      if (ym !== lastMonth) {
+        totalInvested += dcaAmount;
+        finalValue += dcaAmount * (finalNav / navs[i]);
+        lastMonth = ym;
+      }
+    }
+  }
+  return { finalValue, totalInvested };
+}
+
 function runSimulator() {
   const eq = (F && F.equity) || [];
   if (eq.length === 0) return;
   const amount = parseFloat(document.getElementById('simAmount').value) || 10000;
   const startStr = document.getElementById('simStart').value || eq[0].d;
   const endStr   = document.getElementById('simEnd').value   || eq[eq.length - 1].d;
+  const dcaToggle = document.getElementById('simDcaToggle').checked;
+  const dcaAmount = dcaToggle ? (parseFloat(document.getElementById('simDcaAmount').value) || 0) : 0;
+  document.getElementById('simDcaAmountWrap').style.display = dcaToggle ? 'block' : 'none';
 
   const slice = eq.filter(p => p.d >= startStr && p.d <= endStr);
   if (slice.length < 2) {
@@ -2363,21 +2412,36 @@ function runSimulator() {
   const p0 = slice[0];
   const p1 = slice[slice.length - 1];
 
-  // Scale all three curves so they start at `amount`
+  // Compute final values for all 3 (with or without DCA)
+  const phxRes = _simulateDcaSeries(slice, 'p', amount, dcaAmount);
+  const spyRes = _simulateDcaSeries(slice, 's', amount, dcaAmount);
+  const benRes = _simulateDcaSeries(slice, 'b', amount, dcaAmount);
+  const phxFinal = phxRes.finalValue;
+  const spyFinal = spyRes.finalValue;
+  const benFinal = benRes.finalValue;
+  const totalInvested = phxRes.totalInvested;  // same for all 3
+
+  // For chart + MDD, scale Phoenix curve so it starts at amount (DCA inflows would
+  // create steps; for visualization simplicity we show buy-and-hold of starting amount,
+  // and report DCA result separately as KPIs)
   const scaleP = amount / p0.p;
   const scaleS = amount / p0.s;
   const scaleB = amount / p0.b;
 
-  const phxFinal = p1.p * scaleP;
-  const spyFinal = p1.s * scaleS;
-  const benFinal = p1.b * scaleB;
-
   const startD = new Date(p0.d);
   const endD = new Date(p1.d);
   const years = (endD - startD) / (365.25 * 24 * 3600 * 1000);
-  const phxCagr = years > 0 ? Math.pow(phxFinal / amount, 1 / years) - 1 : 0;
 
-  // Phoenix MDD on the slice
+  // CAGR: lump-sum interpretation
+  const phxCagrLump = years > 0 ? Math.pow(p1.p * scaleP / amount, 1 / years) - 1 : 0;
+  // Money-weighted (approximate): MWR ≈ (final / total_invested)^(1/years_avg) - 1
+  // For DCA, average duration is roughly years/2 for the contributions (rough heuristic);
+  // We just label clearly.
+  const phxCagr = dcaAmount > 0
+    ? (years > 0 ? Math.pow(phxFinal / totalInvested, 1 / years) - 1 : 0)
+    : phxCagrLump;
+
+  // Phoenix MDD on the slice (lump-sum view of the curve)
   const navs = slice.map(p => p.p * scaleP);
   let peak = navs[0]; let mdd = 0;
   for (const v of navs) {
@@ -2387,9 +2451,9 @@ function runSimulator() {
   }
 
   const fmt = v => '$' + Number(v).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
-  const phxRet = (phxFinal / amount - 1) * 100;
-  const spyRet = (spyFinal / amount - 1) * 100;
-  const benRet = (benFinal / amount - 1) * 100;
+  const phxRet = (phxFinal / totalInvested - 1) * 100;
+  const spyRet = (spyFinal / totalInvested - 1) * 100;
+  const benRet = (benFinal / totalInvested - 1) * 100;
   document.getElementById('simPhxFinal').innerHTML =
     fmt(phxFinal) + '<div style="font-size:0.6em;font-weight:400;margin-top:2px" class="' +
     (phxRet >= 0 ? 'pos' : 'neg') + '">' + (phxRet >= 0 ? '+' : '') + phxRet.toFixed(1) + '%</div>';
@@ -2403,15 +2467,79 @@ function runSimulator() {
   const cagrEl = document.getElementById('simPhxCagr');
   cagrEl.textContent = (phxCagr * 100).toFixed(1) + '%';
   cagrEl.className = 'kpi-val ' + (phxCagr >= 0 ? 'pos' : 'neg');
+  document.getElementById('simCagrLabel').textContent = dcaAmount > 0 ? 'PHOENIX MWR' : 'PHOENIX CAGR';
   const simMddEl = document.getElementById('simPhxMdd');
   simMddEl.textContent = (mdd * 100).toFixed(1) + '%';
   simMddEl.className = 'kpi-val ' + (mdd >= 0 ? 'pos' : 'neg');
   document.getElementById('simYears').textContent = years.toFixed(1);
+
+  // DCA summary line
+  const dcaEl = document.getElementById('simDcaSummary');
+  if (dcaAmount > 0) {
+    const monthsContributed = Math.round((totalInvested - amount) / dcaAmount);
+    dcaEl.innerHTML =
+      '<strong>DCA mode:</strong> $' + Number(amount).toLocaleString() + ' upfront + $' +
+      Number(dcaAmount).toLocaleString() + '/month for ' + monthsContributed +
+      ' months &rarr; <strong>$' + Number(totalInvested).toLocaleString() + '</strong> total invested. ' +
+      'Phoenix grew it to <strong>$' + Number(phxFinal).toLocaleString(undefined, {maximumFractionDigits: 0}) +
+      '</strong> &mdash; a net gain of <strong>$' +
+      Number(phxFinal - totalInvested).toLocaleString(undefined, {maximumFractionDigits: 0}) + '</strong>. ' +
+      'SPY: $' + Number(spyFinal).toLocaleString(undefined, {maximumFractionDigits: 0}) +
+      ' &middot; 60/40: $' + Number(benFinal).toLocaleString(undefined, {maximumFractionDigits: 0}) + '.';
+    dcaEl.style.display = 'block';
+  } else {
+    dcaEl.style.display = 'none';
+  }
+
   document.getElementById('simRangeLine').textContent =
     'From ' + p0.d + ' to ' + p1.d + ' · ' + slice.length + ' weekly samples · ' +
-    'Initial $' + Number(amount).toLocaleString();
+    'Initial $' + Number(amount).toLocaleString() +
+    (dcaAmount > 0 ? ' + $' + Number(dcaAmount).toLocaleString() + '/mo DCA' : '');
 
   document.getElementById('simResult').style.display = 'block';
+
+  // === Sleeve-level breakdown ===
+  const sleeveGrid = document.getElementById('simSleeveGrid');
+  sleeveGrid.innerHTML = '';
+  const contribs = (F && F.sleeve_contribs) || [];
+  if (contribs.length > 0) {
+    // Find the closest contrib points to p0.d and p1.d
+    const c0 = contribs.find(c => c.d >= p0.d) || contribs[0];
+    const c1 = (() => {
+      let last = contribs[0];
+      for (const c of contribs) { if (c.d <= p1.d) last = c; }
+      return last;
+    })();
+    const sleeveDef = [
+      {key: 'V', name: 'VANGUARD', color: '#0e7490'},
+      {key: 'O', name: 'ORION',    color: '#ea580c'},
+      {key: 'H', name: 'HELIOS',   color: '#2563eb'},
+      {key: 'Q', name: 'QUANTUM',  color: '#7c3aed'},
+      {key: 'C', name: 'CRYPTO',   color: '#d97706'},
+    ];
+    const arithmeticContribs = sleeveDef.map(s => ({...s, arith: c1[s.key] - c0[s.key]}));
+    const arithSum = arithmeticContribs.reduce((a, b) => a + b.arith, 0);
+    // Phoenix net $ gain (not arithmetic — actual compounded) for $ allocation
+    const phxNetGain = phxFinal - totalInvested;
+    arithmeticContribs.forEach(s => {
+      const share = arithSum !== 0 ? s.arith / arithSum : 0;
+      const dollarContrib = phxNetGain * share;
+      const card = document.createElement('div');
+      card.style.cssText = 'background:var(--card2);border-left:4px solid ' + s.color + ';padding:10px;border-radius:4px';
+      const sgnCls = s.arith >= 0 ? 'pos' : 'neg';
+      card.innerHTML =
+        '<div style="font-size:0.7rem;color:var(--t3);font-weight:600;letter-spacing:0.5px;margin-bottom:4px">' + s.name + '</div>' +
+        '<div style="font-size:1.05rem;font-weight:700;color:var(--t1)">$' +
+        Number(dollarContrib).toLocaleString(undefined, {maximumFractionDigits: 0}) + '</div>' +
+        '<div class="' + sgnCls + '" style="font-size:0.78rem;font-weight:600;margin-top:2px">' +
+        (share >= 0 ? '+' : '') + (share * 100).toFixed(1) + '% of total gain</div>' +
+        '<div style="font-size:0.66rem;color:var(--t3);margin-top:3px">Arith: ' +
+        (s.arith >= 0 ? '+' : '') + (s.arith * 100).toFixed(1) + '%</div>';
+      sleeveGrid.appendChild(card);
+    });
+  } else {
+    sleeveGrid.innerHTML = '<div style="font-size:0.78rem;color:var(--t3);grid-column:1/-1">Sleeve breakdown unavailable (factsheet missing sleeve_contribs).</div>';
+  }
 
   if (typeof Chart === 'undefined') return;  // chart.js not loaded
   const ctx = document.getElementById('simChart').getContext('2d');
