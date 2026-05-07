@@ -296,24 +296,33 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
 }
 
 
-/* Mobile chart improvements */
+/* Mobile chart + section fixes */
 @media(max-width:560px){
-  .chart-meta{font-size:0.62rem;gap:6px 10px;flex-wrap:wrap}
-  .chart-meta .legend{font-size:0.62rem;flex-wrap:nowrap;white-space:nowrap}
+  .section{padding:56px 0 12px}
+  /* Chart container holds legend + title at top, canvas takes remainder */
+  .chart-wrap{position:relative;box-sizing:border-box;padding:12px 12px 14px;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:14px}
+  .chart-wrap{height:340px}
+  .chart-wrap.sm{height:240px}
+  .chart-wrap.xs{height:180px}
+  /* Legend + title pinned to top with their own height. Canvas fills the rest via flex. */
+  .chart-wrap{display:flex;flex-direction:column}
+  .chart-meta,.chart-title,.chart-sub{flex:0 0 auto}
+  .chart-wrap canvas{flex:1 1 auto;min-height:0;width:100% !important}
+  /* Override the broader canvas rule that may set height:230 */
+  .chart-wrap canvas{height:auto !important;max-height:none !important}
+  /* Legend wraps */
+  .chart-meta{font-size:0.6rem;gap:6px 10px;flex-wrap:wrap;margin-bottom:6px}
+  .chart-meta .legend{font-size:0.6rem;flex-wrap:nowrap;white-space:nowrap}
   .chart-meta .swatch{width:8px;height:8px}
-  .chart-wrap{padding:10px;height:240px;overflow:hidden;position:relative}
-  .chart-wrap canvas{max-width:100%;max-height:100%;position:absolute;left:10px;right:10px;width:calc(100% - 20px) !important;height:calc(100% - 60px) !important}
-  /* Add extra space between chart and next section to prevent any overlap */
-  .chart-wrap + p,.chart-wrap ~ section,.chart-wrap ~ h3{margin-top:24px}
-  /* Ensure all sections have explicit top spacing */
-  .section{padding-top:48px !important}
-  .section:first-of-type{padding-top:36px !important}
-  /* Force charts to not overflow their containers */
-  canvas{display:block;max-width:100% !important}
-}
-/* Tooltip fix for mobile */
-@media(max-width:560px){
+  .chart-title{font-size:0.95rem;margin-bottom:2px}
+  .chart-sub{font-size:0.7rem;margin-bottom:8px}
+  /* Tooltip readability */
   canvas + div{font-size:0.7rem !important}
+  /* Holdings card responsive */
+  .holdings-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .holdings-card{padding:12px}
+  .holdings-card h4{font-size:0.62rem}
+  .holdings-row{font-size:0.78rem;padding:4px 0}
 }
 /* Chart tooltip stays readable on mobile */
 @media(max-width:560px){
@@ -504,7 +513,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   </div>
 
   <div class="callout">
-    <p><strong>The structural upgrade vs. the prior MERIDIAN.</strong> Adding the 90-stock single-name universe roughly doubles the alpha pool — stock-level momentum signals compete on a much wider, lower-correlation cross-section than ETF-level momentum. The result: Sharpe up from 0.88 → 1.28, CAGR up from 21% → 26.7% (haircut 23.2%) but with MDD halved from -37% → -19% and IS-OOS gap collapsed from 0.32 → 0.05. <em>The ETF-only constraint was leaving most of the alpha on the table.</em></p>
+    <p><strong>The structural upgrade vs. the prior MERIDIAN.</strong> Adding the 90-stock single-name universe roughly doubles the alpha pool — stock-level momentum signals compete on a much wider, lower-correlation cross-section than ETF-level momentum. The result: Sharpe up from 0.88 → 1.28, CAGR up from 21% → 26.7% (haircut 21.1%) but with MDD halved from -37% → -19% and IS-OOS gap collapsed from 0.32 → 0.05. <em>The ETF-only constraint was leaving most of the alpha on the table.</em></p>
   </div>
 </section>
 
