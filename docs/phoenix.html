@@ -145,13 +145,13 @@ strong,b{font-weight:600}
 /* Hero stats — overlapping cards */
 .hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:30px;border:1px solid var(--rule);border-radius:18px;background:var(--card);overflow:hidden;box-shadow:var(--shadow-2);position:relative}
 .hero-stats::before{display:none}
-.hero-stat{padding:26px 22px 22px;border-right:1px solid var(--border);position:relative}
+.hero-stat{padding:24px 22px;border-right:1px solid var(--border);position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:140px}
 .hero-stat:last-child{border-right:none}
 .hero-stat .label{font-family:'Bricolage Grotesque',sans-serif;font-size:0.6rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--t3);font-variation-settings:"wdth" 85,"wght" 600}
 .hero-stat .val{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(2rem,4.5vw,3.2rem);line-height:1;letter-spacing:-0.02em;color:var(--ink);margin-top:10px;display:flex;align-items:baseline;gap:2px}
 .hero-stat .val.ember{color:var(--ember)}
 .hero-stat .val .unit{font-size:0.5em;color:var(--t3);font-style:italic}
-.hero-stat .sub{font-size:0.72rem;color:var(--t3);margin-top:8px;font-family:'JetBrains Mono',monospace}
+.hero-stat .sub{font-size:0.7rem;color:var(--t3);margin-top:6px;font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 
 /* === FEATURE FRAMES === */
@@ -466,7 +466,7 @@ button.btn.ember:hover{background:var(--ember-deep)}
 /* === MOBILE — out of the box === */
 @media (max-width:680px){
   body{font-size:14.5px}
-  .page{padding:0 18px 100px;--page-pad:18px}
+  .page{padding:0 18px 80px;--page-pad:18px}
   /* Mobile: hide brand issue chip + live status chip in nav (too cramped) */
   .brand .status{display:none}
   /* Editorial spreads adapt to mobile */
@@ -550,12 +550,16 @@ button.btn.ember:hover{background:var(--ember-deep)}
   details.collapse > .body{padding:0 14px 14px}
   details.collapse.testcase > summary{padding:16px 14px 16px 18px}
 
-  /* Mobile sticky bottom action bar */
-  .botbar{position:fixed;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:35;display:flex;gap:6px;background:var(--ink);color:var(--paper);border-radius:14px;padding:8px;box-shadow:0 -10px 30px -10px rgba(14,10,7,0.5);backdrop-filter:blur(10px)}
-  .botbar a{flex:1;padding:10px 8px;border-radius:10px;text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;font-variation-settings:"wdth" 88,"wght" 600;color:var(--paper);transition:background .15s, color .15s;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:46px;justify-content:center}
-  .botbar a:hover,.botbar a.active{background:var(--ember);color:#fff}
-  .botbar a .ico{font-size:0.85rem;opacity:0.8}
-  body{padding-bottom:96px}
+  /* Mobile sticky bottom index — refined editorial bar */
+  .botbar{position:fixed;left:0;right:0;bottom:0;z-index:35;display:flex;background:rgba(245,239,226,0.86);backdrop-filter:saturate(160%) blur(14px);-webkit-backdrop-filter:saturate(160%) blur(14px);border-top:1px solid var(--rule);padding:6px 6px max(6px, env(safe-area-inset-bottom));box-shadow:0 -1px 0 rgba(255,253,247,0.5) inset}
+  .botbar a{flex:1;padding:8px 4px;text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;font-variation-settings:"wdth" 85,"wght" 600;color:var(--t2);transition:color .2s, transform .12s;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:42px;justify-content:center;position:relative}
+  .botbar a:active{transform:scale(0.95)}
+  .botbar a .ico{display:none}
+  .botbar a::before{content:"";position:absolute;top:6px;left:50%;width:0;height:2px;background:var(--ember);border-radius:1px;transform:translateX(-50%);transition:width .25s var(--bezier-emph)}
+  .botbar a.active{color:var(--ember)}
+  .botbar a.active::before{width:18px}
+  .botbar a.active .lbl{font-style:italic;font-family:'Instrument Serif',serif;font-size:0.95rem;letter-spacing:0;text-transform:none}
+  .botbar a .lbl{font-family:inherit;line-height:1.1;transition:font-family .2s, font-size .2s, letter-spacing .2s, text-transform .2s, font-style .2s}
   /* Mobile: brand wordmark IS the active indicator — hide redundant pill */
   .nav-pill.is-current{display:none}
   .brand .word{font-size:1.22rem}
@@ -567,9 +571,9 @@ button.btn.ember:hover{background:var(--ember-deep)}
   .hero .deck{font-size:1rem;line-height:1.4}
   .hero .meta{font-size:0.62rem;gap:8px 16px;margin-top:18px;padding-top:16px}
   .hero-stats{margin-top:20px}
-  .hero-stat{padding:14px 14px}
+  .hero-stat{padding:14px 14px;min-height:108px}
   .hero-stat .val{font-size:1.7rem}
-  .hero-stat .sub{font-size:0.66rem;margin-top:4px}
+  .hero-stat .sub{font-size:0.62rem;margin-top:4px;letter-spacing:0.02em}
   .hero .kicker .vol{padding:3px 9px;font-size:0.6rem}
 }
 @media (min-width:681px){.botbar{display:none}}
@@ -677,7 +681,7 @@ button.btn.ember:hover{background:var(--ember-deep)}
     <div class="hero-stat">
       <div class="label">Max drawdown</div>
       <div class="val">−<span class="count" data-target="17.6" data-decimals="1">17.6</span><span class="unit">%</span></div>
-      <div class="sub">vs SPY −32% same window</div>
+      <div class="sub">vs SPY −32% same period</div>
     </div>
     <div class="hero-stat">
       <div class="label">Growth of $10k</div>
@@ -1549,12 +1553,12 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </div><!-- /.page -->
 
 <!-- MOBILE BOTTOM ACTION BAR -->
-<nav class="botbar" aria-label="Quick navigation">
-  <a href="#live" data-scroll><span class="ico">🔔</span><span>Signal</span></a>
-  <a href="#simulator" data-scroll><span class="ico">$</span><span>What-if</span></a>
-  <a href="#how" data-scroll><span class="ico">📖</span><span>How</span></a>
-  <a href="#numbers" data-scroll><span class="ico">📊</span><span>Numbers</span></a>
-  <a href="#robustness" data-scroll><span class="ico">⚙</span><span>Tests</span></a>
+<nav class="botbar" aria-label="Index">
+  <a href="#live" data-scroll><span class="lbl">Signal</span></a>
+  <a href="#simulator" data-scroll><span class="lbl">What-if</span></a>
+  <a href="#how" data-scroll><span class="lbl">Method</span></a>
+  <a href="#numbers" data-scroll><span class="lbl">Numbers</span></a>
+  <a href="#robustness" data-scroll><span class="lbl">Tests</span></a>
 </nav>
 
 <!-- INTERACTION LAYER (runs BEFORE the main data script) -->
@@ -1761,14 +1765,16 @@ button.btn.ember:hover{background:var(--ember-deep)}
     });
   }
 
-  // Cinematic hero — gently fade & blur as you scroll past
+  // Cinematic hero — keep crisp until ~70% past, then quick fade-out
   var heroEl = document.querySelector('.hero');
   if (heroEl){
     function heroFx(){
       var rect = heroEl.getBoundingClientRect();
       var p = Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height)));
-      heroEl.style.opacity = (1 - p * 0.9).toFixed(3);
-      heroEl.style.filter = 'blur(' + (p * 4).toFixed(2) + 'px)';
+      // Stay crisp from p=0..0.7, fade only in the last 30%
+      var fade = p <= 0.7 ? 0 : (p - 0.7) / 0.3;
+      heroEl.style.opacity = (1 - fade * 0.55).toFixed(3);
+      heroEl.style.filter = '';
     }
     document.addEventListener('scroll', function(){ requestAnimationFrame(heroFx); }, {passive:true});
     heroFx();
