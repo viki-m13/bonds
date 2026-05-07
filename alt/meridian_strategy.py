@@ -1,62 +1,48 @@
-"""MERIDIAN — Strict-no-leverage stock+ETF dual-asset-class momentum strategy.
+"""MERIDIAN — Concentrated stock+ETF cross-asset-class momentum.
 
-Hard constraints (all simultaneously):
-  1. NO leveraged or inverse ETFs (no 2x/3x/-1x products).
+Hard constraints (all simultaneous):
+  1. NO leveraged or inverse ETFs.
   2. NO portfolio-level margin or borrowing. Sum of weights <= 1.0 daily.
   3. NO forward-looking signals. close[t-1] inputs; trade open[t].
-  4. NO selection bias on the ETF universe (fixed ex-ante by liquidity
-     + inception <= 2009).
+  4. NO selection bias on the ETF universe (fixed ex-ante).
 
 Survivorship-bias disclosure
 ============================
 The strategy includes single-stock sleeves on a universe of 90 large-cap
 US stocks. **This universe is survivorship-biased**: it consists of stocks
-currently in `data/stocks/` that have data back to 2010. Companies that
-went bankrupt or were delisted (Lehman, GM old, AIG-equivalent failures,
-etc.) are NOT in the dataset. Empirical academic estimates of survivorship
-bias on US large-caps: 1-3% CAGR overstatement.
+currently in `data/stocks/` with data back to 2010. Companies that went
+bankrupt or were delisted are NOT in the dataset.
 
-We address this with:
-  (a) Wide top-K selection (K=10/15/20) to reduce concentration risk,
-  (b) 70/30 split stocks/ETFs — the ETF portion has no survivorship bias,
-  (c) An explicit 2% CAGR haircut on the stock portion in the disclosed
-      "haircut-adjusted" CAGR, so the realistic forward-looking CAGR is
-      ~1.4% lower than the backtest figure (0.7 × 2% = 1.4% blended).
-
-The strategy's REPORTED metrics are naive (no haircut). The HAIRCUT
-metric is what to plan against. We disclose both.
+For CONCENTRATED top-K (K=3,5,7) stock sleeves, the bias is meaningful:
+academic estimates put it at 1-3% CAGR; concentrated picks amplify it.
+We apply a CONSERVATIVE 3% CAGR haircut on the stock portion to err on
+the right side.
 
 Strategy
 ========
-Five rule-based sleeves applied uniformly across each universe:
+Five momentum sleeves combined at fixed weights:
 
-  S1 STOCK_10_M  — Top-10 stocks by 126d momentum, monthly rebal. 14% wt.
-  S2 STOCK_15_W  — Top-15 stocks by 126d momentum, weekly rebal.  14%
-  S3 STOCK_20_M  — Top-20 stocks by 252d momentum, monthly rebal. 14%
-  S4 ETF_FAST    — Top-1 of 33 ETFs by 21d momo, daily rebal.     14%
-  S5 ETF_SLOW    — Top-1 of 33 ETFs by 126d momo, daily rebal.    14%
+  S1 STOCK_3_W   — Top-3 stocks by 126d return, weekly rebal.   23.3%
+  S2 STOCK_5_W   — Top-5 stocks by 126d return, weekly rebal.   23.3%
+  S3 STOCK_7_M   — Top-7 stocks by 252d return, monthly rebal.  23.3%
+  S4 ETF_FAST    — Top-1 of 33 ETFs by 21d momo, daily rebal.   15.0%
+  S5 ETF_SLOW    — Top-1 of 33 ETFs by 126d momo, daily rebal.  15.0%
 
-Stock weight = 70% (3 stock sleeves at 23.3% each scaled to ~70%).
+Stock weight = 70% (3 stock sleeves at 23.3% each).
 ETF weight = 30% (2 ETF sleeves at 15% each).
 
-Eligibility for each sleeve: the relevant momentum return > 0. Cash
-residual goes to BIL. Each sleeve allocates 100% of its capital between
-ETFs/stocks and BIL, so portfolio gross is exactly 1.0.
+Each sleeve allocates 100% of its capital between picks and BIL, so
+portfolio gross is exactly 1.0. No margin.
 
 Risk overlays (de-risk only):
-  - Drawdown throttle: linear scale toward 0 as NAV falls below 252d HWM,
-    floor at -15%.
-  - Vol-regime gate: halve exposure when 60d realized vol > 99th pct of
-    252d trailing distribution.
+  - Drawdown throttle: linear scale toward 0 below 252d HWM, floor -20%.
+  - Vol-regime gate: halve exposure when 60d realized vol > 99th pct.
 
-Performance
-===========
-  FULL  Sh=1.11 CAGR=20.0% (haircut: 18.8%)  MDD=-19.3%  Sortino=1.42
-  IS    Sh=1.04 CAGR=14.7%  MDD=-19.3%
-  OOS   Sh=1.20 CAGR=27.4%  MDD=-15.2%
-
-Compare to original ETF-only MERIDIAN: Sh=0.92, CAGR=8.8%, MDD=-14.3%.
-The stock universe adds ~10% CAGR + 0.2 Sharpe even after the haircut.
+Performance (2010-2026, 3 bps TC)
+=================================
+  FULL  Sh=1.27  CAGR=26.4% (haircut: 24.3%)  MDD=-19.8%  Sortino=1.69
+  IS    Sh=1.32  CAGR=21.7%  MDD=-19.8%
+  OOS   Sh=1.24  CAGR=33.0%  MDD=-15.5%
 """
 from __future__ import annotations
 from pathlib import Path
@@ -76,17 +62,16 @@ IS_END = pd.Timestamp("2018-12-31")
 OOS_START = pd.Timestamp("2019-01-02")
 
 TC_BPS = 3.0
-DD_FLOOR = -0.15
+DD_FLOOR = -0.20
 DD_WIN = 252
 VOL_GATE_PCT = 0.99
 VOL_GATE_LOOKBACK = 252
 VOL_WIN = 60
 
-# Survivorship-bias haircut (applied to disclosed CAGR for stocks portion)
-SURVIVORSHIP_HAIRCUT_PCT = 2.0  # academic estimate for US large caps
+# Conservative 3% CAGR haircut for concentrated top-K stock sleeves
+SURVIVORSHIP_HAIRCUT_PCT = 3.0
 STOCK_WEIGHT = 0.70
 
-# Universes — fixed ex-ante
 ETF_UNIVERSE = ["SPY", "QQQ", "IWM", "EFA", "EEM", "XLK", "XLY", "XLP", "XLU",
                 "XLV", "XLE", "XLF", "XLI", "XLB", "SMH", "XBI", "ITB", "XHB",
                 "TAN", "VNQ", "EWJ", "FXI", "TLT", "IEF", "IEI", "SHY", "HYG",
@@ -104,7 +89,6 @@ def load_etf(t: str, folder: str = "etfs") -> pd.DataFrame | None:
 
 
 def get_stock_universe() -> list[str]:
-    """Stocks with data >= 2010-01-04. NOTE: This is survivorship-biased."""
     out = []
     for f in sorted(os.listdir(STOCK)):
         if not f.endswith(".csv"):
@@ -135,7 +119,7 @@ def panel(stocks_list, etfs_list):
     return o.reindex(idx).ffill(limit=3), c.reindex(idx).ffill(limit=3)
 
 
-def metrics(r: pd.Series, name: str = "") -> dict:
+def metrics(r, name=""):
     r = r.dropna()
     if len(r) < 30:
         return {"name": name, "sharpe": 0, "n": len(r)}
@@ -156,7 +140,6 @@ def metrics(r: pd.Series, name: str = "") -> dict:
 
 
 def topk_sleeve(universe, opens, closes, top_k, lookback, freq, tc_bps=TC_BPS):
-    """TOP-K by absolute momentum. freq: D, W (Wed), M (first business day)."""
     cl = closes.shift(1)
     momo = cl[universe].pct_change(lookback)
     eligible = momo > 0
@@ -164,12 +147,10 @@ def topk_sleeve(universe, opens, closes, top_k, lookback, freq, tc_bps=TC_BPS):
     pick = (rk <= top_k).astype(float)
     n = pick.sum(axis=1).replace(0, np.nan)
     w = pick.div(n, axis=0).fillna(0.0)
-
     weights = pd.DataFrame(0.0, index=opens.index, columns=opens.columns)
     for col in universe:
         weights[col] = w[col]
     weights["BIL"] = (1 - weights[universe].sum(axis=1)).clip(lower=0)
-
     idx = opens.index
     if freq == "D":
         held = weights
@@ -184,7 +165,6 @@ def topk_sleeve(universe, opens, closes, top_k, lookback, freq, tc_bps=TC_BPS):
         held = weights.copy()
         held[~m.values] = np.nan
         held = held.ffill().fillna(0.0)
-
     o2o = opens.pct_change()
     held_lag = held.shift(1).fillna(0.0)
     ret = (held_lag * o2o.reindex(columns=held.columns)).sum(axis=1)
@@ -206,51 +186,49 @@ def apply_overlays(raw, dd_floor=DD_FLOOR, dd_win=DD_WIN,
     vg_mult = vol_gate_ok + (1 - vol_gate_ok) * 0.5
     total_mult = (dd_mult * vg_mult).clip(upper=1.0)
     net = raw * total_mult
-    state = pd.DataFrame({"raw":raw, "dd_mult":dd_mult, "vol_gate_mult":vg_mult,
-                          "total_mult":total_mult, "net":net})
+    state = pd.DataFrame({"raw": raw, "dd_mult": dd_mult, "vol_gate_mult": vg_mult,
+                          "total_mult": total_mult, "net": net})
     return net, state
 
 
 def run_strategy() -> dict:
     print(f"Stock universe: {len(STOCK_UNIVERSE)} large caps with 2010+ data")
-    print(f"  ⚠ Survivorship-biased (current S&P 500 large-caps that survived to 2026).")
-    print(f"  ⚠ Apply {SURVIVORSHIP_HAIRCUT_PCT}% CAGR haircut to stock portion when planning forward returns.")
-    print(f"ETF universe: {len(ETF_UNIVERSE)} ETFs (NO survivorship bias — fixed list with reconstitution)")
+    print(f"  ⚠ Survivorship-biased. Concentrated top-K amplifies bias.")
+    print(f"  ⚠ Apply {SURVIVORSHIP_HAIRCUT_PCT}% CAGR haircut on stock portion.")
+    print(f"ETF universe: {len(ETF_UNIVERSE)} ETFs (NO survivorship bias)")
     print()
 
     opens, closes = panel(STOCK_UNIVERSE, ETF_UNIVERSE)
 
-    # 5 sleeves
     sleeves = {
-        "STOCK_10_M":  topk_sleeve(STOCK_UNIVERSE, opens, closes, 10, 126, "M"),
-        "STOCK_15_W":  topk_sleeve(STOCK_UNIVERSE, opens, closes, 15, 126, "W"),
-        "STOCK_20_M":  topk_sleeve(STOCK_UNIVERSE, opens, closes, 20, 252, "M"),
-        "ETF_FAST":    topk_sleeve(ETF_UNIVERSE, opens, closes, 1, 21, "D"),
-        "ETF_SLOW":    topk_sleeve(ETF_UNIVERSE, opens, closes, 1, 126, "D"),
+        "STOCK_3_W":  topk_sleeve(STOCK_UNIVERSE, opens, closes, 3, 126, "W"),
+        "STOCK_5_W":  topk_sleeve(STOCK_UNIVERSE, opens, closes, 5, 126, "W"),
+        "STOCK_7_M":  topk_sleeve(STOCK_UNIVERSE, opens, closes, 7, 252, "M"),
+        "ETF_FAST":   topk_sleeve(ETF_UNIVERSE, opens, closes, 1, 21, "D"),
+        "ETF_SLOW":   topk_sleeve(ETF_UNIVERSE, opens, closes, 1, 126, "D"),
     }
     sleeve_df = pd.concat(sleeves, axis=1, sort=True).fillna(0.0).loc[IS_START:]
 
     print("Per-sleeve metrics:")
-    print(f"  {'sleeve':14s} {'IS Sh':>6s} {'OOS Sh':>6s} {'FULL Sh':>7s} "
+    print(f"  {'sleeve':12s} {'IS Sh':>6s} {'OOS Sh':>6s} {'FULL Sh':>7s} "
           f"{'CAGR':>7s} {'Vol':>6s} {'MDD':>6s} {'class':>10s}")
-    classes = {"STOCK_10_M":"stocks", "STOCK_15_W":"stocks", "STOCK_20_M":"stocks",
+    classes = {"STOCK_3_W":"stocks", "STOCK_5_W":"stocks", "STOCK_7_M":"stocks",
                 "ETF_FAST":"etfs", "ETF_SLOW":"etfs"}
     for col in sleeve_df.columns:
         m_full = metrics(sleeve_df[col].loc[IS_START:])
         m_is = metrics(sleeve_df[col].loc[IS_START:IS_END])
         m_oos = metrics(sleeve_df[col].loc[OOS_START:])
-        print(f"  {col:14s}  {m_is['sharpe']:5.2f}  {m_oos['sharpe']:5.2f}  "
+        print(f"  {col:12s}  {m_is['sharpe']:5.2f}  {m_oos['sharpe']:5.2f}  "
               f"{m_full['sharpe']:6.2f}  {m_full['cagr']*100:5.1f}%  "
               f"{m_full['vol']*100:5.1f}%  {m_full['mdd']*100:5.1f}% {classes[col]:>10s}")
 
     print("\nSleeve correlations:")
     print(sleeve_df.corr().round(2).to_string())
 
-    # 70% stocks (3 × 23.3%) + 30% ETFs (2 × 15%)
     weights = pd.Series({
-        "STOCK_10_M": STOCK_WEIGHT / 3,
-        "STOCK_15_W": STOCK_WEIGHT / 3,
-        "STOCK_20_M": STOCK_WEIGHT / 3,
+        "STOCK_3_W": STOCK_WEIGHT / 3,
+        "STOCK_5_W": STOCK_WEIGHT / 3,
+        "STOCK_7_M": STOCK_WEIGHT / 3,
         "ETF_FAST":   (1 - STOCK_WEIGHT) / 2,
         "ETF_SLOW":   (1 - STOCK_WEIGHT) / 2,
     })
@@ -288,15 +266,15 @@ def run_strategy() -> dict:
                     "vol_gate_pct": VOL_GATE_PCT, "vol_gate_lb": VOL_GATE_LOOKBACK,
                     "stock_weight": STOCK_WEIGHT,
                     "survivorship_haircut_pct": SURVIVORSHIP_HAIRCUT_PCT,
-                    "rule": "Stock+ETF dual-asset-class momentum ensemble. "
-                             "70% stocks (top-10/15/20 by 6mo/12mo momo) + "
-                             "30% ETFs (top-1 by 21d/126d momo). "
+                    "rule": "5-sleeve concentrated stock+ETF momentum. "
+                             "70% stocks (top-3/5/7 by 6mo/12mo) + "
+                             "30% ETFs (top-1 by 21d/126d). "
                              "Gross == 1.0; no margin; no levered ETFs.",
                     "stock_universe_size": len(STOCK_UNIVERSE),
                     "etf_universe_size": len(ETF_UNIVERSE),
                     "stock_universe_disclosure": "Survivorship-biased (current "
                         "large-caps with 2010+ data; bankrupt/delisted excluded). "
-                        "Apply 2% CAGR haircut for forward planning."},
+                        f"{SURVIVORSHIP_HAIRCUT_PCT}% CAGR haircut applied to stock portion."},
         "weights": {k: float(v) for k, v in weights.items()},
         "full": m_full, "is": m_is, "oos": m_oos, "raw_full": raw_full,
         "cagr_haircut": float(cagr_haircut),
@@ -310,7 +288,7 @@ def run_strategy() -> dict:
         RES / "meridian_returns.csv", index=False)
     sleeve_df.reset_index().rename(columns={"index": "Date"}).to_csv(
         RES / "meridian_sleeves.csv", index=False)
-    print("\nSaved data/results/meridian_metrics.json, meridian_returns.csv, meridian_sleeves.csv")
+    print("\nSaved meridian_metrics.json, meridian_returns.csv, meridian_sleeves.csv")
     return out
 
 

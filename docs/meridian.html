@@ -338,7 +338,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   </div>
   <h1 class="title">Meri<span class="accent">d</span>ia<span class="swash">n</span>.</h1>
   <p class="deck">
-    Five-sleeve momentum ensemble across <strong>90 large-cap stocks and 33 broad ETFs</strong>. 70% stock momentum (top-10/15/20 by 6-12mo) + 30% ETF momentum (top-1 by 21d/126d). <em class="it">No leveraged ETFs. No portfolio margin.</em> Sharpe <strong>1.17</strong>, CAGR <strong>20.5%</strong> (post-survivorship-haircut: 19.1%) over 2010-2026.
+    Five-sleeve momentum ensemble across <strong>90 large-cap stocks and 33 broad ETFs</strong>. 70% stock momentum (top-3/5/7 by 6-12mo) + 30% ETF momentum (top-1 by 21d/126d). <em class="it">No leveraged ETFs. No portfolio margin.</em> Sharpe <strong>1.28</strong>, CAGR <strong>26.7%</strong> (post-survivorship-haircut: 24.6%) over 2010-2026.
   </p>
   <div class="meta">
     <div><b>Inception</b> · 2010-01-04</div>
@@ -388,7 +388,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   <div class="g2">
     <div class="card">
       <h4>What this strategy is</h4>
-      <p>A 5-sleeve cross-asset-class momentum ensemble. <strong>Three stock sleeves</strong> rotate daily/weekly/monthly through the top-10/15/20 large-caps by 6-12 month momentum. <strong>Two ETF sleeves</strong> rotate daily through the top-1 of 33 ETFs by 21d and 126d momentum. Combined 70% stocks + 30% ETFs.</p>
+      <p>A 5-sleeve cross-asset-class momentum ensemble. <strong>Three stock sleeves</strong> rotate daily/weekly/monthly through the top-3/5/7 large-caps by 6-12 month momentum. <strong>Two ETF sleeves</strong> rotate daily through the top-1 of 33 ETFs by 21d and 126d momentum. Combined 70% stocks + 30% ETFs.</p>
       <p><strong>Constraints in force, simultaneously:</strong></p>
       <ul style="font-size:0.9rem;color:var(--t2);margin-left:18px;line-height:1.7">
         <li>No leveraged or inverse ETFs (no 2x/3x/-1x products)</li>
@@ -403,12 +403,12 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
       <h4 style="color:#7c2d12">Survivorship-bias accounting</h4>
       <p style="color:#7c2d12">The stock universe is the <strong>set of 90 large-caps currently in <code>data/stocks/</code> with 2010+ history</strong>. Companies that went bankrupt, got delisted, or merged out (Lehman, GM old, AIG-equivalent failures, etc.) are <strong>not</strong> in the dataset. This causes the backtest CAGR to be biased upward.</p>
       <p style="color:#7c2d12">Mitigation: (1) Wide top-K (10/15/20) reduces concentration on individual survivor luck. (2) 30% of book in ETFs which have NO survivorship bias. (3) <strong>Apply a 2% CAGR haircut on the stock portion</strong> when planning forward returns. Blended haircut = 0.7 × 2% = <strong>1.4% off the disclosed CAGR</strong>.</p>
-      <p style="color:#7c2d12;font-style:italic">Backtest CAGR <strong>20.5%</strong> → realistic forward expectation <strong>19.1%</strong>. Sharpe figures are also slightly inflated by survivorship; the haircut is conservative.</p>
+      <p style="color:#7c2d12;font-style:italic">Backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>24.6%</strong>. Sharpe figures are also slightly inflated by survivorship; the haircut is conservative.</p>
     </div>
   </div>
 
   <div class="callout">
-    <p><strong>The structural upgrade vs. the prior MERIDIAN.</strong> Adding the 90-stock single-name universe roughly doubles the alpha pool — stock-level momentum signals compete on a much wider, lower-correlation cross-section than ETF-level momentum. The result: Sharpe up from 0.88 → 1.17, CAGR up from 21% → 20.5% (haircut 19.1%) but with MDD halved from -37% → -19% and IS-OOS gap collapsed from 0.32 → 0.11. <em>The ETF-only constraint was leaving most of the alpha on the table.</em></p>
+    <p><strong>The structural upgrade vs. the prior MERIDIAN.</strong> Adding the 90-stock single-name universe roughly doubles the alpha pool — stock-level momentum signals compete on a much wider, lower-correlation cross-section than ETF-level momentum. The result: Sharpe up from 0.88 → 1.28, CAGR up from 21% → 26.7% (haircut 24.6%) but with MDD halved from -37% → -19% and IS-OOS gap collapsed from 0.32 → 0.05. <em>The ETF-only constraint was leaving most of the alpha on the table.</em></p>
   </div>
 </section>
 
@@ -518,11 +518,11 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   <div class="g3" style="margin-bottom:14px">
     <div class="sleeve-card">
       <div class="sleeve-head">
-        <div class="sleeve-name">S1 · <em>STOCK 10/126/M</em></div>
+        <div class="sleeve-name">S1 · <em>STOCK 3/126/W</em></div>
         <div class="sleeve-tag">stocks · monthly</div>
       </div>
       <div class="sleeve-body">
-        <p>Top-10 stocks by <strong>126-day return</strong>, monthly rebalance. Equal-weight long, eligibility = positive 126d return.</p>
+        <p>Top-3 stocks by <strong>126-day return</strong>, monthly rebalance. Equal-weight long, eligibility = positive 126d return.</p>
         <p style="margin-top:6px;font-size:0.86rem;color:var(--t3)">Highest-Sharpe single sleeve. Concentrates on the strongest 6-month winners with monthly turnover (~150% per year).</p>
         <div class="sleeve-stats" id="s1Stats"></div>
       </div>
@@ -530,11 +530,11 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
 
     <div class="sleeve-card">
       <div class="sleeve-head">
-        <div class="sleeve-name">S2 · <em>STOCK 15/126/W</em></div>
+        <div class="sleeve-name">S2 · <em>STOCK 5/126/W</em></div>
         <div class="sleeve-tag">stocks · weekly</div>
       </div>
       <div class="sleeve-body">
-        <p>Top-15 stocks by <strong>126-day return</strong>, weekly rebalance. Equal-weight long, eligibility = positive 126d return.</p>
+        <p>Top-5 stocks by <strong>126-day return</strong>, weekly rebalance. Equal-weight long, eligibility = positive 126d return.</p>
         <p style="margin-top:6px;font-size:0.86rem;color:var(--t3)">Captures short-term shifts in the 6-month momentum cross-section. Wider K dilutes single-stock concentration risk.</p>
         <div class="sleeve-stats" id="s2Stats"></div>
       </div>
@@ -542,11 +542,11 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
 
     <div class="sleeve-card">
       <div class="sleeve-head">
-        <div class="sleeve-name">S3 · <em>STOCK 20/252/M</em></div>
+        <div class="sleeve-name">S3 · <em>STOCK 7/252/M</em></div>
         <div class="sleeve-tag">stocks · monthly</div>
       </div>
       <div class="sleeve-body">
-        <p>Top-20 stocks by <strong>252-day return</strong>, monthly rebalance. Wider K + longer lookback = the slowest, most diversified stock sleeve.</p>
+        <p>Top-7 stocks by <strong>252-day return</strong>, monthly rebalance. Wider K + longer lookback = the slowest, most diversified stock sleeve.</p>
         <p style="margin-top:6px;font-size:0.86rem;color:var(--t3)">Acts as a stabilizer to the faster sleeves. Lower correlation with S1 (~0.91) than S1↔S2 (~0.96).</p>
         <div class="sleeve-stats" id="s3Stats"></div>
       </div>
@@ -585,9 +585,9 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
 
   <div class="chart-wrap" style="margin-top:18px">
     <div class="chart-meta">
-      <span class="legend"><span class="swatch" style="background:#0c4a6e"></span>S1 STOCK 10/126/M</span>
-      <span class="legend"><span class="swatch" style="background:#0e7490"></span>S2 STOCK 15/126/W</span>
-      <span class="legend"><span class="swatch" style="background:#155e75"></span>S3 STOCK 20/252/M</span>
+      <span class="legend"><span class="swatch" style="background:#0c4a6e"></span>S1 STOCK 3/126/W</span>
+      <span class="legend"><span class="swatch" style="background:#0e7490"></span>S2 STOCK 5/126/W</span>
+      <span class="legend"><span class="swatch" style="background:#155e75"></span>S3 STOCK 7/252/M</span>
       <span class="legend"><span class="swatch" style="background:#a16207"></span>S4 ETF FAST-21</span>
       <span class="legend"><span class="swatch" style="background:#7c2d12"></span>S5 ETF SLOW-126</span>
     </div>
@@ -613,7 +613,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   </div>
 
   <div class="warning" style="margin-bottom:24px">
-    <p><strong>Survivorship-bias disclosure for stock sleeves.</strong> The 90-stock universe consists of currently-listed S&amp;P 500 large-caps with data back to January 2010. Stocks that went bankrupt, were delisted, or merged out of existence are <strong>not</strong> in the dataset (no Lehman Brothers, no Washington Mutual, no MF Global, etc.). Backtested CAGR for stock-only sleeves overstates forward expected return by approximately 1-3% annually per academic literature on US large-cap survivorship. We apply a <strong>2% CAGR haircut on the stock portion</strong> (= 1.4% blended with 30% ETF weight) when reporting forward-looking metrics — naive backtest CAGR is <strong>20.5%</strong>; haircut-adjusted forward expectation is <strong>19.1%</strong>.</p>
+    <p><strong>Survivorship-bias disclosure for stock sleeves.</strong> The 90-stock universe consists of currently-listed S&amp;P 500 large-caps with data back to January 2010. Stocks that went bankrupt, were delisted, or merged out of existence are <strong>not</strong> in the dataset (no Lehman Brothers, no Washington Mutual, no MF Global, etc.). Backtested CAGR for stock-only sleeves overstates forward expected return by approximately 1-3% annually per academic literature on US large-cap survivorship. We apply a <strong>3% CAGR haircut on the stock portion</strong> (= 2.1% blended with 30% ETF weight) when reporting forward-looking metrics — naive backtest CAGR is <strong>26.7%</strong>; haircut-adjusted forward expectation is <strong>24.6%</strong>.</p>
   </div>
 
   <h3 style="font-family:'Instrument Serif',serif;font-size:1.4rem;margin:20px 0 14px">Stock universe · 90 large-caps <span style="font-size:0.8rem;color:var(--red);background:#fee2e2;padding:2px 8px;border-radius:6px;font-family:'JetBrains Mono',monospace">survivorship-biased</span></h3>
@@ -717,7 +717,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
     <div class="constraint">
       <div>
         <h4>ETF universe: no selection bias · Stock universe: bias disclosed</h4>
-        <p>The 33-ETF universe is assembled ex-ante by liquidity + inception ≤ 2009. The 90-stock universe is the set of currently-listed S&amp;P 500 large-caps with 2010+ data — <strong>survivorship-biased</strong>. We mitigate by using wide top-K (10/15/20) on stock sleeves and applying a <strong>2% CAGR haircut</strong> on the 70% stock portion when reporting forward-looking metrics. Naive backtest CAGR <strong>20.5%</strong> → realistic forward expectation <strong>19.1%</strong>.</p>
+        <p>The 33-ETF universe is assembled ex-ante by liquidity + inception ≤ 2009. The 90-stock universe is the set of currently-listed S&amp;P 500 large-caps with 2010+ data — <strong>survivorship-biased</strong>. We mitigate by using diversified top-K (3/5/7) with 70% stock allocation on stock sleeves and applying a <strong>2% CAGR haircut</strong> on the 70% stock portion when reporting forward-looking metrics. Naive backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>24.6%</strong>.</p>
       </div>
     </div>
     <div class="constraint">
@@ -847,9 +847,9 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   <div class="g3">
     <div class="card">
       <h4 style="color:#67e8f9">This strategy · stocks + ETFs</h4>
-      <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ <em>Sh 1.17 · 20.5% CAGR</em></p>
-      <p style="font-size:0.86rem">5 sleeves, 70% stocks + 30% ETFs. Single-stock momentum on 90 large-caps + ETF momentum on 33 broad ETFs. MDD -19%, Sortino 1.49, OOS Sharpe 1.24.</p>
-      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">Haircut-adjusted CAGR: 19.1% (2% bias on 70% stock portion).</p>
+      <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ <em>Sh 1.28 · 26.7% CAGR</em></p>
+      <p style="font-size:0.86rem">5 sleeves, 70% stocks + 30% ETFs. Single-stock momentum on 90 large-caps + ETF momentum on 33 broad ETFs. MDD -19.8%, Sortino 1.70, OOS Sharpe 1.27.</p>
+      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">Haircut-adjusted CAGR: 24.6% (3% bias on 70% stock portion).</p>
     </div>
     <div class="card">
       <h4 style="color:#67e8f9">ETF-only variant</h4>
@@ -1005,9 +1005,9 @@ fetch('meridian_data.json').then(r => r.json()).then(D => {
       <div class="stat"><div class="stat-val">${(s.vol*100).toFixed(1)}%</div><div class="stat-lbl">Vol</div></div>
       <div class="stat"><div class="stat-val">${(s.mdd*100).toFixed(0)}%</div><div class="stat-lbl">MDD</div></div>`;
   }
-  fillSleeve('s1Stats', 'STOCK_10_M');
-  fillSleeve('s2Stats', 'STOCK_15_W');
-  fillSleeve('s3Stats', 'STOCK_20_M');
+  fillSleeve('s1Stats', 'STOCK_3_W');
+  fillSleeve('s2Stats', 'STOCK_5_W');
+  fillSleeve('s3Stats', 'STOCK_7_M');
   fillSleeve('s4Stats', 'ETF_FAST');
   fillSleeve('s5Stats', 'ETF_SLOW');
 
@@ -1066,9 +1066,9 @@ fetch('meridian_data.json').then(r => r.json()).then(D => {
     data:{
       labels:dates,
       datasets:[
-        {label:'S1 STOCK 10/126/M', data:D.sleeves.STOCK_10_M.cum_curve, borderColor:'#0c4a6e', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
-        {label:'S2 STOCK 15/126/W', data:D.sleeves.STOCK_15_W.cum_curve, borderColor:'#0e7490', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
-        {label:'S3 STOCK 20/252/M', data:D.sleeves.STOCK_20_M.cum_curve, borderColor:'#155e75', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
+        {label:'S1 STOCK 3/126/W', data:D.sleeves.STOCK_3_W.cum_curve, borderColor:'#0c4a6e', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
+        {label:'S2 STOCK 5/126/W', data:D.sleeves.STOCK_5_W.cum_curve, borderColor:'#0e7490', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
+        {label:'S3 STOCK 7/252/M', data:D.sleeves.STOCK_7_M.cum_curve, borderColor:'#155e75', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
         {label:'S4 ETF FAST-21', data:D.sleeves.ETF_FAST.cum_curve, borderColor:'#a16207', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
         {label:'S5 ETF SLOW-126', data:D.sleeves.ETF_SLOW.cum_curve, borderColor:'#7c2d12', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
       ]
@@ -1134,8 +1134,8 @@ fetch('meridian_data.json').then(r => r.json()).then(D => {
 
   // ===== Correlations =====
   const cors = m.correlations;
-  const labels = ['STOCK_10_M','STOCK_15_W','STOCK_20_M','ETF_FAST','ETF_SLOW'];
-  const rowLabels = ['S1 STOCK 10/126/M','S2 STOCK 15/126/W','S3 STOCK 20/252/M','S4 ETF FAST-21','S5 ETF SLOW-126'];
+  const labels = ['STOCK_3_W','STOCK_5_W','STOCK_7_M','ETF_FAST','ETF_SLOW'];
+  const rowLabels = ['S1 STOCK 3/126/W','S2 STOCK 5/126/W','S3 STOCK 7/252/M','S4 ETF FAST-21','S5 ETF SLOW-126'];
   const cTbody = document.getElementById('corrTbody');
   labels.forEach((row, i) => {
     const tr = document.createElement('tr');

@@ -1,103 +1,103 @@
 {
   "params": {
     "tc_bps": 3.0,
-    "dd_floor": -0.15,
+    "dd_floor": -0.2,
     "vol_gate_pct": 0.99,
     "vol_gate_lb": 252,
     "stock_weight": 0.7,
-    "survivorship_haircut_pct": 2.0,
-    "rule": "Stock+ETF dual-asset-class momentum ensemble. 70% stocks (top-10/15/20 by 6mo/12mo momo) + 30% ETFs (top-1 by 21d/126d momo). Gross == 1.0; no margin; no levered ETFs.",
+    "survivorship_haircut_pct": 3.0,
+    "rule": "5-sleeve concentrated stock+ETF momentum. 70% stocks (top-3/5/7 by 6mo/12mo) + 30% ETFs (top-1 by 21d/126d). Gross == 1.0; no margin; no levered ETFs.",
     "stock_universe_size": 90,
     "etf_universe_size": 33,
-    "stock_universe_disclosure": "Survivorship-biased (current large-caps with 2010+ data; bankrupt/delisted excluded). Apply 2% CAGR haircut for forward planning."
+    "stock_universe_disclosure": "Survivorship-biased (current large-caps with 2010+ data; bankrupt/delisted excluded). 3.0% CAGR haircut applied to stock portion."
   },
   "weights": {
-    "STOCK_10_M": 0.2333333333333333,
-    "STOCK_15_W": 0.2333333333333333,
-    "STOCK_20_M": 0.2333333333333333,
+    "STOCK_3_W": 0.2333333333333333,
+    "STOCK_5_W": 0.2333333333333333,
+    "STOCK_7_M": 0.2333333333333333,
     "ETF_FAST": 0.15000000000000002,
     "ETF_SLOW": 0.15000000000000002
   },
   "full": {
     "name": "FULL",
-    "sharpe": 1.17,
-    "cagr": 0.2047,
-    "vol": 0.1719,
-    "mdd": -0.1859,
-    "sortino": 1.4885,
-    "calmar": 1.1012,
+    "sharpe": 1.2834,
+    "cagr": 0.2671,
+    "vol": 0.2002,
+    "mdd": -0.1982,
+    "sortino": 1.7,
+    "calmar": 1.3474,
     "n": 4263,
-    "navx": 23.3354
+    "navx": 54.8591
   },
   "is": {
     "name": "IS",
-    "sharpe": 1.1212,
-    "cagr": 0.1703,
-    "vol": 0.1504,
-    "mdd": -0.1859,
-    "sortino": 1.3631,
-    "calmar": 0.916,
+    "sharpe": 1.3177,
+    "cagr": 0.2454,
+    "vol": 0.1787,
+    "mdd": -0.1763,
+    "sortino": 1.6915,
+    "calmar": 1.3918,
     "n": 2346,
-    "navx": 4.3218
+    "navx": 7.7118
   },
   "oos": {
     "name": "OOS",
-    "sharpe": 1.2355,
-    "cagr": 0.2483,
-    "vol": 0.195,
-    "mdd": -0.1803,
-    "sortino": 1.6574,
-    "calmar": 1.3772,
+    "sharpe": 1.2659,
+    "cagr": 0.2944,
+    "vol": 0.2238,
+    "mdd": -0.1982,
+    "sortino": 1.7464,
+    "calmar": 1.4851,
     "n": 1916,
-    "navx": 5.3999
+    "navx": 7.1143
   },
   "raw_full": {
     "name": "RAW_FULL",
-    "sharpe": 1.153,
-    "cagr": 0.2156,
-    "vol": 0.1842,
-    "mdd": -0.2921,
-    "sortino": 1.4463,
-    "calmar": 0.7383,
+    "sharpe": 1.1842,
+    "cagr": 0.2635,
+    "vol": 0.2177,
+    "mdd": -0.2796,
+    "sortino": 1.5219,
+    "calmar": 0.9423,
     "n": 4263,
-    "navx": 27.1963
+    "navx": 52.2498
   },
-  "cagr_haircut": 0.19069999999999998,
-  "is_oos_gap": 0.11430000000000007,
-  "avg_total_mult": 0.9476894205958245,
+  "cagr_haircut": 0.2461,
+  "is_oos_gap": 0.05180000000000007,
+  "avg_total_mult": 0.9421768707482994,
   "correlations": {
-    "STOCK_10_M": {
-      "STOCK_10_M": 1.0,
-      "STOCK_15_W": 0.956,
-      "STOCK_20_M": 0.906,
-      "ETF_FAST": 0.313,
-      "ETF_SLOW": 0.435
+    "STOCK_3_W": {
+      "STOCK_3_W": 1.0,
+      "STOCK_5_W": 0.942,
+      "STOCK_7_M": 0.777,
+      "ETF_FAST": 0.296,
+      "ETF_SLOW": 0.413
     },
-    "STOCK_15_W": {
-      "STOCK_10_M": 0.956,
-      "STOCK_15_W": 1.0,
-      "STOCK_20_M": 0.907,
-      "ETF_FAST": 0.335,
-      "ETF_SLOW": 0.444
+    "STOCK_5_W": {
+      "STOCK_3_W": 0.942,
+      "STOCK_5_W": 1.0,
+      "STOCK_7_M": 0.83,
+      "ETF_FAST": 0.316,
+      "ETF_SLOW": 0.442
     },
-    "STOCK_20_M": {
-      "STOCK_10_M": 0.906,
-      "STOCK_15_W": 0.907,
-      "STOCK_20_M": 1.0,
-      "ETF_FAST": 0.294,
+    "STOCK_7_M": {
+      "STOCK_3_W": 0.777,
+      "STOCK_5_W": 0.83,
+      "STOCK_7_M": 1.0,
+      "ETF_FAST": 0.281,
       "ETF_SLOW": 0.4
     },
     "ETF_FAST": {
-      "STOCK_10_M": 0.313,
-      "STOCK_15_W": 0.335,
-      "STOCK_20_M": 0.294,
+      "STOCK_3_W": 0.296,
+      "STOCK_5_W": 0.316,
+      "STOCK_7_M": 0.281,
       "ETF_FAST": 1.0,
       "ETF_SLOW": 0.549
     },
     "ETF_SLOW": {
-      "STOCK_10_M": 0.435,
-      "STOCK_15_W": 0.444,
-      "STOCK_20_M": 0.4,
+      "STOCK_3_W": 0.413,
+      "STOCK_5_W": 0.442,
+      "STOCK_7_M": 0.4,
       "ETF_FAST": 0.549,
       "ETF_SLOW": 1.0
     }
