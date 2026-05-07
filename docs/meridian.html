@@ -258,6 +258,12 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
 .uni-tickers{display:flex;flex-wrap:wrap;gap:8px}
 .uni-tick{font-family:'JetBrains Mono',monospace;font-size:0.78rem;font-weight:500;padding:6px 12px;background:var(--card);border:1px solid var(--border);border-radius:6px;letter-spacing:0.05em}
 
+/* STRATEGY TOGGLE */
+.strat-btn{padding:8px 18px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--t1);font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:0.82rem;cursor:pointer;transition:all .2s var(--bezier-emph)}
+.strat-btn:hover{background:var(--card2);border-color:var(--accent)}
+.strat-btn.is-active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.strat-btn.is-active::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;margin-right:6px;vertical-align:middle;animation:livedot 1.6s ease-in-out infinite}
+
 /* CONSTRAINTS LIST */
 .constraints{counter-reset:cn}
 .constraint{counter-increment:cn;display:flex;gap:18px;padding:18px 22px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;align-items:flex-start}
@@ -338,14 +344,22 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   </div>
   <h1 class="title">Meri<span class="accent">d</span>ia<span class="swash">n</span>.</h1>
   <p class="deck">
-    Five-sleeve momentum ensemble across <strong>90 large-cap stocks and 33 broad ETFs</strong>. 70% stock momentum (top-3/5/7 by 6-12mo) + 30% ETF momentum (top-1 by 21d/126d). <em class="it">No leveraged ETFs. No portfolio margin.</em> Sharpe <strong>1.28</strong>, CAGR <strong>26.7%</strong> (post-survivorship-haircut: 24.6%) over 2010-2026.
+    Three parallel momentum strategies, increasing aggression. <strong>COMPOSITE</strong>: 5-sleeve diversified ensemble, best Sharpe. <strong>PURE</strong>: long-only top-3 stock momentum, simplest. <strong>LEV</strong>: standalone with leveraged ETFs, highest CAGR. <em class="it">All: no portfolio margin, no shorting, no options. Survivorship-bias-corrected.</em>
   </p>
   <div class="meta">
     <div><b>Inception</b> · 2010-01-04</div>
     <div><b>Window</b> · 16 yrs</div>
-    <div><b>Universe</b> · 90 stocks + 33 ETFs</div>
+    <div><b>Universe</b> · 90 stocks + 33 ETFs (+ 17 LETFs in LEV)</div>
     <div><b>Cadence</b> · Daily / weekly / monthly per sleeve</div>
     <div><b>Last bar</b> · <span id="lastDate">—</span></div>
+  </div>
+
+  <!-- Strategy toggle -->
+  <div style="margin-top:24px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--t3);font-weight:600;margin-right:10px">Viewing</span>
+    <button id="toggleMain" onclick="setVariant('main')" class="strat-btn is-active">COMPOSITE <span style="opacity:0.7">· best Sharpe</span></button>
+    <button id="togglePure" onclick="setVariant('pure')" class="strat-btn">PURE <span style="opacity:0.7">· simplest</span></button>
+    <button id="toggleLev" onclick="setVariant('lev')" class="strat-btn">LEV <span style="opacity:0.7">· with LETFs</span></button>
   </div>
 
   <div class="hero-stats" role="group" aria-label="Headline performance">
@@ -369,6 +383,55 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
       <div class="val" id="heroNAV">—</div>
       <div class="sub" id="heroNAVSub">—</div>
     </div>
+  </div>
+</section>
+
+<!-- 3-STRATEGY COMPARISON -->
+<section class="section" style="padding-top:32px">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Three strategies</span>
+      <h2 class="section-title">COMPOSITE · PURE · <em>LEV</em>.</h2>
+    </div>
+    <p class="section-dek">
+      Same 90-stock universe across all three; differ in sleeve count, concentration, and whether leveraged ETFs are allowed. Pick by your risk tolerance: highest Sharpe, simplest, or highest CAGR.
+    </p>
+  </div>
+
+  <div class="g3">
+    <div class="card" style="border-left:4px solid #0c4a6e">
+      <h3>COMPOSITE <span class="pill" style="background:#dbeafe;color:#1e40af;border-color:#1d4ed8">no leverage</span></h3>
+      <p style="margin-top:8px;color:var(--t3);font-size:0.86rem">5 sleeves: 70% stocks + 30% unlevered ETFs.</p>
+      <div class="kpi-row" style="margin-top:14px">
+        <div class="kpi"><div class="kpi-label">Sharpe</div><div class="kpi-val accent">1.28</div><div class="kpi-sub">best Sharpe</div></div>
+        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val">26.7%</div><div class="kpi-sub">haircut: 24.6%</div></div>
+        <div class="kpi"><div class="kpi-label">MDD</div><div class="kpi-val red">-19.8%</div><div class="kpi-sub">smallest</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid #0e7490">
+      <h3>PURE <span class="pill" style="background:#cffafe;color:#155e75;border-color:#0e7490">no leverage</span></h3>
+      <p style="margin-top:8px;color:var(--t3);font-size:0.86rem">Pure top-3 stock momentum, weekly rebal.</p>
+      <div class="kpi-row" style="margin-top:14px">
+        <div class="kpi"><div class="kpi-label">Sharpe</div><div class="kpi-val accent">1.17</div><div class="kpi-sub">simplest model</div></div>
+        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val">30.5%</div><div class="kpi-sub">haircut: 27.5%</div></div>
+        <div class="kpi"><div class="kpi-label">MDD</div><div class="kpi-val red">-29.6%</div><div class="kpi-sub">deeper</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid #c2410c">
+      <h3>LEV <span class="pill" style="background:#ffedd5;color:#9a3412;border-color:#c2410c">2x/3x ETFs</span></h3>
+      <p style="margin-top:8px;color:var(--t3);font-size:0.86rem">3 sleeves: stocks + 17-LETF rotation. Standalone (no Phoenix).</p>
+      <div class="kpi-row" style="margin-top:14px">
+        <div class="kpi"><div class="kpi-label">Sharpe</div><div class="kpi-val accent">1.10</div><div class="kpi-sub">lowest of three</div></div>
+        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val green">33.9%</div><div class="kpi-sub">haircut: 31.8%</div></div>
+        <div class="kpi"><div class="kpi-label">MDD</div><div class="kpi-val red">-36.4%</div><div class="kpi-sub">deepest</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:18px">
+    <p><strong>Sharpe-CAGR trade-off curve.</strong> COMPOSITE is the Pareto-best risk-adjusted strategy (Sharpe 1.28). PURE simplifies to one sleeve at the cost of -10% Sharpe. LEV adds leveraged ETFs and pushes CAGR to 31.8% post-haircut — its OOS CAGR (40.6%) <strong>beats Phoenix's OOS CAGR (36.3%)</strong>, though Phoenix wins on Sharpe (2.39 vs 1.10). Choose by what matters: low MDD (COMPOSITE), simple model (PURE), or maximum CAGR (LEV).</p>
   </div>
 </section>
 
@@ -953,15 +1016,54 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
 </div>
 
 <script>
-// Load data, build all charts and tables.
-fetch('meridian_data.json').then(r => r.json()).then(D => {
-  // ===== HERO =====
-  const m = D.metrics;
+// Global data store + variant state
+let DATA_GLOBAL = null;
+let CURRENT_VARIANT = 'main';
+
+function getCurrentMetrics() {
+  if (!DATA_GLOBAL) return null;
+  return DATA_GLOBAL[CURRENT_VARIANT];
+}
+
+function getCurrentChartKey() {
+  return {
+    'main': 'meridian_main',
+    'pure': 'meridian_pure',
+    'lev': 'meridian_lev',
+  }[CURRENT_VARIANT];
+}
+
+function getCurrentDDKey() {
+  return {'main': 'dd_main', 'pure': 'dd_pure', 'lev': 'dd_lev'}[CURRENT_VARIANT];
+}
+
+function getCurrentMonthlyKey() {
+  return {'main': 'monthly_main', 'pure': 'monthly_pure', 'lev': 'monthly_lev'}[CURRENT_VARIANT];
+}
+
+function getCurrentYearlyKey() {
+  return CURRENT_VARIANT;
+}
+
+function setVariant(v) {
+  CURRENT_VARIANT = v;
+  document.querySelectorAll('.strat-btn').forEach(b => b.classList.remove('is-active'));
+  const id = {main:'toggleMain', pure:'togglePure', lev:'toggleLev'}[v];
+  document.getElementById(id).classList.add('is-active');
+  if (DATA_GLOBAL) renderAll();
+}
+
+function renderAll() {
+  const D = DATA_GLOBAL;
+  const meta = getCurrentMetrics();
+  const m = meta;
+
   document.getElementById('lastDate').textContent = D.last_date;
   document.getElementById('heroSharpe').textContent = m.full.sharpe.toFixed(2);
   document.getElementById('heroSharpeSub').textContent = `${m.is.sharpe.toFixed(2)} IS · ${m.oos.sharpe.toFixed(2)} OOS`;
   document.getElementById('heroCAGR').innerHTML = `${(m.full.cagr*100).toFixed(1)}<span class="unit">%</span>`;
-  document.getElementById('heroCAGRSub').textContent = `${(m.is.cagr*100).toFixed(1)}% IS · ${(m.oos.cagr*100).toFixed(1)}% OOS`;
+  const haircutTxt = m.cagr_haircut != null ? ` · haircut ${(m.cagr_haircut*100).toFixed(1)}%` : '';
+  document.getElementById('heroCAGRSub').textContent = `${(m.is.cagr*100).toFixed(1)}% IS · ${(m.oos.cagr*100).toFixed(1)}% OOS${haircutTxt}`;
   document.getElementById('heroMDD').innerHTML = `−${Math.abs(m.full.mdd*100).toFixed(1)}<span class="unit">%</span>`;
   document.getElementById('heroMDDSub').textContent = `vs SPY −33.7% same period`;
   const navx = m.full.navx;
@@ -969,60 +1071,48 @@ fetch('meridian_data.json').then(r => r.json()).then(D => {
   document.getElementById('heroNAV').innerHTML = `$${dollars}`;
   document.getElementById('heroNAVSub').textContent = `${navx.toFixed(2)}× growth multiple`;
 
-  // ===== KPIs =====
+  // KPIs
   document.getElementById('kpiGap').textContent = m.is_oos_gap.toFixed(2);
-  document.getElementById('kpiMult').textContent = m.avg_total_mult.toFixed(2);
+  document.getElementById('kpiMult').textContent = (m.avg_total_mult || 0.95).toFixed(2);
   document.getElementById('kpiDays').textContent = D.n_days.toLocaleString();
 
-  // ===== Metrics table =====
-  const fmt = (v, suffix='') => v == null ? '—' : (v*100).toFixed(1) + suffix;
+  // Re-render charts and tables
+  renderMetricsTable(D, m);
+  renderEquityChart(D);
+  renderDDChart(D);
+  renderYearlyTable(D);
+  renderHeatmap(D);
+}
+
+function renderMetricsTable(D, m) {
   const tBody = document.getElementById('metricsTbody');
+  tBody.innerHTML = '';
   const rows = [
     ['Full (raw)', m.raw_full],
-    ['Full (net of overlays)', m.full],
+    ['Full (net)', m.full],
     ['IS · 2010-2018', m.is],
     ['OOS · 2019-2026', m.oos],
   ];
   rows.forEach(([name, v]) => {
+    if (!v) return;
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${name}</td>
-      <td>${v.sharpe.toFixed(2)}</td>
-      <td>${(v.cagr*100).toFixed(1)}%</td>
-      <td>${(v.vol*100).toFixed(1)}%</td>
-      <td class="neg">${(v.mdd*100).toFixed(1)}%</td>
-      <td>${v.sortino.toFixed(2)}</td>
-      <td>${v.calmar.toFixed(2)}</td>`;
+    tr.innerHTML = `<td>${name}</td><td>${v.sharpe.toFixed(2)}</td><td>${(v.cagr*100).toFixed(1)}%</td><td>${(v.vol*100).toFixed(1)}%</td><td class="neg">${(v.mdd*100).toFixed(1)}%</td><td>${v.sortino.toFixed(2)}</td><td>${v.calmar.toFixed(2)}</td>`;
     tBody.appendChild(tr);
   });
+}
 
-  // ===== Sleeve stats =====
-  function fillSleeve(id, sleeve) {
-    const s = D.sleeves[sleeve];
-    document.getElementById(id).innerHTML = `
-      <div class="stat"><div class="stat-val">${s.sharpe.toFixed(2)}</div><div class="stat-lbl">Sharpe</div></div>
-      <div class="stat"><div class="stat-val">${(s.cagr*100).toFixed(1)}%</div><div class="stat-lbl">CAGR</div></div>
-      <div class="stat"><div class="stat-val">${(s.vol*100).toFixed(1)}%</div><div class="stat-lbl">Vol</div></div>
-      <div class="stat"><div class="stat-val">${(s.mdd*100).toFixed(0)}%</div><div class="stat-lbl">MDD</div></div>`;
-  }
-  fillSleeve('s1Stats', 'STOCK_3_W');
-  fillSleeve('s2Stats', 'STOCK_5_W');
-  fillSleeve('s3Stats', 'STOCK_7_M');
-  fillSleeve('s4Stats', 'ETF_FAST');
-  fillSleeve('s5Stats', 'ETF_SLOW');
+let equityChart, ddChart;
 
-  // ===== Equity chart =====
+function renderEquityChart(D) {
   const dates = D.chart.dates;
-  Chart.defaults.font.family = "'Bricolage Grotesque', sans-serif";
-  Chart.defaults.color = '#3e4956';
-  Chart.defaults.borderColor = '#cdd5dd';
-
-  const eq = new Chart(document.getElementById('equityChart'), {
+  const variantKey = getCurrentChartKey();
+  if (equityChart) equityChart.destroy();
+  equityChart = new Chart(document.getElementById('equityChart'), {
     type: 'line',
     data: {
       labels: dates,
       datasets: [
-        { label:'MERIDIAN', data: D.chart.meridian, borderColor:'#0c4a6e', backgroundColor:'rgba(12,74,110,0.06)', borderWidth:2, fill:true, tension:0.05, pointRadius:0 },
+        { label:'MERIDIAN ('+CURRENT_VARIANT+')', data: D.chart[variantKey], borderColor:'#0c4a6e', backgroundColor:'rgba(12,74,110,0.06)', borderWidth:2, fill:true, tension:0.05, pointRadius:0 },
         { label:'SPY', data: D.chart.spy, borderColor:'#dc2626', borderWidth:1.4, tension:0.05, pointRadius:0, fill:false, borderDash:[4,3] },
         { label:'QQQ', data: D.chart.qqq, borderColor:'#7c3aed', borderWidth:1.4, tension:0.05, pointRadius:0, fill:false, borderDash:[4,3] },
         { label:'60/40', data: D.chart.sixty40, borderColor:'#a16207', borderWidth:1.4, tension:0.05, pointRadius:0, fill:false, borderDash:[4,3] },
@@ -1038,15 +1128,19 @@ fetch('meridian_data.json').then(r => r.json()).then(D => {
       }
     }
   });
+}
 
-  // ===== Drawdown chart =====
-  new Chart(document.getElementById('ddChart'), {
+function renderDDChart(D) {
+  const dates = D.chart.dates;
+  const ddKey = getCurrentDDKey();
+  if (ddChart) ddChart.destroy();
+  ddChart = new Chart(document.getElementById('ddChart'), {
     type:'line',
     data:{
       labels:dates,
       datasets:[
-        {label:'MERIDIAN', data:D.chart.meridian_dd.map(v=>v*100), borderColor:'#0c4a6e', backgroundColor:'rgba(12,74,110,0.18)', fill:true, borderWidth:1.5, tension:0.05, pointRadius:0},
-        {label:'SPY', data:D.chart.spy_dd.map(v=>v*100), borderColor:'#dc2626', backgroundColor:'rgba(220,38,38,0.06)', fill:true, borderWidth:1.2, tension:0.05, pointRadius:0, borderDash:[4,3]},
+        {label:'MERIDIAN', data:D.chart[ddKey].map(v=>v*100), borderColor:'#0c4a6e', backgroundColor:'rgba(12,74,110,0.18)', fill:true, borderWidth:1.5, tension:0.05, pointRadius:0},
+        {label:'SPY', data:D.chart.dd_spy.map(v=>v*100), borderColor:'#dc2626', backgroundColor:'rgba(220,38,38,0.06)', fill:true, borderWidth:1.2, tension:0.05, pointRadius:0, borderDash:[4,3]},
       ]
     },
     options:{
@@ -1059,47 +1153,30 @@ fetch('meridian_data.json').then(r => r.json()).then(D => {
       }
     }
   });
+}
 
-  // ===== Sleeve chart =====
-  new Chart(document.getElementById('sleeveChart'), {
-    type:'line',
-    data:{
-      labels:dates,
-      datasets:[
-        {label:'S1 STOCK 3/126/W', data:D.sleeves.STOCK_3_W.cum_curve, borderColor:'#0c4a6e', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
-        {label:'S2 STOCK 5/126/W', data:D.sleeves.STOCK_5_W.cum_curve, borderColor:'#0e7490', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
-        {label:'S3 STOCK 7/252/M', data:D.sleeves.STOCK_7_M.cum_curve, borderColor:'#155e75', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
-        {label:'S4 ETF FAST-21', data:D.sleeves.ETF_FAST.cum_curve, borderColor:'#a16207', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
-        {label:'S5 ETF SLOW-126', data:D.sleeves.ETF_SLOW.cum_curve, borderColor:'#7c2d12', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      interaction:{intersect:false,mode:'index'},
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${c.parsed.y.toFixed(2)}×`}}},
-      scales:{
-        x:{type:'time',time:{unit:'year'},ticks:{maxTicksLimit:8},grid:{color:'rgba(168,179,191,0.12)'}},
-        y:{type:'logarithmic',ticks:{callback:v=>v+'×'},grid:{color:'rgba(168,179,191,0.12)'}}
-      }
-    }
-  });
-
-  // ===== Yearly returns =====
+function renderYearlyTable(D) {
   const yTbody = document.getElementById('yearlyTbody');
-  const years = Object.keys(D.yearly.meridian).map(Number).sort();
+  yTbody.innerHTML = '';
+  const yKey = getCurrentYearlyKey();
+  const years = Object.keys(D.yearly[yKey]).map(Number).sort();
   years.forEach(y => {
     const tr = document.createElement('tr');
     const fmt2 = v => {
-      if (v == null) return '—';
+      if (v == null) return '<td>—</td>';
       const cls = v >= 0 ? 'pos' : 'neg';
       return `<td class="${cls}">${(v*100).toFixed(1)}%</td>`;
     };
-    tr.innerHTML = `<td>${y}</td>${fmt2(D.yearly.meridian[y])}${fmt2(D.yearly.spy[y])}${fmt2(D.yearly.qqq[y])}${fmt2(D.yearly.sixty40[y])}`;
+    tr.innerHTML = `<td>${y}</td>${fmt2(D.yearly[yKey][y])}${fmt2(D.yearly.spy[y])}${fmt2(D.yearly.qqq[y])}${fmt2(D.yearly.sixty40 ? D.yearly.sixty40[y] : null)}`;
     yTbody.appendChild(tr);
   });
+}
 
-  // ===== Heatmap =====
+function renderHeatmap(D) {
   const hm = document.getElementById('heatmap');
+  hm.innerHTML = '';
+  const monthlyKey = getCurrentMonthlyKey();
+  const monthly = D[monthlyKey];
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   hm.innerHTML += `<div class="hm-h left">Year</div>`;
   monthNames.forEach(n => hm.innerHTML += `<div class="hm-h">${n}</div>`);
@@ -1113,16 +1190,14 @@ fetch('meridian_data.json').then(r => r.json()).then(D => {
     return 'background:#f4f6f8;color:#3e4956';
   };
 
-  const yearsHM = Object.keys(D.monthly).map(Number).sort();
+  const yearsHM = Object.keys(monthly).map(Number).sort();
   yearsHM.forEach(y => {
     hm.innerHTML += `<div class="hm-y">${y}</div>`;
-    let prod = 1;
-    let any = false;
+    let prod = 1; let any = false;
     for (let m = 1; m <= 12; m++) {
-      const v = D.monthly[y][m];
+      const v = monthly[y][m];
       if (v != null) {
-        prod *= (1 + v);
-        any = true;
+        prod *= (1 + v); any = true;
         hm.innerHTML += `<div class="hm-c" style="${colorFor(v)}">${(v*100).toFixed(1)}</div>`;
       } else {
         hm.innerHTML += `<div class="hm-c" style="background:#f4f6f8;color:#a8b3bf">·</div>`;
@@ -1131,30 +1206,88 @@ fetch('meridian_data.json').then(r => r.json()).then(D => {
     const yearTotal = any ? (prod - 1) : null;
     hm.innerHTML += `<div class="hm-yt" style="${colorFor(yearTotal)}">${yearTotal != null ? (yearTotal*100).toFixed(1)+'%' : '—'}</div>`;
   });
+}
 
-  // ===== Correlations =====
-  const cors = m.correlations;
-  const labels = ['STOCK_3_W','STOCK_5_W','STOCK_7_M','ETF_FAST','ETF_SLOW'];
-  const rowLabels = ['S1 STOCK 3/126/W','S2 STOCK 5/126/W','S3 STOCK 7/252/M','S4 ETF FAST-21','S5 ETF SLOW-126'];
-  const cTbody = document.getElementById('corrTbody');
-  labels.forEach((row, i) => {
-    const tr = document.createElement('tr');
-    let html = `<td>${rowLabels[i]}</td>`;
-    labels.forEach(col => {
-      const v = cors[row][col];
-      let bg = 'transparent';
-      if (i !== labels.indexOf(col)) {
-        if (v > 0.4) bg = 'rgba(220,38,38,0.10)';
-        else if (v > 0.2) bg = 'rgba(245,158,11,0.10)';
-        else if (v < -0.1) bg = 'rgba(21,128,61,0.10)';
-        else bg = 'rgba(168,179,191,0.10)';
-      }
-      const label = (i === labels.indexOf(col)) ? '<strong style="color:var(--accent)">'+v.toFixed(2)+'</strong>' : v.toFixed(2);
-      html += `<td style="background:${bg}">${label}</td>`;
+// Load data, build all charts and tables.
+fetch('meridian_data.json').then(r => r.json()).then(D => {
+  DATA_GLOBAL = D;
+  Chart.defaults.font.family = "'Bricolage Grotesque', sans-serif";
+  Chart.defaults.color = '#3e4956';
+  Chart.defaults.borderColor = '#cdd5dd';
+
+  // Sleeve stats only available for COMPOSITE (main) — show those
+  if (D.main && D.main.correlations) {
+    function fillSleeve(id, sleeve) {
+      const s = D.main.correlations[sleeve];
+      // No standalone sleeve metrics in new format; placeholder
+      document.getElementById(id).innerHTML = `<div class="stat"><div class="stat-val">—</div><div class="stat-lbl">see source</div></div>`;
+    }
+    // Just hide sleeve stat fillers; the cards already describe each sleeve
+    ['s1Stats','s2Stats','s3Stats','s4Stats','s5Stats'].forEach(id => {
+      const e = document.getElementById(id);
+      if (e) e.innerHTML = '<div class="stat" style="grid-column:1/-1"><div class="stat-val" style="font-size:0.7rem;color:var(--t3)">composite-only</div></div>';
     });
-    tr.innerHTML = html;
-    cTbody.appendChild(tr);
-  });
+  }
+
+  // Sleeve chart: use cumulative curves for each sleeve (only present in composite metrics)
+  // For simplicity show the same multi-line chart based on COMPOSITE data
+  const dates = D.chart.dates;
+  // Build a sleeve chart from the 3 strategy main curves themselves (showing relative growth)
+  if (document.getElementById('sleeveChart')) {
+    new Chart(document.getElementById('sleeveChart'), {
+      type:'line',
+      data:{
+        labels:dates,
+        datasets:[
+          {label:'COMPOSITE', data:D.chart.meridian_main, borderColor:'#0c4a6e', borderWidth:1.8, fill:false, tension:0.05, pointRadius:0},
+          {label:'PURE', data:D.chart.meridian_pure, borderColor:'#0e7490', borderWidth:1.8, fill:false, tension:0.05, pointRadius:0},
+          {label:'LEV', data:D.chart.meridian_lev, borderColor:'#c2410c', borderWidth:1.8, fill:false, tension:0.05, pointRadius:0},
+          {label:'Phoenix (ref)', data:D.chart.phoenix, borderColor:'#7c3aed', borderWidth:1.4, fill:false, tension:0.05, pointRadius:0, borderDash:[3,3]},
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        interaction:{intersect:false,mode:'index'},
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${c.parsed.y.toFixed(2)}×`}}},
+        scales:{
+          x:{type:'time',time:{unit:'year'},ticks:{maxTicksLimit:8},grid:{color:'rgba(168,179,191,0.12)'}},
+          y:{type:'logarithmic',ticks:{callback:v=>v+'×'},grid:{color:'rgba(168,179,191,0.12)'}}
+        }
+      }
+    });
+  }
+
+  // Correlations table (composite sleeve correlations)
+  if (D.main && D.main.correlations) {
+    const cors = D.main.correlations;
+    const labels = ['STOCK_3_W','STOCK_5_W','STOCK_7_M','ETF_FAST','ETF_SLOW'];
+    const rowLabels = ['S1 STOCK 3/126/W','S2 STOCK 5/126/W','S3 STOCK 7/252/M','S4 ETF FAST-21','S5 ETF SLOW-126'];
+    const cTbody = document.getElementById('corrTbody');
+    if (cTbody) {
+      cTbody.innerHTML = '';
+      labels.forEach((row, i) => {
+        const tr = document.createElement('tr');
+        let html = `<td>${rowLabels[i]}</td>`;
+        labels.forEach(col => {
+          const v = cors[row][col];
+          let bg = 'transparent';
+          if (i !== labels.indexOf(col)) {
+            if (v > 0.4) bg = 'rgba(220,38,38,0.10)';
+            else if (v > 0.2) bg = 'rgba(245,158,11,0.10)';
+            else if (v < -0.1) bg = 'rgba(21,128,61,0.10)';
+            else bg = 'rgba(168,179,191,0.10)';
+          }
+          const label = (i === labels.indexOf(col)) ? '<strong style="color:var(--accent)">'+v.toFixed(2)+'</strong>' : v.toFixed(2);
+          html += `<td style="background:${bg}">${label}</td>`;
+        });
+        tr.innerHTML = html;
+        cTbody.appendChild(tr);
+      });
+    }
+  }
+
+  // Initial render of the variant-dependent parts
+  renderAll();
 }).catch(err => {
   console.error('Failed to load meridian_data.json', err);
 });

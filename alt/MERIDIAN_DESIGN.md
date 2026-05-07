@@ -1,108 +1,97 @@
-# MERIDIAN — Concentrated Stock + ETF Cross-Asset-Class Momentum
+# MERIDIAN — Three-Strategy Family
 
-## Performance (2010-01-04 — 2026)
+A family of three momentum strategies on the same 90-stock + 33-ETF universe,
+differing in concentration, sleeve count, and whether leveraged ETFs are
+allowed. Pick by your risk tolerance.
 
-| Window | Sharpe | CAGR | Vol | MDD | Sortino | Calmar |
-|---|---|---|---|---|---|---|
-| FULL | **1.28** | **26.7%** | 20.0% | -19.8% | 1.70 | 1.35 |
-| IS (2010-2018) | 1.32 | 24.5% | 17.9% | -17.6% | 1.69 | 1.39 |
-| OOS (2019-2026) | 1.27 | **29.4%** | 22.4% | -19.8% | 1.75 | 1.49 |
+## Strategy comparison (2010-2026)
 
-**Survivorship-haircut FULL CAGR: 24.6%** (3% on 70% stock = 2.1% blended).
-IS-OOS Sharpe gap: **0.05** — extremely tight. The strategy works equally
-well in IS and OOS — no overfit.
-
-NAVx: 54.86× over 16 years (turn $10k into ~$549k naive; ~$370k haircut).
-
-## Hard constraints (all simultaneous)
-
-1. No leveraged or inverse ETFs.
-2. No portfolio margin or borrowing — gross ≤ 1.0.
-3. No forward-looking signals — close[t-1] only.
-4. ETF universe fixed ex-ante (33 ETFs, no selection bias).
-5. Stock universe disclosed as survivorship-biased — handled via 3% CAGR
-   haircut on stock portion (= 2.1% blended).
-
-## Strategy
-
-5 momentum sleeves, fixed equal weights within each asset class:
-
-| Sleeve | Universe | Top-K | Lookback | Rebal | Weight |
+| Strategy | Sharpe | CAGR (raw) | CAGR (haircut) | MDD | Calmar |
 |---|---|---|---|---|---|
-| S1 STOCK_3_W | stocks (90) | 3 | 126d | weekly | 23.3% |
-| S2 STOCK_5_W | stocks (90) | 5 | 126d | weekly | 23.3% |
-| S3 STOCK_7_M | stocks (90) | 7 | 252d | monthly | 23.3% |
-| S4 ETF_FAST | ETFs (33) | 1 | 21d | daily | 15.0% |
-| S5 ETF_SLOW | ETFs (33) | 1 | 126d | daily | 15.0% |
+| **COMPOSITE** | **1.28** | 26.7% | **24.6%** | -19.8% | 1.35 |
+| **PURE** | 1.17 | 30.5% | **27.5%** | -29.6% | 1.03 |
+| **LEV** | 1.10 | 33.9% | **31.8%** | -36.4% | 0.93 |
+| Phoenix (ref) | 2.39 | 38.5% | — | -17.6% | 2.18 |
 
-Stock weight = 70%. ETF weight = 30%.
+CAGR (haircut) applies a 3% survivorship-bias correction proportional to
+stock-portion weight (30%, 100%, and 70% respectively).
 
-Each sleeve allocates 100% of its capital between picks and BIL, so
-portfolio gross is exactly 1.0. No margin.
+## Hard constraints (all simultaneous, all strategies)
 
-## Per-sleeve metrics (standalone)
+1. NO portfolio margin or borrowing — gross ≤ 1.0 every day.
+2. NO forward-looking signals — close[t-1] only.
+3. NO shorting, NO options.
+4. ETF universe (where used) fixed ex-ante by liquidity + inception.
+5. Stock universe disclosed as survivorship-biased; 3% CAGR haircut applied.
 
-| Sleeve | FULL Sharpe | FULL CAGR | Vol | MDD |
-|---|---|---|---|---|
-| STOCK_3_W | 1.13 | 32.0% | 28.4% | -34.3% |
-| STOCK_5_W | 1.10 | 26.7% | 24.3% | -31.4% |
-| STOCK_7_M | 0.98 | 23.7% | 24.2% | -39.0% |
-| ETF_FAST | 0.73 | 19.6% | 31.1% | -52.5% |
-| ETF_SLOW | 0.67 | 17.8% | 32.7% | -55.7% |
-
-Cross-asset correlation: stock sleeves vs ETF sleeves ~0.30-0.44.
+LEV variant additionally allows leveraged ETFs in the ETF rotation.
 
 ## Survivorship-bias accounting
 
-The stock universe is 90 currently-listed S&P 500 large-caps with data
-back to January 2010. **Stocks that went bankrupt or were delisted are
-not in the dataset**. We use concentrated top-K (3/5/7) which is more
-bias-prone than wider K, so we apply a more conservative **3% CAGR
-haircut on the stock portion** (vs 2% in the prior wider-K version).
+The 90-stock universe is current S&P 500 large-caps with data back to 2010
+in `data/stocks/`. Bankrupt/delisted/merged-out names (Lehman, WaMu, etc.)
+are not in the dataset. Concentrated top-K amplifies the bias — we apply
+a conservative **3% CAGR haircut** to the stock portion, blended at:
 
-Blended haircut = 0.7 × 3% = **2.1% off the disclosed CAGR**.
+| Strategy | Stock weight | Blended haircut | Forward CAGR |
+|---|---|---|---|
+| COMPOSITE | 70% | 2.1% | 24.6% |
+| PURE | 100% | 3.0% | 27.5% |
+| LEV | 70% | 2.1% | 31.8% |
 
-Naive backtest CAGR: 26.7% → realistic forward expectation: **24.6%**.
+## COMPOSITE (alt/meridian_strategy.py)
 
-## Risk overlays (de-risk only)
+5-sleeve diversified ensemble. Best Sharpe, smallest MDD.
 
-- Drawdown throttle: linear scale toward 0 below 252d HWM, floor -20%.
+| Sleeve | Universe | Top-K | Lookback | Rebal | Weight |
+|---|---|---|---|---|---|
+| S1 STOCK_3_W | 90 stocks | 3 | 126d | weekly | 23.3% |
+| S2 STOCK_5_W | 90 stocks | 5 | 126d | weekly | 23.3% |
+| S3 STOCK_7_M | 90 stocks | 7 | 252d | monthly | 23.3% |
+| S4 ETF_FAST | 33 ETFs (1x) | 1 | 21d | daily | 15.0% |
+| S5 ETF_SLOW | 33 ETFs (1x) | 1 | 126d | daily | 15.0% |
+
+## PURE (alt/meridian_pure_strategy.py)
+
+Single sleeve: top-3 stocks by 126d momentum, weekly Wed rebal. Simpler
+than COMPOSITE; higher CAGR but lower Sharpe and deeper MDD due to
+concentration.
+
+## LEV (alt/meridian_lev_strategy.py)
+
+3-sleeve standalone strategy with leveraged ETFs. Does NOT use Phoenix.
+
+| Sleeve | Universe | Top-K | Lookback | Rebal | Weight |
+|---|---|---|---|---|---|
+| S1 STOCK_2_W | 90 stocks | 2 | 126d | weekly | 40% |
+| S2 LETF_2_W | 17 LETFs | 2 | 126d | weekly | 30% |
+| S3 STOCK_3_M | 90 stocks | 3 | 252d | monthly | 30% |
+
+LETF universe: TQQQ, UPRO, SOXL, TECL, QLD, SSO, FAS, ERX, EDC, YINN, DRN
+(3x equity); TMF, TYD, UBT (3x bonds); UGL, UCO (2x); NUGT (3x miners).
+
+LEV's OOS CAGR (40.6%) **beats Phoenix's OOS CAGR (36.3%)**, though
+Phoenix wins on Sharpe (2.39 vs 1.10). Phoenix's specific 5-sleeve
+structure with mean correlation 0.02 is hard to beat without copying it.
+
+## Risk overlays (de-risk only, all strategies)
+
+- DD throttle: linear scale toward 0 below 252d HWM, floor at:
+  - COMPOSITE: -15%
+  - PURE: -25%
+  - LEV: -25%
 - Vol-regime gate: halve exposure when 60d realized vol > 99th pct.
-
-Average overlay multiplier: 0.94.
-
-## Version history
-
-| Version | Sharpe | CAGR | MDD | Notes |
-|---|---|---|---|---|
-| v1 (3-sleeve composite, ETFs only) | 0.92 | 8.8% | -14.3% | Conservative |
-| v2 (dual ETF momentum) | 0.88 | 21.0% | -37.0% | High vol |
-| v3 (wide stock K=10/15/20 + ETF) | 1.17 | 20.5% (haircut 19.1%) | -18.6% | Diluted |
-| **v4 (concentrated K=3/5/7 + ETF)** | **1.28** | **26.7% (haircut 24.6%)** | **-19.8%** | Pareto-best |
-
-The user pushed back correctly — wide top-K diluted the stock alpha.
-Concentrated top-K with conservative haircut is the right answer.
-
-## What this delivers vs constraints
-
-**Delivers under strict no-leverage:**
-- Sharpe 1.28 (post-haircut: ~1.20)
-- 24.6% CAGR forward expectation post-haircut
-- MDD -19.8% — half the drawdown of buy-and-hold tech
-- IS-OOS Sharpe gap 0.05 — exceptional generalization
-
-**Doesn't deliver under strict no-leverage:**
-- Sharpe > 2 reliably — would need leverage-equivalent vol scaling
-- 35%+ CAGR — the cross-asset cap is here
 
 ## Files
 
 | Path | Description |
 |---|---|
-| `alt/meridian_strategy.py` | Single canonical implementation |
+| `alt/meridian_strategy.py` | COMPOSITE strategy |
+| `alt/meridian_pure_strategy.py` | PURE strategy |
+| `alt/meridian_lev_strategy.py` | LEV strategy |
 | `alt/MERIDIAN_DESIGN.md` | This document |
-| `data/results/meridian_metrics.json` | All performance numbers |
-| `data/results/meridian_returns.csv` | Daily series + overlay state |
-| `data/results/meridian_sleeves.csv` | Per-sleeve daily returns |
-| `docs/meridian.html` | Editorial-style factsheet webpage |
-| `docs/meridian_data.json` | Webpage data (auto-generated) |
+| `data/results/meridian_metrics.json` | COMPOSITE metrics |
+| `data/results/meridian_pure_metrics.json` | PURE metrics |
+| `data/results/meridian_lev_metrics.json` | LEV metrics |
+| `docs/meridian.html` | Editorial-style factsheet (with strategy toggle) |
+| `docs/meridian_data.json` | Webpage data (auto-generated, all 3) |

@@ -1,0 +1,98 @@
+{
+  "params": {
+    "tc_bps": 5.0,
+    "dd_floor": -0.25,
+    "vol_gate_pct": 0.99,
+    "vol_gate_lb": 252,
+    "survivorship_haircut_pct": 3.0,
+    "stock_weight_total": 0.7,
+    "rule": "Standalone LETF strategy (no Phoenix). 40% stock top-2 weekly + 30% LETF top-2 weekly + 30% stock top-3 monthly.",
+    "letf_universe": [
+      "TQQQ",
+      "UPRO",
+      "SOXL",
+      "TECL",
+      "QLD",
+      "SSO",
+      "FAS",
+      "ERX",
+      "EDC",
+      "YINN",
+      "DRN",
+      "TMF",
+      "TYD",
+      "UBT",
+      "UGL",
+      "UCO",
+      "NUGT"
+    ],
+    "stock_universe_size": 91
+  },
+  "weights": {
+    "STK_2_W": 0.4,
+    "LETF_2_W": 0.3,
+    "STK_3_M": 0.3
+  },
+  "full": {
+    "name": "FULL",
+    "sharpe": 1.1002,
+    "cagr": 0.3389,
+    "vol": 0.309,
+    "mdd": -0.3639,
+    "sortino": 1.4149,
+    "calmar": 0.9315,
+    "n": 4002,
+    "navx": 103.0627
+  },
+  "is": {
+    "name": "IS",
+    "sharpe": 1.0724,
+    "cagr": 0.2807,
+    "vol": 0.2633,
+    "mdd": -0.2377,
+    "sortino": 1.3452,
+    "calmar": 1.1809,
+    "n": 2085,
+    "navx": 7.7463
+  },
+  "oos": {
+    "name": "OOS",
+    "sharpe": 1.1439,
+    "cagr": 0.4055,
+    "vol": 0.3522,
+    "mdd": -0.3011,
+    "sortino": 1.5274,
+    "calmar": 1.3469,
+    "n": 1916,
+    "navx": 13.3048
+  },
+  "raw_full": {
+    "name": "RAW",
+    "sharpe": 1.049,
+    "cagr": 0.3473,
+    "vol": 0.3395,
+    "mdd": -0.4764,
+    "sortino": 1.3302,
+    "calmar": 0.7289,
+    "n": 4002,
+    "navx": 113.7033
+  },
+  "cagr_haircut": 0.31789999999999996,
+  "correlations": {
+    "STK_2_W": {
+      "STK_2_W": 1.0,
+      "LETF_2_W": 0.432,
+      "STK_3_M": 0.775
+    },
+    "LETF_2_W": {
+      "STK_2_W": 0.432,
+      "LETF_2_W": 1.0,
+      "STK_3_M": 0.458
+    },
+    "STK_3_M": {
+      "STK_2_W": 0.775,
+      "LETF_2_W": 0.458,
+      "STK_3_M": 1.0
+    }
+  }
+}

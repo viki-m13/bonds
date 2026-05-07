@@ -1,0 +1,58 @@
+{
+  "params": {
+    "top_k": 3,
+    "lookback": 126,
+    "rebal": "weekly_wed",
+    "tc_bps": 3.0,
+    "dd_floor": -0.25,
+    "vol_gate_pct": 0.99,
+    "survivorship_haircut_pct": 3.0,
+    "stock_universe_size": 90,
+    "rule": "Pure long-only top-3 stock momentum, weekly rebal."
+  },
+  "full": {
+    "name": "FULL",
+    "sharpe": 1.1682,
+    "cagr": 0.3047,
+    "vol": 0.2557,
+    "mdd": -0.2961,
+    "sortino": 1.5802,
+    "calmar": 1.0288,
+    "n": 4263,
+    "navx": 89.939
+  },
+  "is": {
+    "name": "IS",
+    "sharpe": 1.3046,
+    "cagr": 0.3277,
+    "vol": 0.2392,
+    "mdd": -0.2961,
+    "sortino": 1.7743,
+    "calmar": 1.1065,
+    "n": 2346,
+    "navx": 13.9949
+  },
+  "oos": {
+    "name": "OOS",
+    "sharpe": 1.0285,
+    "cagr": 0.2772,
+    "vol": 0.2747,
+    "mdd": -0.2707,
+    "sortino": 1.3957,
+    "calmar": 1.0242,
+    "n": 1916,
+    "navx": 6.4266
+  },
+  "raw_full": {
+    "name": "RAW",
+    "sharpe": 1.1299,
+    "cagr": 0.3179,
+    "vol": 0.2788,
+    "mdd": -0.3427,
+    "sortino": 1.5143,
+    "calmar": 0.9277,
+    "n": 4263,
+    "navx": 106.6887
+  },
+  "cagr_haircut": 0.27470000000000006
+}
