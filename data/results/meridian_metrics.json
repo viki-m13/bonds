@@ -1,0 +1,202 @@
+{
+  "params": {
+    "dd_floor": -0.08,
+    "vol_gate_pct": 0.99,
+    "vol_gate_lb": 252,
+    "tc_bps": 5.0,
+    "rule": "Sharpe^2/vol weights (IS-fit, frozen); gross <= 1.0; no margin; no levered ETFs",
+    "sleeves": [
+      "CARRY",
+      "EQ_TSMOM",
+      "DEF_TSMOM",
+      "SECT_CSMOM",
+      "GOLD_BREAK",
+      "VOL_COOL",
+      "VIX_REB",
+      "OVERNIGHT",
+      "TOM",
+      "QUAL_DIV"
+    ]
+  },
+  "weights": {
+    "CARRY": 0.2768754429856688,
+    "EQ_TSMOM": 0.015982644963055574,
+    "DEF_TSMOM": 0.13318127163297175,
+    "SECT_CSMOM": 0.02937199838834971,
+    "GOLD_BREAK": 0.003705886319136391,
+    "VOL_COOL": 0.06518799562631852,
+    "VIX_REB": 0.1546098466557746,
+    "OVERNIGHT": 0.2202591641598337,
+    "TOM": 0.010495839126963103,
+    "QUAL_DIV": 0.0903299101419278
+  },
+  "full": {
+    "name": "FULL",
+    "sharpe": 1.1632,
+    "cagr": 0.0444,
+    "vol": 0.038,
+    "mdd": -0.0874,
+    "sortino": 1.4684,
+    "calmar": 0.5083,
+    "n": 4263,
+    "navx": 2.0866
+  },
+  "is": {
+    "name": "IS",
+    "sharpe": 1.1491,
+    "cagr": 0.0391,
+    "vol": 0.0338,
+    "mdd": -0.0675,
+    "sortino": 1.5033,
+    "calmar": 0.5784,
+    "n": 2346,
+    "navx": 1.4286
+  },
+  "oos": {
+    "name": "OOS",
+    "sharpe": 1.1922,
+    "cagr": 0.0511,
+    "vol": 0.0426,
+    "mdd": -0.0874,
+    "sortino": 1.4785,
+    "calmar": 0.5844,
+    "n": 1916,
+    "navx": 1.4606
+  },
+  "raw_full": {
+    "name": "RAW_FULL",
+    "sharpe": 1.1384,
+    "cagr": 0.0458,
+    "vol": 0.04,
+    "mdd": -0.1026,
+    "sortino": 1.4475,
+    "calmar": 0.4462,
+    "n": 4263,
+    "navx": 2.1317
+  },
+  "is_oos_gap": 0.043099999999999916,
+  "avg_pairwise_corr": 0.22955539665238445,
+  "avg_total_mult": 0.953905700211119,
+  "correlations": {
+    "CARRY": {
+      "CARRY": 1.0,
+      "EQ_TSMOM": 0.212,
+      "DEF_TSMOM": 0.527,
+      "SECT_CSMOM": 0.212,
+      "GOLD_BREAK": 0.111,
+      "VOL_COOL": 0.189,
+      "VIX_REB": 0.021,
+      "OVERNIGHT": 0.108,
+      "TOM": 0.087,
+      "QUAL_DIV": 0.186
+    },
+    "EQ_TSMOM": {
+      "CARRY": 0.212,
+      "EQ_TSMOM": 1.0,
+      "DEF_TSMOM": -0.082,
+      "SECT_CSMOM": 0.732,
+      "GOLD_BREAK": 0.097,
+      "VOL_COOL": 0.62,
+      "VIX_REB": 0.184,
+      "OVERNIGHT": 0.429,
+      "TOM": 0.455,
+      "QUAL_DIV": 0.741
+    },
+    "DEF_TSMOM": {
+      "CARRY": 0.527,
+      "EQ_TSMOM": -0.082,
+      "DEF_TSMOM": 1.0,
+      "SECT_CSMOM": -0.073,
+      "GOLD_BREAK": 0.314,
+      "VOL_COOL": -0.035,
+      "VIX_REB": -0.069,
+      "OVERNIGHT": -0.071,
+      "TOM": -0.092,
+      "QUAL_DIV": -0.118
+    },
+    "SECT_CSMOM": {
+      "CARRY": 0.212,
+      "EQ_TSMOM": 0.732,
+      "DEF_TSMOM": -0.073,
+      "SECT_CSMOM": 1.0,
+      "GOLD_BREAK": 0.056,
+      "VOL_COOL": 0.63,
+      "VIX_REB": 0.17,
+      "OVERNIGHT": 0.411,
+      "TOM": 0.379,
+      "QUAL_DIV": 0.776
+    },
+    "GOLD_BREAK": {
+      "CARRY": 0.111,
+      "EQ_TSMOM": 0.097,
+      "DEF_TSMOM": 0.314,
+      "SECT_CSMOM": 0.056,
+      "GOLD_BREAK": 1.0,
+      "VOL_COOL": 0.096,
+      "VIX_REB": -0.006,
+      "OVERNIGHT": 0.019,
+      "TOM": 0.044,
+      "QUAL_DIV": 0.013
+    },
+    "VOL_COOL": {
+      "CARRY": 0.189,
+      "EQ_TSMOM": 0.62,
+      "DEF_TSMOM": -0.035,
+      "SECT_CSMOM": 0.63,
+      "GOLD_BREAK": 0.096,
+      "VOL_COOL": 1.0,
+      "VIX_REB": 0.225,
+      "OVERNIGHT": 0.453,
+      "TOM": 0.358,
+      "QUAL_DIV": 0.536
+    },
+    "VIX_REB": {
+      "CARRY": 0.021,
+      "EQ_TSMOM": 0.184,
+      "DEF_TSMOM": -0.069,
+      "SECT_CSMOM": 0.17,
+      "GOLD_BREAK": -0.006,
+      "VOL_COOL": 0.225,
+      "VIX_REB": 1.0,
+      "OVERNIGHT": 0.166,
+      "TOM": 0.169,
+      "QUAL_DIV": 0.138
+    },
+    "OVERNIGHT": {
+      "CARRY": 0.108,
+      "EQ_TSMOM": 0.429,
+      "DEF_TSMOM": -0.071,
+      "SECT_CSMOM": 0.411,
+      "GOLD_BREAK": 0.019,
+      "VOL_COOL": 0.453,
+      "VIX_REB": 0.166,
+      "OVERNIGHT": 1.0,
+      "TOM": 0.246,
+      "QUAL_DIV": 0.355
+    },
+    "TOM": {
+      "CARRY": 0.087,
+      "EQ_TSMOM": 0.455,
+      "DEF_TSMOM": -0.092,
+      "SECT_CSMOM": 0.379,
+      "GOLD_BREAK": 0.044,
+      "VOL_COOL": 0.358,
+      "VIX_REB": 0.169,
+      "OVERNIGHT": 0.246,
+      "TOM": 1.0,
+      "QUAL_DIV": 0.412
+    },
+    "QUAL_DIV": {
+      "CARRY": 0.186,
+      "EQ_TSMOM": 0.741,
+      "DEF_TSMOM": -0.118,
+      "SECT_CSMOM": 0.776,
+      "GOLD_BREAK": 0.013,
+      "VOL_COOL": 0.536,
+      "VIX_REB": 0.138,
+      "OVERNIGHT": 0.355,
+      "TOM": 0.412,
+      "QUAL_DIV": 1.0
+    }
+  }
+}
