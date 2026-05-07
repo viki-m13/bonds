@@ -4,22 +4,22 @@
     "tc_bps_per_side": 5.0,
     "trade_threshold_pct": 0.5
   },
-  "as_of": "2026-05-06",
+  "as_of": "2026-05-07",
   "start_date": "2026-04-13",
-  "current_nav": 12108.58,
-  "total_return_pct": 21.09,
-  "spy_total_return_pct": 7.49,
-  "n_trade_days": 18,
-  "ann_return_pct": 275.17,
-  "ann_vol_pct": 27.34,
-  "sharpe": 10.064,
+  "current_nav": 12276.09,
+  "total_return_pct": 22.76,
+  "spy_total_return_pct": 8.51,
+  "n_trade_days": 19,
+  "ann_return_pct": 279.04,
+  "ann_vol_pct": 26.59,
+  "sharpe": 10.493,
   "mdd_pct": -2.61,
   "tracking_error_vs_backtest": {
-    "n_days": 18,
-    "mean_diff_bps": 65.81,
-    "stdev_diff_bps": 202.79,
+    "n_days": 19,
+    "mean_diff_bps": 62.67,
+    "stdev_diff_bps": 195.99,
     "max_abs_diff_bps": 492.77,
-    "ann_tracking_error_bps": 3219.1,
+    "ann_tracking_error_bps": 3111.3,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
@@ -40,7 +40,7 @@
       "Side": "BUY",
       "Weight_Delta": 0.0274,
       "Fill_Price": 44.08,
-      "Shares": 7.5207,
+      "Shares": 7.5208,
       "Notional_USD": 331.51
     },
     {
@@ -49,8 +49,8 @@
       "Ticker": "TQQQ",
       "Side": "SELL",
       "Weight_Delta": -0.0309,
-      "Fill_Price": 69.24,
-      "Shares": -5.4034,
+      "Fill_Price": 69.26,
+      "Shares": -5.4019,
       "Notional_USD": -374.13
     },
     {
@@ -446,10 +446,17 @@
     },
     {
       "d": "2026-05-06",
-      "v": 12108.58,
-      "ret": 0.040851,
+      "v": 12108.69,
+      "ret": 0.04086,
       "turnover": 0.133,
       "tc": 6.7e-05
+    },
+    {
+      "d": "2026-05-07",
+      "v": 12276.09,
+      "ret": 0.013829,
+      "turnover": 0.0087,
+      "tc": 4e-06
     }
   ],
   "spy_series": [
@@ -524,6 +531,10 @@
     {
       "d": "2026-05-06",
       "v": 10749.18
+    },
+    {
+      "d": "2026-05-07",
+      "v": 10850.89
     }
   ]
 }
