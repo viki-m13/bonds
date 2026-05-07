@@ -298,11 +298,22 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
 
 /* Mobile chart improvements */
 @media(max-width:560px){
-  .chart-meta{font-size:0.62rem;gap:6px 10px}
-  .chart-meta .legend{font-size:0.62rem;flex-wrap:nowrap}
+  .chart-meta{font-size:0.62rem;gap:6px 10px;flex-wrap:wrap}
+  .chart-meta .legend{font-size:0.62rem;flex-wrap:nowrap;white-space:nowrap}
   .chart-meta .swatch{width:8px;height:8px}
-  .chart-wrap{padding:10px;height:240px}
-  .chart-wrap canvas{max-width:100%}
+  .chart-wrap{padding:10px;height:240px;overflow:hidden;position:relative}
+  .chart-wrap canvas{max-width:100%;max-height:100%;position:absolute;left:10px;right:10px;width:calc(100% - 20px) !important;height:calc(100% - 60px) !important}
+  /* Add extra space between chart and next section to prevent any overlap */
+  .chart-wrap + p,.chart-wrap ~ section,.chart-wrap ~ h3{margin-top:24px}
+  /* Ensure all sections have explicit top spacing */
+  .section{padding-top:48px !important}
+  .section:first-of-type{padding-top:36px !important}
+  /* Force charts to not overflow their containers */
+  canvas{display:block;max-width:100% !important}
+}
+/* Tooltip fix for mobile */
+@media(max-width:560px){
+  canvas + div{font-size:0.7rem !important}
 }
 /* Chart tooltip stays readable on mobile */
 @media(max-width:560px){
@@ -480,14 +491,14 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
         <li>No portfolio margin or borrowing (gross ≤ 1.0)</li>
         <li>No forward-looking signals (close[t-1] only)</li>
         <li>No ETF selection bias (33-ETF universe fixed ex-ante)</li>
-        <li>Stock universe disclosed as survivorship-biased (90 current S&amp;P 500 large-caps with 2010+ history) — <strong>2% CAGR haircut applied</strong> in disclosed forward-looking metrics.</li>
+        <li>Stock universe disclosed as survivorship-biased; bootstrap-calibrated <strong>8% CAGR haircut</strong> applied to stock portion in disclosed forward-looking metrics.</li>
       </ul>
     </div>
 
     <div class="card" style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-color:#f59e0b">
       <h4 style="color:#7c2d12">Survivorship-bias accounting</h4>
       <p style="color:#7c2d12">The stock universe is the <strong>set of 90 large-caps currently in <code>data/stocks/</code> with 2010+ history</strong>. Companies that went bankrupt, got delisted, or merged out (Lehman, GM old, AIG-equivalent failures, etc.) are <strong>not</strong> in the dataset. This causes the backtest CAGR to be biased upward.</p>
-      <p style="color:#7c2d12">Mitigation: (1) Wide top-K (10/15/20) reduces concentration on individual survivor luck. (2) 30% of book in ETFs which have NO survivorship bias. (3) <strong>Apply a 2% CAGR haircut on the stock portion</strong> when planning forward returns. Blended haircut = 0.7 × 2% = <strong>1.4% off the disclosed CAGR</strong>.</p>
+      <p style="color:#7c2d12">Mitigation: (1) Diversified top-K (3/5/7) for the COMPOSITE blend. (2) 30% of book in ETFs which have NO survivorship bias. (3) <strong>Apply a bootstrap-calibrated 8% CAGR haircut on the stock portion</strong> when planning forward returns. Blended haircut for COMPOSITE = 0.7 × 8% = <strong>5.6% off the disclosed CAGR</strong>.</p>
       <p style="color:#7c2d12;font-style:italic">Backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>21.1%</strong>. Sharpe figures are also slightly inflated by survivorship; the haircut is conservative.</p>
     </div>
   </div>
@@ -692,8 +703,8 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
     <p class="section-dek">
       ETF universe (33) is fixed ex-ante by liquidity + inception ≤ 2009 — no selection bias.
       Stock universe (90 large-caps) is the set with 2010+ history in <code>data/stocks/</code>.
-      <strong>Survivorship-biased</strong>; bias is acknowledged and accounted for via wide top-K
-      and a 2% CAGR haircut on the stock portion of the book.
+      <strong>Survivorship-biased</strong>; bias is measured empirically via bootstrap simulation
+      and accounted for with a calibrated <strong>8% CAGR haircut</strong> on the stock portion (see methodology below).
     </p>
   </div>
 
@@ -855,7 +866,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
     <div class="constraint">
       <div>
         <h4>ETF universe: no selection bias · Stock universe: bias disclosed</h4>
-        <p>The 33-ETF universe is assembled ex-ante by liquidity + inception ≤ 2009. The 90-stock universe is the set of currently-listed S&amp;P 500 large-caps with 2010+ data — <strong>survivorship-biased</strong>. We mitigate by using diversified top-K (3/5/7) with 70% stock allocation on stock sleeves and applying a <strong>2% CAGR haircut</strong> on the 70% stock portion when reporting forward-looking metrics. Naive backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>21.1%</strong>.</p>
+        <p>The 33-ETF universe is assembled ex-ante by liquidity + inception ≤ 2009. The 90-stock universe is the set of currently-listed S&amp;P 500 large-caps with 2010+ data — <strong>survivorship-biased</strong>. We mitigate by using diversified top-K (3/5/7) and applying a bootstrap-calibrated <strong>8% CAGR haircut</strong> on the 70% stock portion when reporting forward-looking metrics. Naive backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>21.1%</strong>.</p>
       </div>
     </div>
     <div class="constraint">
@@ -1011,7 +1022,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
       <h4 style="color:#67e8f9">This strategy · stocks + ETFs</h4>
       <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ <em>Sh 1.28 · 26.7% CAGR</em></p>
       <p style="font-size:0.86rem">5 sleeves, 70% stocks + 30% ETFs. Single-stock momentum on 90 large-caps + ETF momentum on 33 broad ETFs. MDD -19.8%, Sortino 1.70, OOS Sharpe 1.27.</p>
-      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">Haircut-adjusted CAGR: 24.6% (3% bias on 70% stock portion).</p>
+      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">Haircut-adjusted CAGR: 21.1% (8% bias on 70% stock portion = 5.6% blended).</p>
     </div>
     <div class="card">
       <h4 style="color:#67e8f9">ETF-only variant</h4>
