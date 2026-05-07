@@ -295,6 +295,28 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   .nav-menu{position:fixed;left:8px;right:8px;top:auto;bottom:8px;min-width:0;max-height:calc(100vh - 80px);overflow-y:auto;border-radius:18px}
 }
 
+
+/* Mobile chart improvements */
+@media(max-width:560px){
+  .chart-meta{font-size:0.62rem;gap:6px 10px}
+  .chart-meta .legend{font-size:0.62rem;flex-wrap:nowrap}
+  .chart-meta .swatch{width:8px;height:8px}
+  .chart-wrap{padding:10px;height:240px}
+  .chart-wrap canvas{max-width:100%}
+}
+/* Chart tooltip stays readable on mobile */
+@media(max-width:560px){
+  canvas + div{font-size:0.7rem !important}
+}
+/* Holdings table */
+.holdings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.holdings-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.holdings-card h4{font-family:'Bricolage Grotesque',sans-serif;font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;font-weight:600}
+.holdings-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:0.84rem;font-family:'JetBrains Mono',monospace}
+.holdings-row:last-child{border-bottom:none}
+.holdings-row .ticker{font-weight:500;color:var(--ink)}
+.holdings-row .weight{color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -404,7 +426,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
       <p style="margin-top:8px;color:var(--t3);font-size:0.86rem">5 sleeves: 70% stocks + 30% unlevered ETFs.</p>
       <div class="kpi-row" style="margin-top:14px">
         <div class="kpi"><div class="kpi-label">Sharpe</div><div class="kpi-val accent">1.28</div><div class="kpi-sub">best Sharpe</div></div>
-        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val">26.7%</div><div class="kpi-sub">haircut: 23.2%</div></div>
+        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val">26.7%</div><div class="kpi-sub">haircut: 21.1%</div></div>
         <div class="kpi"><div class="kpi-label">MDD</div><div class="kpi-val red">-19.8%</div><div class="kpi-sub">smallest</div></div>
       </div>
     </div>
@@ -414,7 +436,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
       <p style="margin-top:8px;color:var(--t3);font-size:0.86rem">Pure top-3 stock momentum, weekly rebal.</p>
       <div class="kpi-row" style="margin-top:14px">
         <div class="kpi"><div class="kpi-label">Sharpe</div><div class="kpi-val accent">1.17</div><div class="kpi-sub">simplest model</div></div>
-        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val">30.5%</div><div class="kpi-sub">haircut: 25.5%</div></div>
+        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val">30.5%</div><div class="kpi-sub">haircut: 22.5%</div></div>
         <div class="kpi"><div class="kpi-label">MDD</div><div class="kpi-val red">-29.6%</div><div class="kpi-sub">deeper</div></div>
       </div>
     </div>
@@ -424,7 +446,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
       <p style="margin-top:8px;color:var(--t3);font-size:0.86rem">8-sleeve Phoenix-inspired ensemble with vol-target overlay. Standalone (no Phoenix).</p>
       <div class="kpi-row" style="margin-top:14px">
         <div class="kpi"><div class="kpi-label">Sharpe</div><div class="kpi-val accent">1.25</div><div class="kpi-sub">comparable Sharpe</div></div>
-        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val green">33.9%</div><div class="kpi-sub">haircut: 15.0%</div></div>
+        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val green">33.9%</div><div class="kpi-sub">haircut: 13.5%</div></div>
         <div class="kpi"><div class="kpi-label">MDD</div><div class="kpi-val red">-15.2%</div><div class="kpi-sub">smaller, gated</div></div>
       </div>
     </div>
@@ -466,7 +488,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
       <h4 style="color:#7c2d12">Survivorship-bias accounting</h4>
       <p style="color:#7c2d12">The stock universe is the <strong>set of 90 large-caps currently in <code>data/stocks/</code> with 2010+ history</strong>. Companies that went bankrupt, got delisted, or merged out (Lehman, GM old, AIG-equivalent failures, etc.) are <strong>not</strong> in the dataset. This causes the backtest CAGR to be biased upward.</p>
       <p style="color:#7c2d12">Mitigation: (1) Wide top-K (10/15/20) reduces concentration on individual survivor luck. (2) 30% of book in ETFs which have NO survivorship bias. (3) <strong>Apply a 2% CAGR haircut on the stock portion</strong> when planning forward returns. Blended haircut = 0.7 × 2% = <strong>1.4% off the disclosed CAGR</strong>.</p>
-      <p style="color:#7c2d12;font-style:italic">Backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>23.2%</strong>. Sharpe figures are also slightly inflated by survivorship; the haircut is conservative.</p>
+      <p style="color:#7c2d12;font-style:italic">Backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>21.1%</strong>. Sharpe figures are also slightly inflated by survivorship; the haircut is conservative.</p>
     </div>
   </div>
 
@@ -683,28 +705,53 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   <div class="card" style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border:1px solid #f59e0b;margin-bottom:24px">
     <h3 style="color:#7c2d12">Bootstrap survivorship-bias measurement</h3>
     <p style="color:#7c2d12;font-size:0.9rem;line-height:1.6">
-      Method: at each year boundary, randomly mark N% of stocks as "delisted" (excluded from selection for the rest of the backtest). Run the TOP-3 momentum strategy. Compare to no-dropout baseline. <strong>100 simulations per dropout rate.</strong> This directly measures how much our backtest overstates returns vs. an unbiased universe.
+      <strong>Method:</strong> we measure the bias <em>empirically</em> rather than guess. At each year boundary, randomly mark N% of stocks as "delisted" (excluded from selection for the rest of the backtest, with a one-day loss applied on the delisting date to simulate the wipeout). Run the TOP-3 momentum strategy. Compare to no-dropout baseline. <strong>100 Monte Carlo simulations per (dropout, loss) cell.</strong>
     </p>
-    <div style="margin-top:14px">
-      <table style="width:100%;font-size:0.84rem">
-        <thead><tr><th style="text-align:left;color:#7c2d12">Annual dropout</th><th style="color:#7c2d12">Median CAGR</th><th style="color:#7c2d12">P10 - P90 range</th><th style="color:#7c2d12">Bias vs no-dropout</th></tr></thead>
+    <div style="margin-top:14px;overflow-x:auto">
+      <table style="width:100%;font-size:0.82rem;min-width:520px">
+        <thead><tr><th style="text-align:left;color:#7c2d12">Annual dropout</th><th style="color:#7c2d12">Delist loss</th><th style="color:#7c2d12">Median CAGR</th><th style="color:#7c2d12">Bias</th><th style="color:#7c2d12">95% CI</th></tr></thead>
         <tbody style="color:#7c2d12">
-          <tr><td>2%</td><td class="tnum">41.4%</td><td class="tnum">34.6% – 43.2%</td><td class="tnum">+0.9%</td></tr>
-          <tr style="background:rgba(245,158,11,0.15)"><td><strong>5% (S&amp;P 500 historical norm)</strong></td><td class="tnum"><strong>35.5%</strong></td><td class="tnum">28.1% – 41.7%</td><td class="tnum"><strong>+7.3%</strong></td></tr>
-          <tr><td>10%</td><td class="tnum">27.8%</td><td class="tnum">21.4% – 34.2%</td><td class="tnum">+13.9%</td></tr>
-          <tr><td>0% (no dropouts — biased baseline)</td><td class="tnum">42.3%</td><td class="tnum">—</td><td class="tnum">reference</td></tr>
+          <tr><td>0% (baseline)</td><td>—</td><td class="tnum">35.0%</td><td class="tnum">ref</td><td class="tnum">—</td></tr>
+          <tr><td>2% / yr</td><td>0%</td><td class="tnum">34.3%</td><td class="tnum">+0.7%</td><td class="tnum">[26.4, 36.5]</td></tr>
+          <tr><td>2% / yr</td><td>−50%</td><td class="tnum">33.4%</td><td class="tnum">+1.6%</td><td class="tnum">[25.9, 36.5]</td></tr>
+          <tr><td>2% / yr</td><td>−100%</td><td class="tnum">32.1%</td><td class="tnum">+2.9%</td><td class="tnum">[23.1, 36.5]</td></tr>
+          <tr style="background:rgba(245,158,11,0.10)"><td><strong>5% / yr</strong></td><td>0%</td><td class="tnum">27.7%</td><td class="tnum">+7.3%</td><td class="tnum">[18.4, 36.3]</td></tr>
+          <tr style="background:rgba(245,158,11,0.20)"><td><strong>5% / yr (S&amp;P 500 norm)</strong></td><td><strong>−50%</strong></td><td class="tnum"><strong>22.2%</strong></td><td class="tnum"><strong>+12.8%</strong></td><td class="tnum">[13.5, 32.1]</td></tr>
+          <tr style="background:rgba(245,158,11,0.10)"><td><strong>5% / yr</strong></td><td>−100%</td><td class="tnum">16.6%</td><td class="tnum">+18.4%</td><td class="tnum">[4.3, 29.2]</td></tr>
+          <tr><td>10% / yr</td><td>0%</td><td class="tnum">15.5%</td><td class="tnum">+19.5%</td><td class="tnum">[9.5, 20.3]</td></tr>
+          <tr><td>10% / yr</td><td>−50%</td><td class="tnum">−2.3%</td><td class="tnum">+37.4%</td><td class="tnum">[−10.5, 6.1]</td></tr>
         </tbody>
       </table>
     </div>
-    <p style="color:#7c2d12;font-size:0.86rem;margin-top:14px">
-      <strong>Cross-check #1 (EW universe vs SPY):</strong> Equal-weighted 90-stock universe returns 17.7% CAGR vs SPY's 13.2% — a +4.6% differential that bundles survivorship bias and EW premium (typically 1-2%).
+    <p style="color:#7c2d12;font-size:0.84rem;margin-top:12px;line-height:1.5">
+      The yellow rows show realistic scenarios at the historical 5%/year S&amp;P 500 turnover rate. With no delist loss the bias is +7.3%; with a realistic −50% delist loss the bias jumps to <strong>+12.8% CAGR</strong>; with a full −100% wipeout it's +18.4%.
     </p>
-    <p style="color:#7c2d12;font-size:0.86rem">
-      <strong>Calibrated haircut:</strong> at the historical 5%/year S&amp;P 500 turnover rate, our bootstrap shows ~7.3% CAGR overstatement. We apply a conservative <strong>5% CAGR haircut on the stock portion</strong> (vs 7% empirical) — slightly under to account for the fact that "delisted" stocks in reality don't always go to -100%; some merge or get bought out.
+
+    <h4 style="color:#7c2d12;margin-top:18px;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase">Cross-checks vs unbiased benchmarks</h4>
+    <div style="margin-top:8px;overflow-x:auto">
+      <table style="width:100%;font-size:0.82rem;min-width:480px">
+        <thead><tr><th style="text-align:left;color:#7c2d12">Universe</th><th style="color:#7c2d12">Bias?</th><th style="color:#7c2d12">CAGR</th><th style="color:#7c2d12">Sharpe</th></tr></thead>
+        <tbody style="color:#7c2d12">
+          <tr><td>EW 90-stock universe</td><td>YES (max)</td><td class="tnum">17.3%</td><td class="tnum">1.05</td></tr>
+          <tr><td>SPY (cap-wt, reconstituted)</td><td>NO</td><td class="tnum">13.2%</td><td class="tnum">0.82</td></tr>
+          <tr><td>QQQ (cap-wt, reconstituted)</td><td>NO</td><td class="tnum">17.5%</td><td class="tnum">0.90</td></tr>
+          <tr><td>IWM (R2K, reconstituted)</td><td>NO</td><td class="tnum">9.9%</td><td class="tnum">0.54</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color:#7c2d12;font-size:0.84rem;margin-top:10px;line-height:1.5">
+      EW 90-stock vs SPY = +4.2% (mixes ~1-2% EW premium + ~2-3% bias). EW 90-stock ≈ QQQ — our universe leans tech-heavy by virtue of which names survived. The bootstrap is more conservative than these passive cross-checks because <em>concentrated</em> top-K strategies amplify the bias more than EW does.
     </p>
-    <p style="color:#7c2d12;font-size:0.86rem">
-      <strong>Per-strategy blended haircuts:</strong> COMPOSITE 70% stock × 5% = 3.5% blended → forward CAGR 23.2%.  PURE 100% stock × 5% = 5.0% blended → forward CAGR 25.5%. LEV 50% stock × 5% = 2.5% blended → forward CAGR 15.0%.
+
+    <h4 style="color:#7c2d12;margin-top:18px;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase">Calibrated haircut</h4>
+    <p style="color:#7c2d12;font-size:0.86rem;line-height:1.55">
+      We split the difference between the no-loss case (+7.3%) and the realistic-loss case (+12.8%) and apply a <strong>conservative 8% CAGR haircut on the stock portion</strong> of each strategy. Per-strategy blended:
     </p>
+    <ul style="color:#7c2d12;font-size:0.84rem;margin-left:18px;line-height:1.7">
+      <li><strong>COMPOSITE</strong> (70% stocks × 8% = 5.6% blended) → backtest CAGR 26.7% → forward expectation <strong>21.1%</strong></li>
+      <li><strong>PURE</strong> (100% stocks × 8% = 8.0% blended) → backtest CAGR 30.5% → forward expectation <strong>22.5%</strong></li>
+      <li><strong>LEV</strong> (50% stocks × 8% = 4.0% blended) → backtest CAGR 17.5% → forward expectation <strong>13.5%</strong></li>
+    </ul>
   </div>
 
   <h3 style="font-family:'Instrument Serif',serif;font-size:1.4rem;margin:20px 0 14px">Stock universe · 90 large-caps <span style="font-size:0.8rem;color:var(--red);background:#fee2e2;padding:2px 8px;border-radius:6px;font-family:'JetBrains Mono',monospace">survivorship-biased</span></h3>
@@ -808,7 +855,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
     <div class="constraint">
       <div>
         <h4>ETF universe: no selection bias · Stock universe: bias disclosed</h4>
-        <p>The 33-ETF universe is assembled ex-ante by liquidity + inception ≤ 2009. The 90-stock universe is the set of currently-listed S&amp;P 500 large-caps with 2010+ data — <strong>survivorship-biased</strong>. We mitigate by using diversified top-K (3/5/7) with 70% stock allocation on stock sleeves and applying a <strong>2% CAGR haircut</strong> on the 70% stock portion when reporting forward-looking metrics. Naive backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>23.2%</strong>.</p>
+        <p>The 33-ETF universe is assembled ex-ante by liquidity + inception ≤ 2009. The 90-stock universe is the set of currently-listed S&amp;P 500 large-caps with 2010+ data — <strong>survivorship-biased</strong>. We mitigate by using diversified top-K (3/5/7) with 70% stock allocation on stock sleeves and applying a <strong>2% CAGR haircut</strong> on the 70% stock portion when reporting forward-looking metrics. Naive backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>21.1%</strong>.</p>
       </div>
     </div>
     <div class="constraint">
@@ -850,6 +897,30 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   <div class="callout" style="margin-top:18px">
     <p><strong>Overlay arithmetic:</strong> <span class="mono">total_mult = min(1.0, dd_mult × vol_gate_mult)</span>. Average across 16 years is 0.95. Net return = raw return × total_mult, with TC drag from multiplier changes.</p>
   </div>
+</section>
+
+<!-- HISTORICAL ALLOCATIONS -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">What it held</span>
+      <h2 class="section-title">Historical <em>allocations</em>.</h2>
+    </div>
+    <p class="section-dek">
+      Top holdings of the active strategy on the first business day of each year. Switch
+      strategy with the toggle above to see different allocations. Concentration shifts as
+      sector leadership rotates — semis dominated 2017-2018 and 2023-2024; consumer
+      discretionary led 2013-2015; defensives led 2022.
+    </p>
+  </div>
+
+  <div id="holdingsContainer" class="holdings-grid"></div>
+
+  <p style="font-size:0.7rem;color:var(--t3);margin-top:12px;font-family:'JetBrains Mono',monospace">
+    Snapshots are first-business-day-of-year. COMPOSITE blends 3 stock sleeves (top-3/5/7) at
+    23.3% each + 2 ETF sleeves at 15% each. PURE shows top-3 stock allocations. LEV shows
+    stock-portion holdings (40% of book; LETF rotation handled separately).
+  </p>
 </section>
 
 <!-- YEARLY RETURNS -->
@@ -1110,6 +1181,29 @@ function renderAll() {
   renderDDChart(D);
   renderYearlyTable(D);
   renderHeatmap(D);
+  renderHoldings(D);
+}
+
+function renderHoldings(D) {
+  const container = document.getElementById('holdingsContainer');
+  if (!container || !D.holdings) return;
+  const variantKey = {'main':'composite','pure':'pure','lev':'lev'}[CURRENT_VARIANT];
+  const holdings = D.holdings[variantKey] || {};
+  container.innerHTML = '';
+  const dates = Object.keys(holdings).sort();
+  dates.forEach(dt => {
+    const items = holdings[dt];
+    if (!items || items.length === 0) return;
+    const year = dt.split('-')[0];
+    const card = document.createElement('div');
+    card.className = 'holdings-card';
+    let html = `<h4>${year}</h4>`;
+    items.slice(0, 8).forEach(([t, w]) => {
+      html += `<div class="holdings-row"><span class="ticker">${t}</span><span class="weight">${(w*100).toFixed(1)}%</span></div>`;
+    });
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
 }
 
 function renderMetricsTable(D, m) {

@@ -69,7 +69,7 @@ VOL_GATE_LOOKBACK = 252
 VOL_WIN = 60
 
 # Conservative 3% CAGR haircut for concentrated top-K stock sleeves
-SURVIVORSHIP_HAIRCUT_PCT = 5.0  # bootstrap-calibrated (5%/yr dropout shows ~7% bias; we use 5%)
+SURVIVORSHIP_HAIRCUT_PCT = 8.0  # bootstrap-calibrated with realistic delist losses (median bias 12% at 5pct dropout 50pct delist; conservatively 8pct)  # bootstrap-calibrated (5%/yr dropout shows ~7% bias; we use 5%)
 STOCK_WEIGHT = 0.70
 
 ETF_UNIVERSE = ["SPY", "QQQ", "IWM", "EFA", "EEM", "XLK", "XLY", "XLP", "XLU",

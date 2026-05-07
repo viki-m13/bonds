@@ -5,11 +5,11 @@
     "vol_gate_pct": 0.99,
     "vol_gate_lb": 252,
     "stock_weight": 0.7,
-    "survivorship_haircut_pct": 5.0,
+    "survivorship_haircut_pct": 8.0,
     "rule": "5-sleeve concentrated stock+ETF momentum. 70% stocks (top-3/5/7 by 6mo/12mo) + 30% ETFs (top-1 by 21d/126d). Gross == 1.0; no margin; no levered ETFs.",
     "stock_universe_size": 90,
     "etf_universe_size": 33,
-    "stock_universe_disclosure": "Survivorship-biased (current large-caps with 2010+ data; bankrupt/delisted excluded). 5.0% CAGR haircut applied to stock portion."
+    "stock_universe_disclosure": "Survivorship-biased (current large-caps with 2010+ data; bankrupt/delisted excluded). 8.0% CAGR haircut applied to stock portion."
   },
   "weights": {
     "STOCK_3_W": 0.2333333333333333,
@@ -62,7 +62,7 @@
     "n": 4263,
     "navx": 52.2498
   },
-  "cagr_haircut": 0.2321,
+  "cagr_haircut": 0.2111,
   "is_oos_gap": 0.05180000000000007,
   "avg_total_mult": 0.9421768707482994,
   "correlations": {

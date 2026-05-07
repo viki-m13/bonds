@@ -98,7 +98,7 @@ VOL_GATE_LOOKBACK = 252
 PORT_TC_BPS = 10.0
 
 # Empirical bootstrap-calibrated survivorship haircut
-SURVIVORSHIP_HAIRCUT_PCT = 5.0  # bootstrap @ 5% annual dropout shows ~7%; use 5% conservatively
+SURVIVORSHIP_HAIRCUT_PCT = 8.0  # bootstrap-calibrated with realistic delist losses (median bias 12% at 5pct dropout 50pct delist; conservatively 8pct)  # bootstrap @ 5% annual dropout shows ~7%; use 5% conservatively
 STOCK_WEIGHT = 0.50
 
 PHOENIX_CORE = ["QLD", "UGL", "TMF", "TYD"]

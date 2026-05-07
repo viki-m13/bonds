@@ -7,7 +7,7 @@
     "dd_floor": -0.1,
     "vol_gate_pct": 0.99,
     "stock_weight": 0.5,
-    "survivorship_haircut_pct": 5.0,
+    "survivorship_haircut_pct": 8.0,
     "rule": "8-sleeve Phoenix-inspired ensemble. IV-blend weights IS-fit. Phoenix-style overlay: target 15% vol, cap 1.0 (no margin), DD throttle -10%, vol gate 99th pct.",
     "sleeve_names": [
       "A_STK_2W",
@@ -93,7 +93,7 @@
     "n": 4002,
     "navx": 27.377
   },
-  "cagr_haircut": 0.15,
+  "cagr_haircut": 0.13499999999999998,
   "correlations": {
     "A_STK_2W": {
       "A_STK_2W": 1.0,
