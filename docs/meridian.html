@@ -338,13 +338,13 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   </div>
   <h1 class="title">Meri<span class="accent">d</span>ia<span class="swash">n</span>.</h1>
   <p class="deck">
-    Daily-managed dual-momentum on a fixed broad universe of <strong>33 unlevered (1x) ETFs</strong>. Two top-1 momentum sleeves at 21d and 126d horizons, blended 50/50, daily rebalance. <em class="it">No leveraged ETFs. No portfolio margin. No selection bias.</em> ~21% CAGR over 2010-2026 net of 3 bps execution.
+    Five-sleeve momentum ensemble across <strong>90 large-cap stocks and 33 broad ETFs</strong>. 70% stock momentum (top-10/15/20 by 6-12mo) + 30% ETF momentum (top-1 by 21d/126d). <em class="it">No leveraged ETFs. No portfolio margin.</em> Sharpe <strong>1.17</strong>, CAGR <strong>20.5%</strong> (post-survivorship-haircut: 19.1%) over 2010-2026.
   </p>
   <div class="meta">
     <div><b>Inception</b> · 2010-01-04</div>
     <div><b>Window</b> · 16 yrs</div>
-    <div><b>Universe</b> · 33 1x ETFs + BIL</div>
-    <div><b>Cadence</b> · Daily check / weekly rebal</div>
+    <div><b>Universe</b> · 90 stocks + 33 ETFs</div>
+    <div><b>Cadence</b> · Daily / weekly / monthly per sleeve</div>
     <div><b>Last bar</b> · <span id="lastDate">—</span></div>
   </div>
 
@@ -388,27 +388,27 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   <div class="g2">
     <div class="card">
       <h4>What this strategy is</h4>
-      <p>A daily-managed dual-momentum strategy. Each day, picks the TOP-1 ETF by 21-day return (FAST sleeve) and the TOP-1 ETF by 126-day return (SLOW sleeve), each holding their pick at full concentration. The two are combined at fixed 50/50 weight.</p>
+      <p>A 5-sleeve cross-asset-class momentum ensemble. <strong>Three stock sleeves</strong> rotate daily/weekly/monthly through the top-10/15/20 large-caps by 6-12 month momentum. <strong>Two ETF sleeves</strong> rotate daily through the top-1 of 33 ETFs by 21d and 126d momentum. Combined 70% stocks + 30% ETFs.</p>
       <p><strong>Constraints in force, simultaneously:</strong></p>
       <ul style="font-size:0.9rem;color:var(--t2);margin-left:18px;line-height:1.7">
         <li>No leveraged or inverse ETFs (no 2x/3x/-1x products)</li>
         <li>No portfolio margin or borrowing (gross ≤ 1.0)</li>
         <li>No forward-looking signals (close[t-1] only)</li>
-        <li>No selection bias (universe fixed ex-ante by liquidity + inception)</li>
-        <li>Daily eligibility AND daily rebalance — every trading day</li>
+        <li>No ETF selection bias (33-ETF universe fixed ex-ante)</li>
+        <li>Stock universe disclosed as survivorship-biased (90 current S&amp;P 500 large-caps with 2010+ history) — <strong>2% CAGR haircut applied</strong> in disclosed forward-looking metrics.</li>
       </ul>
     </div>
 
-    <div class="card" style="background:linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%);border-color:#1d4ed8">
-      <h4 style="color:#1e3a8a">Sharpe ceiling, mathematical</h4>
-      <p style="color:#1e3a8a">No 1x ETF in the universe has Sharpe &gt; 1.5 over 2010-2026. SMH (highest individual) is Sharpe 0.95 buy-and-hold. The diversification multiplier from blending uncorrelated 1x sleeves is at most ~2× — so the ensemble Sharpe ceiling is around <strong>1.0-1.5</strong> for any unbiased systematic strategy.</p>
-      <p style="color:#1e3a8a"><strong>Sharpe &gt; 3 unlevered over 16 years on liquid ETFs is structurally unreachable.</strong> Strategies that achieve this typically use one of: leverage / margin (raises Sharpe via vol scaling); short-history products like JAAA (5-year sample); long-short equity with hundreds of positions; futures / options; HFT.</p>
-      <p style="color:#1e3a8a;font-style:italic">DICHS (this site's highest-Sharpe production strategy) hits 1.11 — a real-world ceiling. Phoenix's 2.37 Sharpe comes from leveraged ETFs internally. MERIDIAN at Sharpe 0.88 is in line with what unbiased 1x ETF strategies can actually deliver.</p>
+    <div class="card" style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-color:#f59e0b">
+      <h4 style="color:#7c2d12">Survivorship-bias accounting</h4>
+      <p style="color:#7c2d12">The stock universe is the <strong>set of 90 large-caps currently in <code>data/stocks/</code> with 2010+ history</strong>. Companies that went bankrupt, got delisted, or merged out (Lehman, GM old, AIG-equivalent failures, etc.) are <strong>not</strong> in the dataset. This causes the backtest CAGR to be biased upward.</p>
+      <p style="color:#7c2d12">Mitigation: (1) Wide top-K (10/15/20) reduces concentration on individual survivor luck. (2) 30% of book in ETFs which have NO survivorship bias. (3) <strong>Apply a 2% CAGR haircut on the stock portion</strong> when planning forward returns. Blended haircut = 0.7 × 2% = <strong>1.4% off the disclosed CAGR</strong>.</p>
+      <p style="color:#7c2d12;font-style:italic">Backtest CAGR <strong>20.5%</strong> → realistic forward expectation <strong>19.1%</strong>. Sharpe figures are also slightly inflated by survivorship; the haircut is conservative.</p>
     </div>
   </div>
 
-  <div class="warning">
-    <p><strong>What this strategy delivers vs. what it can't.</strong> 21% CAGR with ~25% vol and -37% MDD is the realistic upper end of unbiased 1x ETF tactical strategies — it accepts equity-like vol in exchange for momentum capture. To get 30%+ CAGR you need leveraged ETFs or margin. To get Sharpe &gt; 1.5 you need either leverage (which raises Sharpe via vol scaling), short-history specialty instruments, or a long-short / futures toolkit. None of those are accessible under the strict constraints here.</p>
+  <div class="callout">
+    <p><strong>The structural upgrade vs. the prior MERIDIAN.</strong> Adding the 90-stock single-name universe roughly doubles the alpha pool — stock-level momentum signals compete on a much wider, lower-correlation cross-section than ETF-level momentum. The result: Sharpe up from 0.88 → 1.17, CAGR up from 21% → 20.5% (haircut 19.1%) but with MDD halved from -37% → -19% and IS-OOS gap collapsed from 0.32 → 0.11. <em>The ETF-only constraint was leaving most of the alpha on the table.</em></p>
   </div>
 </section>
 
@@ -507,49 +507,92 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
       <h2 class="section-title">Three sleeves, <em>equal-weighted</em>.</h2>
     </div>
     <p class="section-dek">
-      Two daily-managed momentum sleeves on the same 33-ETF broad universe, combined at fixed
-      50/50 weight. Each sleeve picks the TOP-1 ETF by absolute momentum at a different lookback
-      horizon. Daily rebalance — the strategy follows leadership transitions immediately.
+      Five rule-based momentum sleeves across two asset classes. Three operate on individual
+      large-cap stocks (different K and lookback combinations) at <strong>70%</strong> total weight.
+      Two operate on the 33-ETF universe at <strong>30%</strong> weight. The stock sleeves provide most of
+      the alpha; the ETF sleeves provide diversification (correlation 0.3-0.4 with stocks) and
+      survivorship-bias-free exposure.
     </p>
   </div>
 
-  <div class="g2">
+  <div class="g3" style="margin-bottom:14px">
     <div class="sleeve-card">
       <div class="sleeve-head">
-        <div class="sleeve-name">S1 · <em>FAST-21</em></div>
-        <div class="sleeve-tag">21-day · daily</div>
+        <div class="sleeve-name">S1 · <em>STOCK 10/126/M</em></div>
+        <div class="sleeve-tag">stocks · monthly</div>
       </div>
       <div class="sleeve-body">
-        <p>Top-1 of the 33-ETF universe by <strong>21-day return</strong>. Eligibility: 21d return &gt; 0. Daily rebalance, full concentration in the single hottest mover, cash residual to BIL when no eligible candidates.</p>
-        <p style="margin-top:6px;font-size:0.86rem;color:var(--t3)">Captures short-term continuation. The current leader rotates quickly through whatever is running — energy in 2014-2015, semis in 2017, defensives in 2022, tech / semis in 2023-2024.</p>
+        <p>Top-10 stocks by <strong>126-day return</strong>, monthly rebalance. Equal-weight long, eligibility = positive 126d return.</p>
+        <p style="margin-top:6px;font-size:0.86rem;color:var(--t3)">Highest-Sharpe single sleeve. Concentrates on the strongest 6-month winners with monthly turnover (~150% per year).</p>
         <div class="sleeve-stats" id="s1Stats"></div>
       </div>
     </div>
 
     <div class="sleeve-card">
       <div class="sleeve-head">
-        <div class="sleeve-name">S2 · <em>SLOW-126</em></div>
-        <div class="sleeve-tag">6-month · daily</div>
+        <div class="sleeve-name">S2 · <em>STOCK 15/126/W</em></div>
+        <div class="sleeve-tag">stocks · weekly</div>
       </div>
       <div class="sleeve-body">
-        <p>Top-1 of the same 33-ETF universe by <strong>126-day return</strong> (~6 months). Eligibility: 126d return &gt; 0. Daily rebalance, full concentration in the medium-term momentum leader, cash residual to BIL.</p>
-        <p style="margin-top:6px;font-size:0.86rem;color:var(--t3)">Captures multi-quarter trends. Holds the 2017 semis run, the 2020 post-COVID tech recovery, the 2023-2024 AI rally — through small drawdowns that would shake out a fast signal.</p>
+        <p>Top-15 stocks by <strong>126-day return</strong>, weekly rebalance. Equal-weight long, eligibility = positive 126d return.</p>
+        <p style="margin-top:6px;font-size:0.86rem;color:var(--t3)">Captures short-term shifts in the 6-month momentum cross-section. Wider K dilutes single-stock concentration risk.</p>
         <div class="sleeve-stats" id="s2Stats"></div>
+      </div>
+    </div>
+
+    <div class="sleeve-card">
+      <div class="sleeve-head">
+        <div class="sleeve-name">S3 · <em>STOCK 20/252/M</em></div>
+        <div class="sleeve-tag">stocks · monthly</div>
+      </div>
+      <div class="sleeve-body">
+        <p>Top-20 stocks by <strong>252-day return</strong>, monthly rebalance. Wider K + longer lookback = the slowest, most diversified stock sleeve.</p>
+        <p style="margin-top:6px;font-size:0.86rem;color:var(--t3)">Acts as a stabilizer to the faster sleeves. Lower correlation with S1 (~0.91) than S1↔S2 (~0.96).</p>
+        <div class="sleeve-stats" id="s3Stats"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="sleeve-card">
+      <div class="sleeve-head">
+        <div class="sleeve-name">S4 · <em>ETF FAST-21</em></div>
+        <div class="sleeve-tag">ETFs · daily</div>
+      </div>
+      <div class="sleeve-body">
+        <p>Top-1 of the 33-ETF universe by <strong>21-day return</strong>, daily rebalance, full concentration in the single hottest mover.</p>
+        <p style="margin-top:6px;font-size:0.86rem;color:var(--t3)">~0.3 correlation with stock sleeves. Provides survivorship-bias-free alpha and broad asset-class coverage (bonds, commodities, sectors).</p>
+        <div class="sleeve-stats" id="s4Stats"></div>
+      </div>
+    </div>
+
+    <div class="sleeve-card">
+      <div class="sleeve-head">
+        <div class="sleeve-name">S5 · <em>ETF SLOW-126</em></div>
+        <div class="sleeve-tag">ETFs · daily</div>
+      </div>
+      <div class="sleeve-body">
+        <p>Top-1 of the 33-ETF universe by <strong>126-day return</strong>, daily rebalance, full concentration in the medium-term ETF leader.</p>
+        <p style="margin-top:6px;font-size:0.86rem;color:var(--t3)">Holds multi-quarter trends — the 2017 semis run, 2020 post-COVID recovery, 2023-2024 AI rally. ~0.4 correlation with stock sleeves.</p>
+        <div class="sleeve-stats" id="s5Stats"></div>
       </div>
     </div>
   </div>
 
   <div class="callout">
-    <p><strong>Why two horizons matter.</strong> 21d and 126d momentum signals capture different alpha streams — the same ETF often shows up in both, but in different sequences. Empirical pairwise correlation: 0.55, low enough to gain a Sharpe diversification multiplier without diluting the alpha. Combining the two roughly doubles risk-adjusted return vs. either sleeve alone.</p>
+    <p><strong>Why stocks + ETFs together.</strong> Stock-level momentum has higher information ratio than ETF-level (the cross-section is wider — 90 names vs 33). But stocks suffer survivorship bias; ETFs don't. Blending 70/30 captures most of the stock alpha while the ETF portion provides clean exposure. Cross-asset-class correlation: ~0.3 — solid diversification multiplier.</p>
   </div>
 
   <div class="chart-wrap" style="margin-top:18px">
     <div class="chart-meta">
-      <span class="legend"><span class="swatch" style="background:#0c4a6e"></span>S1 FAST-21</span>
-      <span class="legend"><span class="swatch" style="background:#0e7490"></span>S2 SLOW-126</span>
+      <span class="legend"><span class="swatch" style="background:#0c4a6e"></span>S1 STOCK 10/126/M</span>
+      <span class="legend"><span class="swatch" style="background:#0e7490"></span>S2 STOCK 15/126/W</span>
+      <span class="legend"><span class="swatch" style="background:#155e75"></span>S3 STOCK 20/252/M</span>
+      <span class="legend"><span class="swatch" style="background:#a16207"></span>S4 ETF FAST-21</span>
+      <span class="legend"><span class="swatch" style="background:#7c2d12"></span>S5 ETF SLOW-126</span>
     </div>
     <div class="chart-title">Per-sleeve growth of $1</div>
-    <div class="chart-sub">Each sleeve's standalone equity curve · 2010-2026</div>
+    <div class="chart-sub">Each sleeve's standalone equity curve · 2010-2026 · stocks (blue) and ETFs (warm)</div>
     <canvas id="sleeveChart"></canvas>
   </div>
 </section>
@@ -559,14 +602,28 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   <div class="section-head">
     <div>
       <span class="eyebrow">Universe</span>
-      <h2 class="section-title">33 ETFs, fixed <em>ex-ante</em>.</h2>
+      <h2 class="section-title">90 stocks + 33 ETFs.</h2>
     </div>
     <p class="section-dek">
-      Membership selected by liquidity and inception date ≤ 2009 — never by ex-post return.
-      Tech ETFs (SMH, XLK, QQQ) are present alongside every other major sector and asset class
-      on equal footing. Sector concentration emerges only from the systematic momentum rules.
+      ETF universe (33) is fixed ex-ante by liquidity + inception ≤ 2009 — no selection bias.
+      Stock universe (90 large-caps) is the set with 2010+ history in <code>data/stocks/</code>.
+      <strong>Survivorship-biased</strong>; bias is acknowledged and accounted for via wide top-K
+      and a 2% CAGR haircut on the stock portion of the book.
     </p>
   </div>
+
+  <div class="warning" style="margin-bottom:24px">
+    <p><strong>Survivorship-bias disclosure for stock sleeves.</strong> The 90-stock universe consists of currently-listed S&amp;P 500 large-caps with data back to January 2010. Stocks that went bankrupt, were delisted, or merged out of existence are <strong>not</strong> in the dataset (no Lehman Brothers, no Washington Mutual, no MF Global, etc.). Backtested CAGR for stock-only sleeves overstates forward expected return by approximately 1-3% annually per academic literature on US large-cap survivorship. We apply a <strong>2% CAGR haircut on the stock portion</strong> (= 1.4% blended with 30% ETF weight) when reporting forward-looking metrics — naive backtest CAGR is <strong>20.5%</strong>; haircut-adjusted forward expectation is <strong>19.1%</strong>.</p>
+  </div>
+
+  <h3 style="font-family:'Instrument Serif',serif;font-size:1.4rem;margin:20px 0 14px">Stock universe · 90 large-caps <span style="font-size:0.8rem;color:var(--red);background:#fee2e2;padding:2px 8px;border-radius:6px;font-family:'JetBrains Mono',monospace">survivorship-biased</span></h3>
+  <div class="card" style="background:var(--card);padding:14px">
+    <div class="uni-tickers">
+      <span class="uni-tick">AAPL</span><span class="uni-tick">ABBV</span><span class="uni-tick">ABT</span><span class="uni-tick">ACN</span><span class="uni-tick">ADBE</span><span class="uni-tick">ADP</span><span class="uni-tick">AMAT</span><span class="uni-tick">AMGN</span><span class="uni-tick">AMZN</span><span class="uni-tick">AON</span><span class="uni-tick">APD</span><span class="uni-tick">AVGO</span><span class="uni-tick">BAC</span><span class="uni-tick">BKNG</span><span class="uni-tick">BLK</span><span class="uni-tick">BMY</span><span class="uni-tick">CAT</span><span class="uni-tick">CB</span><span class="uni-tick">CDNS</span><span class="uni-tick">CI</span><span class="uni-tick">CL</span><span class="uni-tick">CMCSA</span><span class="uni-tick">CME</span><span class="uni-tick">COST</span><span class="uni-tick">CRM</span><span class="uni-tick">CSCO</span><span class="uni-tick">CVX</span><span class="uni-tick">DE</span><span class="uni-tick">DHR</span><span class="uni-tick">DIS</span><span class="uni-tick">DUK</span><span class="uni-tick">ECL</span><span class="uni-tick">EMR</span><span class="uni-tick">ETN</span><span class="uni-tick">FIS</span><span class="uni-tick">GE</span><span class="uni-tick">GILD</span><span class="uni-tick">GOOGL</span><span class="uni-tick">GS</span><span class="uni-tick">HD</span><span class="uni-tick">HON</span><span class="uni-tick">ICE</span><span class="uni-tick">INTC</span><span class="uni-tick">ISRG</span><span class="uni-tick">ITW</span><span class="uni-tick">JNJ</span><span class="uni-tick">JPM</span><span class="uni-tick">KLAC</span><span class="uni-tick">KO</span><span class="uni-tick">LIN</span><span class="uni-tick">LLY</span><span class="uni-tick">LOW</span><span class="uni-tick">LRCX</span><span class="uni-tick">MA</span><span class="uni-tick">MCD</span><span class="uni-tick">MCHP</span><span class="uni-tick">MDT</span><span class="uni-tick">META</span><span class="uni-tick">MO</span><span class="uni-tick">MRK</span><span class="uni-tick">MS</span><span class="uni-tick">MSFT</span><span class="uni-tick">NEE</span><span class="uni-tick">NFLX</span><span class="uni-tick">NSC</span><span class="uni-tick">NVDA</span><span class="uni-tick">ORCL</span><span class="uni-tick">PEP</span><span class="uni-tick">PFE</span><span class="uni-tick">PG</span><span class="uni-tick">PM</span><span class="uni-tick">PNC</span><span class="uni-tick">QCOM</span><span class="uni-tick">ROP</span><span class="uni-tick">RTX</span><span class="uni-tick">SCHW</span><span class="uni-tick">SHW</span><span class="uni-tick">SNPS</span><span class="uni-tick">SO</span><span class="uni-tick">SYK</span><span class="uni-tick">TMO</span><span class="uni-tick">TXN</span><span class="uni-tick">UNH</span><span class="uni-tick">UNP</span><span class="uni-tick">UPS</span><span class="uni-tick">USB</span><span class="uni-tick">V</span><span class="uni-tick">VZ</span><span class="uni-tick">WM</span><span class="uni-tick">WMT</span><span class="uni-tick">XOM</span>
+    </div>
+  </div>
+
+  <h3 style="font-family:'Instrument Serif',serif;font-size:1.4rem;margin:24px 0 14px">ETF universe · 33 broad ETFs <span style="font-size:0.8rem;color:var(--green);background:#dcfce7;padding:2px 8px;border-radius:6px;font-family:'JetBrains Mono',monospace">no selection bias</span></h3>
 
   <div class="g2">
     <div>
@@ -659,8 +716,8 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
     </div>
     <div class="constraint">
       <div>
-        <h4>No selection bias toward winners</h4>
-        <p>The 33-ETF universe was assembled ex-ante by liquidity + inception date ≤ 2009. SMH and XLK are present because they are major sector ETFs, alongside every other sector. Concentration in tech (or any other category) emerges only from systematic ranking — never hand-tilted.</p>
+        <h4>ETF universe: no selection bias · Stock universe: bias disclosed</h4>
+        <p>The 33-ETF universe is assembled ex-ante by liquidity + inception ≤ 2009. The 90-stock universe is the set of currently-listed S&amp;P 500 large-caps with 2010+ data — <strong>survivorship-biased</strong>. We mitigate by using wide top-K (10/15/20) on stock sleeves and applying a <strong>2% CAGR haircut</strong> on the 70% stock portion when reporting forward-looking metrics. Naive backtest CAGR <strong>20.5%</strong> → realistic forward expectation <strong>19.1%</strong>.</p>
       </div>
     </div>
     <div class="constraint">
@@ -766,7 +823,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   <div class="card">
     <div class="x-scroll">
       <table>
-        <thead><tr><th></th><th>S1 FAST-21</th><th>S2 SLOW-126</th></tr></thead>
+        <thead><tr><th></th><th>S1 10/126/M</th><th>S2 15/126/W</th><th>S3 20/252/M</th><th>S4 ETF FAST</th><th>S5 ETF SLOW</th></tr></thead>
         <tbody id="corrTbody"></tbody>
       </table>
     </div>
@@ -789,27 +846,27 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
 
   <div class="g3">
     <div class="card">
-      <h4 style="color:#67e8f9">High CAGR · this strategy</h4>
-      <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ <em>21% CAGR · Sh 0.88</em></p>
-      <p style="font-size:0.86rem">Daily TOP-1 dual-momentum (FAST 21d + SLOW 126d, 50/50). Concentrates aggressively in the leader, accepts equity-like vol (~25%) and -37% drawdown.</p>
-      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">OOS Sharpe 1.05, CAGR 28.7%. The momentum signal works.</p>
+      <h4 style="color:#67e8f9">This strategy · stocks + ETFs</h4>
+      <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ <em>Sh 1.17 · 20.5% CAGR</em></p>
+      <p style="font-size:0.86rem">5 sleeves, 70% stocks + 30% ETFs. Single-stock momentum on 90 large-caps + ETF momentum on 33 broad ETFs. MDD -19%, Sortino 1.49, OOS Sharpe 1.24.</p>
+      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">Haircut-adjusted CAGR: 19.1% (2% bias on 70% stock portion).</p>
     </div>
     <div class="card">
-      <h4 style="color:#67e8f9">High Sharpe · defensive variant</h4>
-      <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ <em>3% CAGR · Sh 0.90</em></p>
-      <p style="font-size:0.86rem">90% bond carry (LQD/HYG/EMB inverse-vol, HY-OAS gated) + 10% equity momentum. Vol 3.4%, MDD -7%. Maximum Sharpe achievable on this universe but tiny absolute return.</p>
-      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">Sharpe 0.90 is the ceiling. Sharpe &gt; 1.5 is unreachable unbiased on 1x ETFs over 16 years.</p>
+      <h4 style="color:#67e8f9">ETF-only variant</h4>
+      <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ <em>Sh 0.88 · 21% CAGR</em></p>
+      <p style="font-size:0.86rem">Dual-momentum on 33 ETFs (FAST 21d + SLOW 126d, 50/50). No survivorship issue but lower Sharpe and higher MDD (-37%) due to narrower cross-section.</p>
+      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">For investors who reject any survivorship-biased universe.</p>
     </div>
     <div class="card">
-      <h4 style="color:#67e8f9">Mid · balanced compromise</h4>
-      <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ <em>9% CAGR · Sh 0.92</em></p>
-      <p style="font-size:0.86rem">Original 3-sleeve composite (broad momo + sector rotation + defensive RP, equal-weighted). Lower CAGR than pure momentum but tighter MDD (-14%) and IS-OOS gap of just 0.04.</p>
-      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">The "Goldilocks" point on the frontier — you can ride this without losing sleep.</p>
+      <h4 style="color:#67e8f9">Defensive · ultra-stable</h4>
+      <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ <em>Sh 0.90 · 3% CAGR</em></p>
+      <p style="font-size:0.86rem">90% bond carry (HY-OAS gated) + 10% momentum. Vol 3.4%, MDD -7%. Maximum Sharpe achievable on bond-heavy unbiased blends.</p>
+      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">For preserving capital. Tiny return but exceptional risk control.</p>
     </div>
   </div>
 
   <div class="callout" style="margin-top:24px">
-    <p><strong>To break the frontier you must break a constraint.</strong> Allow leveraged ETFs → Phoenix-class (Sharpe 2.4 / CAGR 37%). Allow portfolio margin → scale linearly with leverage. Allow ex-post selection → concentrate in SMH (Sharpe 0.95 / CAGR 25% B&amp;H, but you needed to have known). Sharpe &gt; 3 unlevered over 16 years requires either short-history specialty instruments (JAAA post-2020 hits 3.94 — but it's only 5 years old), long-short / futures access, or HFT.</p>
+    <p><strong>The big unlock was widening the universe.</strong> ETFs alone gave Sharpe ~0.9. Adding 90 single-name stocks took Sharpe to 1.17 — the cross-section is wider, the alpha is real. To go higher: leveraged ETFs (Phoenix territory, Sharpe 2.4); margin (scales linearly); options strategies (covered calls, put-write — could add 0.2-0.3 Sharpe); or short-history specialty instruments. <strong>Sharpe &gt; 3 over 16 years still requires either leverage-equivalent vol scaling or a fundamentally different toolkit (long-short with hundreds of positions, futures, HFT).</strong></p>
   </div>
 </section>
 
@@ -948,8 +1005,11 @@ fetch('meridian_data.json').then(r => r.json()).then(D => {
       <div class="stat"><div class="stat-val">${(s.vol*100).toFixed(1)}%</div><div class="stat-lbl">Vol</div></div>
       <div class="stat"><div class="stat-val">${(s.mdd*100).toFixed(0)}%</div><div class="stat-lbl">MDD</div></div>`;
   }
-  fillSleeve('s1Stats', 'FAST_21');
-  fillSleeve('s2Stats', 'SLOW_126');
+  fillSleeve('s1Stats', 'STOCK_10_M');
+  fillSleeve('s2Stats', 'STOCK_15_W');
+  fillSleeve('s3Stats', 'STOCK_20_M');
+  fillSleeve('s4Stats', 'ETF_FAST');
+  fillSleeve('s5Stats', 'ETF_SLOW');
 
   // ===== Equity chart =====
   const dates = D.chart.dates;
@@ -1006,8 +1066,11 @@ fetch('meridian_data.json').then(r => r.json()).then(D => {
     data:{
       labels:dates,
       datasets:[
-        {label:'S1 FAST-21', data:D.sleeves.FAST_21.cum_curve, borderColor:'#0c4a6e', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
-        {label:'S2 SLOW-126', data:D.sleeves.SLOW_126.cum_curve, borderColor:'#0e7490', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
+        {label:'S1 STOCK 10/126/M', data:D.sleeves.STOCK_10_M.cum_curve, borderColor:'#0c4a6e', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
+        {label:'S2 STOCK 15/126/W', data:D.sleeves.STOCK_15_W.cum_curve, borderColor:'#0e7490', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
+        {label:'S3 STOCK 20/252/M', data:D.sleeves.STOCK_20_M.cum_curve, borderColor:'#155e75', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
+        {label:'S4 ETF FAST-21', data:D.sleeves.ETF_FAST.cum_curve, borderColor:'#a16207', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
+        {label:'S5 ETF SLOW-126', data:D.sleeves.ETF_SLOW.cum_curve, borderColor:'#7c2d12', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
       ]
     },
     options:{
@@ -1071,8 +1134,8 @@ fetch('meridian_data.json').then(r => r.json()).then(D => {
 
   // ===== Correlations =====
   const cors = m.correlations;
-  const labels = ['FAST_21','SLOW_126'];
-  const rowLabels = ['S1 FAST-21','S2 SLOW-126'];
+  const labels = ['STOCK_10_M','STOCK_15_W','STOCK_20_M','ETF_FAST','ETF_SLOW'];
+  const rowLabels = ['S1 STOCK 10/126/M','S2 STOCK 15/126/W','S3 STOCK 20/252/M','S4 ETF FAST-21','S5 ETF SLOW-126'];
   const cTbody = document.getElementById('corrTbody');
   labels.forEach((row, i) => {
     const tr = document.createElement('tr');

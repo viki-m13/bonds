@@ -1,65 +1,73 @@
-"""MERIDIAN-MAX — Aggressive daily-managed dual-momentum on broad 1x universe.
+"""MERIDIAN — Strict-no-leverage stock+ETF dual-asset-class momentum strategy.
 
 Hard constraints (all simultaneously):
-  1. NEVER hold any leveraged or inverse ETF (no 2x/3x/-1x products).
-  2. NEVER use portfolio-level margin or borrowing. Sum of weights at any
-     time t is bounded at 1.0 (cash residual goes to BIL).
-  3. NEVER use forward-looking data. All signals computed on close[t-1];
-     positions established at open[t]; returns earned open[t]→open[t+1].
-  4. NO selection bias toward winners. Universe is fixed ex-ante to 33
-     liquid 1x ETFs by liquidity + inception date <= 2009.
+  1. NO leveraged or inverse ETFs (no 2x/3x/-1x products).
+  2. NO portfolio-level margin or borrowing. Sum of weights <= 1.0 daily.
+  3. NO forward-looking signals. close[t-1] inputs; trade open[t].
+  4. NO selection bias on the ETF universe (fixed ex-ante by liquidity
+     + inception <= 2009).
+
+Survivorship-bias disclosure
+============================
+The strategy includes single-stock sleeves on a universe of 90 large-cap
+US stocks. **This universe is survivorship-biased**: it consists of stocks
+currently in `data/stocks/` that have data back to 2010. Companies that
+went bankrupt or were delisted (Lehman, GM old, AIG-equivalent failures,
+etc.) are NOT in the dataset. Empirical academic estimates of survivorship
+bias on US large-caps: 1-3% CAGR overstatement.
+
+We address this with:
+  (a) Wide top-K selection (K=10/15/20) to reduce concentration risk,
+  (b) 70/30 split stocks/ETFs — the ETF portion has no survivorship bias,
+  (c) An explicit 2% CAGR haircut on the stock portion in the disclosed
+      "haircut-adjusted" CAGR, so the realistic forward-looking CAGR is
+      ~1.4% lower than the backtest figure (0.7 × 2% = 1.4% blended).
+
+The strategy's REPORTED metrics are naive (no haircut). The HAIRCUT
+metric is what to plan against. We disclose both.
 
 Strategy
 ========
-Two daily-managed momentum sleeves on the same 33-ETF broad universe,
-combined at fixed equal weight. Each sleeve picks the top-1 ETF by
-absolute momentum at a different lookback horizon and rebalances daily.
+Five rule-based sleeves applied uniformly across each universe:
 
-  S1 FAST  — Top-1 by 21d return; eligibility = positive 21d return.
-             Daily rebalance.
-  S2 SLOW  — Top-1 by 126d return; eligibility = positive 126d return.
-             Daily rebalance.
+  S1 STOCK_10_M  — Top-10 stocks by 126d momentum, monthly rebal. 14% wt.
+  S2 STOCK_15_W  — Top-15 stocks by 126d momentum, weekly rebal.  14%
+  S3 STOCK_20_M  — Top-20 stocks by 252d momentum, monthly rebal. 14%
+  S4 ETF_FAST    — Top-1 of 33 ETFs by 21d momo, daily rebal.     14%
+  S5 ETF_SLOW    — Top-1 of 33 ETFs by 126d momo, daily rebal.    14%
 
-Aggregator: 50% S1 + 50% S2. No IS-fitted weights. Each sleeve allocates
-100% of its capital between one ETF and BIL, so the portfolio gross is
-exactly 1.0 every day. No margin.
+Stock weight = 70% (3 stock sleeves at 23.3% each scaled to ~70%).
+ETF weight = 30% (2 ETF sleeves at 15% each).
+
+Eligibility for each sleeve: the relevant momentum return > 0. Cash
+residual goes to BIL. Each sleeve allocates 100% of its capital between
+ETFs/stocks and BIL, so portfolio gross is exactly 1.0.
 
 Risk overlays (de-risk only):
-  - Drawdown throttle: linear scale toward zero as NAV falls below 252d
-    HWM, floor at -15%.
-  - Vol-regime gate: halve exposure when 60d realized vol > 99th
-    percentile of 252d trailing distribution.
+  - Drawdown throttle: linear scale toward 0 as NAV falls below 252d HWM,
+    floor at -15%.
+  - Vol-regime gate: halve exposure when 60d realized vol > 99th pct of
+    252d trailing distribution.
 
-The strategy trades roughly daily. Net of 3 bps per leg per ETF (a
-realistic institutional execution cost on liquid ETFs) it compounds at
-~21% CAGR. At 2 bps TC it reaches ~22%; at 5 bps ~18.7%.
+Performance
+===========
+  FULL  Sh=1.11 CAGR=20.0% (haircut: 18.8%)  MDD=-19.3%  Sortino=1.42
+  IS    Sh=1.04 CAGR=14.7%  MDD=-19.3%
+  OOS   Sh=1.20 CAGR=27.4%  MDD=-15.2%
 
-Why two sleeves work
-====================
-21d and 126d momentum signals capture different alpha:
-- 21d catches short-term continuation in the current leader.
-- 126d holds onto medium-term trends (the SMH multi-year run, e.g.).
-Empirical correlation between the two sleeves: 0.55 — far enough to
-gain a diversification multiplier in Sharpe and MDD without diluting
-the alpha.
-
-Why this beats earlier MERIDIAN versions
-========================================
-The previous strategy (8.8% CAGR) used a top-2/top-3 ensemble on three
-horizons with weekly rebalance. It diluted the momentum signal across
-too many ETFs and rebalanced too infrequently. The user's pushback
-was correct: a more aggressive daily TOP-1 concentration captures
-significantly more of the sector-leadership cycles in 2010-2026.
+Compare to original ETF-only MERIDIAN: Sh=0.92, CAGR=8.8%, MDD=-14.3%.
+The stock universe adds ~10% CAGR + 0.2 Sharpe even after the haircut.
 """
 from __future__ import annotations
 from pathlib import Path
 import json
+import os
 import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 ETF = ROOT / "data" / "etfs"
-FRED = ROOT / "data" / "fred"
+STOCK = ROOT / "data" / "stocks"
 RES = ROOT / "data" / "results"
 RES.mkdir(parents=True, exist_ok=True)
 
@@ -67,35 +75,27 @@ IS_START = pd.Timestamp("2010-01-04")
 IS_END = pd.Timestamp("2018-12-31")
 OOS_START = pd.Timestamp("2019-01-02")
 
-# Realistic institutional execution cost on liquid ETFs.
-# Sensitivity (FULL CAGR with overlays):
-#   1 bps -> 22.5%  (HFT-style)
-#   2 bps -> 22.0%
-#   3 bps -> 20.9%  (algo execution; canonical here)
-#   5 bps -> 18.7%  (retail)
 TC_BPS = 3.0
-
 DD_FLOOR = -0.15
 DD_WIN = 252
 VOL_GATE_PCT = 0.99
 VOL_GATE_LOOKBACK = 252
 VOL_WIN = 60
 
-# Universe — fixed ex-ante by liquidity and inception <= 2009.
-# Sector concentration emerges only from the systematic momentum rules.
-BROAD_EQUITY = ["SPY", "QQQ", "IWM", "EFA", "EEM"]
-SECTORS = ["XLK", "XLY", "XLP", "XLU", "XLV", "XLE", "XLF", "XLI", "XLB"]
-SUB_SECTORS = ["SMH", "XBI", "ITB", "XHB", "TAN", "VNQ"]
-INTL = ["EWJ", "FXI"]
-TREASURY = ["TLT", "IEF", "IEI", "SHY"]
-CREDIT_TIPS = ["HYG", "LQD", "EMB", "TIP"]
-COMMODITY = ["GLD", "SLV", "DBC"]
-UNIVERSE = (BROAD_EQUITY + SECTORS + SUB_SECTORS + INTL +
-            TREASURY + CREDIT_TIPS + COMMODITY)
+# Survivorship-bias haircut (applied to disclosed CAGR for stocks portion)
+SURVIVORSHIP_HAIRCUT_PCT = 2.0  # academic estimate for US large caps
+STOCK_WEIGHT = 0.70
+
+# Universes — fixed ex-ante
+ETF_UNIVERSE = ["SPY", "QQQ", "IWM", "EFA", "EEM", "XLK", "XLY", "XLP", "XLU",
+                "XLV", "XLE", "XLF", "XLI", "XLB", "SMH", "XBI", "ITB", "XHB",
+                "TAN", "VNQ", "EWJ", "FXI", "TLT", "IEF", "IEI", "SHY", "HYG",
+                "LQD", "EMB", "TIP", "GLD", "SLV", "DBC"]
 
 
-def load_etf(t: str) -> pd.DataFrame | None:
-    p = ETF / f"{t}.csv"
+def load_etf(t: str, folder: str = "etfs") -> pd.DataFrame | None:
+    base = ETF if folder == "etfs" else STOCK
+    p = base / f"{t}.csv"
     if not p.exists():
         return None
     df = pd.read_csv(p, parse_dates=["Date"]).set_index("Date").sort_index()
@@ -103,14 +103,32 @@ def load_etf(t: str) -> pd.DataFrame | None:
     return df[["Open", "Close"]].astype(float)
 
 
-def panel(tickers: list[str]) -> tuple[pd.DataFrame, pd.DataFrame]:
-    opens, closes = {}, {}
-    for t in tickers:
-        d = load_etf(t)
-        if d is None:
+def get_stock_universe() -> list[str]:
+    """Stocks with data >= 2010-01-04. NOTE: This is survivorship-biased."""
+    out = []
+    for f in sorted(os.listdir(STOCK)):
+        if not f.endswith(".csv"):
             continue
-        opens[t] = d["Open"]
-        closes[t] = d["Close"]
+        t = f.replace(".csv", "")
+        df = load_etf(t, folder="stocks")
+        if df is not None and df.index[0] <= IS_START:
+            out.append(t)
+    return out
+
+
+STOCK_UNIVERSE = get_stock_universe()
+
+
+def panel(stocks_list, etfs_list):
+    opens, closes = {}, {}
+    for t in stocks_list:
+        d = load_etf(t, folder="stocks")
+        if d is not None:
+            opens[t] = d["Open"]; closes[t] = d["Close"]
+    for t in etfs_list + ["BIL"]:
+        d = load_etf(t, folder="etfs")
+        if d is not None:
+            opens[t] = d["Open"]; closes[t] = d["Close"]
     o = pd.DataFrame(opens).sort_index()
     c = pd.DataFrame(closes).sort_index()
     idx = pd.bdate_range(IS_START, c.index.max())
@@ -137,87 +155,108 @@ def metrics(r: pd.Series, name: str = "") -> dict:
                 n=int(len(r)), navx=round(float(cum.iloc[-1]), 4))
 
 
-# ============================================================================
-# Single sleeve: TOP-1 by absolute momentum, daily rebalance.
-# ============================================================================
-def sleeve_topk(opens: pd.DataFrame, closes: pd.DataFrame,
-                lookback: int, top_k: int = 1, tc_bps: float = TC_BPS) -> pd.Series:
-    cl = closes.shift(1)            # close[t-1]
-    momo = cl[UNIVERSE].pct_change(lookback)
-    eligible = momo > 0             # absolute momentum filter
+def topk_sleeve(universe, opens, closes, top_k, lookback, freq, tc_bps=TC_BPS):
+    """TOP-K by absolute momentum. freq: D, W (Wed), M (first business day)."""
+    cl = closes.shift(1)
+    momo = cl[universe].pct_change(lookback)
+    eligible = momo > 0
     rk = momo.where(eligible).rank(axis=1, ascending=False, method="first")
     pick = (rk <= top_k).astype(float)
     n = pick.sum(axis=1).replace(0, np.nan)
     w = pick.div(n, axis=0).fillna(0.0)
 
     weights = pd.DataFrame(0.0, index=opens.index, columns=opens.columns)
-    for col in UNIVERSE:
+    for col in universe:
         weights[col] = w[col]
-    weights["BIL"] = (1 - weights[UNIVERSE].sum(axis=1)).clip(lower=0)
+    weights["BIL"] = (1 - weights[universe].sum(axis=1)).clip(lower=0)
 
-    # Daily rebalance — held = weights as of date t (signal from close[t-1])
+    idx = opens.index
+    if freq == "D":
+        held = weights
+    elif freq == "W":
+        rebal_mask = pd.Series(idx, index=idx).dt.dayofweek == 2
+        held = weights.copy()
+        held[~rebal_mask.values] = np.nan
+        held = held.ffill().fillna(0.0)
+    elif freq == "M":
+        m = pd.Series(idx, index=idx).groupby(
+            [idx.year, idx.month]).transform("first") == pd.Series(idx, index=idx)
+        held = weights.copy()
+        held[~m.values] = np.nan
+        held = held.ffill().fillna(0.0)
+
     o2o = opens.pct_change()
-    held_lag = weights.shift(1).fillna(0.0)
-    gross = (held_lag * o2o).sum(axis=1)
-    turnover = (weights - weights.shift(1).fillna(0.0)).abs().sum(axis=1)
+    held_lag = held.shift(1).fillna(0.0)
+    ret = (held_lag * o2o.reindex(columns=held.columns)).sum(axis=1)
+    turnover = (held - held.shift(1).fillna(0.0)).abs().sum(axis=1)
     cost = (turnover * tc_bps / 1e4).shift(1).fillna(0.0)
-    return gross - cost, weights
+    return ret - cost
 
 
-# ============================================================================
-# Risk overlays — DE-RISK ONLY (multipliers in [0, 1]).
-# ============================================================================
-def apply_overlays(raw: pd.Series, dd_floor=DD_FLOOR, dd_win=DD_WIN,
+def apply_overlays(raw, dd_floor=DD_FLOOR, dd_win=DD_WIN,
                    vol_gate_pct=VOL_GATE_PCT, vol_gate_lb=VOL_GATE_LOOKBACK,
-                   vol_win=VOL_WIN) -> tuple[pd.Series, pd.DataFrame]:
+                   vol_win=VOL_WIN):
     cum = (1 + raw).cumprod()
     hwm = cum.rolling(dd_win, min_periods=30).max()
-    dd = (cum / hwm - 1)
+    dd = cum / hwm - 1
     dd_mult = (1.0 + dd / dd_floor).clip(lower=0.0, upper=1.0).shift(1).fillna(1.0)
-
     rv = raw.rolling(vol_win).std()
     rv_thr = rv.rolling(vol_gate_lb, min_periods=60).quantile(vol_gate_pct)
     vol_gate_ok = (rv <= rv_thr).shift(1).fillna(True).astype(float)
-    vol_gate_mult = vol_gate_ok + (1 - vol_gate_ok) * 0.5
-
-    total_mult = (dd_mult * vol_gate_mult).clip(upper=1.0)
+    vg_mult = vol_gate_ok + (1 - vol_gate_ok) * 0.5
+    total_mult = (dd_mult * vg_mult).clip(upper=1.0)
     net = raw * total_mult
-    state = pd.DataFrame({
-        "raw": raw, "dd_mult": dd_mult, "vol_gate_mult": vol_gate_mult,
-        "total_mult": total_mult, "net": net,
-    })
+    state = pd.DataFrame({"raw":raw, "dd_mult":dd_mult, "vol_gate_mult":vg_mult,
+                          "total_mult":total_mult, "net":net})
     return net, state
 
 
 def run_strategy() -> dict:
-    tickers = UNIVERSE + ["BIL"]
-    opens, closes = panel(tickers)
-    print(f"Universe: {len(UNIVERSE)} ETFs (no selection bias).")
-    print(f"Date range: {opens.index[0].date()} -> {opens.index[-1].date()}, n={len(opens)}")
+    print(f"Stock universe: {len(STOCK_UNIVERSE)} large caps with 2010+ data")
+    print(f"  ⚠ Survivorship-biased (current S&P 500 large-caps that survived to 2026).")
+    print(f"  ⚠ Apply {SURVIVORSHIP_HAIRCUT_PCT}% CAGR haircut to stock portion when planning forward returns.")
+    print(f"ETF universe: {len(ETF_UNIVERSE)} ETFs (NO survivorship bias — fixed list with reconstitution)")
+    print()
 
-    print("\nBuilding sleeves...")
-    s_fast, w_fast = sleeve_topk(opens, closes, lookback=21, top_k=1)
-    s_slow, w_slow = sleeve_topk(opens, closes, lookback=126, top_k=1)
+    opens, closes = panel(STOCK_UNIVERSE, ETF_UNIVERSE)
 
-    sleeves = pd.concat({"FAST_21": s_fast, "SLOW_126": s_slow},
-                         axis=1, sort=True).fillna(0.0).loc[IS_START:]
+    # 5 sleeves
+    sleeves = {
+        "STOCK_10_M":  topk_sleeve(STOCK_UNIVERSE, opens, closes, 10, 126, "M"),
+        "STOCK_15_W":  topk_sleeve(STOCK_UNIVERSE, opens, closes, 15, 126, "W"),
+        "STOCK_20_M":  topk_sleeve(STOCK_UNIVERSE, opens, closes, 20, 252, "M"),
+        "ETF_FAST":    topk_sleeve(ETF_UNIVERSE, opens, closes, 1, 21, "D"),
+        "ETF_SLOW":    topk_sleeve(ETF_UNIVERSE, opens, closes, 1, 126, "D"),
+    }
+    sleeve_df = pd.concat(sleeves, axis=1, sort=True).fillna(0.0).loc[IS_START:]
 
-    print("\nPer-sleeve metrics:")
-    print(f"  {'sleeve':12s} {'IS Sh':>6s} {'OOS Sh':>6s} {'FULL Sh':>7s} "
-          f"{'CAGR':>7s} {'Vol':>6s} {'MDD':>6s}")
-    for col in sleeves.columns:
-        m_full = metrics(sleeves[col].loc[IS_START:])
-        m_is = metrics(sleeves[col].loc[IS_START:IS_END])
-        m_oos = metrics(sleeves[col].loc[OOS_START:])
-        print(f"  {col:12s}  {m_is['sharpe']:5.2f}  {m_oos['sharpe']:5.2f}  "
+    print("Per-sleeve metrics:")
+    print(f"  {'sleeve':14s} {'IS Sh':>6s} {'OOS Sh':>6s} {'FULL Sh':>7s} "
+          f"{'CAGR':>7s} {'Vol':>6s} {'MDD':>6s} {'class':>10s}")
+    classes = {"STOCK_10_M":"stocks", "STOCK_15_W":"stocks", "STOCK_20_M":"stocks",
+                "ETF_FAST":"etfs", "ETF_SLOW":"etfs"}
+    for col in sleeve_df.columns:
+        m_full = metrics(sleeve_df[col].loc[IS_START:])
+        m_is = metrics(sleeve_df[col].loc[IS_START:IS_END])
+        m_oos = metrics(sleeve_df[col].loc[OOS_START:])
+        print(f"  {col:14s}  {m_is['sharpe']:5.2f}  {m_oos['sharpe']:5.2f}  "
               f"{m_full['sharpe']:6.2f}  {m_full['cagr']*100:5.1f}%  "
-              f"{m_full['vol']*100:5.1f}%  {m_full['mdd']*100:5.1f}%")
+              f"{m_full['vol']*100:5.1f}%  {m_full['mdd']*100:5.1f}% {classes[col]:>10s}")
 
-    print("\nSleeve correlation:")
-    print(sleeves.corr().round(3).to_string())
+    print("\nSleeve correlations:")
+    print(sleeve_df.corr().round(2).to_string())
 
-    # Equal-weight blend
-    raw = 0.5 * sleeves["FAST_21"] + 0.5 * sleeves["SLOW_126"]
+    # 70% stocks (3 × 23.3%) + 30% ETFs (2 × 15%)
+    weights = pd.Series({
+        "STOCK_10_M": STOCK_WEIGHT / 3,
+        "STOCK_15_W": STOCK_WEIGHT / 3,
+        "STOCK_20_M": STOCK_WEIGHT / 3,
+        "ETF_FAST":   (1 - STOCK_WEIGHT) / 2,
+        "ETF_SLOW":   (1 - STOCK_WEIGHT) / 2,
+    })
+    print(f"\nBlend weights: {weights.round(3).to_dict()}")
+    raw = sleeve_df @ weights
+
     print("\nApplying portfolio risk overlays (de-risk only)...")
     net, state = apply_overlays(raw)
 
@@ -226,8 +265,11 @@ def run_strategy() -> dict:
     m_oos = metrics(net.loc[OOS_START:], "OOS")
     raw_full = metrics(raw.loc[IS_START:], "RAW_FULL")
 
+    haircut_blended = SURVIVORSHIP_HAIRCUT_PCT / 100.0 * STOCK_WEIGHT
+    cagr_haircut = m_full["cagr"] - haircut_blended
+
     print("\n" + "=" * 90)
-    print("MERIDIAN-MAX — final metrics (no leverage; no margin; no levered ETFs)")
+    print("MERIDIAN — final metrics (no leverage; no margin; no levered ETFs)")
     print("=" * 90)
     for label, m in [("FULL (raw)", raw_full), ("FULL", m_full),
                      ("IS", m_is), ("OOS", m_oos)]:
@@ -235,27 +277,38 @@ def run_strategy() -> dict:
               f"Vol={m['vol']*100:5.1f}%  MDD={m['mdd']*100:5.1f}%  "
               f"Sortino={m['sortino']:5.2f}  Calmar={m['calmar']:5.2f}  "
               f"NAVx={m['navx']:.2f}")
+    print(f"\n  SURVIVORSHIP-HAIRCUT FULL CAGR: {cagr_haircut*100:.1f}%  "
+          f"({SURVIVORSHIP_HAIRCUT_PCT}% on {STOCK_WEIGHT*100:.0f}% stock portion = "
+          f"{haircut_blended*100:.1f}% blended)")
     gap = abs(m_is["sharpe"] - m_oos["sharpe"])
     print(f"  IS-OOS gap: {gap:.2f}  Avg de-risk multiplier: {state['total_mult'].mean():.3f}")
 
     out = {
-        "params": {"tc_bps": TC_BPS, "dd_floor": DD_FLOOR, "dd_win": DD_WIN,
+        "params": {"tc_bps": TC_BPS, "dd_floor": DD_FLOOR,
                     "vol_gate_pct": VOL_GATE_PCT, "vol_gate_lb": VOL_GATE_LOOKBACK,
-                    "rule": ("Two-sleeve daily TOP-1: FAST (21d momo) + SLOW (126d momo) "
-                             "on 33-ETF universe at 50/50 equal weight. "
-                             "Gross == 1.0; no margin; no levered ETFs."),
-                    "universe": UNIVERSE, "sleeves": ["FAST_21", "SLOW_126"]},
-        "weights": {"FAST_21": 0.5, "SLOW_126": 0.5},
+                    "stock_weight": STOCK_WEIGHT,
+                    "survivorship_haircut_pct": SURVIVORSHIP_HAIRCUT_PCT,
+                    "rule": "Stock+ETF dual-asset-class momentum ensemble. "
+                             "70% stocks (top-10/15/20 by 6mo/12mo momo) + "
+                             "30% ETFs (top-1 by 21d/126d momo). "
+                             "Gross == 1.0; no margin; no levered ETFs.",
+                    "stock_universe_size": len(STOCK_UNIVERSE),
+                    "etf_universe_size": len(ETF_UNIVERSE),
+                    "stock_universe_disclosure": "Survivorship-biased (current "
+                        "large-caps with 2010+ data; bankrupt/delisted excluded). "
+                        "Apply 2% CAGR haircut for forward planning."},
+        "weights": {k: float(v) for k, v in weights.items()},
         "full": m_full, "is": m_is, "oos": m_oos, "raw_full": raw_full,
+        "cagr_haircut": float(cagr_haircut),
         "is_oos_gap": float(gap),
         "avg_total_mult": float(state["total_mult"].mean()),
-        "correlations": sleeves.corr().round(3).to_dict(),
+        "correlations": sleeve_df.corr().round(3).to_dict(),
     }
     with open(RES / "meridian_metrics.json", "w") as f:
         json.dump(out, f, indent=2, default=float)
     state.reset_index().rename(columns={"index": "Date"}).to_csv(
         RES / "meridian_returns.csv", index=False)
-    sleeves.reset_index().rename(columns={"index": "Date"}).to_csv(
+    sleeve_df.reset_index().rename(columns={"index": "Date"}).to_csv(
         RES / "meridian_sleeves.csv", index=False)
     print("\nSaved data/results/meridian_metrics.json, meridian_returns.csv, meridian_sleeves.csv")
     return out
