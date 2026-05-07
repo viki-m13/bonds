@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POLARIS &mdash; Polar-Orthogonal LETF Strategy</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+:root{--bg:#fff;--card:#f8f9fa;--card2:#f0f1f3;--t1:#1a1a2e;--t2:#4a4a68;--t3:#8888a0;--green:#0d9e6d;--red:#d1344b;--blue:#1a56db;--cyan:#0e7490;--yellow:#b45309;--purple:#7c3aed;--border:#e2e4e8;--accent:#0d9e6d}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t1);line-height:1.5;font-size:14px}
+.page{max-width:1000px;margin:0 auto;padding:16px}
+.header{display:flex;justify-content:space-between;align-items:flex-start;padding:20px 0 16px;border-bottom:2px solid var(--accent);margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.header h1{font-size:1.4rem;color:var(--t1);font-weight:700;letter-spacing:-0.5px}
+.header .sub{font-size:0.78rem;color:var(--t2);margin-top:2px}
+.header .nav-date{font-size:0.72rem;color:var(--accent);background:var(--card);padding:4px 10px;border-radius:4px;white-space:nowrap}
+.section{margin-bottom:16px}
+.section-title{font-size:0.82rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:10px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:16px}
+.kpi{background:var(--card);border-radius:6px;padding:10px;text-align:center}
+.kpi-val{font-size:1.3rem;font-weight:800}
+.kpi-label{font-size:0.62rem;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:0.78rem}
+th{background:var(--card2);color:var(--t2);padding:6px 8px;text-align:right;font-weight:600;white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--border)}
+td:first-child{text-align:left;font-weight:500}
+tr:hover{background:var(--card2)}
+.pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}
+.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px}
+.card h3{font-size:0.78rem;color:var(--t2);margin-bottom:8px;font-weight:600}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:700px){.g2{grid-template-columns:1fr}.kpi-row{grid-template-columns:repeat(3,1fr)}}
+.chart-wrap{position:relative;height:260px}
+.chart-sm{height:180px}
+.disclaimer{font-size:0.62rem;color:var(--t3);padding:12px;border:1px solid var(--border);border-radius:4px;margin-top:16px;line-height:1.4}
+@media(max-width:500px){
+  .page{padding:10px}
+  .header h1{font-size:1.15rem}
+  .kpi-row{grid-template-columns:repeat(3,1fr);gap:5px}
+  .kpi{padding:7px 4px}
+  .kpi-val{font-size:1rem}
+  .kpi-label{font-size:0.55rem}
+  .chart-wrap{height:200px}
+  .chart-sm{height:150px}
+  table{font-size:0.68rem}
+  th,td{padding:4px 4px}
+  .card{padding:8px}
+  .section-title{font-size:0.72rem}
+  .g2{gap:6px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+<a href="phoenix.html" style="padding:6px 16px;border-radius:20px;background:#ea580c;color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;border:1px solid #ea580c">PHOENIX &rarr;</a>
+<a href="polaris.html" style="padding:6px 16px;border-radius:20px;background:var(--card);color:var(--t1);text-decoration:none;font-size:0.82rem;font-weight:500;border:1px solid var(--border)">POLARIS (current)</a>
+<div style="position:relative;display:inline-block">
+<button id="otherStratBtn" onclick="document.getElementById('otherStratMenu').style.display = document.getElementById('otherStratMenu').style.display === 'block' ? 'none' : 'block'" style="padding:6px 14px;border-radius:20px;background:var(--card);color:var(--t1);font-size:0.82rem;font-weight:500;border:1px solid var(--border);cursor:pointer">Other strategies &#9662;</button>
+<div id="otherStratMenu" style="display:none;position:absolute;top:36px;left:0;background:var(--bg);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,0.08);padding:6px;z-index:100;min-width:200px">
+<a href="neutrino.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">NEUTRINO</a>
+<a href="meridian.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">MERIDIAN</a>
+<a href="atlas.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">ATLAS</a>
+<a href="index.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">Sharpe Strategy</a>
+<a href="growth.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">Growth Strategy</a>
+<a href="blend.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">ZEPHYR</a>
+<a href="aurora.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">AURORA</a>
+<a href="hydra.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">HYDRA</a>
+<a href="nova34.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">NOVA</a>
+<a href="apex.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">APEX</a>
+<a href="titan.html" style="display:block;padding:7px 12px;color:var(--t1);text-decoration:none;font-size:0.82rem;border-radius:4px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='transparent'">TITAN</a>
+</div>
+</div>
+</div>
+<script>
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('otherStratBtn');
+  const menu = document.getElementById('otherStratMenu');
+  if (menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+</script>
+
+<div class="header">
+<div>
+<h1>POLARIS &mdash; Polar-Orthogonal LETF Strategy</h1>
+<div class="sub">4-sleeve LETF ensemble with rate-velocity gate, Donchian breakout, VRP harvest, and bond rate-direction &middot; 2010-2026 (16yr)</div>
+</div>
+<div class="nav-date" id="dateLabel"></div>
+</div>
+
+<!-- HEADLINE KPIs -->
+<div class="kpi-row">
+<div class="kpi"><div class="kpi-val pos" id="kSharpe">&mdash;</div><div class="kpi-label">Sharpe (full)</div></div>
+<div class="kpi"><div class="kpi-val pos" id="kCAGR">&mdash;</div><div class="kpi-label">CAGR (full)</div></div>
+<div class="kpi"><div class="kpi-val" id="kVol">&mdash;</div><div class="kpi-label">Annual Vol</div></div>
+<div class="kpi"><div class="kpi-val neg" id="kMDD">&mdash;</div><div class="kpi-label">Max DD</div></div>
+<div class="kpi"><div class="kpi-val pos" id="kOOSSh">&mdash;</div><div class="kpi-label">OOS Sharpe</div></div>
+</div>
+
+<!-- STRATEGY OVERVIEW -->
+<div class="section">
+<div class="card" style="border-left:4px solid var(--accent);font-size:0.8rem;color:var(--t2);line-height:1.7">
+<h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:6px">Strategy Overview</h3>
+<p style="margin-bottom:6px"><strong style="color:var(--t1)">POLARIS is a 4-sleeve leveraged-ETF ensemble that uses signal mechanics fundamentally different from Phoenix and Meridian.</strong> Backtest full-sample Sharpe is 1.16 with CAGR 23.0% and MDD &minus;24.4% over 16 years (2010-2026).</p>
+<p><strong style="color:var(--t1)">What is novel.</strong> POLARIS deliberately AVOIDS every primary signal Phoenix uses: no VIX-level macro gate, no HY-OAS gate, no 200-day SMA, no cross-sectional 12m/9m price-momentum on LETFs, no XGBoost/ML. Each sleeve uses a different information source: (1) <strong>vol-targeted RP basket</strong> with rate-velocity (DGS10 yoy) gate; (2) <strong>40/20 Donchian channel breakout</strong> (Turtle Traders style); (3) <strong>VRP-spread harvest</strong> trading the spread between VIX and SPY 21d realised vol; (4) <strong>bond TYD on rate-direction</strong> (DGS10 vs 60d MA).</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Honest disclosure.</strong> POLARIS does NOT beat Phoenix on Sharpe or CAGR standalone. Its main values are: (a) excellent IS-OOS robustness (OOS Sharpe 1.28 &gt; IS 1.07, no overfit); (b) 0.34 correlation with Phoenix &mdash; a 20% POLARIS + 80% Phoenix blend lifts Sharpe to 2.14 with MDD &minus;18.8%; (c) genuinely different signal sources for diversification.</p>
+</div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section">
+<div class="card" style="border-left:4px solid var(--blue);font-size:0.8rem;color:var(--t2);line-height:1.7">
+<h3 style="color:var(--t1);font-size:0.95rem;margin-bottom:6px">Sleeves</h3>
+<table style="font-size:0.78rem;margin-bottom:12px">
+<tr><td style="font-weight:700;width:160px;border:none;padding:4px 8px">S1. VOLT_RP</td><td style="border:none;padding:4px 8px">Vol-targeted risk-parity on QLD (2x Nasdaq) + TYD (3x 7-10y) + UGL (2x gold). Per-asset target vols 20/10/10. Rate-velocity gate (DGS10 yoy &gt; 1.0pp &rarr; 0.5; &gt; 2.0pp &rarr; 0).</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">S2. DONCHIAN_BO</td><td style="border:none;padding:4px 8px">Long QLD when close[t-1] makes a new 40-day high; exits on 20-day low. Same rate-velocity gate. Channel-range signal, structurally distinct from moving-average filters.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">S3. VRP_HARVEST</td><td style="border:none;padding:4px 8px">vrp = VIX &minus; SPY_21d_realised. Long QLD if vrp &gt; 5 AND realised vol &lt; 25; long UGL if realised &gt; 30; else cash. Trades the SPREAD, not VIX level.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">S4. BOND_DIP</td><td style="border:none;padding:4px 8px">Long TYD when DGS10 &lt; 60-day MA AND T10Y2Y &gt; &minus;0.5. Bond-only sleeve providing genuine asset-class diversification (correlation ~0.1 with equity sleeves).</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Blend</td><td style="border:none;padding:4px 8px">Inverse-vol weights computed on IS only (2010-03 to 2018-12), held fixed for OOS. Per-sleeve self-throttle 252d HWM &minus;20%. Portfolio overlay: vol-target 18%, DD throttle 252d HWM &minus;15%.</td></tr>
+<tr><td style="font-weight:700;border:none;padding:4px 8px">Execution</td><td style="border:none;padding:4px 8px">All signals lagged shift(1); use info &le; close[t&minus;1]. Trade at open[t]; PnL uses open[t] &rarr; open[t+1]. TC 5 bps one-way.</td></tr>
+</table>
+</div>
+</div>
+
+<!-- GROWTH CHART -->
+<div class="section">
+<div class="section-title">Growth of $10,000</div>
+<div class="card"><div class="chart-wrap"><canvas id="eqChart"></canvas></div></div>
+</div>
+
+<!-- IS / OOS -->
+<div class="section">
+<div class="section-title">In-Sample vs Out-of-Sample</div>
+<div class="g2">
+<div class="card"><h3>In-Sample (2010-03-11 &rarr; 2018-12-31)</h3><table id="isTable"></table></div>
+<div class="card"><h3>Out-of-Sample (2019-01-01 &rarr; present)</h3><table id="oosTable"></table></div>
+</div>
+<div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)"><strong style="color:var(--t1)">Interpretation.</strong> OOS Sharpe (1.28) is HIGHER than IS Sharpe (1.07). OOS CAGR (25.5%) HIGHER than IS CAGR (20.9%). No sign of IS-overfit on this dataset.</div>
+</div>
+
+<!-- COMPARISON -->
+<div class="section">
+<div class="section-title">Comparison vs Phoenix v2 and NEUTRINO</div>
+<div class="card" style="overflow-x:auto"><table id="cmpTable"></table></div>
+</div>
+
+<!-- DRAWDOWN CHART -->
+<div class="section">
+<div class="section-title">Drawdown</div>
+<div class="card"><div class="chart-wrap chart-sm"><canvas id="ddChart"></canvas></div></div>
+</div>
+
+<!-- CALENDAR YEAR RETURNS -->
+<div class="section">
+<div class="section-title">Calendar Year Returns</div>
+<div class="card" style="overflow-x:auto"><table id="yearlyTable"></table></div>
+</div>
+
+<!-- DESIGN DOC LINK -->
+<div class="section">
+<div class="card" style="font-size:0.78rem;color:var(--t2)">
+<strong style="color:var(--t1)">Source &amp; design doc.</strong> See <code>alt/polaris_strategy.py</code> and <code>alt/POLARIS_DESIGN.md</code> in the repository for the full implementation.
+</div>
+</div>
+
+<div class="disclaimer">
+<strong>Disclaimer.</strong> Backtest results. Past performance does not indicate future results. Leveraged ETFs incur compounding decay and are subject to specific risks. Not investment advice.
+</div>
+
+</div>
+
+<script>
+fetch('polaris_data.json').then(r=>r.json()).then(data => {
+  const sgn = v => v >= 0 ? 'pos' : 'neg';
+  const m = data.metrics.POLARIS;
+  document.getElementById('kSharpe').textContent = m.FULL.sharpe.toFixed(2);
+  document.getElementById('kCAGR').textContent = (m.FULL.cagr*100).toFixed(1)+'%';
+  document.getElementById('kVol').textContent = (m.FULL.ann_vol*100).toFixed(1)+'%';
+  document.getElementById('kMDD').textContent = (m.FULL.mdd*100).toFixed(1)+'%';
+  document.getElementById('kOOSSh').textContent = m.OOS.sharpe.toFixed(2);
+
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('dateLabel').textContent = 'As of ' + today;
+
+  const ctx = document.getElementById('eqChart').getContext('2d');
+  new Chart(ctx, {
+    type:'line',
+    data:{labels:data.dates, datasets:[
+      {label:'POLARIS', data:data.equity, borderColor:'#0d9e6d', borderWidth:2, fill:false, pointRadius:0, tension:0.1},
+      {label:'Phoenix v2', data:data.comp_phoenix_equity, borderColor:'#ea580c', borderWidth:1.5, fill:false, pointRadius:0, tension:0.1}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:{boxWidth:10, font:{size:11}}}},
+      scales:{
+        x:{type:'time', time:{unit:'year'}, grid:{color:'#e2e4e8'}, ticks:{font:{size:10}}},
+        y:{type:'logarithmic', grid:{color:'#e2e4e8'}, ticks:{font:{size:10}, callback:v => '$'+v.toLocaleString()}}
+      }
+    }
+  });
+
+  const ctxDD = document.getElementById('ddChart').getContext('2d');
+  new Chart(ctxDD, {
+    type:'line',
+    data:{labels:data.dates, datasets:[
+      {label:'POLARIS drawdown', data:data.drawdown, borderColor:'#d1344b', backgroundColor:'rgba(209,52,75,0.15)', borderWidth:1, fill:true, pointRadius:0}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{type:'time', time:{unit:'year'}, ticks:{font:{size:10}}},
+        y:{ticks:{font:{size:10}, callback:v => v.toFixed(0)+'%'}, grid:{color:'#e2e4e8'}}
+      }
+    }
+  });
+
+  function buildPerfTable(elId, m) {
+    const rows = [
+      ['Sharpe', m.sharpe.toFixed(2), ''],
+      ['CAGR', (m.cagr*100).toFixed(2)+'%', sgn(m.cagr)],
+      ['Annual Vol', (m.ann_vol*100).toFixed(2)+'%', ''],
+      ['Max Drawdown', (m.mdd*100).toFixed(2)+'%', 'neg'],
+      ['Sortino', m.sortino.toFixed(2), ''],
+      ['Calmar', m.calmar.toFixed(2), ''],
+      ['NAV multiple', m.navx.toFixed(2)+'x', ''],
+      ['Trading days', m.n.toString(), ''],
+    ];
+    const html = '<thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>' +
+      rows.map(([k,v,c]) => `<tr><td>${k}</td><td class="${c}">${v}</td></tr>`).join('') +
+      '</tbody>';
+    document.getElementById(elId).innerHTML = html;
+  }
+  buildPerfTable('isTable', m.IS);
+  buildPerfTable('oosTable', m.OOS);
+
+  const cmp = [
+    ['POLARIS', m, '#0d9e6d'],
+    ['Phoenix v2', data.metrics['Phoenix v2'], '#ea580c'],
+    ['NEUTRINO', data.metrics['NEUTRINO'], '#7c3aed'],
+  ];
+  let cmpHtml = '<thead><tr><th>Strategy</th><th>Window</th><th>Sharpe</th><th>CAGR</th><th>Vol</th><th>MDD</th><th>Sortino</th></tr></thead><tbody>';
+  for (const [name, mm, color] of cmp) {
+    for (const w of ['FULL','IS','OOS']) {
+      const r = mm[w] || {};
+      cmpHtml += `<tr><td><span style="color:${color};font-weight:700">${name}</span></td><td>${w}</td>`;
+      cmpHtml += `<td>${r.sharpe?.toFixed(2) || '—'}</td>`;
+      cmpHtml += `<td class="${sgn(r.cagr||0)}">${r.cagr ? (r.cagr*100).toFixed(2)+'%' : '—'}</td>`;
+      cmpHtml += `<td>${r.ann_vol ? (r.ann_vol*100).toFixed(2)+'%' : '—'}</td>`;
+      cmpHtml += `<td class="neg">${r.mdd ? (r.mdd*100).toFixed(2)+'%' : '—'}</td>`;
+      cmpHtml += `<td>${r.sortino?.toFixed(2) || '—'}</td></tr>`;
+    }
+  }
+  cmpHtml += '</tbody>';
+  document.getElementById('cmpTable').innerHTML = cmpHtml;
+
+  const years = Object.keys(data.yearly).sort();
+  let yrHtml = '<thead><tr><th>Year</th>' + years.map(y => `<th>${y}</th>`).join('') + '</tr></thead><tbody><tr><td>Return</td>';
+  yrHtml += years.map(y => {
+    const v = data.yearly[y];
+    return `<td class="${sgn(v)}">${(v*100).toFixed(1)}%</td>`;
+  }).join('');
+  yrHtml += '</tr></tbody>';
+  document.getElementById('yearlyTable').innerHTML = yrHtml;
+});
+</script>
+</body>
+</html>
