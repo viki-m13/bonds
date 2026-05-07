@@ -112,15 +112,15 @@ strong,b{font-weight:600}
 .nav-backdrop.is-open{opacity:1;pointer-events:auto}
 
 /* === DYNAMIC ISLAND (live signal status) === */
-.island{position:sticky;top:64px;z-index:40;display:flex;justify-content:center;pointer-events:none;margin-top:-12px;margin-bottom:6px}
-.island .pill{pointer-events:auto;display:inline-flex;align-items:center;gap:10px;padding:8px 16px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:0.78rem;font-weight:500;font-family:'Bricolage Grotesque',sans-serif;box-shadow:0 14px 40px -14px rgba(14,10,7,0.55);border:1px solid rgba(255,255,255,.04);transition:transform .25s var(--bezier-emph),background .2s,opacity .25s;cursor:pointer;backdrop-filter:blur(8px)}
+.island{position:sticky;top:60px;z-index:40;display:flex;justify-content:center;pointer-events:none;margin-top:-44px;margin-bottom:14px}
+.island .pill{pointer-events:auto;display:inline-flex;align-items:center;gap:10px;padding:7px 14px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:0.74rem;font-weight:500;font-family:'Bricolage Grotesque',sans-serif;box-shadow:0 14px 40px -14px rgba(14,10,7,0.55);border:1px solid rgba(255,255,255,.04);transition:transform .25s var(--bezier-emph),background .2s,opacity .25s;cursor:pointer;backdrop-filter:blur(8px)}
 .island .pill:hover{transform:translateY(-1px) scale(1.02);background:var(--ember)}
 .island .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:livedot 1.6s ease-in-out infinite}
 .island .pill .num{font-family:'JetBrains Mono',monospace;color:#fbbf24;font-weight:600}
 .island.is-hidden{opacity:0;transform:translateY(-8px);pointer-events:none}
 
 /* === PAGE WRAPPER === */
-.page{max-width:1240px;margin:0 auto;padding:0 28px 80px;position:relative}
+.page{max-width:1240px;margin:0 auto;padding:0 28px 80px;position:relative;--page-pad:28px}
 
 /* === SECTION RAIL (right-side dot navigator on desktop) === */
 .section-rail{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:30;display:flex;flex-direction:column;gap:14px;align-items:center;pointer-events:auto}
@@ -167,9 +167,68 @@ strong,b{font-weight:600}
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
 /* === FEATURE FRAMES === */
-.feature{padding:78px 0 18px;border-top:1px dashed var(--rule);margin-top:8px;position:relative;scroll-margin-top:90px}
+.feature{padding:96px 0 28px;border-top:1px dashed var(--rule);margin-top:8px;position:relative;scroll-margin-top:90px}
 .feature:first-of-type{border-top:none;margin-top:0;padding-top:48px}
-.feature-num{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;font-size:clamp(7rem,18vw,16rem);line-height:0.78;color:var(--ember);opacity:0.18;position:absolute;top:42px;left:-6px;pointer-events:none;letter-spacing:-0.04em;user-select:none}
+/* Alternating editorial tones for rhythm (full-bleed via box-shadow) */
+.feature.tone-paper{background:transparent}
+.feature.tone-cream{background:var(--paper-2);margin-left:calc(-1 * var(--page-pad,28px));margin-right:calc(-1 * var(--page-pad,28px));padding-left:var(--page-pad,28px);padding-right:var(--page-pad,28px)}
+.feature.tone-ink{background:var(--ink);color:#f5efe2;margin-left:calc(-1 * var(--page-pad,28px));margin-right:calc(-1 * var(--page-pad,28px));padding-left:var(--page-pad,28px);padding-right:var(--page-pad,28px);border-top:none}
+.feature.tone-ink .feature-title,.feature.tone-ink .card h3,.feature.tone-ink h3,.feature.tone-ink h4,.feature.tone-ink td:first-child,.feature.tone-ink .feature-head .lbl .topic{color:#f5efe2}
+.feature.tone-ink .feature-dek,.feature.tone-ink .card p,.feature.tone-ink td{color:#bdb094}
+.feature.tone-ink .feature-num{color:#fbbf24;opacity:.18}
+.feature.tone-ink .card{background:#1a130d;border-color:#2a221c}
+.feature.tone-ink .lead-card{background:#1a130d;border-color:#2a221c}
+.feature.tone-ink details.collapse{background:#1a130d;border-color:#2a221c}
+.feature.tone-ink details.collapse > summary{color:#f5efe2}
+.feature.tone-ink details.collapse > summary:hover{background:#241a12}
+.feature.tone-ink details.collapse > summary .chev{background:#2a221c;color:#fbbf24}
+.feature.tone-ink details.collapse[open] > summary .chev{background:var(--ember);color:#fff}
+.feature.tone-ink th{color:#8d8270;border-bottom-color:#2a221c}
+.feature.tone-ink tr:hover td{background:#241a12}
+.feature.tone-ink .kpi{background:#1a130d;border-color:#2a221c}
+.feature.tone-ink .kpi-val{color:#f5efe2}
+.feature.tone-ink .kpi-label{color:#8d8270}
+.feature.tone-ink .num-pill{background:#1a130d;color:#fbbf24;border-color:#fbbf24}
+.feature.tone-ink .eyebrow{color:#fbbf24}
+.feature.tone-ink .eyebrow::before{background:#fbbf24}
+.feature.tone-ink .section-title{color:#f5efe2;border-bottom-color:#2a221c}
+.feature.tone-ink .section-title em{color:#fbbf24}
+.feature.tone-ink details.collapse.testcase > summary .title{color:#f5efe2}
+.feature.tone-ink details.collapse.testcase > summary .title em{color:#bdb094}
+.feature.tone-ink details.collapse.testcase > summary .row{color:#bdb094}
+.feature.tone-ink details.collapse.testcase > summary .verdict{background:rgba(34,197,94,0.18);color:#86efac}
+.feature.tone-ink details.collapse.testcase > summary .verdict.warn{background:rgba(251,191,36,0.18);color:#fcd34d}
+.feature.tone-ink details.collapse.testcase > summary .verdict.bad{background:rgba(239,68,68,0.18);color:#fca5a5}
+.feature.tone-ink details.collapse.testcase::before{background:var(--ember)}
+.feature.tone-ink .body{color:#bdb094}
+.feature.tone-ink .body code{background:#241a12;color:#fbbf24}
+.feature.tone-ink .body p strong{color:#f5efe2}
+.feature.tone-ink .body table tbody tr td{color:#bdb094}
+.feature.tone-ink .body table tbody tr td:first-child{color:#f5efe2}
+.feature.tone-ink .body > table td.pos,
+.feature.tone-ink .body > .x-scroll table td.pos{color:#86efac !important}
+.feature.tone-ink .body > table td.neg,
+.feature.tone-ink .body > .x-scroll table td.neg{color:#fca5a5 !important}
+/* nested cream callout (2008 GFC context) inside tone-ink stays cream — readable */
+.feature.tone-ink .body div[style*="border-left:3px solid"]{background:var(--paper-2) !important;color:var(--ink)}
+.feature.tone-ink .body div[style*="border-left:3px solid"] table td{color:var(--ink-2)}
+.feature.tone-ink .body div[style*="border-left:3px solid"] table td:first-child{color:var(--ink)}
+.feature.tone-ink .body div[style*="border-left:3px solid"] strong{color:var(--ink)}
+.feature.tone-ink .body div[style*="border-left:3px solid"] table th{color:var(--t3) !important;border-bottom-color:var(--rule) !important}
+.feature.tone-ink .body div[style*="border-left:3px solid"] table td.pos{color:var(--green) !important}
+.feature.tone-ink .body div[style*="border-left:3px solid"] table td.neg{color:var(--red) !important}
+.feature.tone-ink .body div[style*="border-left:3px solid"] tr:hover td{background:var(--paper) !important}
+.feature.tone-ink .body div[style*="border-left:3px solid"] p{color:var(--t2) !important}
+/* nested bottom-line cream summary */
+.feature.tone-ink .card[style*="background:var(--paper-2)"]{background:var(--paper-2) !important;border-color:var(--border) !important;color:var(--ink)}
+.feature.tone-ink .card[style*="background:var(--paper-2)"] h3{color:var(--ink)}
+.feature.tone-ink .card[style*="background:var(--paper-2)"] td{color:var(--ink-2)}
+.feature.tone-ink .card[style*="background:var(--paper-2)"] td:first-child{color:var(--ink)}
+.feature.tone-ink .card[style*="background:var(--paper-2)"] p{color:var(--t2)}
+.feature.tone-ink .card[style*="background:var(--paper-2)"] strong{color:var(--ink)}
+.feature.tone-ink .card[style*="background:var(--paper-2)"] .eyebrow{color:var(--ember)}
+.feature.tone-ink .card[style*="background:var(--paper-2)"] .eyebrow::before{background:var(--ember)}
+.feature-num{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;font-size:clamp(7rem,18vw,16rem);line-height:0.78;color:var(--ember);opacity:0.18;position:absolute;top:50px;left:-6px;pointer-events:none;letter-spacing:-0.04em;user-select:none;will-change:transform;transition:transform 0.05s linear}
 .feature-head{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:34px;position:relative;z-index:1}
 .feature-head .lbl{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:6px}
 .feature-head .lbl .num-pill{font-family:'JetBrains Mono',monospace;font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--ember);background:var(--card);border:1px solid var(--ember);padding:5px 10px;border-radius:999px}
@@ -327,9 +386,41 @@ button.btn.ember:hover{background:var(--ember-deep)}
 .section-title em{color:var(--ember);font-style:italic}
 .section-title .stnum{font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.18em;color:var(--t3);font-variation-settings:"wght" 500;text-transform:uppercase}
 
+/* === MID-PAGE MARQUEE BANDS === */
+.band{margin:48px calc(-1 * var(--page-pad,28px)) 8px;background:var(--ink);color:#f5efe2;overflow:hidden;position:relative;height:62px;display:flex;align-items:center;border-top:1px solid #2a221c;border-bottom:1px solid #2a221c}
+.band.ember{background:var(--ember);color:#fff;border-color:#7c2d12}
+.band.cream{background:var(--paper-2);color:var(--ink);border-color:var(--rule)}
+.band-track{display:flex;gap:48px;padding:0 24px;white-space:nowrap;animation:band 32s linear infinite;font-family:'Instrument Serif',serif;font-style:italic;font-size:1.5rem;letter-spacing:-0.01em}
+.band.ember .band-track{font-family:'Bricolage Grotesque',sans-serif;font-style:normal;font-variation-settings:"wdth" 80,"wght" 700;font-size:0.85rem;letter-spacing:0.18em;text-transform:uppercase}
+.band.cream .band-track{color:var(--ember)}
+.band-track:hover{animation-play-state:paused}
+.band-track span{display:inline-flex;align-items:center;gap:14px}
+.band-track .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.5}
+@keyframes band{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* Animated hairline that draws on scroll-into-view */
+.draw-rule{position:relative;height:1px;background:transparent;margin:32px 0 0;overflow:visible}
+.draw-rule::before{content:"";position:absolute;left:0;top:0;height:1px;width:0;background:linear-gradient(90deg,transparent,var(--ember),transparent);transition:width 1.4s var(--bezier-emph)}
+.draw-rule.is-revealed::before{width:100%}
+.draw-rule .ornament{position:absolute;left:50%;top:-9px;transform:translateX(-50%);background:var(--paper);padding:0 12px;font-family:'Instrument Serif',serif;font-style:italic;color:var(--ember);font-size:1.1rem;line-height:1}
+
+/* Folio (page number) — vertical text in left margin, desktop only */
+.folio{position:absolute;left:-46px;top:120px;writing-mode:vertical-rl;transform:rotate(180deg);font-family:'JetBrains Mono',monospace;font-size:0.66rem;letter-spacing:0.32em;text-transform:uppercase;color:var(--t3);pointer-events:none}
+.folio b{color:var(--ember);font-weight:600}
+
+/* Decorative section badge / cover label */
+.badge-rotate{display:inline-block;background:var(--ember);color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 80,"wght" 700;font-size:0.66rem;letter-spacing:0.18em;text-transform:uppercase;padding:6px 12px;border-radius:6px;transform:rotate(-2deg);box-shadow:0 6px 16px -8px rgba(194,65,12,.6)}
+
+/* Cover image / hero illustration container */
+.cover-art{position:relative;height:min(360px,38vw);background:radial-gradient(ellipse at 30% 50%, rgba(251,191,36,0.5) 0%, transparent 55%), radial-gradient(ellipse at 70% 60%, rgba(194,65,12,0.5) 0%, transparent 55%), radial-gradient(circle at 50% 50%, rgba(124,45,18,0.6) 0%, transparent 70%);border-radius:18px;margin:14px 0 24px;overflow:hidden;border:1px solid var(--rule)}
+.cover-art::after{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n2'><feTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.06 0 0 0 0 0.04 0 0 0 0 0.02 0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n2)'/></svg>");opacity:0.5;mix-blend-mode:overlay;pointer-events:none}
+.cover-art .caption{position:absolute;left:18px;bottom:16px;color:#faf6ef;font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 88,"wght" 600;font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;opacity:0.85}
+.cover-art .caption b{color:#fbbf24}
+
 /* === RESPONSIVE === */
 @media (max-width:1080px){
   .section-rail{display:none}
+  .folio{display:none}
 }
 @media (max-width:980px){
   .hero-stats{grid-template-columns:repeat(2,1fr)}
@@ -343,7 +434,13 @@ button.btn.ember:hover{background:var(--ember-deep)}
 /* === MOBILE — out of the box === */
 @media (max-width:680px){
   body{font-size:14.5px}
-  .page{padding:0 18px 90px}
+  .page{padding:0 18px 90px;--page-pad:18px}
+  .band{height:52px;margin:24px calc(-1 * var(--page-pad,18px)) 0}
+  .band-track{font-size:1.05rem;gap:28px;padding:0 16px}
+  .band.ember .band-track{font-size:0.7rem;letter-spacing:0.16em}
+  .cover-art{height:180px;border-radius:12px}
+  .feature.tone-cream,.feature.tone-ink{padding-left:18px;padding-right:18px}
+  .feature.tone-ink{margin-left:-18px;margin-right:-18px}
   .topbar-inner{padding:11px 16px;gap:8px}
   .brand .word{font-size:1.18rem}
   .brand .glyph{width:24px;height:24px}
@@ -419,7 +516,22 @@ button.btn.ember:hover{background:var(--ember-deep)}
   .botbar a{flex:1;padding:10px 8px;border-radius:10px;text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;font-variation-settings:"wdth" 88,"wght" 600;color:var(--paper);transition:background .15s, color .15s;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:46px;justify-content:center}
   .botbar a:hover,.botbar a.active{background:var(--ember);color:#fff}
   .botbar a .ico{font-size:0.85rem;opacity:0.8}
-  body{padding-bottom:60px}
+  body{padding-bottom:96px}
+  /* Mobile: brand wordmark IS the active indicator — hide redundant pill */
+  .nav-pill.is-current{display:none}
+  .brand .word{font-size:1.22rem}
+  .brand .glyph{width:26px;height:26px}
+  /* Make brand serif "h" italicized in ember to match hero */
+  .brand .word b{font-style:italic;color:var(--ember)}
+  /* Tighter hero on phones so stats stay above the fold */
+  .hero{padding-top:24px}
+  .hero .deck{font-size:1rem;line-height:1.4}
+  .hero .meta{font-size:0.62rem;gap:8px 16px;margin-top:18px;padding-top:16px}
+  .hero-stats{margin-top:20px}
+  .hero-stat{padding:14px 14px}
+  .hero-stat .val{font-size:1.7rem}
+  .hero-stat .sub{font-size:0.66rem;margin-top:4px}
+  .hero .kicker .vol{padding:3px 9px;font-size:0.6rem}
 }
 @media (min-width:681px){.botbar{display:none}}
 
@@ -560,7 +672,8 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 01 · LIVE SIGNAL ========== -->
-<section class="feature" id="live">
+<section class="feature tone-paper" id="live">
+  <div class="folio">N° <b>01</b> · The Daily Brief · 01</div>
   <div class="feature-num">01</div>
   <div class="feature-head">
     <div class="lbl">
@@ -689,7 +802,8 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 02 · PAPER TRADING ========== -->
-<section class="feature" id="paper">
+<section class="feature tone-cream" id="paper">
+  <div class="folio">N° <b>02</b> · Live Track Record · 02</div>
   <div class="feature-num">02</div>
   <div class="feature-head">
     <div class="lbl">
@@ -756,7 +870,8 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 03 · WHAT-IF SIMULATOR ========== -->
-<section class="feature" id="simulator">
+<section class="feature tone-paper" id="simulator">
+  <div class="folio">N° <b>03</b> · The Calculator · 03</div>
   <div class="feature-num">03</div>
   <div class="feature-head">
     <div class="lbl">
@@ -832,7 +947,26 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 04 · PLAIN ENGLISH EXPLAINER ========== -->
-<section class="feature" id="how">
+<!-- ITALIC SERIF MARQUEE BAND between Simulator and Plain English -->
+<div class="band cream" aria-hidden="true">
+  <div class="band-track">
+    <span><i>Five sleeves.</i></span><span class="dot"></span>
+    <span><i>One blended portfolio.</i></span><span class="dot"></span>
+    <span><i>Three safety brakes.</i></span><span class="dot"></span>
+    <span><i>No margin.</i></span><span class="dot"></span>
+    <span><i>No borrowing.</i></span><span class="dot"></span>
+    <span><i>No shorting.</i></span><span class="dot"></span>
+    <span><i>Five sleeves.</i></span><span class="dot"></span>
+    <span><i>One blended portfolio.</i></span><span class="dot"></span>
+    <span><i>Three safety brakes.</i></span><span class="dot"></span>
+    <span><i>No margin.</i></span><span class="dot"></span>
+    <span><i>No borrowing.</i></span><span class="dot"></span>
+    <span><i>No shorting.</i></span><span class="dot"></span>
+  </div>
+</div>
+
+<section class="feature tone-paper" id="how">
+  <div class="folio">N° <b>04</b> · The Method · 04</div>
   <div class="feature-num">04</div>
   <div class="feature-head">
     <div class="lbl">
@@ -946,7 +1080,24 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 05 · STRATEGY ARCHITECTURE ========== -->
-<section class="feature" id="architecture">
+<!-- EMBER UPPERCASE MARQUEE between Plain English and Architecture -->
+<div class="band ember" aria-hidden="true">
+  <div class="band-track">
+    <span>The mechanics</span><span class="dot"></span>
+    <span>Vol-targeted to 15%</span><span class="dot"></span>
+    <span>Drawdown-throttled at &minus;10%</span><span class="dot"></span>
+    <span>Vol-gated at the 99th percentile</span><span class="dot"></span>
+    <span>Close[t&minus;1] · open[t]</span><span class="dot"></span>
+    <span>The mechanics</span><span class="dot"></span>
+    <span>Vol-targeted to 15%</span><span class="dot"></span>
+    <span>Drawdown-throttled at &minus;10%</span><span class="dot"></span>
+    <span>Vol-gated at the 99th percentile</span><span class="dot"></span>
+    <span>Close[t&minus;1] · open[t]</span><span class="dot"></span>
+  </div>
+</div>
+
+<section class="feature tone-cream" id="architecture">
+  <div class="folio">N° <b>05</b> · The Architecture · 05</div>
   <div class="feature-num">05</div>
   <div class="feature-head">
     <div class="lbl">
@@ -1030,7 +1181,8 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 06 · BY THE NUMBERS ========== -->
-<section class="feature" id="numbers">
+<section class="feature tone-paper" id="numbers">
+  <div class="folio">N° <b>06</b> · By the Numbers · 06</div>
   <div class="feature-num">06</div>
   <div class="feature-head">
     <div class="lbl">
@@ -1098,7 +1250,24 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 07 · CALENDAR + COMPOSITION ========== -->
-<section class="feature" id="composition">
+<!-- ITALIC MARQUEE between Numbers and Composition -->
+<div class="band cream" aria-hidden="true">
+  <div class="band-track">
+    <span><i>Sharpe 2.31.</i></span><span class="dot"></span>
+    <span><i>OOS 2.09.</i></span><span class="dot"></span>
+    <span><i>Bootstrap p &lt; 0.0001.</i></span><span class="dot"></span>
+    <span><i>2008 GFC: max drawdown −1.3%.</i></span><span class="dot"></span>
+    <span><i>$10k → $1.69M over 16 years.</i></span><span class="dot"></span>
+    <span><i>Sharpe 2.31.</i></span><span class="dot"></span>
+    <span><i>OOS 2.09.</i></span><span class="dot"></span>
+    <span><i>Bootstrap p &lt; 0.0001.</i></span><span class="dot"></span>
+    <span><i>2008 GFC: max drawdown −1.3%.</i></span><span class="dot"></span>
+    <span><i>$10k → $1.69M over 16 years.</i></span><span class="dot"></span>
+  </div>
+</div>
+
+<section class="feature tone-paper" id="composition">
+  <div class="folio">N° <b>07</b> · The Calendar · 07</div>
   <div class="feature-num">07</div>
   <div class="feature-head">
     <div class="lbl">
@@ -1198,7 +1367,24 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 08 · ROBUSTNESS TESTS ========== -->
-<section class="feature" id="robustness">
+<!-- INK BAND before Robustness — magazine pause/punctuation -->
+<div class="band ember" aria-hidden="true">
+  <div class="band-track">
+    <span>Stress tests</span><span class="dot"></span>
+    <span>7 formal protocols</span><span class="dot"></span>
+    <span>Survivorship · TC · Perturbation</span><span class="dot"></span>
+    <span>Walk-forward · Bootstrap</span><span class="dot"></span>
+    <span>ML ablation · 2008 GFC</span><span class="dot"></span>
+    <span>Stress tests</span><span class="dot"></span>
+    <span>7 formal protocols</span><span class="dot"></span>
+    <span>Survivorship · TC · Perturbation</span><span class="dot"></span>
+    <span>Walk-forward · Bootstrap</span><span class="dot"></span>
+    <span>ML ablation · 2008 GFC</span><span class="dot"></span>
+  </div>
+</div>
+
+<section class="feature tone-ink" id="robustness">
+  <div class="folio" style="color:#bdb094">N° <b style="color:#fbbf24">08</b> · The Stress Tests · 08</div>
   <div class="feature-num">08</div>
   <div class="feature-head">
     <div class="lbl">
@@ -1575,6 +1761,41 @@ button.btn.ember:hover{background:var(--ember-deep)}
   // Run after main script populates (small delay)
   setTimeout(updateIslandFromLive, 600);
   setTimeout(updateIslandFromLive, 1800);
+
+  // Parallax on feature numerals — subtle vertical drift relative to scroll
+  var nums = document.querySelectorAll('.feature-num');
+  function rafParallax(){
+    var vh = window.innerHeight || 800;
+    nums.forEach(function(n){
+      var rect = n.parentElement.getBoundingClientRect();
+      // Section center distance from viewport center, normalized
+      var d = (rect.top + rect.height/2 - vh/2) / vh;
+      // Clamp + invert for movement
+      d = Math.max(-1.4, Math.min(1.4, d));
+      n.style.transform = 'translateY(' + (d * 22).toFixed(1) + 'px)';
+    });
+  }
+  var rafScheduled = false;
+  document.addEventListener('scroll', function(){
+    if (rafScheduled) return;
+    rafScheduled = true;
+    requestAnimationFrame(function(){ rafParallax(); rafScheduled = false; });
+  }, {passive:true});
+  window.addEventListener('resize', rafParallax);
+  rafParallax();
+
+  // Animated draw-rule reveal
+  var rules = document.querySelectorAll('.draw-rule');
+  if ('IntersectionObserver' in window){
+    var rObs = new IntersectionObserver(function(entries, obs){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('is-revealed'); obs.unobserve(e.target); }
+      });
+    }, {threshold:0.3});
+    rules.forEach(function(r){ rObs.observe(r); });
+  } else {
+    rules.forEach(function(r){ r.classList.add('is-revealed'); });
+  }
 })();
 </script>
 
