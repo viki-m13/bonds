@@ -1,0 +1,117 @@
+{
+  "params": {
+    "dd_floor": -0.15,
+    "vol_gate_pct": 0.99,
+    "vol_gate_lb": 252,
+    "tc_bps": 5.0,
+    "rule": "Equal-weighted 3-sleeve ensemble: COMPOSITE-MOMO (top-2 by 42d/126d/risk-adj rank, broad 33-ETF), SECTOR-ROT (top-3 sector cross-sectional with SPY-trend gate), DEF-RP (inverse-vol {TLT,GLD,IEF} when SPY<200dSMA).",
+    "universe": [
+      "SPY",
+      "QQQ",
+      "IWM",
+      "EFA",
+      "EEM",
+      "XLK",
+      "XLY",
+      "XLP",
+      "XLU",
+      "XLV",
+      "XLE",
+      "XLF",
+      "XLI",
+      "XLB",
+      "SMH",
+      "XBI",
+      "ITB",
+      "XHB",
+      "TAN",
+      "VNQ",
+      "EWJ",
+      "FXI",
+      "TLT",
+      "IEF",
+      "IEI",
+      "SHY",
+      "HYG",
+      "LQD",
+      "EMB",
+      "TIP",
+      "GLD",
+      "SLV",
+      "DBC"
+    ],
+    "sleeves": [
+      "COMPOSITE_MOMO",
+      "SECTOR_ROT",
+      "DEF_RP"
+    ]
+  },
+  "weights": {
+    "COMPOSITE_MOMO": 0.3333333333333333,
+    "SECTOR_ROT": 0.3333333333333333,
+    "DEF_RP": 0.3333333333333333
+  },
+  "full": {
+    "name": "FULL",
+    "sharpe": 0.9234,
+    "cagr": 0.0885,
+    "vol": 0.0969,
+    "mdd": -0.1427,
+    "sortino": 1.1898,
+    "calmar": 0.6203,
+    "n": 4263,
+    "navx": 4.1984
+  },
+  "is": {
+    "name": "IS",
+    "sharpe": 0.6365,
+    "cagr": 0.0522,
+    "vol": 0.0857,
+    "mdd": -0.1427,
+    "sortino": 0.7818,
+    "calmar": 0.3658,
+    "n": 2346,
+    "navx": 1.6059
+  },
+  "oos": {
+    "name": "OOS",
+    "sharpe": 1.2132,
+    "cagr": 0.1347,
+    "vol": 0.1091,
+    "mdd": -0.1248,
+    "sortino": 1.6484,
+    "calmar": 1.0796,
+    "n": 1916,
+    "navx": 2.6144
+  },
+  "raw_full": {
+    "name": "RAW_FULL",
+    "sharpe": 0.89,
+    "cagr": 0.0913,
+    "vol": 0.1043,
+    "mdd": -0.1392,
+    "sortino": 1.1129,
+    "calmar": 0.6559,
+    "n": 4263,
+    "navx": 4.3829
+  },
+  "is_oos_gap": 0.5767000000000001,
+  "avg_total_mult": 0.9459300961764016,
+  "correlations": {
+    "COMPOSITE_MOMO": {
+      "COMPOSITE_MOMO": 1.0,
+      "SECTOR_ROT": 0.587,
+      "DEF_RP": 0.116
+    },
+    "SECTOR_ROT": {
+      "COMPOSITE_MOMO": 0.587,
+      "SECTOR_ROT": 1.0,
+      "DEF_RP": -0.009
+    },
+    "DEF_RP": {
+      "COMPOSITE_MOMO": 0.116,
+      "SECTOR_ROT": -0.009,
+      "DEF_RP": 1.0
+    }
+  }
+}

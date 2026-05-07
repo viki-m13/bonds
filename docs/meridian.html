@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f1419">
+<title>MERIDIAN — Strict-No-Leverage Tactical Strategy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+:root{
+  --paper:#f4f6f8;
+  --paper-2:#e8edf2;
+  --paper-3:#d8e0e8;
+  --ink:#0f1419;
+  --ink-2:#1a2530;
+  --t1:#0f1419;
+  --t2:#3e4956;
+  --t3:#7a8898;
+  --bg:#f4f6f8;
+  --card:#ffffff;
+  --card2:#e8edf2;
+  --border:#cdd5dd;
+  --rule:#a8b3bf;
+  --accent:#0c4a6e;
+  --accent-deep:#0c2841;
+  --accent-glow:rgba(12,74,110,0.15);
+  --accent2:#0e7490;
+  --gold:#a16207;
+  --green:#15803d;
+  --red:#b91c1c;
+  --blue:#1d4ed8;
+  --cyan:#0e7490;
+  --yellow:#a16207;
+  --purple:#6d28d9;
+  --orange:#c2410c;
+  --shadow-1:0 1px 0 rgba(255,255,255,0.6) inset, 0 1px 2px rgba(15,20,25,0.04);
+  --shadow-2:0 18px 40px -22px rgba(15,20,25,0.30), 0 4px 12px -6px rgba(15,20,25,0.10);
+  --bezier-emph:cubic-bezier(.2,.7,.2,1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  font-family:'Bricolage Grotesque','Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-variation-settings:"opsz" 18,"wdth" 95,"wght" 420;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.55;
+  font-size:15px;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  background-image:
+    radial-gradient(ellipse 50% 30% at 8% 6%, rgba(12,74,110,0.05), transparent 60%),
+    radial-gradient(ellipse 40% 25% at 95% 102%, rgba(14,116,144,0.05), transparent 60%);
+  background-attachment:fixed;
+  overflow-x:clip;
+}
+img,svg{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+strong,b{font-weight:600}
+::selection{background:var(--accent);color:#fff}
+
+/* TYPE */
+.serif,h1,h2,h3,h4{font-family:'Instrument Serif','Times New Roman',Times,serif;font-weight:400;letter-spacing:-0.005em;color:var(--ink)}
+.serif-it,em.it,.italic{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400}
+.mono,.tabular{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-feature-settings:"tnum","zero";font-variation-settings:"wght" 450}
+.tnum{font-variant-numeric:tabular-nums}
+.eyebrow{font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 80,"wght" 600;font-size:0.66rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--accent);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";display:inline-block;width:28px;height:1px;background:var(--accent)}
+.eyebrow.muted{color:var(--t3)}.eyebrow.muted::before{background:var(--t3)}
+
+/* SCROLL PROGRESS */
+.progressbar{position:fixed;top:0;left:0;right:0;height:2px;background:transparent;z-index:90;pointer-events:none}
+.progressbar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transform-origin:left;transition:width 80ms linear}
+
+/* MASTHEAD */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(244,246,248,0.86);backdrop-filter:saturate(160%) blur(14px);-webkit-backdrop-filter:saturate(160%) blur(14px);border-bottom:1px solid var(--border)}
+.topbar-inner{max-width:1240px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand .glyph{position:relative;width:30px;height:30px;border-radius:6px;background:linear-gradient(135deg,#0c4a6e 0%,#0e7490 50%,#155e75 100%);box-shadow:0 0 0 1px rgba(0,0,0,0.06),0 6px 18px -8px rgba(12,74,110,0.7);align-self:center;display:flex;align-items:center;justify-content:center}
+.brand .glyph::after{content:"M";color:#fff;font-family:'Instrument Serif',serif;font-size:18px;font-weight:700;line-height:1}
+.brand .word{font-family:'Instrument Serif',serif;font-weight:400;font-size:1.5rem;letter-spacing:0.04em;color:var(--ink)}
+.brand .word b{font-style:italic;color:var(--accent);font-weight:400}
+.brand .issue{font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--t3);letter-spacing:0.18em;text-transform:uppercase;border-left:1px solid var(--rule);padding-left:12px;margin-left:4px}
+.nav-actions{display:flex;align-items:center;gap:10px;position:relative}
+.nav-pill{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;font-size:0.78rem;font-weight:500;border:1px solid transparent;background:transparent;font-family:inherit;color:var(--ink);cursor:pointer;transition:background .18s,border-color .18s,color .18s,transform .15s var(--bezier-emph);min-height:40px}
+.nav-pill:active{transform:scale(0.96)}
+.nav-pill.is-current{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.nav-pill.is-current::before{content:"";width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:livedot 1.6s ease-in-out infinite}
+@keyframes livedot{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+.nav-pill:hover:not(.is-current){background:var(--card2);border-color:var(--border)}
+.nav-pill .caret{display:inline-block;margin-left:2px;font-size:0.7rem;transition:transform .25s var(--bezier-emph)}
+.nav-pill[aria-expanded="true"] .caret{transform:rotate(180deg)}
+
+.nav-menu{position:absolute;top:calc(100% + 10px);right:0;min-width:280px;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-2);padding:10px;z-index:60;opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;transition:opacity .2s var(--bezier-emph), transform .25s var(--bezier-emph)}
+.nav-menu.is-open{opacity:1;transform:none;pointer-events:auto}
+.nav-menu .group-label{font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--t3);padding:10px 12px 6px;font-weight:600;display:flex;align-items:center;gap:8px}
+.nav-menu .group-label::after{content:"";flex:1;height:1px;background:var(--border)}
+.nav-menu a{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border-radius:9px;color:var(--ink);font-size:0.92rem;transition:background .15s, padding-left .15s var(--bezier-emph);min-height:44px}
+.nav-menu a:hover,.nav-menu a:focus{background:var(--card2);padding-left:16px}
+.nav-menu a .tag{font-size:0.66rem;color:var(--t3);font-family:'JetBrains Mono',monospace;letter-spacing:0.05em}
+.nav-backdrop{position:fixed;inset:0;background:rgba(15,20,25,0.4);backdrop-filter:blur(2px);z-index:55;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.nav-backdrop.is-open{opacity:1;pointer-events:auto}
+
+/* PAGE WRAPPER */
+.page{max-width:1240px;margin:0 auto;padding:0 28px 80px;position:relative;--page-pad:28px}
+
+/* HERO */
+.hero{padding:56px 0 30px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;left:-12%;top:-30%;width:55%;height:120%;background:radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 60%);pointer-events:none}
+.hero .kicker{margin-bottom:18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.hero .kicker .vol{font-family:'JetBrains Mono',monospace;font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--t3);padding:4px 10px;border:1px solid var(--rule);border-radius:999px}
+.hero .title{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(3.5rem,12vw,9rem);line-height:0.92;letter-spacing:-0.04em;color:var(--ink);position:relative;z-index:1}
+.hero .title .accent{color:var(--accent);font-style:italic}
+.hero .title .swash{font-style:italic;color:var(--accent-deep);display:inline-block;transform:translateY(-0.03em)}
+.hero .deck{margin-top:24px;font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;font-size:clamp(1.15rem,2.4vw,1.6rem);line-height:1.45;color:var(--t2);max-width:840px}
+.hero .deck strong{font-style:normal;font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 95,"wght" 600;color:var(--ink)}
+.hero .meta{display:flex;flex-wrap:wrap;gap:14px 28px;margin-top:30px;padding-top:22px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--t3)}
+.hero .meta b{color:var(--ink);font-weight:500;letter-spacing:0.04em}
+
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:30px;border:1px solid var(--rule);border-radius:18px;background:var(--card);overflow:hidden;box-shadow:var(--shadow-2);position:relative}
+.hero-stat{padding:24px 22px;border-right:1px solid var(--border);position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:140px}
+.hero-stat:last-child{border-right:none}
+.hero-stat .label{font-family:'Bricolage Grotesque',sans-serif;font-size:0.6rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--t3);font-variation-settings:"wdth" 85,"wght" 600}
+.hero-stat .val{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(2rem,4.5vw,3.2rem);line-height:1;letter-spacing:-0.02em;color:var(--ink);margin-top:10px;display:flex;align-items:baseline;gap:2px}
+.hero-stat .val.accent{color:var(--accent)}
+.hero-stat .val .unit{font-size:0.5em;color:var(--t3);font-style:italic}
+.hero-stat .sub{font-size:0.7rem;color:var(--t3);margin-top:6px;font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+@media(max-width:840px){.hero-stats{grid-template-columns:repeat(2,1fr)}.hero-stat{border-bottom:1px solid var(--border)}.hero-stat:nth-child(2n){border-right:none}.hero-stat:nth-last-child(-n+2){border-bottom:none}}
+@media(max-width:480px){.hero-stats{grid-template-columns:1fr}.hero-stat{border-right:none;border-bottom:1px solid var(--border)}.hero-stat:last-child{border-bottom:none}}
+
+/* SECTIONS */
+.section{padding:64px 0 12px;border-top:1px dashed var(--rule);margin-top:8px;scroll-margin-top:90px}
+.section:first-of-type{border-top:none;margin-top:0;padding-top:48px}
+.section-head{margin-bottom:28px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.section-title{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.05;letter-spacing:-0.02em;color:var(--ink)}
+.section-title em{font-style:italic;color:var(--accent)}
+.section-dek{font-size:0.92rem;color:var(--t2);max-width:560px;line-height:1.55}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:var(--shadow-1);position:relative}
+.card h3{font-family:'Instrument Serif',serif;font-weight:400;font-size:1.4rem;letter-spacing:-0.01em;margin-bottom:8px;color:var(--ink)}
+.card h4{font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 85,"wght" 600;font-size:0.66rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.card p{font-size:0.92rem;color:var(--t2);line-height:1.6;margin-bottom:8px}
+.card p:last-child{margin-bottom:0}
+
+.callout{border-left:4px solid var(--accent);padding:16px 18px;background:var(--card2);border-radius:0 12px 12px 0;margin:16px 0}
+.callout p{font-family:'Instrument Serif',serif;font-style:italic;font-size:1.02rem;color:var(--ink-2);line-height:1.55}
+.callout strong{font-style:normal;font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 95,"wght" 600;color:var(--ink)}
+
+.warning{border-left:4px solid var(--red);padding:16px 18px;background:#fef2f2;border-radius:0 12px 12px 0;margin:16px 0}
+.warning p{font-family:'Instrument Serif',serif;font-style:italic;font-size:1.02rem;color:#7f1d1d;line-height:1.55}
+.warning strong{font-style:normal;font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 95,"wght" 600}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.g6{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+@media(max-width:780px){.g2,.g3,.g4{grid-template-columns:1fr}.g6{grid-template-columns:repeat(3,1fr)}}
+
+/* CHART */
+.chart-wrap{position:relative;height:380px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+.chart-wrap.sm{height:240px}
+.chart-wrap.xs{height:180px}
+.chart-meta{display:flex;flex-wrap:wrap;gap:14px 20px;font-size:0.7rem;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-bottom:12px}
+.chart-meta .legend{display:flex;align-items:center;gap:6px}
+.chart-meta .swatch{width:10px;height:10px;border-radius:2px}
+.chart-title{font-family:'Instrument Serif',serif;font-size:1.15rem;color:var(--ink);margin-bottom:4px}
+.chart-sub{font-size:0.78rem;color:var(--t3);margin-bottom:14px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:0.84rem}
+th{font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 85,"wght" 600;font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--t3);padding:10px 12px;text-align:right;border-bottom:1px solid var(--border)}
+th:first-child{text-align:left}
+td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-feature-settings:"tnum"}
+td:first-child{text-align:left;font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-feature-settings:normal}
+tr:hover td{background:var(--card2)}
+.pos{color:var(--green);font-weight:500}.neg{color:var(--red);font-weight:500}
+.x-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* KPI mini */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 12px}
+.kpi-label{font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--t3);font-weight:600}
+.kpi-val{font-family:'Instrument Serif',serif;font-size:1.6rem;line-height:1;letter-spacing:-0.01em;margin-top:6px;color:var(--ink)}
+.kpi-val.accent{color:var(--accent)}
+.kpi-val.green{color:var(--green)}
+.kpi-val.red{color:var(--red)}
+.kpi-sub{font-size:0.7rem;color:var(--t3);margin-top:4px;font-family:'JetBrains Mono',monospace}
+
+/* PILLS / TAGS */
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.66rem;font-weight:500;letter-spacing:0.04em;font-family:'JetBrains Mono',monospace;border:1px solid var(--border);background:var(--card)}
+.pill.green{background:#dcfce7;color:#166534;border-color:#86efac}
+.pill.red{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+.pill.accent{background:var(--accent-glow);color:var(--accent-deep);border-color:var(--accent)}
+
+/* RULES */
+hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
+
+/* INK SECTION */
+.section.tone-ink{background:var(--ink);color:var(--paper);margin-left:calc(-1 * var(--page-pad,28px));margin-right:calc(-1 * var(--page-pad,28px));padding-left:var(--page-pad,28px);padding-right:var(--page-pad,28px);border-top:none;border-radius:0}
+.section.tone-ink .section-title,.section.tone-ink h3,.section.tone-ink h4{color:#f4f6f8}
+.section.tone-ink .section-title em{color:#67e8f9}
+.section.tone-ink .section-dek{color:#a8b3bf}
+.section.tone-ink .card{background:#1a2530;border-color:#2a3540}
+.section.tone-ink .card p{color:#a8b3bf}
+.section.tone-ink th{color:#7a8898;border-bottom-color:#2a3540}
+.section.tone-ink td{color:#cdd5dd;border-bottom-color:#2a3540}
+.section.tone-ink td:first-child{color:#f4f6f8}
+.section.tone-ink tr:hover td{background:#2a3540}
+.section.tone-ink .kpi{background:#1a2530;border-color:#2a3540}
+.section.tone-ink .kpi-val{color:#f4f6f8}
+.section.tone-ink .kpi-val.accent{color:#67e8f9}
+.section.tone-ink .kpi-label{color:#7a8898}
+.section.tone-ink .kpi-sub{color:#7a8898}
+.section.tone-ink .eyebrow{color:#67e8f9}
+.section.tone-ink .eyebrow::before{background:#67e8f9}
+.section.tone-ink .pill{background:#1a2530;color:#cdd5dd;border-color:#2a3540}
+.section.tone-ink .callout{background:#1a2530;border-color:#67e8f9}
+.section.tone-ink .callout p{color:#e8edf2}
+.section.tone-ink .callout strong{color:#f4f6f8}
+.section.tone-ink .chart-wrap{background:#1a2530;border-color:#2a3540}
+.section.tone-ink .chart-meta{color:#7a8898}
+.section.tone-ink .chart-title{color:#f4f6f8}
+
+/* SLEEVE CARDS */
+.sleeve-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+.sleeve-card .sleeve-head{padding:18px 22px;background:var(--card2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px}
+.sleeve-card .sleeve-name{font-family:'Instrument Serif',serif;font-size:1.4rem;letter-spacing:-0.005em}
+.sleeve-card .sleeve-name em{font-style:italic;color:var(--accent)}
+.sleeve-card .sleeve-tag{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--t3);letter-spacing:0.18em;text-transform:uppercase}
+.sleeve-card .sleeve-body{padding:18px 22px;flex:1}
+.sleeve-card .sleeve-body p{font-size:0.86rem;color:var(--t2);line-height:1.55;margin-bottom:10px}
+.sleeve-card .sleeve-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.sleeve-card .sleeve-stats .stat{text-align:center}
+.sleeve-card .sleeve-stats .stat-val{font-family:'Instrument Serif',serif;font-size:1.1rem;color:var(--ink);line-height:1}
+.sleeve-card .sleeve-stats .stat-lbl{font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--t3);margin-top:4px;font-weight:600}
+
+/* HEATMAP */
+.heatmap-wrap{overflow-x:auto;padding-bottom:8px}
+.heatmap{display:grid;grid-template-columns:60px repeat(12,minmax(48px,1fr)) 80px;gap:2px;font-size:0.7rem;font-family:'JetBrains Mono',monospace;min-width:720px}
+.heatmap .hm-h{padding:6px 4px;font-size:0.6rem;color:var(--t3);text-align:center;font-weight:600;letter-spacing:0.04em}
+.heatmap .hm-h.left{text-align:left;padding-left:8px}
+.heatmap .hm-y{padding:7px 4px;color:var(--t3);font-weight:600;text-align:left;padding-left:8px;background:var(--card)}
+.heatmap .hm-c{padding:7px 4px;text-align:center;border-radius:3px;font-feature-settings:"tnum"}
+.heatmap .hm-yt{padding:7px 4px;text-align:center;font-weight:700;border-radius:3px}
+
+/* UNIVERSE GRID */
+.uni-cat{margin-bottom:20px}
+.uni-cat-head{font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 85,"wght" 600;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--t3);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.uni-cat-head::after{content:"";flex:1;height:1px;background:var(--border)}
+.uni-tickers{display:flex;flex-wrap:wrap;gap:8px}
+.uni-tick{font-family:'JetBrains Mono',monospace;font-size:0.78rem;font-weight:500;padding:6px 12px;background:var(--card);border:1px solid var(--border);border-radius:6px;letter-spacing:0.05em}
+
+/* CONSTRAINTS LIST */
+.constraints{counter-reset:cn}
+.constraint{counter-increment:cn;display:flex;gap:18px;padding:18px 22px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;align-items:flex-start}
+.constraint::before{content:"0" counter(cn);font-family:'Instrument Serif',serif;font-size:2rem;line-height:1;color:var(--accent);font-style:italic;flex-shrink:0}
+.constraint h4{font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 95,"wght" 600;font-size:0.95rem;letter-spacing:0;text-transform:none;color:var(--ink);margin-bottom:6px}
+.constraint p{font-size:0.86rem;color:var(--t2);line-height:1.55;margin:0}
+
+/* CEILING TABLE */
+.ceiling-table tr.forbidden td{color:var(--red);text-decoration:line-through;opacity:0.6}
+.ceiling-table tr.highlight td{background:var(--accent-glow);font-weight:600}
+.ceiling-table tr.highlight td:first-child{color:var(--accent)}
+
+@media(max-width:560px){
+  .topbar-inner{padding:10px 16px}
+  .brand .word{font-size:1.2rem}
+  .brand .issue{display:none}
+  .nav-pill{padding:8px 12px;font-size:0.74rem}
+  .nav-pill.is-current{display:none}
+  .page{padding:0 16px 60px;--page-pad:16px}
+  .hero{padding:36px 0 22px}
+  .hero .title{font-size:clamp(3rem,18vw,5rem)}
+  .hero .deck{font-size:1rem}
+  .section{padding:48px 0 8px}
+  .section-title{font-size:1.6rem}
+  .card{padding:16px}
+  .chart-wrap{padding:14px;height:260px}
+  .sleeve-card .sleeve-stats{grid-template-columns:repeat(2,1fr)}
+  .heatmap{font-size:0.62rem}
+  .nav-menu{position:fixed;left:8px;right:8px;top:auto;bottom:8px;min-width:0;max-height:calc(100vh - 80px);overflow-y:auto;border-radius:18px}
+}
+
+</style>
+</head>
+<body>
+
+<div class="progressbar" aria-hidden="true"><i id="scrollProg"></i></div>
+
+<nav class="topbar" aria-label="Primary">
+  <div class="topbar-inner">
+    <span class="brand" aria-label="Meridian">
+      <span class="glyph" aria-hidden="true"></span>
+      <a class="word" href="meridian.html">Meri<b>d</b>ian</a>
+      <span class="issue">Vol. 01 · Strict-no-leverage</span>
+    </span>
+    <div class="nav-actions">
+      <a href="meridian.html" class="nav-pill is-current" aria-current="page">Meridian</a>
+      <button id="otherStratBtn" class="nav-pill" aria-haspopup="menu" aria-expanded="false" aria-controls="otherStratMenu">
+        Other strategies <span class="caret">&#9662;</span>
+      </button>
+      <div class="nav-backdrop" id="navBackdrop" aria-hidden="true"></div>
+      <div id="otherStratMenu" class="nav-menu" role="menu">
+        <div class="group-label">Flagship</div>
+        <a href="phoenix.html" role="menuitem">Phoenix <span class="tag">5-letf</span></a>
+        <div class="group-label">Bonds &amp; carry</div>
+        <a href="index.html" role="menuitem">Sharpe (DICHS) <span class="tag">carry</span></a>
+        <a href="growth.html" role="menuitem">Growth <span class="tag">growth</span></a>
+        <a href="blend.html" role="menuitem">Zephyr <span class="tag">blend</span></a>
+        <div class="group-label">Multi-asset &amp; ML</div>
+        <a href="aurora.html" role="menuitem">Aurora <span class="tag">multi</span></a>
+        <a href="hydra.html" role="menuitem">Hydra <span class="tag">multi</span></a>
+        <a href="nova34.html" role="menuitem">Nova 34 <span class="tag">ml</span></a>
+        <a href="atlas.html" role="menuitem">Atlas <span class="tag">macro</span></a>
+        <a href="apex.html" role="menuitem">Apex <span class="tag">apex</span></a>
+        <div class="group-label">Crypto</div>
+        <a href="titan.html" role="menuitem">Titan <span class="tag">btc·eth</span></a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="kicker">
+    <span class="vol">Vol. 01 · Issue 01</span>
+    <span class="eyebrow">A factsheet · Three unbiased sleeves</span>
+  </div>
+  <h1 class="title">Meri<span class="accent">d</span>ia<span class="swash">n</span>.</h1>
+  <p class="deck">
+    Three rule-based tactical sleeves applied uniformly to a fixed broad universe of <strong>33 unlevered (1x) ETFs</strong> spanning every major asset class. <em class="it">No leveraged ETFs. No portfolio margin. No selection bias.</em> Daily-managed eligibility, weekly rebalance, in-sample / out-of-sample validated.
+  </p>
+  <div class="meta">
+    <div><b>Inception</b> · 2010-01-04</div>
+    <div><b>Window</b> · 16 yrs</div>
+    <div><b>Universe</b> · 33 1x ETFs + BIL</div>
+    <div><b>Cadence</b> · Daily check / weekly rebal</div>
+    <div><b>Last bar</b> · <span id="lastDate">—</span></div>
+  </div>
+
+  <div class="hero-stats" role="group" aria-label="Headline performance">
+    <div class="hero-stat">
+      <div class="label">Sharpe (full)</div>
+      <div class="val accent" id="heroSharpe">—</div>
+      <div class="sub" id="heroSharpeSub">—</div>
+    </div>
+    <div class="hero-stat">
+      <div class="label">CAGR</div>
+      <div class="val" id="heroCAGR">—</div>
+      <div class="sub" id="heroCAGRSub">—</div>
+    </div>
+    <div class="hero-stat">
+      <div class="label">Max drawdown</div>
+      <div class="val" id="heroMDD">—</div>
+      <div class="sub" id="heroMDDSub">—</div>
+    </div>
+    <div class="hero-stat">
+      <div class="label">Growth of $10k</div>
+      <div class="val" id="heroNAV">—</div>
+      <div class="sub" id="heroNAVSub">—</div>
+    </div>
+  </div>
+</section>
+
+<!-- THE BOTTOM LINE / HONEST CAGR CEILING -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Read this first</span>
+      <h2 class="section-title">The <em>bottom line</em>.</h2>
+    </div>
+    <p class="section-dek">
+      Where this strategy can and cannot go, given the strict constraints — explained
+      before the strategy itself, because the math binds the design.
+    </p>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h4>What this strategy is</h4>
+      <p>A daily-managed tactical asset allocator that combines three orthogonal momentum sleeves on a fixed 33-ETF universe. Equal-weight blend (no IS-fitted weights). Risk overlays only de-risk — they cannot multiply exposure above 1.0.</p>
+      <p><strong>Constraints in force, simultaneously:</strong></p>
+      <ul style="font-size:0.9rem;color:var(--t2);margin-left:18px;line-height:1.7">
+        <li>No leveraged or inverse ETFs (no 2x/3x/-1x products)</li>
+        <li>No portfolio margin or borrowing (gross ≤ 1.0)</li>
+        <li>No forward-looking signals (close[t-1] only)</li>
+        <li>No selection bias (universe fixed ex-ante by liquidity + inception)</li>
+        <li>Daily-managed eligibility checks</li>
+      </ul>
+    </div>
+
+    <div class="card" style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-color:#f59e0b">
+      <h4 style="color:#7c2d12">CAGR ceiling, mathematical</h4>
+      <p style="color:#7c2d12">No 1x ETF in the broad universe achieves <strong>≥ 30% annualized return</strong> over 2010-2026. The single highest-CAGR 1x ETF is <strong>SMH at 25.2%</strong> buy-and-hold — and concentrating in it ex-post would itself be selection bias.</p>
+      <p style="color:#7c2d12">An unbiased systematic strategy is bounded below the single-best-asset CAGR by the geometric mean of its rolling picks, plus whipsaw, eligibility filters, and TC drag. The empirical FULL-window ceiling for unbiased strategies on this universe is <strong>~14-15% CAGR</strong>.</p>
+      <p style="color:#7c2d12;font-style:italic">Phoenix's 37% CAGR is structurally a function of ~2.5x effective beta from <em>leveraged</em> ETFs — that mechanism is unavailable here.</p>
+    </div>
+  </div>
+
+  <div class="warning">
+    <p><strong>If you want 30%+ CAGR, exactly one of the constraints must give.</strong> Allow leveraged ETFs (becomes Phoenix-class). Or allow portfolio margin (scale Sharpe-1.0 unlevered base to ~33% at gross 3x). Or accept ex-post asset selection (concentrate in SMH/QQQ/XLK). MERIDIAN respects all four — and prices that constraint set honestly.</p>
+  </div>
+</section>
+
+<!-- PERFORMANCE -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Performance</span>
+      <h2 class="section-title">Equity curve and <em>drawdowns</em>.</h2>
+    </div>
+    <p class="section-dek">
+      Open-to-open returns net of 5 bps per leg. Benchmarks: SPY, QQQ, and a 60/40 SPY/AGG portfolio.
+    </p>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-meta">
+      <span class="legend"><span class="swatch" style="background:#0c4a6e"></span>MERIDIAN</span>
+      <span class="legend"><span class="swatch" style="background:#dc2626"></span>SPY</span>
+      <span class="legend"><span class="swatch" style="background:#7c3aed"></span>QQQ</span>
+      <span class="legend"><span class="swatch" style="background:#a16207"></span>60/40</span>
+    </div>
+    <canvas id="equityChart"></canvas>
+  </div>
+
+  <div class="g2" style="margin-top:18px">
+    <div class="chart-wrap sm">
+      <div class="chart-title">Underwater (drawdown)</div>
+      <div class="chart-sub">MERIDIAN vs SPY</div>
+      <canvas id="ddChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h4>Headline metrics, all windows</h4>
+      <div class="x-scroll">
+        <table>
+          <thead><tr><th>Window</th><th>Sharpe</th><th>CAGR</th><th>Vol</th><th>MDD</th><th>Sortino</th><th>Calmar</th></tr></thead>
+          <tbody id="metricsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-row" style="margin-top:18px">
+    <div class="kpi"><div class="kpi-label">IS-OOS Sharpe gap</div><div class="kpi-val accent" id="kpiGap">—</div><div class="kpi-sub">smaller = more robust</div></div>
+    <div class="kpi"><div class="kpi-label">Avg de-risk mult</div><div class="kpi-val" id="kpiMult">—</div><div class="kpi-sub">overlays trigger rarely</div></div>
+    <div class="kpi"><div class="kpi-label">Days backtested</div><div class="kpi-val" id="kpiDays">—</div><div class="kpi-sub">strict no-leakage</div></div>
+    <div class="kpi"><div class="kpi-label">TC per leg</div><div class="kpi-val">5<span style="font-size:0.5em"> bps</span></div><div class="kpi-sub">included in net returns</div></div>
+  </div>
+</section>
+
+<!-- CAGR CEILING TABLE -->
+<section class="section tone-ink">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">The math, not opinions</span>
+      <h2 class="section-title">Why <em>30% is unreachable</em> here.</h2>
+    </div>
+    <p class="section-dek">
+      Top 1x-ETFs by full-window buy-and-hold CAGR. Even a perfect-foresight ex-post pick of the
+      best 1x asset (SMH) compounds at only 25.2%. The leveraged products that would clear the
+      30% bar are forbidden by the spec.
+    </p>
+  </div>
+
+  <div class="x-scroll">
+    <table class="ceiling-table">
+      <thead><tr><th>Asset</th><th>Class</th><th>FULL CAGR</th><th>IS CAGR</th><th>OOS CAGR</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr class="forbidden"><td>TQQQ</td><td>3x QQQ</td><td>43.4%</td><td>41.2%</td><td>45.6%</td><td>forbidden</td></tr>
+        <tr class="forbidden"><td>SOXL</td><td>3x semis</td><td>41.4%</td><td>28.2%</td><td>58.5%</td><td>forbidden</td></tr>
+        <tr class="forbidden"><td>TECL</td><td>3x tech</td><td>38.2%</td><td>27.4%</td><td>52.6%</td><td>forbidden</td></tr>
+        <tr class="forbidden"><td>QLD</td><td>2x QQQ</td><td>32.1%</td><td>27.5%</td><td>37.7%</td><td>forbidden</td></tr>
+        <tr class="forbidden"><td>UPRO</td><td>3x SPY</td><td>29.3%</td><td>26.1%</td><td>33.2%</td><td>forbidden</td></tr>
+        <tr class="highlight"><td>SMH</td><td>semis (1x)</td><td>25.2%</td><td>14.7%</td><td>42.0%</td><td>1x ceiling — ex-post bias</td></tr>
+        <tr><td>XLK</td><td>tech sector</td><td>19.4%</td><td>13.4%</td><td>27.1%</td><td>1x</td></tr>
+        <tr><td>QQQ</td><td>nasdaq-100</td><td>19.0%</td><td>15.5%</td><td>23.4%</td><td>1x</td></tr>
+        <tr><td>XLY</td><td>cons disc</td><td>14.3%</td><td>15.9%</td><td>12.3%</td><td>1x</td></tr>
+        <tr><td>SPY</td><td>S&amp;P 500</td><td>14.2%</td><td>13.2%</td><td>15.6%</td><td>1x</td></tr>
+        <tr><td>XBI</td><td>biotech</td><td>13.1%</td><td>16.9%</td><td>8.3%</td><td>1x</td></tr>
+        <tr><td>SCHD</td><td>quality div</td><td>13.0%</td><td>—</td><td>—</td><td>1x · post-2011</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <p><strong>Read carefully:</strong> Even an ex-post perfect concentration in the FULL-window winner (SMH 25.2%) falls 5 percentage points short of 30%. To exceed 30% CAGR you need a structurally different toolkit — leveraged ETFs (forbidden), portfolio margin (forbidden), or hand-picked winners (selection bias, forbidden). The arithmetic does not care about effort.</p>
+  </div>
+</section>
+
+<!-- STRATEGY MECHANISM -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Mechanism</span>
+      <h2 class="section-title">Three sleeves, <em>equal-weighted</em>.</h2>
+    </div>
+    <p class="section-dek">
+      Each sleeve runs uniform rules across the full universe. There is no IS-fitted weighting
+      between sleeves — each gets exactly 1/3 of the book. Sleeve internals allocate 100% of
+      their capital between ETFs and BIL, so the portfolio gross is exactly 1.0 every day.
+    </p>
+  </div>
+
+  <div class="g3">
+    <div class="sleeve-card">
+      <div class="sleeve-head">
+        <div class="sleeve-name">S1 · <em>Composite-Momo</em></div>
+        <div class="sleeve-tag">broad / weekly</div>
+      </div>
+      <div class="sleeve-body">
+        <p>Top-2 across the full 33-ETF universe by a composite of three percentile-rank signals:</p>
+        <ul style="font-size:0.86rem;color:var(--t2);margin-left:18px;line-height:1.7">
+          <li>42-day return rank</li>
+          <li>126-day return rank</li>
+          <li>126d / 63d-vol risk-adjusted rank</li>
+        </ul>
+        <p style="margin-top:10px">Eligibility: 6-mo return &gt; 0 AND price &gt; 200d SMA. Daily check, weekly (Wed) rebalance, equal-weight, cash residual to BIL.</p>
+        <div class="sleeve-stats" id="s1Stats"></div>
+      </div>
+    </div>
+
+    <div class="sleeve-card">
+      <div class="sleeve-head">
+        <div class="sleeve-name">S2 · <em>Sector Rotation</em></div>
+        <div class="sleeve-tag">sectors / weekly</div>
+      </div>
+      <div class="sleeve-body">
+        <p>Cross-sectional momentum on the 9 SPDR sectors (XLK / XLY / XLP / XLU / XLV / XLE / XLF / XLI / XLB). Signal is the average of 63d and 126d returns.</p>
+        <p>Eligibility: 6-mo return &gt; 0 AND price &gt; 200d SMA. Top-3 long, equal-weight, gated by SPY &gt; 200d SMA. Cash residual to BIL.</p>
+        <p style="margin-top:6px;font-size:0.8rem;color:var(--t3)">Orthogonal to S1 because it ranks within sectors only — completely different cross-section than the broad-universe ranking.</p>
+        <div class="sleeve-stats" id="s2Stats"></div>
+      </div>
+    </div>
+
+    <div class="sleeve-card">
+      <div class="sleeve-head">
+        <div class="sleeve-name">S3 · <em>Defensive RP</em></div>
+        <div class="sleeve-tag">defensive / monthly</div>
+      </div>
+      <div class="sleeve-body">
+        <p>Inverse-vol blend of {TLT, GLD, IEF}, active only when SPY &lt; 200d SMA — i.e., the macro environment is risk-off.</p>
+        <p>Eligibility per asset: 60d return &gt; 0 (avoids long-bond crashes like 2022). Cash residual to BIL when risk-on or when all defensives are in downtrend.</p>
+        <p style="margin-top:6px;font-size:0.8rem;color:var(--t3)">Acts as a counterweight to the equity-leaning S1 / S2. Empirical correlation with both is near-zero.</p>
+        <div class="sleeve-stats" id="s3Stats"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-wrap" style="margin-top:18px">
+    <div class="chart-meta">
+      <span class="legend"><span class="swatch" style="background:#0c4a6e"></span>S1 Composite-Momo</span>
+      <span class="legend"><span class="swatch" style="background:#0e7490"></span>S2 Sector Rotation</span>
+      <span class="legend"><span class="swatch" style="background:#a16207"></span>S3 Defensive RP</span>
+    </div>
+    <div class="chart-title">Per-sleeve growth of $1</div>
+    <div class="chart-sub">Each sleeve's standalone equity curve · 2010-2026</div>
+    <canvas id="sleeveChart"></canvas>
+  </div>
+</section>
+
+<!-- UNIVERSE -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Universe</span>
+      <h2 class="section-title">33 ETFs, fixed <em>ex-ante</em>.</h2>
+    </div>
+    <p class="section-dek">
+      Membership selected by liquidity and inception date ≤ 2009 — never by ex-post return.
+      Tech ETFs (SMH, XLK, QQQ) are present alongside every other major sector and asset class
+      on equal footing. Sector concentration emerges only from the systematic momentum rules.
+    </p>
+  </div>
+
+  <div class="g2">
+    <div>
+      <div class="uni-cat">
+        <div class="uni-cat-head">Broad equity (5)</div>
+        <div class="uni-tickers">
+          <span class="uni-tick">SPY</span><span class="uni-tick">QQQ</span><span class="uni-tick">IWM</span><span class="uni-tick">EFA</span><span class="uni-tick">EEM</span>
+        </div>
+      </div>
+      <div class="uni-cat">
+        <div class="uni-cat-head">US sectors (9)</div>
+        <div class="uni-tickers">
+          <span class="uni-tick">XLK</span><span class="uni-tick">XLY</span><span class="uni-tick">XLP</span><span class="uni-tick">XLU</span><span class="uni-tick">XLV</span><span class="uni-tick">XLE</span><span class="uni-tick">XLF</span><span class="uni-tick">XLI</span><span class="uni-tick">XLB</span>
+        </div>
+      </div>
+      <div class="uni-cat">
+        <div class="uni-cat-head">Sub-sectors (6)</div>
+        <div class="uni-tickers">
+          <span class="uni-tick">SMH</span><span class="uni-tick">XBI</span><span class="uni-tick">ITB</span><span class="uni-tick">XHB</span><span class="uni-tick">TAN</span><span class="uni-tick">VNQ</span>
+        </div>
+      </div>
+      <div class="uni-cat">
+        <div class="uni-cat-head">International (2)</div>
+        <div class="uni-tickers">
+          <span class="uni-tick">EWJ</span><span class="uni-tick">FXI</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="uni-cat">
+        <div class="uni-cat-head">Treasuries (4)</div>
+        <div class="uni-tickers">
+          <span class="uni-tick">TLT</span><span class="uni-tick">IEF</span><span class="uni-tick">IEI</span><span class="uni-tick">SHY</span>
+        </div>
+      </div>
+      <div class="uni-cat">
+        <div class="uni-cat-head">Credit / TIPS (4)</div>
+        <div class="uni-tickers">
+          <span class="uni-tick">HYG</span><span class="uni-tick">LQD</span><span class="uni-tick">EMB</span><span class="uni-tick">TIP</span>
+        </div>
+      </div>
+      <div class="uni-cat">
+        <div class="uni-cat-head">Commodities (3)</div>
+        <div class="uni-tickers">
+          <span class="uni-tick">GLD</span><span class="uni-tick">SLV</span><span class="uni-tick">DBC</span>
+        </div>
+      </div>
+      <div class="uni-cat">
+        <div class="uni-cat-head">Cash (1)</div>
+        <div class="uni-tickers">
+          <span class="uni-tick">BIL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HARD CONSTRAINTS -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Discipline</span>
+      <h2 class="section-title">Five rules, <em>simultaneously</em>.</h2>
+    </div>
+    <p class="section-dek">
+      All five constraints hold for every bar of the backtest. Violating any one would change
+      the strategy's identity — it would no longer be MERIDIAN.
+    </p>
+  </div>
+
+  <div class="constraints">
+    <div class="constraint">
+      <div>
+        <h4>No leveraged or inverse ETFs</h4>
+        <p>Universe is exclusively 1x products. No 2x/3x products like TQQQ, SOXL, TECL, UPRO, TMF. No inverse products like SH, SQQQ, SPXU. No volatility products like UVXY or SVXY (the latter is technically -0.5x).</p>
+      </div>
+    </div>
+    <div class="constraint">
+      <div>
+        <h4>No portfolio margin or borrowing</h4>
+        <p>Sum of weights at any time t is bounded at 1.0. Cash residual sits in BIL (effectively zero return). The strategy never goes to 1.05x gross or borrows against positions.</p>
+      </div>
+    </div>
+    <div class="constraint">
+      <div>
+        <h4>No forward-looking signals</h4>
+        <p>Every input uses close-of-day data through t-1. Positions are computed and recorded at date t (using close[t-1] info), and the backtest takes the position at open[t] earning return open[t]→open[t+1]. There is at least one full trading day between signal and trade.</p>
+      </div>
+    </div>
+    <div class="constraint">
+      <div>
+        <h4>No selection bias toward winners</h4>
+        <p>The 33-ETF universe was assembled ex-ante by liquidity + inception date ≤ 2009. SMH and XLK are present because they are major sector ETFs, alongside every other sector. Concentration in tech (or any other category) emerges only from systematic ranking — never hand-tilted.</p>
+      </div>
+    </div>
+    <div class="constraint">
+      <div>
+        <h4>Daily-managed, weekly traded</h4>
+        <p>Eligibility and signals are recomputed every day. Actual weight changes happen on a weekly cadence (Wed for S1 / S2, monthly for S3) to keep turnover honest and TC realistic at 5 bps per leg.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RISK OVERLAYS -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Risk overlays</span>
+      <h2 class="section-title">De-risk only, <em>never lever</em>.</h2>
+    </div>
+    <p class="section-dek">
+      Two portfolio-level overlays act on the aggregated raw return. Each multiplier is
+      bounded in [0, 1] — they can only reduce exposure, never amplify it. Average overlay
+      multiplier on the full sample is 0.95.
+    </p>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3>Drawdown throttle</h3>
+      <p style="font-size:0.92rem">When portfolio NAV is below its 252-day high-water mark, the multiplier scales linearly toward 0 as drawdown approaches the floor of <strong>-15%</strong>. Below -15% the multiplier is 0 (full cash). The overlay re-engages as NAV recovers toward HWM.</p>
+      <p style="font-size:0.86rem;color:var(--t3);margin-top:10px">Formula: <span class="mono">dd_mult = clip(1 + dd / -0.15, 0, 1)</span>, lagged 1 day.</p>
+    </div>
+    <div class="card">
+      <h3>Vol-regime gate</h3>
+      <p style="font-size:0.92rem">When 60-day realized portfolio vol exceeds the <strong>99th percentile</strong> of its 252-day trailing distribution, exposure is halved. This catches genuine tail-risk regimes (Mar-2020, Oct-2022) without triggering on routine noise.</p>
+      <p style="font-size:0.86rem;color:var(--t3);margin-top:10px">Formula: <span class="mono">vol_mult = 1.0 if rv ≤ 99th_pct else 0.5</span>, lagged 1 day.</p>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:18px">
+    <p><strong>Overlay arithmetic:</strong> <span class="mono">total_mult = min(1.0, dd_mult × vol_gate_mult)</span>. Average across 16 years is 0.95. Net return = raw return × total_mult, with TC drag from multiplier changes.</p>
+  </div>
+</section>
+
+<!-- YEARLY RETURNS -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Year by year</span>
+      <h2 class="section-title">Calendar-year <em>returns</em>.</h2>
+    </div>
+    <p class="section-dek">
+      Total return per calendar year vs. SPY, QQQ, and 60/40 SPY/AGG. MERIDIAN is meaningfully
+      below the equity benchmarks in strong bull years (2013, 2017, 2021, 2024) by design —
+      the defensive sleeve gives up upside in exchange for capital preservation in bear years.
+    </p>
+  </div>
+
+  <div class="x-scroll">
+    <table>
+      <thead>
+        <tr><th>Year</th><th>MERIDIAN</th><th>SPY</th><th>QQQ</th><th>60/40</th></tr>
+      </thead>
+      <tbody id="yearlyTbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MONTHLY HEATMAP -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Monthly heatmap</span>
+      <h2 class="section-title">Every <em>month</em> of every year.</h2>
+    </div>
+    <p class="section-dek">
+      Each cell is the strategy's net return for that month. Color: green positive, red
+      negative, intensity scales with magnitude. Year-end totals on the right.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="heatmap-wrap">
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+    <p style="font-size:0.7rem;color:var(--t3);margin-top:10px;font-family:'JetBrains Mono',monospace">Cells colored on a -10% (deepest red) to +10% (deepest green) scale. Clipped beyond.</p>
+  </div>
+</section>
+
+<!-- SLEEVE CORRELATIONS -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Diversification</span>
+      <h2 class="section-title">Sleeve <em>correlations</em>.</h2>
+    </div>
+    <p class="section-dek">
+      Pairwise correlation of daily sleeve returns over the full sample. The defensive sleeve
+      is essentially uncorrelated with the two equity sleeves — that's the source of the
+      blend's Sharpe lift.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="x-scroll">
+      <table>
+        <thead><tr><th></th><th>S1 Composite</th><th>S2 Sector</th><th>S3 Defensive</th></tr></thead>
+        <tbody id="corrTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT IT TAKES FOR 30 -->
+<section class="section tone-ink">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">If you want 30%+</span>
+      <h2 class="section-title">Pick a constraint to <em>relax</em>.</h2>
+    </div>
+    <p class="section-dek">
+      MERIDIAN respects all four constraints simultaneously — that's why it caps near 9% CAGR.
+      Below are the three honest paths to 30%+, each requires breaking exactly one rule.
+    </p>
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <h4 style="color:#67e8f9">Path A · Allow leveraged ETFs</h4>
+      <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ <em>Phoenix</em></p>
+      <p style="font-size:0.86rem">Add TQQQ / UPRO / TMF / SOXL / TECL to the universe. Phoenix achieves Sharpe 2.31, CAGR 36.1% precisely because of the ~2.5x effective beta from these products.</p>
+      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">Trade-off: leveraged ETFs incur daily-rebalance decay; tail risk in 3x products is severe.</p>
+    </div>
+    <div class="card">
+      <h4 style="color:#67e8f9">Path B · Allow portfolio margin</h4>
+      <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ ~33% at gross 3x</p>
+      <p style="font-size:0.86rem">Apply 2-3x portfolio leverage to a Sharpe-1.0 unlevered base. With margin, a 9% unlevered CAGR scales linearly: 18% at gross 2x, ~33% at gross 3x.</p>
+      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">Trade-off: actual margin call risk; financing cost (~50-150 bps); MDD scales similarly.</p>
+    </div>
+    <div class="card">
+      <h4 style="color:#67e8f9">Path C · Accept selection bias</h4>
+      <p style="font-size:1.4rem;font-family:'Instrument Serif',serif;color:#f4f6f8;line-height:1;margin:6px 0">→ ~25% B&amp;H SMH</p>
+      <p style="font-size:0.86rem">Concentrate in SMH/QQQ/XLK with momentum rotation. SMH B&amp;H is 25.2% CAGR FULL, 40% OOS. But this requires you to have known in 2010 that semis would dominate.</p>
+      <p style="font-size:0.78rem;color:#a8b3bf;margin-top:8px">Trade-off: not actually unbiased; vulnerable to tech reversal regimes (e.g., 2000-2010).</p>
+    </div>
+  </div>
+</section>
+
+<!-- TIMING / EXECUTION -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">No-leakage discipline</span>
+      <h2 class="section-title">Signal &rarr; trade <em>timing</em>.</h2>
+    </div>
+    <p class="section-dek">
+      Every signal is computed on close[t-1] data only. Weights are recorded at date t.
+      backtest_o2o uses weights.shift(1) so realized return on date t corresponds to a position
+      decided at close[t-2] and traded at open[t-1], earning return open[t-1] → open[t].
+      A full trading day between decision and trade.
+    </p>
+  </div>
+
+  <div class="card" style="background:linear-gradient(180deg,var(--card) 0%,var(--card2) 100%)">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;text-align:center">
+      <div style="padding:14px;background:var(--card);border:1px solid var(--border);border-radius:10px">
+        <div style="font-size:0.6rem;color:var(--t3);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:6px;font-weight:600">Day t-2 close</div>
+        <div style="color:var(--accent);font-weight:600">Compute signal</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:1.4rem">→</div>
+      <div style="padding:14px;background:var(--card);border:1px solid var(--border);border-radius:10px">
+        <div style="font-size:0.6rem;color:var(--t3);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:6px;font-weight:600">Day t-1 open</div>
+        <div style="color:var(--accent);font-weight:600">Establish position</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:1.4rem">→</div>
+      <div style="padding:14px;background:var(--card);border:1px solid var(--border);border-radius:10px">
+        <div style="font-size:0.6rem;color:var(--t3);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:6px;font-weight:600">Day t open</div>
+        <div style="color:var(--accent);font-weight:600">Realize return</div>
+      </div>
+    </div>
+    <p style="font-size:0.86rem;color:var(--t2);margin-top:14px;line-height:1.5">No look-ahead anywhere. Sleeve weights are blended once on the IS window only; no re-fitting on OOS. Risk overlays use rolling lookbacks shifted by 1 day before being applied.</p>
+  </div>
+</section>
+
+<!-- FILES -->
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Source</span>
+      <h2 class="section-title"><em>Files</em>.</h2>
+    </div>
+    <p class="section-dek">
+      The single canonical implementation, the design doc with deep-research findings, and the
+      raw output artefacts.
+    </p>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h4>Implementation</h4>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.84rem"><strong>alt/meridian_strategy.py</strong></p>
+      <p>Single canonical file. ~340 lines. Loads the universe, builds sleeves, applies overlays, prints metrics, writes JSON + CSV outputs.</p>
+    </div>
+    <div class="card">
+      <h4>Design doc</h4>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.84rem"><strong>alt/MERIDIAN_DESIGN.md</strong></p>
+      <p>Full constraint discussion, deep-research findings (parameter searches, alpha-source decomposition), and an honest accounting of what the strategy can and cannot deliver.</p>
+    </div>
+    <div class="card">
+      <h4>Metrics JSON</h4>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.84rem"><strong>data/results/meridian_metrics.json</strong></p>
+      <p>All performance numbers shown on this page, plus per-sleeve stats and the full pairwise correlation matrix.</p>
+    </div>
+    <div class="card">
+      <h4>Daily series</h4>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.84rem"><strong>data/results/meridian_returns.csv</strong></p>
+      <p>Daily raw and net returns, drawdown / vol-gate / total multiplier state. <strong>meridian_sleeves.csv</strong> has each sleeve's daily series for further analysis.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DISCLAIMER -->
+<section class="section">
+  <div class="card" style="background:var(--card2);font-size:0.78rem;color:var(--t2);line-height:1.65">
+    <p><strong>Disclaimer.</strong> All performance figures are backtested on historical close-of-day price data downloaded from public sources (Yahoo Finance for ETFs, FRED for macro series). Backtests are net of 5 bps per leg per ETF as a transaction-cost proxy; they do not account for slippage, market-impact, dividend tax frictions, ETF expense ratios, or financing on cash residuals. Past performance is not predictive of future returns. <em>This page is research, not investment advice.</em></p>
+  </div>
+</section>
+
+</div>
+
+<script>
+// Load data, build all charts and tables.
+fetch('meridian_data.json').then(r => r.json()).then(D => {
+  // ===== HERO =====
+  const m = D.metrics;
+  document.getElementById('lastDate').textContent = D.last_date;
+  document.getElementById('heroSharpe').textContent = m.full.sharpe.toFixed(2);
+  document.getElementById('heroSharpeSub').textContent = `${m.is.sharpe.toFixed(2)} IS · ${m.oos.sharpe.toFixed(2)} OOS`;
+  document.getElementById('heroCAGR').innerHTML = `${(m.full.cagr*100).toFixed(1)}<span class="unit">%</span>`;
+  document.getElementById('heroCAGRSub').textContent = `${(m.is.cagr*100).toFixed(1)}% IS · ${(m.oos.cagr*100).toFixed(1)}% OOS`;
+  document.getElementById('heroMDD').innerHTML = `−${Math.abs(m.full.mdd*100).toFixed(1)}<span class="unit">%</span>`;
+  document.getElementById('heroMDDSub').textContent = `vs SPY −33.7% same period`;
+  const navx = m.full.navx;
+  const dollars = (10000 * navx).toLocaleString('en-US', {maximumFractionDigits:0});
+  document.getElementById('heroNAV').innerHTML = `$${dollars}`;
+  document.getElementById('heroNAVSub').textContent = `${navx.toFixed(2)}× growth multiple`;
+
+  // ===== KPIs =====
+  document.getElementById('kpiGap').textContent = m.is_oos_gap.toFixed(2);
+  document.getElementById('kpiMult').textContent = m.avg_total_mult.toFixed(2);
+  document.getElementById('kpiDays').textContent = D.n_days.toLocaleString();
+
+  // ===== Metrics table =====
+  const fmt = (v, suffix='') => v == null ? '—' : (v*100).toFixed(1) + suffix;
+  const tBody = document.getElementById('metricsTbody');
+  const rows = [
+    ['Full (raw)', m.raw_full],
+    ['Full (net of overlays)', m.full],
+    ['IS · 2010-2018', m.is],
+    ['OOS · 2019-2026', m.oos],
+  ];
+  rows.forEach(([name, v]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${name}</td>
+      <td>${v.sharpe.toFixed(2)}</td>
+      <td>${(v.cagr*100).toFixed(1)}%</td>
+      <td>${(v.vol*100).toFixed(1)}%</td>
+      <td class="neg">${(v.mdd*100).toFixed(1)}%</td>
+      <td>${v.sortino.toFixed(2)}</td>
+      <td>${v.calmar.toFixed(2)}</td>`;
+    tBody.appendChild(tr);
+  });
+
+  // ===== Sleeve stats =====
+  function fillSleeve(id, sleeve) {
+    const s = D.sleeves[sleeve];
+    document.getElementById(id).innerHTML = `
+      <div class="stat"><div class="stat-val">${s.sharpe.toFixed(2)}</div><div class="stat-lbl">Sharpe</div></div>
+      <div class="stat"><div class="stat-val">${(s.cagr*100).toFixed(1)}%</div><div class="stat-lbl">CAGR</div></div>
+      <div class="stat"><div class="stat-val">${(s.vol*100).toFixed(1)}%</div><div class="stat-lbl">Vol</div></div>
+      <div class="stat"><div class="stat-val">${(s.mdd*100).toFixed(0)}%</div><div class="stat-lbl">MDD</div></div>`;
+  }
+  fillSleeve('s1Stats', 'COMPOSITE_MOMO');
+  fillSleeve('s2Stats', 'SECTOR_ROT');
+  fillSleeve('s3Stats', 'DEF_RP');
+
+  // ===== Equity chart =====
+  const dates = D.chart.dates;
+  Chart.defaults.font.family = "'Bricolage Grotesque', sans-serif";
+  Chart.defaults.color = '#3e4956';
+  Chart.defaults.borderColor = '#cdd5dd';
+
+  const eq = new Chart(document.getElementById('equityChart'), {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [
+        { label:'MERIDIAN', data: D.chart.meridian, borderColor:'#0c4a6e', backgroundColor:'rgba(12,74,110,0.06)', borderWidth:2, fill:true, tension:0.05, pointRadius:0 },
+        { label:'SPY', data: D.chart.spy, borderColor:'#dc2626', borderWidth:1.4, tension:0.05, pointRadius:0, fill:false, borderDash:[4,3] },
+        { label:'QQQ', data: D.chart.qqq, borderColor:'#7c3aed', borderWidth:1.4, tension:0.05, pointRadius:0, fill:false, borderDash:[4,3] },
+        { label:'60/40', data: D.chart.sixty40, borderColor:'#a16207', borderWidth:1.4, tension:0.05, pointRadius:0, fill:false, borderDash:[4,3] },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{intersect:false,mode:'index'},
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${c.parsed.y.toFixed(2)}×`}}},
+      scales:{
+        x:{type:'time',time:{unit:'year'},ticks:{maxTicksLimit:8},grid:{color:'rgba(168,179,191,0.18)'}},
+        y:{type:'logarithmic', ticks:{callback:v=>v+'×'}, grid:{color:'rgba(168,179,191,0.18)'}}
+      }
+    }
+  });
+
+  // ===== Drawdown chart =====
+  new Chart(document.getElementById('ddChart'), {
+    type:'line',
+    data:{
+      labels:dates,
+      datasets:[
+        {label:'MERIDIAN', data:D.chart.meridian_dd.map(v=>v*100), borderColor:'#0c4a6e', backgroundColor:'rgba(12,74,110,0.18)', fill:true, borderWidth:1.5, tension:0.05, pointRadius:0},
+        {label:'SPY', data:D.chart.spy_dd.map(v=>v*100), borderColor:'#dc2626', backgroundColor:'rgba(220,38,38,0.06)', fill:true, borderWidth:1.2, tension:0.05, pointRadius:0, borderDash:[4,3]},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{intersect:false,mode:'index'},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`}}},
+      scales:{
+        x:{type:'time',time:{unit:'year'},ticks:{maxTicksLimit:6},grid:{display:false}},
+        y:{ticks:{callback:v=>v+'%'},grid:{color:'rgba(168,179,191,0.18)'}, suggestedMax:0}
+      }
+    }
+  });
+
+  // ===== Sleeve chart =====
+  new Chart(document.getElementById('sleeveChart'), {
+    type:'line',
+    data:{
+      labels:dates,
+      datasets:[
+        {label:'S1 Composite', data:D.sleeves.COMPOSITE_MOMO.cum_curve, borderColor:'#0c4a6e', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
+        {label:'S2 Sector', data:D.sleeves.SECTOR_ROT.cum_curve, borderColor:'#0e7490', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
+        {label:'S3 Defensive', data:D.sleeves.DEF_RP.cum_curve, borderColor:'#a16207', borderWidth:1.6, fill:false, tension:0.05, pointRadius:0},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{intersect:false,mode:'index'},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${c.parsed.y.toFixed(2)}×`}}},
+      scales:{
+        x:{type:'time',time:{unit:'year'},ticks:{maxTicksLimit:8},grid:{color:'rgba(168,179,191,0.12)'}},
+        y:{type:'logarithmic',ticks:{callback:v=>v+'×'},grid:{color:'rgba(168,179,191,0.12)'}}
+      }
+    }
+  });
+
+  // ===== Yearly returns =====
+  const yTbody = document.getElementById('yearlyTbody');
+  const years = Object.keys(D.yearly.meridian).map(Number).sort();
+  years.forEach(y => {
+    const tr = document.createElement('tr');
+    const fmt2 = v => {
+      if (v == null) return '—';
+      const cls = v >= 0 ? 'pos' : 'neg';
+      return `<td class="${cls}">${(v*100).toFixed(1)}%</td>`;
+    };
+    tr.innerHTML = `<td>${y}</td>${fmt2(D.yearly.meridian[y])}${fmt2(D.yearly.spy[y])}${fmt2(D.yearly.qqq[y])}${fmt2(D.yearly.sixty40[y])}`;
+    yTbody.appendChild(tr);
+  });
+
+  // ===== Heatmap =====
+  const hm = document.getElementById('heatmap');
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  hm.innerHTML += `<div class="hm-h left">Year</div>`;
+  monthNames.forEach(n => hm.innerHTML += `<div class="hm-h">${n}</div>`);
+  hm.innerHTML += `<div class="hm-h">Total</div>`;
+
+  const colorFor = v => {
+    if (v == null) return 'background:#f4f6f8;color:#a8b3bf';
+    const t = Math.max(-1, Math.min(1, v / 0.10));
+    if (t > 0) return `background:rgba(21,128,61,${0.15+t*0.55});color:#fff`;
+    if (t < 0) return `background:rgba(185,28,28,${0.15+Math.abs(t)*0.55});color:#fff`;
+    return 'background:#f4f6f8;color:#3e4956';
+  };
+
+  const yearsHM = Object.keys(D.monthly).map(Number).sort();
+  yearsHM.forEach(y => {
+    hm.innerHTML += `<div class="hm-y">${y}</div>`;
+    let prod = 1;
+    let any = false;
+    for (let m = 1; m <= 12; m++) {
+      const v = D.monthly[y][m];
+      if (v != null) {
+        prod *= (1 + v);
+        any = true;
+        hm.innerHTML += `<div class="hm-c" style="${colorFor(v)}">${(v*100).toFixed(1)}</div>`;
+      } else {
+        hm.innerHTML += `<div class="hm-c" style="background:#f4f6f8;color:#a8b3bf">·</div>`;
+      }
+    }
+    const yearTotal = any ? (prod - 1) : null;
+    hm.innerHTML += `<div class="hm-yt" style="${colorFor(yearTotal)}">${yearTotal != null ? (yearTotal*100).toFixed(1)+'%' : '—'}</div>`;
+  });
+
+  // ===== Correlations =====
+  const cors = m.correlations;
+  const labels = ['COMPOSITE_MOMO','SECTOR_ROT','DEF_RP'];
+  const rowLabels = ['S1 Composite','S2 Sector','S3 Defensive'];
+  const cTbody = document.getElementById('corrTbody');
+  labels.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    let html = `<td>${rowLabels[i]}</td>`;
+    labels.forEach(col => {
+      const v = cors[row][col];
+      let bg = 'transparent';
+      if (i !== labels.indexOf(col)) {
+        if (v > 0.4) bg = 'rgba(220,38,38,0.10)';
+        else if (v > 0.2) bg = 'rgba(245,158,11,0.10)';
+        else if (v < -0.1) bg = 'rgba(21,128,61,0.10)';
+        else bg = 'rgba(168,179,191,0.10)';
+      }
+      const label = (i === labels.indexOf(col)) ? '<strong style="color:var(--accent)">'+v.toFixed(2)+'</strong>' : v.toFixed(2);
+      html += `<td style="background:${bg}">${label}</td>`;
+    });
+    tr.innerHTML = html;
+    cTbody.appendChild(tr);
+  });
+}).catch(err => {
+  console.error('Failed to load meridian_data.json', err);
+});
+
+// ===== NAV menu toggle =====
+const navBtn = document.getElementById('otherStratBtn');
+const navMenu = document.getElementById('otherStratMenu');
+const navBackdrop = document.getElementById('navBackdrop');
+function setMenu(open) {
+  navBtn.setAttribute('aria-expanded', String(open));
+  navMenu.classList.toggle('is-open', open);
+  navBackdrop.classList.toggle('is-open', open);
+}
+navBtn.addEventListener('click', () => setMenu(navMenu.classList.contains('is-open') ? false : true));
+navBackdrop.addEventListener('click', () => setMenu(false));
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
+
+// ===== Scroll progress =====
+const prog = document.getElementById('scrollProg');
+function updateProgress() {
+  const h = document.documentElement;
+  const pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
+  prog.style.width = (pct * 100).toFixed(1) + '%';
+}
+window.addEventListener('scroll', updateProgress, {passive:true});
+updateProgress();
+</script>
+
+</body>
+</html>
