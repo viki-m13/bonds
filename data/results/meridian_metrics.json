@@ -1,10 +1,11 @@
 {
   "params": {
+    "tc_bps": 3.0,
     "dd_floor": -0.15,
+    "dd_win": 252,
     "vol_gate_pct": 0.99,
     "vol_gate_lb": 252,
-    "tc_bps": 5.0,
-    "rule": "Equal-weighted 3-sleeve ensemble: COMPOSITE-MOMO (top-2 by 42d/126d/risk-adj rank, broad 33-ETF), SECTOR-ROT (top-3 sector cross-sectional with SPY-trend gate), DEF-RP (inverse-vol {TLT,GLD,IEF} when SPY<200dSMA).",
+    "rule": "Two-sleeve daily TOP-1: FAST (21d momo) + SLOW (126d momo) on 33-ETF universe at 50/50 equal weight. Gross == 1.0; no margin; no levered ETFs.",
     "universe": [
       "SPY",
       "QQQ",
@@ -41,77 +42,68 @@
       "DBC"
     ],
     "sleeves": [
-      "COMPOSITE_MOMO",
-      "SECTOR_ROT",
-      "DEF_RP"
+      "FAST_21",
+      "SLOW_126"
     ]
   },
   "weights": {
-    "COMPOSITE_MOMO": 0.3333333333333333,
-    "SECTOR_ROT": 0.3333333333333333,
-    "DEF_RP": 0.3333333333333333
+    "FAST_21": 0.5,
+    "SLOW_126": 0.5
   },
   "full": {
     "name": "FULL",
-    "sharpe": 0.9234,
-    "cagr": 0.0885,
-    "vol": 0.0969,
-    "mdd": -0.1427,
-    "sortino": 1.1898,
-    "calmar": 0.6203,
+    "sharpe": 0.8839,
+    "cagr": 0.2089,
+    "vol": 0.2501,
+    "mdd": -0.3687,
+    "sortino": 1.1904,
+    "calmar": 0.5665,
     "n": 4263,
-    "navx": 4.1984
+    "navx": 24.7473
   },
   "is": {
     "name": "IS",
-    "sharpe": 0.6365,
-    "cagr": 0.0522,
-    "vol": 0.0857,
-    "mdd": -0.1427,
-    "sortino": 0.7818,
-    "calmar": 0.3658,
+    "sharpe": 0.7276,
+    "cagr": 0.1484,
+    "vol": 0.2251,
+    "mdd": -0.3687,
+    "sortino": 0.9596,
+    "calmar": 0.4025,
     "n": 2346,
-    "navx": 1.6059
+    "navx": 3.6254
   },
   "oos": {
     "name": "OOS",
-    "sharpe": 1.2132,
-    "cagr": 0.1347,
-    "vol": 0.1091,
-    "mdd": -0.1248,
-    "sortino": 1.6484,
-    "calmar": 1.0796,
+    "sharpe": 1.049,
+    "cagr": 0.2875,
+    "vol": 0.2777,
+    "mdd": -0.2805,
+    "sortino": 1.4526,
+    "calmar": 1.0249,
     "n": 1916,
-    "navx": 2.6144
+    "navx": 6.8282
   },
   "raw_full": {
     "name": "RAW_FULL",
-    "sharpe": 0.89,
-    "cagr": 0.0913,
-    "vol": 0.1043,
-    "mdd": -0.1392,
-    "sortino": 1.1129,
-    "calmar": 0.6559,
+    "sharpe": 0.7933,
+    "cagr": 0.2006,
+    "vol": 0.2807,
+    "mdd": -0.3948,
+    "sortino": 1.0027,
+    "calmar": 0.5082,
     "n": 4263,
-    "navx": 4.3829
+    "navx": 22.0518
   },
-  "is_oos_gap": 0.5767000000000001,
-  "avg_total_mult": 0.9459300961764016,
+  "is_oos_gap": 0.3213999999999999,
+  "avg_total_mult": 0.9465165376495426,
   "correlations": {
-    "COMPOSITE_MOMO": {
-      "COMPOSITE_MOMO": 1.0,
-      "SECTOR_ROT": 0.587,
-      "DEF_RP": 0.116
+    "FAST_21": {
+      "FAST_21": 1.0,
+      "SLOW_126": 0.549
     },
-    "SECTOR_ROT": {
-      "COMPOSITE_MOMO": 0.587,
-      "SECTOR_ROT": 1.0,
-      "DEF_RP": -0.009
-    },
-    "DEF_RP": {
-      "COMPOSITE_MOMO": 0.116,
-      "SECTOR_ROT": -0.009,
-      "DEF_RP": 1.0
+    "SLOW_126": {
+      "FAST_21": 0.549,
+      "SLOW_126": 1.0
     }
   }
 }
