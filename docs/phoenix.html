@@ -111,13 +111,12 @@ strong,b{font-weight:600}
 .nav-backdrop{position:fixed;inset:0;background:rgba(14,10,7,0.4);backdrop-filter:blur(2px);z-index:55;opacity:0;pointer-events:none;transition:opacity .25s ease}
 .nav-backdrop.is-open{opacity:1;pointer-events:auto}
 
-/* === DYNAMIC ISLAND (live signal status) === */
-.island{position:sticky;top:60px;z-index:40;display:flex;justify-content:center;pointer-events:none;margin-top:-44px;margin-bottom:14px}
-.island .pill{pointer-events:auto;display:inline-flex;align-items:center;gap:10px;padding:7px 14px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:0.74rem;font-weight:500;font-family:'Bricolage Grotesque',sans-serif;box-shadow:0 14px 40px -14px rgba(14,10,7,0.55);border:1px solid rgba(255,255,255,.04);transition:transform .25s var(--bezier-emph),background .2s,opacity .25s;cursor:pointer;backdrop-filter:blur(8px)}
-.island .pill:hover{transform:translateY(-1px) scale(1.02);background:var(--ember)}
-.island .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:livedot 1.6s ease-in-out infinite}
-.island .pill .num{font-family:'JetBrains Mono',monospace;color:#fbbf24;font-weight:600}
-.island.is-hidden{opacity:0;transform:translateY(-8px);pointer-events:none}
+/* === LIVE STATUS CHIP (inside masthead) === */
+.brand .status{display:inline-flex;align-items:center;gap:8px;padding:5px 11px 5px 9px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:0.7rem;font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 88,"wght" 500;letter-spacing:0.04em;border-left:1px solid var(--rule);margin-left:6px;text-decoration:none;transition:background .2s, transform .2s var(--bezier-emph);min-height:28px;border:1px solid var(--ink)}
+.brand .status:hover{background:var(--ember);border-color:var(--ember);transform:translateY(-1px)}
+.brand .status .dot{width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:livedot 1.6s ease-in-out infinite;flex:0 0 auto}
+.brand .status .lbl{opacity:0.85}
+.brand .status .num{font-family:'JetBrains Mono',monospace;color:#fbbf24;font-weight:600;letter-spacing:0.02em}
 
 /* === PAGE WRAPPER === */
 .page{max-width:1240px;margin:0 auto;padding:0 28px 80px;position:relative;--page-pad:28px}
@@ -145,7 +144,7 @@ strong,b{font-weight:600}
 
 /* Hero stats — overlapping cards */
 .hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:30px;border:1px solid var(--rule);border-radius:18px;background:var(--card);overflow:hidden;box-shadow:var(--shadow-2);position:relative}
-.hero-stats::before{content:"PHOENIX · 2010 — 2026 · LIVE";position:absolute;top:-1px;left:18px;font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:0.24em;color:var(--ink);background:var(--card);padding:0 10px;transform:translateY(-50%)}
+.hero-stats::before{display:none}
 .hero-stat{padding:26px 22px 22px;border-right:1px solid var(--border);position:relative}
 .hero-stat:last-child{border-right:none}
 .hero-stat .label{font-family:'Bricolage Grotesque',sans-serif;font-size:0.6rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--t3);font-variation-settings:"wdth" 85,"wght" 600}
@@ -154,17 +153,6 @@ strong,b{font-weight:600}
 .hero-stat .val .unit{font-size:0.5em;color:var(--t3);font-style:italic}
 .hero-stat .sub{font-size:0.72rem;color:var(--t3);margin-top:8px;font-family:'JetBrains Mono',monospace}
 
-/* Marquee ticker */
-.ticker{margin-top:22px;background:var(--ink);color:var(--paper);border-radius:14px;overflow:hidden;position:relative;height:52px;display:flex;align-items:center}
-.ticker::before,.ticker::after{content:"";position:absolute;top:0;bottom:0;width:60px;z-index:2;pointer-events:none}
-.ticker::before{left:0;background:linear-gradient(90deg,var(--ink),transparent)}
-.ticker::after{right:0;background:linear-gradient(270deg,var(--ink),transparent)}
-.ticker-track{display:flex;gap:48px;padding:0 28px;white-space:nowrap;animation:ticker 38s linear infinite;font-family:'JetBrains Mono',monospace;font-size:0.85rem;letter-spacing:0.04em}
-.ticker-track:hover{animation-play-state:paused}
-.ticker-track span{display:inline-flex;align-items:center;gap:10px}
-.ticker-track .key{color:#fbbf24;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.18em}
-.ticker-track .pos{color:#22c55e}.ticker-track .neg{color:#ef4444}
-@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
 /* === FEATURE FRAMES === */
 .feature{padding:96px 0 28px;border-top:1px dashed var(--rule);margin-top:8px;position:relative;scroll-margin-top:90px}
@@ -307,9 +295,21 @@ th:first-child{text-align:left}
 td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;color:var(--ink-2);font-family:'JetBrains Mono',monospace;font-size:0.84rem}
 td:first-child{text-align:left;font-weight:500;font-family:'Bricolage Grotesque',sans-serif;color:var(--ink)}
 tr:last-child td{border-bottom:none}
+tr{transition:background .2s var(--bezier-emph)}
 tr:hover td{background:var(--paper)}
+tr:hover td:first-child{box-shadow:inset 3px 0 0 var(--ember)}
 .pos{color:var(--green);font-weight:600}
 .neg{color:var(--red);font-weight:600}
+
+/* Cursor-follow ember dot (desktop only, non-touch) */
+.cursor-dot{position:fixed;top:0;left:0;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fbbf24 0%,#c2410c 70%);pointer-events:none;z-index:80;mix-blend-mode:multiply;opacity:0;transform:translate(-50%,-50%);transition:opacity .25s, width .2s var(--bezier-emph), height .2s var(--bezier-emph);will-change:transform}
+.cursor-dot.is-show{opacity:0.65}
+.cursor-dot.is-link{width:38px;height:38px;mix-blend-mode:normal;background:rgba(194,65,12,0.18);border:1px solid var(--ember);opacity:1}
+@media (hover:none){.cursor-dot{display:none}}
+@media (pointer:coarse){.cursor-dot{display:none}}
+
+/* Hero scroll-blur — content gently softens as it leaves viewport */
+.hero{will-change:filter,opacity}
 
 /* === KPI === */
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
@@ -333,8 +333,12 @@ tr:hover td{background:var(--paper)}
 /* === SLEEVE CARDS === */
 .sleeve-rail{position:relative;margin:0 -28px}
 .sleeve-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;padding:0 28px}
-.sleeve{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:transform .3s var(--bezier-emph), box-shadow .3s var(--bezier-emph), border-color .2s;cursor:pointer}
-.sleeve:hover{transform:translateY(-4px);box-shadow:var(--shadow-2);border-color:var(--ember)}
+.sleeve{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:transform .35s var(--bezier-emph), box-shadow .35s var(--bezier-emph), border-color .2s;cursor:pointer;isolation:isolate}
+.sleeve::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 80% -10%, rgba(194,65,12,0.18) 0%, transparent 60%);opacity:0;transition:opacity .4s var(--bezier-emph);z-index:-1}
+.sleeve:hover{transform:translateY(-6px);box-shadow:var(--shadow-2);border-color:var(--ember)}
+.sleeve:hover::before{opacity:1}
+.sleeve:hover .num{transform:translateY(-2px) rotate(-3deg);color:var(--ember);opacity:1}
+.sleeve .num{transition:transform .4s var(--bezier-emph), color .3s, opacity .3s}
 .sleeve .num{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;font-size:3.4rem;line-height:1;color:var(--ember);opacity:0.7;position:absolute;right:18px;top:14px;letter-spacing:-0.04em}
 .sleeve .name{font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 80,"wght" 700;font-size:0.92rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink)}
 .sleeve .role{font-family:'Instrument Serif',serif;font-style:italic;font-size:1.05rem;color:var(--ember);margin:4px 0 10px}
@@ -386,17 +390,6 @@ button.btn.ember:hover{background:var(--ember-deep)}
 .section-title em{color:var(--ember);font-style:italic}
 .section-title .stnum{font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.18em;color:var(--t3);font-variation-settings:"wght" 500;text-transform:uppercase}
 
-/* === MID-PAGE MARQUEE BANDS === */
-.band{margin:48px calc(-1 * var(--page-pad,28px)) 8px;background:var(--ink);color:#f5efe2;overflow:hidden;position:relative;height:62px;display:flex;align-items:center;border-top:1px solid #2a221c;border-bottom:1px solid #2a221c}
-.band.ember{background:var(--ember);color:#fff;border-color:#7c2d12}
-.band.cream{background:var(--paper-2);color:var(--ink);border-color:var(--rule)}
-.band-track{display:flex;gap:48px;padding:0 24px;white-space:nowrap;animation:band 32s linear infinite;font-family:'Instrument Serif',serif;font-style:italic;font-size:1.5rem;letter-spacing:-0.01em}
-.band.ember .band-track{font-family:'Bricolage Grotesque',sans-serif;font-style:normal;font-variation-settings:"wdth" 80,"wght" 700;font-size:0.85rem;letter-spacing:0.18em;text-transform:uppercase}
-.band.cream .band-track{color:var(--ember)}
-.band-track:hover{animation-play-state:paused}
-.band-track span{display:inline-flex;align-items:center;gap:14px}
-.band-track .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.5}
-@keyframes band{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
 /* Animated hairline that draws on scroll-into-view */
 .draw-rule{position:relative;height:1px;background:transparent;margin:32px 0 0;overflow:visible}
@@ -411,7 +404,46 @@ button.btn.ember:hover{background:var(--ember-deep)}
 /* Decorative section badge / cover label */
 .badge-rotate{display:inline-block;background:var(--ember);color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 80,"wght" 700;font-size:0.66rem;letter-spacing:0.18em;text-transform:uppercase;padding:6px 12px;border-radius:6px;transform:rotate(-2deg);box-shadow:0 6px 16px -8px rgba(194,65,12,.6)}
 
-/* Cover image / hero illustration container */
+/* === EDITORIAL SPREADS — fashion-magazine cover-style art per section === */
+.spread{position:relative;border-radius:18px;overflow:hidden;margin:8px 0 28px;aspect-ratio:16/7;min-height:200px;border:1px solid var(--rule);transition:transform .4s var(--bezier-emph), box-shadow .4s var(--bezier-emph);will-change:transform}
+.spread:hover{transform:scale(1.005);box-shadow:var(--shadow-2)}
+/* Different gradient mesh moods per spread type — like editorial photography */
+.spread.s-ember{background:
+  radial-gradient(ellipse 60% 80% at 18% 30%, rgba(251,191,36,0.6) 0%, transparent 60%),
+  radial-gradient(ellipse 80% 60% at 80% 70%, rgba(194,65,12,0.85) 0%, transparent 60%),
+  radial-gradient(circle at 50% 90%, rgba(124,45,18,0.7) 0%, transparent 70%),
+  linear-gradient(120deg,#fef3c7 0%,#fcd34d 30%,#c2410c 70%,#3b1306 100%)}
+.spread.s-night{background:
+  radial-gradient(ellipse 70% 60% at 75% 30%, rgba(251,191,36,0.7) 0%, transparent 55%),
+  radial-gradient(ellipse 50% 70% at 25% 80%, rgba(194,65,12,0.8) 0%, transparent 55%),
+  linear-gradient(160deg,#1a130d 0%,#3b1306 40%,#7c2d12 70%,#c2410c 100%)}
+.spread.s-paper{background:
+  radial-gradient(ellipse 70% 80% at 30% 30%, rgba(251,191,36,0.45) 0%, transparent 60%),
+  radial-gradient(ellipse 60% 70% at 80% 80%, rgba(194,65,12,0.5) 0%, transparent 60%),
+  linear-gradient(150deg,#fef3c7 0%,#fde68a 50%,#fbbf24 100%)}
+.spread.s-cool{background:
+  radial-gradient(ellipse 70% 60% at 25% 25%, rgba(253,230,138,0.7) 0%, transparent 60%),
+  radial-gradient(ellipse 60% 80% at 80% 75%, rgba(194,65,12,0.4) 0%, transparent 60%),
+  linear-gradient(140deg,#fde68a 0%,#f3ede2 50%,#fbf8f0 100%)}
+.spread.s-mono{background:
+  radial-gradient(ellipse 70% 80% at 50% 50%, rgba(124,45,18,0.65) 0%, transparent 65%),
+  linear-gradient(180deg,#0e0a07 0%,#16110d 100%)}
+.spread::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='nz'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23nz)'/></svg>");mix-blend-mode:overlay;opacity:0.5;pointer-events:none}
+.spread::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%, rgba(14,10,7,0.2) 100%);pointer-events:none}
+/* Sliding light shimmer — moves slowly across like a film camera */
+.spread .shimmer{position:absolute;top:0;left:-30%;width:35%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,253,247,0.18),transparent);transform:skewX(-12deg);animation:shimmer 18s linear infinite;pointer-events:none}
+@keyframes shimmer{0%{left:-40%}55%{left:120%}100%{left:120%}}
+/* Spread caption — magazine credit line */
+.spread .credit{position:absolute;bottom:18px;left:22px;color:#faf6ef;font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 85,"wght" 600;font-size:0.66rem;letter-spacing:0.22em;text-transform:uppercase;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.4);z-index:2}
+.spread .credit b{color:#fbbf24}
+.spread .credit-tr{position:absolute;top:18px;right:22px;color:#faf6ef;font-family:'Instrument Serif',serif;font-style:italic;font-size:1.1rem;letter-spacing:-0.01em;opacity:0.95;text-shadow:0 1px 4px rgba(0,0,0,0.4);z-index:2}
+.spread .label-big{position:absolute;left:22px;top:50%;transform:translateY(-50%);color:#faf6ef;font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(2rem,5vw,4rem);letter-spacing:-0.02em;line-height:0.95;text-shadow:0 2px 16px rgba(0,0,0,0.35);z-index:2;max-width:60%}
+.spread .label-big em{font-style:italic;color:#fbbf24}
+.spread.s-paper .label-big,.spread.s-paper .credit,.spread.s-paper .credit-tr,.spread.s-cool .label-big,.spread.s-cool .credit,.spread.s-cool .credit-tr{color:var(--ink-2);text-shadow:none}
+.spread.s-paper .label-big em,.spread.s-cool .label-big em{color:var(--ember)}
+.spread.s-paper .credit b,.spread.s-cool .credit b{color:var(--ember)}
+
+/* Legacy cover-art kept for backward-compat */
 .cover-art{position:relative;height:min(360px,38vw);background:radial-gradient(ellipse at 30% 50%, rgba(251,191,36,0.5) 0%, transparent 55%), radial-gradient(ellipse at 70% 60%, rgba(194,65,12,0.5) 0%, transparent 55%), radial-gradient(circle at 50% 50%, rgba(124,45,18,0.6) 0%, transparent 70%);border-radius:18px;margin:14px 0 24px;overflow:hidden;border:1px solid var(--rule)}
 .cover-art::after{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n2'><feTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.06 0 0 0 0 0.04 0 0 0 0 0.02 0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n2)'/></svg>");opacity:0.5;mix-blend-mode:overlay;pointer-events:none}
 .cover-art .caption{position:absolute;left:18px;bottom:16px;color:#faf6ef;font-family:'Bricolage Grotesque',sans-serif;font-variation-settings:"wdth" 88,"wght" 600;font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;opacity:0.85}
@@ -434,7 +466,14 @@ button.btn.ember:hover{background:var(--ember-deep)}
 /* === MOBILE — out of the box === */
 @media (max-width:680px){
   body{font-size:14.5px}
-  .page{padding:0 18px 90px;--page-pad:18px}
+  .page{padding:0 18px 100px;--page-pad:18px}
+  /* Mobile: hide brand issue chip + live status chip in nav (too cramped) */
+  .brand .status{display:none}
+  /* Editorial spreads adapt to mobile */
+  .spread{aspect-ratio:5/3;min-height:180px;border-radius:14px}
+  .spread .label-big{font-size:1.7rem;left:18px;max-width:80%}
+  .spread .credit{left:18px;bottom:14px;font-size:0.6rem}
+  .spread .credit-tr{top:14px;right:18px;font-size:0.92rem}
   .band{height:52px;margin:24px calc(-1 * var(--page-pad,18px)) 0}
   .band-track{font-size:1.05rem;gap:28px;padding:0 16px}
   .band.ember .band-track{font-size:0.7rem;letter-spacing:0.16em}
@@ -545,17 +584,25 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </head>
 <body>
 
+<!-- Cursor-follow dot (desktop) -->
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+
 <!-- Scroll progress -->
 <div class="progressbar" aria-hidden="true"><i id="scrollProg"></i></div>
 
 <!-- STICKY MASTHEAD NAV -->
 <nav class="topbar" aria-label="Primary">
   <div class="topbar-inner">
-    <a href="phoenix.html" class="brand" aria-label="Phoenix home">
+    <span class="brand" aria-label="Phoenix home">
       <span class="glyph" aria-hidden="true"></span>
-      <span class="word">P<b>h</b>oenix</span>
+      <a class="word" href="phoenix.html">P<b>h</b>oenix</a>
       <span class="issue" id="brandIssue">Vol. 01 · Live</span>
-    </a>
+      <a id="liveIsland" class="status" href="#live" data-scroll aria-live="polite">
+        <span class="dot"></span>
+        <span class="lbl">Today's signal</span>
+        <span class="num" id="islandTrades">—</span>
+      </a>
+    </span>
     <div class="nav-actions">
       <a href="phoenix.html" class="nav-pill is-current" aria-current="page">Phoenix</a>
       <button id="otherStratBtn"
@@ -583,14 +630,6 @@ button.btn.ember:hover{background:var(--ember-deep)}
     </div>
   </div>
 </nav>
-
-<!-- DYNAMIC ISLAND -->
-<div class="island" id="liveIsland" aria-live="polite">
-  <a class="pill" href="#live" data-scroll>
-    <span class="dot"></span>
-    Today's signal · <span class="num" id="islandTrades">— trades</span>
-  </a>
-</div>
 
 <!-- DESKTOP SECTION RAIL -->
 <aside class="section-rail" aria-label="Sections">
@@ -647,33 +686,12 @@ button.btn.ember:hover{background:var(--ember-deep)}
     </div>
   </div>
 
-  <!-- Marquee ticker -->
-  <div class="ticker reveal delay-3" aria-hidden="true">
-    <div class="ticker-track">
-      <span><span class="key">Sortino</span> 3.42</span>
-      <span><span class="key">Calmar</span> 2.05</span>
-      <span><span class="key">Vol</span> 13.78%</span>
-      <span><span class="key">OOS Sharpe 95% CI</span> [1.31, 2.87]</span>
-      <span><span class="key">2008 GFC</span> <i class="pos">+4.1%</i></span>
-      <span><span class="key">Max gross</span> 100% · no margin</span>
-      <span><span class="key">Bootstrap p</span> &lt; 0.0001</span>
-      <span><span class="key">Turnover</span> ~15×/yr</span>
-      <!-- duplicate for seamless loop -->
-      <span><span class="key">Sortino</span> 3.42</span>
-      <span><span class="key">Calmar</span> 2.05</span>
-      <span><span class="key">Vol</span> 13.78%</span>
-      <span><span class="key">OOS Sharpe 95% CI</span> [1.31, 2.87]</span>
-      <span><span class="key">2008 GFC</span> <i class="pos">+4.1%</i></span>
-      <span><span class="key">Max gross</span> 100% · no margin</span>
-      <span><span class="key">Bootstrap p</span> &lt; 0.0001</span>
-      <span><span class="key">Turnover</span> ~15×/yr</span>
-    </div>
-  </div>
 </section>
 
 <!-- ========== 01 · LIVE SIGNAL ========== -->
 <section class="feature tone-paper" id="live">
   <div class="folio">N° <b>01</b> · The Daily Brief · 01</div>
+  <div class="spread s-ember" aria-hidden="true"><span class="shimmer"></span><div class="credit-tr">The Daily Brief</div><div class="label-big"><em>Today’s ticket</em></div><div class="credit"><b>N°&nbsp;01</b> · Signal · Close[T-1]</div></div>
   <div class="feature-num">01</div>
   <div class="feature-head">
     <div class="lbl">
@@ -804,6 +822,7 @@ button.btn.ember:hover{background:var(--ember-deep)}
 <!-- ========== 02 · PAPER TRADING ========== -->
 <section class="feature tone-cream" id="paper">
   <div class="folio">N° <b>02</b> · Live Track Record · 02</div>
+  <div class="spread s-cool" aria-hidden="true"><span class="shimmer"></span><div class="credit-tr">Live Track Record</div><div class="label-big"><em>Real opens, real fills</em></div><div class="credit"><b>N°&nbsp;02</b> · Paper trader</div></div>
   <div class="feature-num">02</div>
   <div class="feature-head">
     <div class="lbl">
@@ -872,6 +891,7 @@ button.btn.ember:hover{background:var(--ember-deep)}
 <!-- ========== 03 · WHAT-IF SIMULATOR ========== -->
 <section class="feature tone-paper" id="simulator">
   <div class="folio">N° <b>03</b> · The Calculator · 03</div>
+  <div class="spread s-paper" aria-hidden="true"><span class="shimmer"></span><div class="credit-tr">The Calculator</div><div class="label-big"><em>Pick a dollar</em></div><div class="credit"><b>N°&nbsp;03</b> · What-if simulator</div></div>
   <div class="feature-num">03</div>
   <div class="feature-head">
     <div class="lbl">
@@ -947,26 +967,10 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 04 · PLAIN ENGLISH EXPLAINER ========== -->
-<!-- ITALIC SERIF MARQUEE BAND between Simulator and Plain English -->
-<div class="band cream" aria-hidden="true">
-  <div class="band-track">
-    <span><i>Five sleeves.</i></span><span class="dot"></span>
-    <span><i>One blended portfolio.</i></span><span class="dot"></span>
-    <span><i>Three safety brakes.</i></span><span class="dot"></span>
-    <span><i>No margin.</i></span><span class="dot"></span>
-    <span><i>No borrowing.</i></span><span class="dot"></span>
-    <span><i>No shorting.</i></span><span class="dot"></span>
-    <span><i>Five sleeves.</i></span><span class="dot"></span>
-    <span><i>One blended portfolio.</i></span><span class="dot"></span>
-    <span><i>Three safety brakes.</i></span><span class="dot"></span>
-    <span><i>No margin.</i></span><span class="dot"></span>
-    <span><i>No borrowing.</i></span><span class="dot"></span>
-    <span><i>No shorting.</i></span><span class="dot"></span>
-  </div>
-</div>
 
 <section class="feature tone-paper" id="how">
   <div class="folio">N° <b>04</b> · The Method · 04</div>
+  <div class="spread s-cool" aria-hidden="true"><span class="shimmer"></span><div class="credit-tr">The Method</div><div class="label-big"><em>In plain English</em></div><div class="credit"><b>N°&nbsp;04</b> · Five sleeves</div></div>
   <div class="feature-num">04</div>
   <div class="feature-head">
     <div class="lbl">
@@ -1080,24 +1084,10 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 05 · STRATEGY ARCHITECTURE ========== -->
-<!-- EMBER UPPERCASE MARQUEE between Plain English and Architecture -->
-<div class="band ember" aria-hidden="true">
-  <div class="band-track">
-    <span>The mechanics</span><span class="dot"></span>
-    <span>Vol-targeted to 15%</span><span class="dot"></span>
-    <span>Drawdown-throttled at &minus;10%</span><span class="dot"></span>
-    <span>Vol-gated at the 99th percentile</span><span class="dot"></span>
-    <span>Close[t&minus;1] · open[t]</span><span class="dot"></span>
-    <span>The mechanics</span><span class="dot"></span>
-    <span>Vol-targeted to 15%</span><span class="dot"></span>
-    <span>Drawdown-throttled at &minus;10%</span><span class="dot"></span>
-    <span>Vol-gated at the 99th percentile</span><span class="dot"></span>
-    <span>Close[t&minus;1] · open[t]</span><span class="dot"></span>
-  </div>
-</div>
 
 <section class="feature tone-cream" id="architecture">
   <div class="folio">N° <b>05</b> · The Architecture · 05</div>
+  <div class="spread s-ember" aria-hidden="true"><span class="shimmer"></span><div class="credit-tr">The Architecture</div><div class="label-big"><em>Mechanics</em></div><div class="credit"><b>N°&nbsp;05</b> · Vol-target 15%</div></div>
   <div class="feature-num">05</div>
   <div class="feature-head">
     <div class="lbl">
@@ -1183,6 +1173,7 @@ button.btn.ember:hover{background:var(--ember-deep)}
 <!-- ========== 06 · BY THE NUMBERS ========== -->
 <section class="feature tone-paper" id="numbers">
   <div class="folio">N° <b>06</b> · By the Numbers · 06</div>
+  <div class="spread s-night" aria-hidden="true"><span class="shimmer"></span><div class="credit-tr">By the Numbers</div><div class="label-big"><em>The full picture</em></div><div class="credit"><b>N°&nbsp;06</b> · 2010 → 2026</div></div>
   <div class="feature-num">06</div>
   <div class="feature-head">
     <div class="lbl">
@@ -1250,24 +1241,10 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 07 · CALENDAR + COMPOSITION ========== -->
-<!-- ITALIC MARQUEE between Numbers and Composition -->
-<div class="band cream" aria-hidden="true">
-  <div class="band-track">
-    <span><i>Sharpe 2.31.</i></span><span class="dot"></span>
-    <span><i>OOS 2.09.</i></span><span class="dot"></span>
-    <span><i>Bootstrap p &lt; 0.0001.</i></span><span class="dot"></span>
-    <span><i>2008 GFC: max drawdown −1.3%.</i></span><span class="dot"></span>
-    <span><i>$10k → $1.69M over 16 years.</i></span><span class="dot"></span>
-    <span><i>Sharpe 2.31.</i></span><span class="dot"></span>
-    <span><i>OOS 2.09.</i></span><span class="dot"></span>
-    <span><i>Bootstrap p &lt; 0.0001.</i></span><span class="dot"></span>
-    <span><i>2008 GFC: max drawdown −1.3%.</i></span><span class="dot"></span>
-    <span><i>$10k → $1.69M over 16 years.</i></span><span class="dot"></span>
-  </div>
-</div>
 
 <section class="feature tone-paper" id="composition">
   <div class="folio">N° <b>07</b> · The Calendar · 07</div>
+  <div class="spread s-paper" aria-hidden="true"><span class="shimmer"></span><div class="credit-tr">The Calendar</div><div class="label-big"><em>Year by year</em></div><div class="credit"><b>N°&nbsp;07</b> · Composition</div></div>
   <div class="feature-num">07</div>
   <div class="feature-head">
     <div class="lbl">
@@ -1367,24 +1344,10 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </section>
 
 <!-- ========== 08 · ROBUSTNESS TESTS ========== -->
-<!-- INK BAND before Robustness — magazine pause/punctuation -->
-<div class="band ember" aria-hidden="true">
-  <div class="band-track">
-    <span>Stress tests</span><span class="dot"></span>
-    <span>7 formal protocols</span><span class="dot"></span>
-    <span>Survivorship · TC · Perturbation</span><span class="dot"></span>
-    <span>Walk-forward · Bootstrap</span><span class="dot"></span>
-    <span>ML ablation · 2008 GFC</span><span class="dot"></span>
-    <span>Stress tests</span><span class="dot"></span>
-    <span>7 formal protocols</span><span class="dot"></span>
-    <span>Survivorship · TC · Perturbation</span><span class="dot"></span>
-    <span>Walk-forward · Bootstrap</span><span class="dot"></span>
-    <span>ML ablation · 2008 GFC</span><span class="dot"></span>
-  </div>
-</div>
 
 <section class="feature tone-ink" id="robustness">
   <div class="folio" style="color:#bdb094">N° <b style="color:#fbbf24">08</b> · The Stress Tests · 08</div>
+  <div class="spread s-mono" aria-hidden="true"><span class="shimmer"></span><div class="credit-tr">The Stress Tests</div><div class="label-big"><em>Seven protocols</em></div><div class="credit"><b>N°&nbsp;08</b> · Bootstrap p<0.0001</div></div>
   <div class="feature-num">08</div>
   <div class="feature-head">
     <div class="lbl">
@@ -1731,17 +1694,7 @@ button.btn.ember:hover{background:var(--ember-deep)}
     counts.forEach(function(el){ cObs.observe(el); });
   }
 
-  // Hide dynamic island when live section is on screen
-  var island = document.getElementById('liveIsland');
-  var liveSec = document.getElementById('live');
-  if (island && liveSec && 'IntersectionObserver' in window){
-    var iObs = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        island.classList.toggle('is-hidden', e.isIntersecting);
-      });
-    }, {threshold:0.15});
-    iObs.observe(liveSec);
-  }
+  // (Live status chip lives inline in the masthead — no longer hidden on scroll)
 
   // Update island count once LIVE data settles (the main script populates liveTradesTable)
   function updateIslandFromLive(){
@@ -1750,10 +1703,9 @@ button.btn.ember:hover{background:var(--ember-deep)}
     var label = document.getElementById('islandTrades');
     if (!label) return;
     if (n === 0){
-      // Either no-trades, or LIVE not present yet — peek at "no trades" indicator
       var nt = document.getElementById('liveNoTrades');
-      if (nt && nt.style.display !== 'none') label.textContent = 'no trades';
-      else label.textContent = '— signal';
+      if (nt && nt.style.display !== 'none') label.textContent = 'hold';
+      else label.textContent = '—';
     } else {
       label.textContent = n + (n === 1 ? ' trade' : ' trades');
     }
@@ -1783,6 +1735,60 @@ button.btn.ember:hover{background:var(--ember-deep)}
   }, {passive:true});
   window.addEventListener('resize', rafParallax);
   rafParallax();
+
+  // Cursor-follow dot (desktop only)
+  var cdot = document.getElementById('cursorDot');
+  if (cdot && window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+    var cx = 0, cy = 0, tx = 0, ty = 0, raf = false;
+    function moveDot(){
+      cx += (tx - cx) * 0.18;
+      cy += (ty - cy) * 0.18;
+      cdot.style.transform = 'translate(' + cx + 'px,' + cy + 'px) translate(-50%,-50%)';
+      if (Math.abs(tx - cx) > 0.1 || Math.abs(ty - cy) > 0.1) requestAnimationFrame(moveDot);
+      else raf = false;
+    }
+    document.addEventListener('mousemove', function(e){
+      tx = e.clientX; ty = e.clientY;
+      cdot.classList.add('is-show');
+      if (!raf){ raf = true; requestAnimationFrame(moveDot); }
+    });
+    document.addEventListener('mouseleave', function(){ cdot.classList.remove('is-show'); });
+    // Enlarge over interactive elements
+    var hoverSel = 'a, button, .nav-pill, .preset, .sleeve, .kpi, summary, input';
+    document.querySelectorAll(hoverSel).forEach(function(el){
+      el.addEventListener('mouseenter', function(){ cdot.classList.add('is-link'); });
+      el.addEventListener('mouseleave', function(){ cdot.classList.remove('is-link'); });
+    });
+  }
+
+  // Cinematic hero — gently fade & blur as you scroll past
+  var heroEl = document.querySelector('.hero');
+  if (heroEl){
+    function heroFx(){
+      var rect = heroEl.getBoundingClientRect();
+      var p = Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height)));
+      heroEl.style.opacity = (1 - p * 0.9).toFixed(3);
+      heroEl.style.filter = 'blur(' + (p * 4).toFixed(2) + 'px)';
+    }
+    document.addEventListener('scroll', function(){ requestAnimationFrame(heroFx); }, {passive:true});
+    heroFx();
+  }
+
+  // Spread parallax — slight zoom + drift on scroll
+  var spreads = document.querySelectorAll('.spread');
+  function spreadFx(){
+    var vh = window.innerHeight || 800;
+    spreads.forEach(function(s){
+      var rect = s.getBoundingClientRect();
+      var center = rect.top + rect.height/2;
+      var d = (center - vh/2) / vh;
+      d = Math.max(-1, Math.min(1, d));
+      var bg = s.querySelector('.label-big');
+      if (bg) bg.style.transform = 'translateY(calc(-50% + ' + (d * 18).toFixed(1) + 'px))';
+    });
+  }
+  document.addEventListener('scroll', function(){ requestAnimationFrame(spreadFx); }, {passive:true});
+  spreadFx();
 
   // Animated draw-rule reveal
   var rules = document.querySelectorAll('.draw-rule');
