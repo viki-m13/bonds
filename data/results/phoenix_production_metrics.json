@@ -47,8 +47,8 @@
     "n": 1916
   },
   "is_oos_gap": 0.3738,
-  "avg_total_mult": 0.8531192672763185,
-  "avg_vol_target_mult": 0.8928691878678154,
+  "avg_total_mult": 0.8531192672763181,
+  "avg_vol_target_mult": 0.892869187867815,
   "correlations": {
     "VANGUARD": {
       "VANGUARD": 1.0,
