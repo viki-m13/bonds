@@ -1,59 +1,54 @@
-"""MERIDIAN — Strict-no-leverage broad-universe tactical strategy.
+"""MERIDIAN — Strict-no-leverage daily-managed broad-universe tactical strategy.
 
 Hard constraints (in priority order):
   1. NEVER hold any leveraged or inverse ETF (no 2x/3x/-1x products).
   2. NEVER use portfolio-level margin or borrowing. Sum of weights at any
-     time t is exactly 1.0 (cash residual goes to BIL).
+     time t is bounded at 1.0 (cash residual goes to BIL).
   3. NEVER use forward-looking data. All signals computed on close[t-1];
      positions established at open[t]; returns earned open[t]→open[t+1].
-  4. NO selection bias toward winners. The universe is fixed ex-ante to
-     a broad set of 30+ liquid 1x ETFs spanning every major asset class
-     and region. The strategy never preferentially weights tech, gold,
-     or any other category by hand — sector concentration emerges only
-     from the systematic momentum rules applied uniformly to all members.
+  4. NO selection bias toward winners. The universe is fixed ex-ante to a
+     broad set of 33 liquid 1x ETFs spanning every major asset class and
+     region. Sector concentration emerges only from systematic momentum
+     rules applied uniformly to all members.
+  5. Daily-managed eligibility checks; weekly rebalance to keep turnover
+     manageable.
 
-Universe (fixed ex-ante, 31 broad 1x ETFs)
-==========================================
-  Broad equity         : SPY, QQQ, IWM, EFA, EEM
-  US sectors           : XLK, XLY, XLP, XLU, XLV, XLE, XLF, XLI, XLB
-  Sub-sectors          : SMH, XBI, ITB, XHB, TAN, VNQ
-  International        : EWJ, FXI
-  Treasuries           : TLT, IEF, IEI, SHY
-  Credit / TIPS        : HYG, LQD, EMB, TIP
-  Commodities          : GLD, SLV, DBC
-
-The fixed universe was chosen by liquidity and 2010-2018 inception only —
-not by ex-post performance. SMH and XLK appear in the universe BECAUSE
-they are major sector ETFs available since 2005 alongside every other
-major sector ETF; the strategy could equally well have sat in XLU or
-XLE or DBC if those had the strongest momentum at any moment.
+Universe (fixed ex-ante by liquidity and inception)
+===================================================
+33 ETFs across asset classes:
+  Broad equity (5)   : SPY, QQQ, IWM, EFA, EEM
+  US sectors (9)     : XLK, XLY, XLP, XLU, XLV, XLE, XLF, XLI, XLB
+  Sub-sectors (6)    : SMH, XBI, ITB, XHB, TAN, VNQ
+  International (2)  : EWJ, FXI
+  Treasuries (4)     : TLT, IEF, IEI, SHY
+  Credit/TIPS (4)    : HYG, LQD, EMB, TIP
+  Commodities (3)    : GLD, SLV, DBC
 
 Strategy
 ========
 Three rule-based sleeves applied uniformly across the entire universe.
-None of the sleeves is hand-tilted toward a specific asset class.
 
-  S1 BROAD-MOMO       — Top-K cross-asset momentum (NO sector tilt).
-                        Daily check; weekly rebalance.
-  S2 SECTOR-ROTATION  — Top-K cross-sectional sector rotation.
-                        Daily check; weekly rebalance.
-  S3 RISK-PARITY-DEF  — Inverse-vol of {TLT, GLD, IEF} when in stress;
-                        cash otherwise.
+  S1 COMPOSITE-MOMO   — top-2 by composite of (42d momo rank, 126d momo
+                        rank, 126d/63d-vol risk-adjusted rank). Eligibility:
+                        positive 6-month return AND > 200d SMA.
+                        Daily check, weekly rebalance.
 
-Aggregation: weights of S1, S2, S3 are EQUAL (1/3 each). No IS-fitted
-blending — the only IS-tuned parameter is the lookback length, chosen
-once and then frozen for OOS.
+  S2 SECTOR-ROTATION  — top-3 cross-sectional sector momentum on 9 SPDRs;
+                        SPY > 200d SMA gate. Daily check, weekly rebalance.
 
-Each sleeve allocates 100% of its capital between ETFs and BIL. Total
-portfolio gross is exactly 1.0. No margin. No shorting. No leveraged
-products. Sleeves are completely systematic — every decision flows from
-price history of the universe with no manual asset selection.
+  S3 DEFENSIVE-RP     — inverse-vol blend of {TLT, GLD, IEF}, active only
+                        when SPY < 200d SMA. Monthly rebalance.
 
-Risk overlays at portfolio level (de-risk only):
-  - Drawdown throttle: linear scale toward zero as NAV falls below
-    the 252d HWM, floor at -15%.
-  - Vol-regime gate: halve exposure when 60d realized vol exceeds the
-    99th percentile of the 252d trailing distribution.
+Aggregator
+==========
+EQUAL weights (1/3 each). No IS-fitted blending.
+Total portfolio gross is exactly 1.0. No margin.
+
+Risk overlays at portfolio level (de-risk only, multipliers in [0, 1]):
+  - Drawdown throttle: linear scale toward zero as NAV falls below the
+    252d HWM, floor at -15%.
+  - Vol-regime gate: halve exposure when 60d realized vol > 99th
+    percentile of 252d trailing distribution.
 """
 from __future__ import annotations
 from pathlib import Path
@@ -78,9 +73,6 @@ VOL_GATE_PCT = 0.99
 VOL_GATE_LOOKBACK = 252
 VOL_WIN = 60
 
-# ============================================================================
-# Universe — fixed ex-ante by liquidity and inception, NOT by ex-post returns.
-# ============================================================================
 BROAD_EQUITY = ["SPY", "QQQ", "IWM", "EFA", "EEM"]
 SECTORS = ["XLK", "XLY", "XLP", "XLU", "XLV", "XLE", "XLF", "XLI", "XLB"]
 SUB_SECTORS = ["SMH", "XBI", "ITB", "XHB", "TAN", "VNQ"]
@@ -91,12 +83,9 @@ COMMODITY = ["GLD", "SLV", "DBC"]
 
 UNIVERSE = (BROAD_EQUITY + SECTORS + SUB_SECTORS + INTL +
             TREASURY + CREDIT_TIPS + COMMODITY)
-DEFENSIVE = ["TLT", "GLD", "IEF"]   # used by S3
+DEFENSIVE = ["TLT", "GLD", "IEF"]
 
 
-# ============================================================================
-# Data loaders
-# ============================================================================
 def load_etf(t: str) -> pd.DataFrame | None:
     p = ETF / f"{t}.csv"
     if not p.exists():
@@ -146,9 +135,6 @@ def metrics(r: pd.Series, name: str = "") -> dict:
                 n=int(len(r)), navx=round(float(cum.iloc[-1]), 4))
 
 
-# ============================================================================
-# Backtest helper
-# ============================================================================
 def backtest_o2o(weights: pd.DataFrame, opens: pd.DataFrame,
                  tc_bps: float = TC_BPS) -> tuple[pd.Series, pd.Series]:
     w = weights.reindex(columns=opens.columns).fillna(0.0)
@@ -185,24 +171,26 @@ def monthly_rebalance(idx, weights):
 
 
 # ============================================================================
-# S1 — BROAD-MOMO: top-K by combined momentum across the entire universe.
-# Universe is the full 31-ETF list. Picks emerge purely from price history.
+# S1 — COMPOSITE-MOMO (broad universe)
+# Composite of 42d momentum rank, 126d momentum rank, 126d/63d-vol Sharpe rank.
 # ============================================================================
-def sleeve_broad_momo(top_k: int = 5) -> pd.Series:
+def sleeve_composite_momo(top_k: int = 2) -> pd.Series:
     o, c = panel(UNIVERSE + ["BIL"])
     cl = c.shift(1)
-    # Combined momentum = average of 60d, 126d, 252d returns (each ETF
-    # judged on the same yardstick — no ETF-specific tuning).
-    momo60 = cl[UNIVERSE].pct_change(60)
-    momo126 = cl[UNIVERSE].pct_change(126)
-    momo252 = cl[UNIVERSE].pct_change(252)
-    sig = (momo60 + momo126 + momo252) / 3.0
+    momo_short = cl[UNIVERSE].pct_change(42)
+    momo_long = cl[UNIVERSE].pct_change(126)
+    vol_lb = 63
+    daily_rets = cl[UNIVERSE].pct_change()
+    vol_63 = daily_rets.rolling(vol_lb).std()
+    risk_adj = momo_long / vol_63
 
-    # Eligibility: positive 6-month return AND price > 200d SMA.
+    # Rank-based composite (each component scored as percentile rank)
+    sig = (momo_short.rank(axis=1, pct=True) +
+           momo_long.rank(axis=1, pct=True) +
+           risk_adj.rank(axis=1, pct=True)) / 3.0
+
     sma200 = cl[UNIVERSE].rolling(200).mean()
-    eligible = (momo126 > 0) & (cl[UNIVERSE] > sma200)
-
-    # Top-K by signal among eligibles
+    eligible = (momo_long > 0) & (cl[UNIVERSE] > sma200)
     rk = sig.where(eligible).rank(axis=1, ascending=False, method="first")
     pick = (rk <= top_k).astype(float)
     n = pick.sum(axis=1).replace(0, np.nan)
@@ -219,23 +207,21 @@ def sleeve_broad_momo(top_k: int = 5) -> pd.Series:
 
 
 # ============================================================================
-# S2 — SECTOR-ROTATION: top-K cross-sectional momentum on the 9 SPDR sectors.
-# Universe is the full 9-sector grid; no tilt toward any one sector.
+# S2 — SECTOR-ROTATION (cross-sectional, 9 SPDRs)
 # ============================================================================
 def sleeve_sector_rotation(top_k: int = 3) -> pd.Series:
     o, c = panel(SECTORS + ["SPY", "BIL"])
     cl = c.shift(1)
-    momo63 = cl[SECTORS].pct_change(63)
-    momo126 = cl[SECTORS].pct_change(126)
-    sig = (momo63 + momo126) / 2.0
+    momo_3m = cl[SECTORS].pct_change(63)
+    momo_6m = cl[SECTORS].pct_change(126)
+    sig = (momo_3m + momo_6m) / 2.0
     sma200 = cl[SECTORS].rolling(200).mean()
-    eligible = (momo126 > 0) & (cl[SECTORS] > sma200)
+    eligible = (momo_6m > 0) & (cl[SECTORS] > sma200)
     rk = sig.where(eligible).rank(axis=1, ascending=False, method="first")
     pick = (rk <= top_k).astype(float)
     n = pick.sum(axis=1).replace(0, np.nan)
     w_eq = pick.div(n, axis=0).fillna(0.0)
 
-    # SPY-trend gate: only deploy when broad market in uptrend
     spy = cl["SPY"]
     on = (spy > spy.rolling(200).mean()).astype(float)
     w_eq = w_eq.mul(on, axis=0)
@@ -245,16 +231,13 @@ def sleeve_sector_rotation(top_k: int = 3) -> pd.Series:
         weights[col] = w_eq[col]
     weights["BIL"] = (1 - weights[SECTORS].sum(axis=1)).clip(lower=0)
     weights["SPY"] = 0.0
-
     held = weekly_rebalance(o.index, weights[SECTORS + ["BIL", "SPY"]], dow=2)
     ret, _ = backtest_o2o(held, o)
     return ret
 
 
 # ============================================================================
-# S3 — RISK-PARITY DEFENSIVE: inverse-vol blend of {TLT, GLD, IEF}.
-# Active only when SPY is below its 200d SMA (i.e., the macro environment
-# is "risk-off"). Acts as a counterweight to S1/S2 which are equity-biased.
+# S3 — DEFENSIVE RISK-PARITY (active only when SPY < 200d SMA)
 # ============================================================================
 def sleeve_def_risk_parity() -> pd.Series:
     o, c = panel(DEFENSIVE + ["SPY", "BIL"])
@@ -265,34 +248,28 @@ def sleeve_def_risk_parity() -> pd.Series:
     rets60 = cl[DEFENSIVE].pct_change().rolling(60).std()
     iv = 1.0 / rets60
     iv_w = iv.div(iv.sum(axis=1), axis=0).fillna(0.0)
-    # Eligible only if 60d return positive (avoid LT-bond crashes)
     momo60 = cl[DEFENSIVE].pct_change(60)
     iv_w = iv_w.where(momo60 > 0, 0.0)
 
     weights = pd.DataFrame(0.0, index=o.index, columns=DEFENSIVE + ["SPY", "BIL"])
     for col in DEFENSIVE:
         weights[col] = iv_w[col].mul(risk_off, axis=0).fillna(0.0)
-    # Symmetric: when risk-on, this sleeve is in BIL
     weights["BIL"] = (1 - weights[DEFENSIVE].sum(axis=1)).clip(lower=0)
     weights["SPY"] = 0.0
-
     held = monthly_rebalance(o.index, weights[DEFENSIVE + ["BIL", "SPY"]])
     ret, _ = backtest_o2o(held, o)
     return ret
 
 
-# ============================================================================
-# Aggregation: equal weights, no IS-fit. Total portfolio gross == 1.0.
-# ============================================================================
-SLEEVE_NAMES = ["BROAD_MOMO", "SECTOR_ROT", "DEF_RP"]
-SLEEVE_WEIGHTS = pd.Series({"BROAD_MOMO": 1/3, "SECTOR_ROT": 1/3, "DEF_RP": 1/3})
+SLEEVE_NAMES = ["COMPOSITE_MOMO", "SECTOR_ROT", "DEF_RP"]
+SLEEVE_WEIGHTS = pd.Series({"COMPOSITE_MOMO": 1/3, "SECTOR_ROT": 1/3, "DEF_RP": 1/3})
 
 
 def build_sleeves() -> pd.DataFrame:
     sl = {
-        "BROAD_MOMO": sleeve_broad_momo(),
+        "COMPOSITE_MOMO": sleeve_composite_momo(),
         "SECTOR_ROT": sleeve_sector_rotation(),
-        "DEF_RP":     sleeve_def_risk_parity(),
+        "DEF_RP": sleeve_def_risk_parity(),
     }
     df = pd.concat(sl, axis=1, sort=True).fillna(0.0)
     return df.loc[IS_START:]
@@ -301,7 +278,6 @@ def build_sleeves() -> pd.DataFrame:
 def apply_overlays(raw: pd.Series, dd_floor=DD_FLOOR, dd_win=DD_WIN,
                    vol_gate_pct=VOL_GATE_PCT, vol_gate_lb=VOL_GATE_LOOKBACK,
                    vol_win=VOL_WIN) -> tuple[pd.Series, pd.DataFrame]:
-    """Risk overlays — DE-RISK ONLY (multipliers in [0, 1])."""
     cum = (1 + raw).cumprod()
     hwm = cum.rolling(dd_win, min_periods=30).max()
     dd = (cum / hwm - 1)
@@ -322,18 +298,18 @@ def apply_overlays(raw: pd.Series, dd_floor=DD_FLOOR, dd_win=DD_WIN,
 
 
 def run_strategy() -> dict:
-    print(f"Universe: {len(UNIVERSE)} ETFs across {len(BROAD_EQUITY)+len(SECTORS)+len(SUB_SECTORS)+len(INTL)+len(TREASURY)+len(CREDIT_TIPS)+len(COMMODITY)} categories.")
+    print(f"Universe: {len(UNIVERSE)} ETFs, no selection bias.")
     print("Building sleeves...")
     sleeves = build_sleeves()
 
     print("\nPer-sleeve metrics:")
-    print(f"  {'sleeve':14s} {'IS Sh':>6s} {'OOS Sh':>6s} {'FULL Sh':>7s} "
+    print(f"  {'sleeve':16s} {'IS Sh':>6s} {'OOS Sh':>6s} {'FULL Sh':>7s} "
           f"{'CAGR':>7s} {'Vol':>6s} {'MDD':>6s}")
     for col in sleeves.columns:
         m_full = metrics(sleeves[col].loc[IS_START:])
         m_is = metrics(sleeves[col].loc[IS_START:IS_END])
         m_oos = metrics(sleeves[col].loc[OOS_START:])
-        print(f"  {col:14s}  {m_is['sharpe']:5.2f}  {m_oos['sharpe']:5.2f}  "
+        print(f"  {col:16s}  {m_is['sharpe']:5.2f}  {m_oos['sharpe']:5.2f}  "
               f"{m_full['sharpe']:6.2f}  {m_full['cagr']*100:5.1f}%  "
               f"{m_full['vol']*100:5.1f}%  {m_full['mdd']*100:5.1f}%")
 
@@ -352,7 +328,7 @@ def run_strategy() -> dict:
 
     print("\n" + "=" * 90)
     print("MERIDIAN — final metrics (no leverage; no margin; no levered ETFs;"
-          " broad universe; no selection bias)")
+          " unbiased universe)")
     print("=" * 90)
     for label, m in [("FULL (raw)", raw_full), ("FULL", m_full),
                      ("IS", m_is), ("OOS", m_oos)]:
@@ -366,11 +342,11 @@ def run_strategy() -> dict:
     out = {
         "params": {"dd_floor": DD_FLOOR, "vol_gate_pct": VOL_GATE_PCT,
                     "vol_gate_lb": VOL_GATE_LOOKBACK, "tc_bps": TC_BPS,
-                    "rule": ("Equal-weighted 3-sleeve ensemble: BROAD-MOMO (top-5 "
-                             "across 31-ETF universe), SECTOR-ROT (top-3 cross-"
-                             "sectional sectors), DEF-RP (inverse-vol "
-                             "{TLT,GLD,IEF} when SPY<200dSMA). No selection bias; "
-                             "no leverage; no margin; no levered ETFs."),
+                    "rule": ("Equal-weighted 3-sleeve ensemble: COMPOSITE-MOMO "
+                             "(top-2 by 42d/126d/risk-adj rank, broad 33-ETF), "
+                             "SECTOR-ROT (top-3 sector cross-sectional with "
+                             "SPY-trend gate), DEF-RP (inverse-vol "
+                             "{TLT,GLD,IEF} when SPY<200dSMA)."),
                     "universe": UNIVERSE, "sleeves": SLEEVE_NAMES},
         "weights": SLEEVE_WEIGHTS.to_dict(),
         "full": m_full, "is": m_is, "oos": m_oos, "raw_full": raw_full,
@@ -384,8 +360,7 @@ def run_strategy() -> dict:
         RES / "meridian_returns.csv", index=False)
     sleeves.reset_index().rename(columns={"index": "Date"}).to_csv(
         RES / "meridian_sleeves.csv", index=False)
-    print("\nSaved data/results/meridian_metrics.json, meridian_returns.csv, "
-          "meridian_sleeves.csv")
+    print("\nSaved data/results/meridian_metrics.json, meridian_returns.csv, meridian_sleeves.csv")
     return out
 
 
