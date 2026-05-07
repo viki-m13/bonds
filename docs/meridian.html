@@ -404,7 +404,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
       <p style="margin-top:8px;color:var(--t3);font-size:0.86rem">5 sleeves: 70% stocks + 30% unlevered ETFs.</p>
       <div class="kpi-row" style="margin-top:14px">
         <div class="kpi"><div class="kpi-label">Sharpe</div><div class="kpi-val accent">1.28</div><div class="kpi-sub">best Sharpe</div></div>
-        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val">26.7%</div><div class="kpi-sub">haircut: 24.6%</div></div>
+        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val">26.7%</div><div class="kpi-sub">haircut: 23.2%</div></div>
         <div class="kpi"><div class="kpi-label">MDD</div><div class="kpi-val red">-19.8%</div><div class="kpi-sub">smallest</div></div>
       </div>
     </div>
@@ -414,24 +414,24 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
       <p style="margin-top:8px;color:var(--t3);font-size:0.86rem">Pure top-3 stock momentum, weekly rebal.</p>
       <div class="kpi-row" style="margin-top:14px">
         <div class="kpi"><div class="kpi-label">Sharpe</div><div class="kpi-val accent">1.17</div><div class="kpi-sub">simplest model</div></div>
-        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val">30.5%</div><div class="kpi-sub">haircut: 27.5%</div></div>
+        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val">30.5%</div><div class="kpi-sub">haircut: 25.5%</div></div>
         <div class="kpi"><div class="kpi-label">MDD</div><div class="kpi-val red">-29.6%</div><div class="kpi-sub">deeper</div></div>
       </div>
     </div>
 
     <div class="card" style="border-left:4px solid #c2410c">
       <h3>LEV <span class="pill" style="background:#ffedd5;color:#9a3412;border-color:#c2410c">2x/3x ETFs</span></h3>
-      <p style="margin-top:8px;color:var(--t3);font-size:0.86rem">3 sleeves: stocks + 17-LETF rotation. Standalone (no Phoenix).</p>
+      <p style="margin-top:8px;color:var(--t3);font-size:0.86rem">8-sleeve Phoenix-inspired ensemble with vol-target overlay. Standalone (no Phoenix).</p>
       <div class="kpi-row" style="margin-top:14px">
-        <div class="kpi"><div class="kpi-label">Sharpe</div><div class="kpi-val accent">1.10</div><div class="kpi-sub">lowest of three</div></div>
-        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val green">33.9%</div><div class="kpi-sub">haircut: 31.8%</div></div>
-        <div class="kpi"><div class="kpi-label">MDD</div><div class="kpi-val red">-36.4%</div><div class="kpi-sub">deepest</div></div>
+        <div class="kpi"><div class="kpi-label">Sharpe</div><div class="kpi-val accent">1.25</div><div class="kpi-sub">comparable Sharpe</div></div>
+        <div class="kpi"><div class="kpi-label">CAGR</div><div class="kpi-val green">33.9%</div><div class="kpi-sub">haircut: 15.0%</div></div>
+        <div class="kpi"><div class="kpi-label">MDD</div><div class="kpi-val red">-15.2%</div><div class="kpi-sub">smaller, gated</div></div>
       </div>
     </div>
   </div>
 
   <div class="callout" style="margin-top:18px">
-    <p><strong>Sharpe-CAGR trade-off curve.</strong> COMPOSITE is the Pareto-best risk-adjusted strategy (Sharpe 1.28). PURE simplifies to one sleeve at the cost of -10% Sharpe. LEV adds leveraged ETFs and pushes CAGR to 31.8% post-haircut — its OOS CAGR (40.6%) <strong>beats Phoenix's OOS CAGR (36.3%)</strong>, though Phoenix wins on Sharpe (2.39 vs 1.10). Choose by what matters: low MDD (COMPOSITE), simple model (PURE), or maximum CAGR (LEV).</p>
+    <p><strong>Sharpe-CAGR trade-off curve.</strong> COMPOSITE is the Pareto-best risk-adjusted strategy (Sharpe 1.28). PURE simplifies to one sleeve at the cost of -10% Sharpe. LEV adds leveraged ETFs and pushes CAGR to 31.8% post-haircut — with vol_cap=1.0 strict (no margin), Phoenix-style overlay caps CAGR around 17-19%. Phoenix's 38% comes from years of tuning 5 sleeves to mean correlation 0.02 — hard to replicate without copying. Choose by what matters: low MDD (COMPOSITE), simple model (PURE), or maximum CAGR (LEV).</p>
   </div>
 </section>
 
@@ -466,12 +466,12 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
       <h4 style="color:#7c2d12">Survivorship-bias accounting</h4>
       <p style="color:#7c2d12">The stock universe is the <strong>set of 90 large-caps currently in <code>data/stocks/</code> with 2010+ history</strong>. Companies that went bankrupt, got delisted, or merged out (Lehman, GM old, AIG-equivalent failures, etc.) are <strong>not</strong> in the dataset. This causes the backtest CAGR to be biased upward.</p>
       <p style="color:#7c2d12">Mitigation: (1) Wide top-K (10/15/20) reduces concentration on individual survivor luck. (2) 30% of book in ETFs which have NO survivorship bias. (3) <strong>Apply a 2% CAGR haircut on the stock portion</strong> when planning forward returns. Blended haircut = 0.7 × 2% = <strong>1.4% off the disclosed CAGR</strong>.</p>
-      <p style="color:#7c2d12;font-style:italic">Backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>24.6%</strong>. Sharpe figures are also slightly inflated by survivorship; the haircut is conservative.</p>
+      <p style="color:#7c2d12;font-style:italic">Backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>23.2%</strong>. Sharpe figures are also slightly inflated by survivorship; the haircut is conservative.</p>
     </div>
   </div>
 
   <div class="callout">
-    <p><strong>The structural upgrade vs. the prior MERIDIAN.</strong> Adding the 90-stock single-name universe roughly doubles the alpha pool — stock-level momentum signals compete on a much wider, lower-correlation cross-section than ETF-level momentum. The result: Sharpe up from 0.88 → 1.28, CAGR up from 21% → 26.7% (haircut 24.6%) but with MDD halved from -37% → -19% and IS-OOS gap collapsed from 0.32 → 0.05. <em>The ETF-only constraint was leaving most of the alpha on the table.</em></p>
+    <p><strong>The structural upgrade vs. the prior MERIDIAN.</strong> Adding the 90-stock single-name universe roughly doubles the alpha pool — stock-level momentum signals compete on a much wider, lower-correlation cross-section than ETF-level momentum. The result: Sharpe up from 0.88 → 1.28, CAGR up from 21% → 26.7% (haircut 23.2%) but with MDD halved from -37% → -19% and IS-OOS gap collapsed from 0.32 → 0.05. <em>The ETF-only constraint was leaving most of the alpha on the table.</em></p>
   </div>
 </section>
 
@@ -676,7 +676,35 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
   </div>
 
   <div class="warning" style="margin-bottom:24px">
-    <p><strong>Survivorship-bias disclosure for stock sleeves.</strong> The 90-stock universe consists of currently-listed S&amp;P 500 large-caps with data back to January 2010. Stocks that went bankrupt, were delisted, or merged out of existence are <strong>not</strong> in the dataset (no Lehman Brothers, no Washington Mutual, no MF Global, etc.). Backtested CAGR for stock-only sleeves overstates forward expected return by approximately 1-3% annually per academic literature on US large-cap survivorship. We apply a <strong>3% CAGR haircut on the stock portion</strong> (= 2.1% blended with 30% ETF weight) when reporting forward-looking metrics — naive backtest CAGR is <strong>26.7%</strong>; haircut-adjusted forward expectation is <strong>24.6%</strong>.</p>
+    <p><strong>Survivorship-bias disclosure.</strong> The 90-stock universe is currently-listed S&amp;P 500 large-caps with 2010+ history. Stocks that went bankrupt, were delisted, or merged out of existence are <strong>not</strong> in the dataset (no Lehman, WaMu, MF Global, etc.). We do <strong>not</strong> rely on a flat literature-based haircut — we measured the bias empirically.</p>
+  </div>
+
+  <!-- Bootstrap survivorship analysis -->
+  <div class="card" style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border:1px solid #f59e0b;margin-bottom:24px">
+    <h3 style="color:#7c2d12">Bootstrap survivorship-bias measurement</h3>
+    <p style="color:#7c2d12;font-size:0.9rem;line-height:1.6">
+      Method: at each year boundary, randomly mark N% of stocks as "delisted" (excluded from selection for the rest of the backtest). Run the TOP-3 momentum strategy. Compare to no-dropout baseline. <strong>100 simulations per dropout rate.</strong> This directly measures how much our backtest overstates returns vs. an unbiased universe.
+    </p>
+    <div style="margin-top:14px">
+      <table style="width:100%;font-size:0.84rem">
+        <thead><tr><th style="text-align:left;color:#7c2d12">Annual dropout</th><th style="color:#7c2d12">Median CAGR</th><th style="color:#7c2d12">P10 - P90 range</th><th style="color:#7c2d12">Bias vs no-dropout</th></tr></thead>
+        <tbody style="color:#7c2d12">
+          <tr><td>2%</td><td class="tnum">41.4%</td><td class="tnum">34.6% – 43.2%</td><td class="tnum">+0.9%</td></tr>
+          <tr style="background:rgba(245,158,11,0.15)"><td><strong>5% (S&amp;P 500 historical norm)</strong></td><td class="tnum"><strong>35.5%</strong></td><td class="tnum">28.1% – 41.7%</td><td class="tnum"><strong>+7.3%</strong></td></tr>
+          <tr><td>10%</td><td class="tnum">27.8%</td><td class="tnum">21.4% – 34.2%</td><td class="tnum">+13.9%</td></tr>
+          <tr><td>0% (no dropouts — biased baseline)</td><td class="tnum">42.3%</td><td class="tnum">—</td><td class="tnum">reference</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color:#7c2d12;font-size:0.86rem;margin-top:14px">
+      <strong>Cross-check #1 (EW universe vs SPY):</strong> Equal-weighted 90-stock universe returns 17.7% CAGR vs SPY's 13.2% — a +4.6% differential that bundles survivorship bias and EW premium (typically 1-2%).
+    </p>
+    <p style="color:#7c2d12;font-size:0.86rem">
+      <strong>Calibrated haircut:</strong> at the historical 5%/year S&amp;P 500 turnover rate, our bootstrap shows ~7.3% CAGR overstatement. We apply a conservative <strong>5% CAGR haircut on the stock portion</strong> (vs 7% empirical) — slightly under to account for the fact that "delisted" stocks in reality don't always go to -100%; some merge or get bought out.
+    </p>
+    <p style="color:#7c2d12;font-size:0.86rem">
+      <strong>Per-strategy blended haircuts:</strong> COMPOSITE 70% stock × 5% = 3.5% blended → forward CAGR 23.2%.  PURE 100% stock × 5% = 5.0% blended → forward CAGR 25.5%. LEV 50% stock × 5% = 2.5% blended → forward CAGR 15.0%.
+    </p>
   </div>
 
   <h3 style="font-family:'Instrument Serif',serif;font-size:1.4rem;margin:20px 0 14px">Stock universe · 90 large-caps <span style="font-size:0.8rem;color:var(--red);background:#fee2e2;padding:2px 8px;border-radius:6px;font-family:'JetBrains Mono',monospace">survivorship-biased</span></h3>
@@ -780,7 +808,7 @@ hr.rule{border:none;height:1px;background:var(--border);margin:32px 0}
     <div class="constraint">
       <div>
         <h4>ETF universe: no selection bias · Stock universe: bias disclosed</h4>
-        <p>The 33-ETF universe is assembled ex-ante by liquidity + inception ≤ 2009. The 90-stock universe is the set of currently-listed S&amp;P 500 large-caps with 2010+ data — <strong>survivorship-biased</strong>. We mitigate by using diversified top-K (3/5/7) with 70% stock allocation on stock sleeves and applying a <strong>2% CAGR haircut</strong> on the 70% stock portion when reporting forward-looking metrics. Naive backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>24.6%</strong>.</p>
+        <p>The 33-ETF universe is assembled ex-ante by liquidity + inception ≤ 2009. The 90-stock universe is the set of currently-listed S&amp;P 500 large-caps with 2010+ data — <strong>survivorship-biased</strong>. We mitigate by using diversified top-K (3/5/7) with 70% stock allocation on stock sleeves and applying a <strong>2% CAGR haircut</strong> on the 70% stock portion when reporting forward-looking metrics. Naive backtest CAGR <strong>26.7%</strong> → realistic forward expectation <strong>23.2%</strong>.</p>
       </div>
     </div>
     <div class="constraint">

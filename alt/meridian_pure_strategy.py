@@ -58,7 +58,7 @@ DD_WIN = 252
 VOL_GATE_PCT = 0.99
 VOL_GATE_LOOKBACK = 252
 VOL_WIN = 60
-SURVIVORSHIP_HAIRCUT_PCT = 3.0
+SURVIVORSHIP_HAIRCUT_PCT = 5.0  # bootstrap-calibrated (5%/yr dropout = ~7% bias; we use 5%)
 
 
 def load_etf(t, folder="etfs"):

@@ -6,7 +6,7 @@
     "tc_bps": 3.0,
     "dd_floor": -0.25,
     "vol_gate_pct": 0.99,
-    "survivorship_haircut_pct": 3.0,
+    "survivorship_haircut_pct": 5.0,
     "stock_universe_size": 90,
     "rule": "Pure long-only top-3 stock momentum, weekly rebal."
   },
@@ -54,5 +54,5 @@
     "n": 4263,
     "navx": 106.6887
   },
-  "cagr_haircut": 0.27470000000000006
+  "cagr_haircut": 0.25470000000000004
 }
