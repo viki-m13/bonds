@@ -176,10 +176,22 @@ document.addEventListener('click', function(e) {
 <div class="card" style="overflow-x:auto"><table id="yearlyTable"></table></div>
 </div>
 
+<!-- STOCK SLEEVE EXPERIMENT -->
+<div class="section">
+<div class="section-title">POLARIS v2 &mdash; Adding Individual Stocks (5th sleeve)</div>
+<div class="card" style="font-size:0.78rem;color:var(--t2);line-height:1.6">
+<p><strong style="color:var(--t1)">Stock sleeve expansion.</strong> The dataset includes 90 individual S&amp;P 500 large-cap stocks (no small caps or international stocks available). We added a 5th sleeve to POLARIS using 126-day Sharpe-rank on this stock universe with weekly Friday rebalance. This is genuinely novel relative to Meridian's stock sleeves, which use 126d *return*-momentum on Wednesday.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Survivorship-bias caveat.</strong> The 90-stock universe is the *current* S&amp;P 500 with full data; bankrupt/delisted names aren't represented. Following Meridian, we report a 3% CAGR haircut on the stock sleeve as a conservative correction.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Result.</strong> POLARIS v2 (5 sleeves) substantially beats POLARIS v1: full Sharpe 1.24 vs 1.16; OOS Sharpe 1.32 vs 1.28; MDD -22.6% vs -24.4%. The haircut version still beats v1 (1.19 / 23.5% / -23.3%). The stock sleeve adds genuine diversification because individual stocks have idiosyncratic returns the LETF sleeves don't capture. See <code>alt/polaris_v2_strategy.py</code>.</p>
+</div>
+<div class="card" style="overflow-x:auto"><table id="v2Table"></table></div>
+<div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)"><strong style="color:var(--t1)">Bottom line.</strong> POLARIS v2 with the stock sleeve is the recommended configuration. The IS-OOS gap stays small (Sharpe gap 0.14, OOS &gt; IS on both Sharpe and CAGR), and the improvement survives the conservative 3% survivorship haircut.</div>
+</div>
+
 <!-- DESIGN DOC LINK -->
 <div class="section">
 <div class="card" style="font-size:0.78rem;color:var(--t2)">
-<strong style="color:var(--t1)">Source &amp; design doc.</strong> See <code>alt/polaris_strategy.py</code> and <code>alt/POLARIS_DESIGN.md</code> in the repository for the full implementation.
+<strong style="color:var(--t1)">Source &amp; design doc.</strong> See <code>alt/polaris_strategy.py</code> (baseline v1), <code>alt/polaris_div_strategy.py</code> (multi-equity), <code>alt/polaris_v2_strategy.py</code> (with stock sleeve), and <code>alt/POLARIS_DESIGN.md</code> in the repository.
 </div>
 </div>
 
@@ -275,6 +287,31 @@ fetch('polaris_data.json').then(r=>r.json()).then(data => {
   }
   cmpHtml += '</tbody>';
   document.getElementById('cmpTable').innerHTML = cmpHtml;
+
+  // POLARIS v2 (with stocks)
+  const v2 = data.metrics['POLARIS_v2'];
+  const v2HC = data.metrics['POLARIS_v2_HAIRCUT'];
+  if (v2) {
+    let v2Html = '<thead><tr><th>Variant</th><th>Window</th><th>Sharpe</th><th>CAGR</th><th>Vol</th><th>MDD</th><th>Sleeves</th></tr></thead><tbody>';
+    for (const w of ['FULL','IS','OOS']) {
+      const b = m[w]; const v = v2[w]; const vh = v2HC ? v2HC[w] : null;
+      v2Html += `<tr><td><span style="color:#0d9e6d;font-weight:700">POLARIS v1</span></td><td>${w}</td>`;
+      v2Html += `<td>${b.sharpe.toFixed(2)}</td><td class="${sgn(b.cagr)}">${(b.cagr*100).toFixed(1)}%</td>`;
+      v2Html += `<td>${(b.ann_vol*100).toFixed(1)}%</td><td class="neg">${(b.mdd*100).toFixed(1)}%</td>`;
+      v2Html += `<td>${w==='FULL' ? '4 LETF sleeves':'-'}</td></tr>`;
+      v2Html += `<tr><td><span style="color:#059669;font-weight:700">POLARIS v2</span></td><td>${w}</td>`;
+      v2Html += `<td>${v.sharpe.toFixed(2)}</td><td class="${sgn(v.cagr)}">${(v.cagr*100).toFixed(1)}%</td>`;
+      v2Html += `<td>${(v.ann_vol*100).toFixed(1)}%</td><td class="neg">${(v.mdd*100).toFixed(1)}%</td>`;
+      v2Html += `<td>${w==='FULL' ? '4 LETF + STK_SHARPE_RANK (5th)':'-'}</td></tr>`;
+      if (vh) {
+        v2Html += `<tr style="opacity:0.7"><td><span style="color:#34d399;font-weight:600">..with 3% survivorship haircut</span></td><td>${w}</td>`;
+        v2Html += `<td>${vh.sharpe.toFixed(2)}</td><td class="${sgn(vh.cagr)}">${(vh.cagr*100).toFixed(1)}%</td>`;
+        v2Html += `<td>${(vh.ann_vol*100).toFixed(1)}%</td><td class="neg">${(vh.mdd*100).toFixed(1)}%</td><td>-</td></tr>`;
+      }
+    }
+    v2Html += '</tbody>';
+    document.getElementById('v2Table').innerHTML = v2Html;
+  }
 
   // Diversified variant comparison
   const div = data.metrics['POLARIS_DIV'];

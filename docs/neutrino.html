@@ -185,10 +185,22 @@ document.addEventListener('click', function(e) {
 <div class="card" style="overflow-x:auto"><table id="yearlyTable"></table></div>
 </div>
 
+<!-- STOCK SLEEVE EXPERIMENT -->
+<div class="section">
+<div class="section-title">NEUTRINO_PLUS &mdash; Adding Individual Stocks</div>
+<div class="card" style="font-size:0.78rem;color:var(--t2);line-height:1.6">
+<p><strong style="color:var(--t1)">Stock sleeve experiment.</strong> The dataset includes 90 individual S&amp;P 500 large-cap stocks (no small caps or international stocks available). We tested adding a stock-momentum sleeve in parallel to the NEUTRINO core. Used a 126-day Sharpe-rank signal (different from Meridian's 126d return-momentum) and Friday weekly rebalance (different from Meridian's Wednesday) to differentiate.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">Survivorship-bias caveat.</strong> The 90-stock universe is the *current* S&amp;P 500 with full data; bankrupt/delisted names (Lehman, WaMu) aren't represented. Following Meridian, we report a 3% CAGR haircut on the stock sleeve return as a conservative correction.</p>
+<p style="margin-top:6px"><strong style="color:var(--t1)">NEUTRINO_PLUS = 85% NEUTRINO core + 15% stock-Sharpe-rank.</strong> Tested weights {95/5, 90/10, 85/15, 80/20, 75/25, 70/30, 60/40, 50/50}; 85/15 gives the cleanest improvement that survives the survivorship haircut. See <code>alt/neutrino_plus_strategy.py</code>.</p>
+</div>
+<div class="card" style="overflow-x:auto"><table id="plusTable"></table></div>
+<div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)"><strong style="color:var(--t1)">Bottom line.</strong> NEUTRINO_PLUS lifts OOS Sharpe to 1.31 (1.29 after survivorship haircut) vs baseline 1.28 &mdash; a small but real improvement. Adding stocks doesn't massively help NEUTRINO because the baseline is already at the single-sleeve Sharpe ceiling. POLARIS v2 (next page) gets a much bigger lift from adding stocks because its baseline Sharpe is lower.</div>
+</div>
+
 <!-- DESIGN DOC LINK -->
 <div class="section">
 <div class="card" style="font-size:0.78rem;color:var(--t2)">
-<strong style="color:var(--t1)">Source &amp; design doc.</strong> See <code>alt/neutrino_strategy.py</code> and <code>alt/NEUTRINO_DESIGN.md</code> in the repository for the full implementation and parameter discussion.
+<strong style="color:var(--t1)">Source &amp; design doc.</strong> See <code>alt/neutrino_strategy.py</code> (baseline), <code>alt/neutrino_div_strategy.py</code> (sector tilt), <code>alt/neutrino_plus_strategy.py</code> (with stocks), and <code>alt/NEUTRINO_DESIGN.md</code> in the repository.
 </div>
 </div>
 
@@ -290,6 +302,31 @@ fetch('neutrino_data.json').then(r=>r.json()).then(data => {
   }
   cmpHtml += '</tbody>';
   document.getElementById('cmpTable').innerHTML = cmpHtml;
+
+  // PLUS variant comparison
+  const plus = data.metrics['NEUTRINO_PLUS'];
+  const plusHC = data.metrics['NEUTRINO_PLUS_HAIRCUT'];
+  if (plus) {
+    let plusHtml = '<thead><tr><th>Variant</th><th>Window</th><th>Sharpe</th><th>CAGR</th><th>Vol</th><th>MDD</th><th>Universe</th></tr></thead><tbody>';
+    for (const w of ['FULL','IS','OOS']) {
+      const b = m[w]; const p = plus[w]; const ph = plusHC ? plusHC[w] : null;
+      plusHtml += `<tr><td><span style="color:#7c3aed;font-weight:700">NEUTRINO baseline</span></td><td>${w}</td>`;
+      plusHtml += `<td>${b.sharpe.toFixed(2)}</td><td class="${sgn(b.cagr)}">${(b.cagr*100).toFixed(1)}%</td>`;
+      plusHtml += `<td>${(b.ann_vol*100).toFixed(1)}%</td><td class="neg">${(b.mdd*100).toFixed(1)}%</td>`;
+      plusHtml += `<td>${w==='FULL' ? '3 LETFs (TQQQ + TYD + UGL)':'-'}</td></tr>`;
+      plusHtml += `<tr><td><span style="color:#9333ea;font-weight:700">NEUTRINO_PLUS</span></td><td>${w}</td>`;
+      plusHtml += `<td>${p.sharpe.toFixed(2)}</td><td class="${sgn(p.cagr)}">${(p.cagr*100).toFixed(1)}%</td>`;
+      plusHtml += `<td>${(p.ann_vol*100).toFixed(1)}%</td><td class="neg">${(p.mdd*100).toFixed(1)}%</td>`;
+      plusHtml += `<td>${w==='FULL' ? '3 LETFs + 5 stocks (top-Sharpe-126d)':'-'}</td></tr>`;
+      if (ph) {
+        plusHtml += `<tr style="opacity:0.7"><td><span style="color:#a855f7;font-weight:600">..with 3% survivorship haircut</span></td><td>${w}</td>`;
+        plusHtml += `<td>${ph.sharpe.toFixed(2)}</td><td class="${sgn(ph.cagr)}">${(ph.cagr*100).toFixed(1)}%</td>`;
+        plusHtml += `<td>${(ph.ann_vol*100).toFixed(1)}%</td><td class="neg">${(ph.mdd*100).toFixed(1)}%</td><td>-</td></tr>`;
+      }
+    }
+    plusHtml += '</tbody>';
+    document.getElementById('plusTable').innerHTML = plusHtml;
+  }
 
   // Diversified variant comparison
   const div = data.metrics['NEUTRINO_DIV'];

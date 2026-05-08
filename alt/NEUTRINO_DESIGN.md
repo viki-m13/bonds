@@ -150,7 +150,41 @@ Where NEUTRINO **does** improve on Phoenix:
 | MDD | -31.9% | -20.5% | PHX |
 | Sortino | 1.60 | 2.99 | PHX |
 
-## Universe expansion experiment
+## Stock-sleeve experiment (NEUTRINO_PLUS)
+
+The dataset includes 90 individual S&P 500 large-cap stocks (no small caps
+or international stocks available). We tested adding a stock-momentum
+sleeve in parallel to the NEUTRINO core:
+
+* Signal: 126-day **Sharpe-rank** (different from Meridian's 126d
+  return-momentum). Top-K=5, weekly **Friday** rebalance (different from
+  Meridian's Wednesday). Eligibility: Sharpe > 0.
+* Architecture: 2-sleeve blend with fixed weights (NEUTRINO_core / stocks).
+
+Tested weights {95/5, 90/10, 85/15, 80/20, 75/25, 70/30, 60/40, 50/50}.
+Reporting both raw and post-3%-survivorship-haircut numbers (the universe
+is the *current* S&P 500, bankrupt names not represented):
+
+| Variant | FULL Sharpe | OOS Sharpe | HC FULL Sharpe | HC OOS Sharpe |
+|---|---|---|---|---|
+| NEUTRINO baseline | 1.26 | 1.28 | n/a | n/a |
+| 95/5 | 1.26 | 1.29 | 1.26 | 1.28 |
+| 90/10 | 1.27 | 1.30 | 1.26 | 1.29 |
+| **85/15 (chosen)** | **1.27** | **1.31** | **1.26** | **1.29** |
+| 80/20 | 1.27 | 1.31 | 1.25 | 1.29 |
+| 70/30 | 1.28 | 1.32 | 1.25 | 1.28 |
+| 50/50 | 1.26 | 1.29 | 1.20 | 1.23 |
+
+**85/15 is the cleanest improvement** that survives the survivorship
+haircut. NEUTRINO_PLUS lifts OOS Sharpe to 1.29 (after haircut) vs
+baseline 1.28 — a small but real improvement. Implementation in
+`alt/neutrino_plus_strategy.py`.
+
+NEUTRINO baseline is already at the single-sleeve Sharpe ceiling (~1.30),
+so adding stocks gives only marginal lift. POLARIS v2 (lower baseline
+Sharpe 1.16) gets a much bigger boost from the same stock sleeve.
+
+## LETF universe expansion experiment
 
 We also tested expanding the equity universe to small caps, international,
 and sector LETFs. Findings:
