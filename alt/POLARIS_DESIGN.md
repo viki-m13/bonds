@@ -157,13 +157,38 @@ genuine diversifier (≈ 0 correlation with the equity-leaning sleeves).
 * IS-OOS gap |Sharpe| = 0.22; OOS Sharpe (1.28) is *higher* than IS
   (1.07), confirming no IS-overfit.
 
+## Universe expansion experiment
+
+We tested expanding the VOLT_RP equity sleeve from QLD-only to include
+sector LETFs, international, and other large-cap LETFs:
+
+| Variant | Sharpe | CAGR | MDD | Verdict |
+|---|---|---|---|---|
+| **POLARIS baseline** (QLD20) | 1.23 | 24.5% | -23.6% | reference |
+| QLD20 + TECL15 | 1.22 | 24.5% | -21.6% | -2pp MDD |
+| **QLD15 + TQQQ15 + TECL15** (DIV) | 1.22 | 24.5% | **-20.7%** | best MDD |
+| QLD15 + TECL15 + SOXL15 | 1.21 | 24.2% | -21.9% | similar |
+| 4-equity (QLD/TECL/SOXL/FAS) | 1.20 | 24.0% | -23.4% | dilution |
+| 5-equity (sectors) | 1.19 | 23.6% | -24.3% | over-dilution |
+
+Small-cap LETFs (TNA, URTY) weren't in the dataset. International (EDC,
+YINN) hurt performance.
+
+The **POLARIS_DIVERSIFIED** variant (in `alt/polaris_div_strategy.py`)
+adopts the best finding: VOLT_RP equity expanded to {QLD, TQQQ, TECL}
+at 15% target vol each. Result: ~3pp lower MDD with essentially identical
+Sharpe and CAGR.
+
 ## Files
 
 | Path | Description |
 |---|---|
-| `alt/polaris_strategy.py` | Single-file POLARIS implementation |
+| `alt/polaris_strategy.py` | Single-file POLARIS implementation (baseline) |
+| `alt/polaris_div_strategy.py` | POLARIS_DIVERSIFIED with multi-equity S1 |
 | `alt/POLARIS_DESIGN.md`   | This document |
 | `data/results/polaris_metrics.json` | Full metrics |
 | `data/results/polaris_returns.csv`  | Daily returns + overlay scales |
 | `data/results/polaris_sleeves.csv`  | Per-sleeve throttled returns |
 | `data/results/polaris_sleeves_raw.csv` | Per-sleeve raw returns |
+| `data/results/polaris_div_*.{json,csv}` | Diversified variant outputs |
+| `data/results/polaris_universe_expansion.json` | Expansion experiment (7 configs) |
