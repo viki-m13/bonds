@@ -157,7 +157,37 @@ genuine diversifier (≈ 0 correlation with the equity-leaning sleeves).
 * IS-OOS gap |Sharpe| = 0.22; OOS Sharpe (1.28) is *higher* than IS
   (1.07), confirming no IS-overfit.
 
-## Universe expansion experiment
+## Stock-sleeve expansion (POLARIS v2)
+
+The dataset includes 90 individual S&P 500 large-cap stocks (no small caps
+or international stocks available). We added a 5th sleeve to POLARIS:
+
+* **STK_SHARPE_RANK** — top-K=5 stocks by 126-day **Sharpe-rank**, weekly
+  **Friday** rebalance. Differentiated from Meridian (which uses 126d
+  return-momentum on Wednesday) by ranking criterion AND rebalance day.
+
+| Variant | Sharpe | CAGR | MDD | OOS Sharpe |
+|---|---|---|---|---|
+| POLARIS v1 (4 sleeves) | 1.16 | 23.0% | -24.4% | 1.28 |
+| **POLARIS v2 (5 sleeves)** | **1.24** | **24.7%** | **-22.6%** | **1.32** |
+| POLARIS v2 with 3% haircut | 1.19 | 23.5% | -23.3% | 1.27 |
+
+**POLARIS v2 is a clear improvement over v1**: Sharpe lift +0.08
+(+0.03 even after the conservative survivorship haircut), CAGR +1.7pp,
+MDD -1.8pp tighter.
+
+Survivorship-bias caveat: the 90-stock universe is the *current* S&P 500
+with full data; bankrupt/delisted names (Lehman, WaMu) aren't represented.
+The 3% CAGR haircut on the stock sleeve is the same correction Meridian
+applies, weighted by the stock sleeve's IS inverse-vol weight (~23%).
+
+The stock sleeve standalone (post-self-throttle) has Sharpe 0.95 and CAGR
+17.8%; correlation with the four LETF sleeves is moderate (0.45-0.48 with
+equity-leaning, -0.16 with BOND_DIP), making it a useful diversifier.
+
+Implementation in `alt/polaris_v2_strategy.py`.
+
+## LETF universe expansion experiment
 
 We tested expanding the VOLT_RP equity sleeve from QLD-only to include
 sector LETFs, international, and other large-cap LETFs:
