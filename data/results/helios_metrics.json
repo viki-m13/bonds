@@ -1,18 +1,18 @@
 {
   "start": "2010-03-11",
-  "end": "2026-05-07",
+  "end": "2026-05-08",
   "is_sharpe": 0.6775831126226292,
-  "oos_sharpe": 0.9156206051237991,
-  "full_sharpe": 0.7924211314289624,
+  "oos_sharpe": 0.9149436112557903,
+  "full_sharpe": 0.79208641538117,
   "is_cagr": 0.18979180091199122,
-  "oos_cagr": 0.4160684703832984,
-  "full_cagr": 0.2877368303536805,
+  "oos_cagr": 0.41547370811242734,
+  "full_cagr": 0.28752106142310896,
   "max_dd": -0.6226189262355045,
-  "ann_vol": 0.44595852787737184,
-  "avg_turnover_daily": 0.11070110701107011,
-  "avg_turnover_annual": 27.896678966789672,
-  "cash_avg_wt": 0.11316113161131611,
-  "is_oos_gap": -0.2380374925011699,
+  "ann_vol": 0.4459043167439712,
+  "avg_turnover_daily": 0.11091982292179045,
+  "avg_turnover_annual": 27.951795376291194,
+  "cash_avg_wt": 0.1131333005410723,
+  "is_oos_gap": -0.2373604986331611,
   "universe": [
     "SPY",
     "QQQ",
@@ -54,7 +54,7 @@
     "REBAL_FREQ": "W-FRI",
     "COST_BPS": 5.0
   },
-  "n_rebalances": 816,
+  "n_rebalances": 817,
   "picks_sample_first5": [
     {
       "date": "2010-03-12",
@@ -89,12 +89,6 @@
   ],
   "picks_sample_last5": [
     {
-      "date": "2026-03-27",
-      "weights": {
-        "UGL": 1.0
-      }
-    },
-    {
       "date": "2026-04-10",
       "weights": {
         "UGL": 0.5,
@@ -120,6 +114,13 @@
       "weights": {
         "UGL": 0.5,
         "SOXL": 0.5
+      }
+    },
+    {
+      "date": "2026-05-08",
+      "weights": {
+        "UGL": 0.5,
+        "UCO": 0.5
       }
     }
   ]
