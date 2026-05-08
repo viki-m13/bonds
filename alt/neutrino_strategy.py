@@ -244,9 +244,9 @@ def build_weights(O, C, H, L) -> pd.DataFrame:
     cg = stock_bond_corr_gate(idx)
 
     for t in cols:
-        cap = EQ_GROSS_CAP if t == "TQQQ" else DEF_GROSS_CAP
+        cap = EQ_GROSS_CAP if _is_equity(t) else DEF_GROSS_CAP
         raw = (TVOL[t] / sigma[t]).clip(0, cap).fillna(0.0)
-        if t == "TQQQ":
+        if _is_equity(t):
             W[t] = raw * rg * cg     # equity: rate AND corr gate
         else:
             W[t] = raw * rg          # defensives: rate gate only
@@ -294,6 +294,10 @@ def apply_portfolio_overlay(r: pd.Series):
 #  Main
 # --------------------------------------------------------------------------- #
 UNIVERSE = sorted(set(list(TVOL.keys()) + ["SPY", "TLT"]))
+
+
+def _is_equity(t: str) -> bool:
+    return t == "TQQQ"
 
 
 def run() -> dict:
