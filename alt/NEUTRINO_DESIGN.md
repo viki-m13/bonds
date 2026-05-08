@@ -150,12 +150,45 @@ Where NEUTRINO **does** improve on Phoenix:
 | MDD | -31.9% | -20.5% | PHX |
 | Sortino | 1.60 | 2.99 | PHX |
 
+## Universe expansion experiment
+
+We also tested expanding the equity universe to small caps, international,
+and sector LETFs. Findings:
+
+| Variant | Sharpe | CAGR | OOS CAGR | MDD | Verdict |
+|---|---|---|---|---|---|
+| **NEUTRINO baseline** (TQQQ + TYD + UGL) | 1.26 | 39.6% | 40.4% | -31.9% | best Sharpe & MDD |
+| TQQQ + UPRO15 | 1.26 | 42.8% | 44.1% | -36.1% | tied Sharpe |
+| TQQQ + TECL15 | 1.25 | 45.2% | 48.0% | -36.2% | best CAGR (DIV) |
+| TQQQ + TECL15 + SOXL15 | 1.21 | 40.4% | 43.6% | -32.9% | dilution |
+| TQQQ + UPRO15 + TECL10 | 1.23 | 48.3% | 51.6% | -44.0% | high CAGR, high risk |
+| TQQQ + EDC + YINN (international) | 0.95-1.01 | 30-35% | 34-40% | -49% | int'l hurts |
+| TQQQ + 4-bond defensive | 1.31 IS / 1.22 OOS | 41.8% / 38.1% OOS | -30.5% | IS overfit |
+
+**Key takeaways:**
+1. **Small-cap LETFs (TNA, URTY) not in dataset** — couldn't test.
+2. **International (EDC, YINN) materially HURT** Sharpe and CAGR — emerging
+   markets underperformed Nasdaq through 2010-2024.
+3. **Sector LETFs at small allocation** improve OOS CAGR slightly while
+   keeping Sharpe comparable.
+4. **Multi-bond defensive (TYD+UGL+TMF+UBT) caused IS overfit** — IS Sharpe
+   1.39 dropped to OOS 1.22 because long bonds got punished by 2022 rate
+   spike. Rejected.
+
+The **NEUTRINO_DIVERSIFIED** variant (in `alt/neutrino_div_strategy.py`)
+adopts the best expansion: TQQQ45% + TECL15% sector tilt. It trades 0.03
+Sharpe for ~6pp CAGR (mostly OOS) at ~5pp deeper drawdowns. Choose based
+on risk preference.
+
 ## Files
 
 | Path | Description |
 |---|---|
-| `alt/neutrino_strategy.py` | Single-file NEUTRINO implementation |
+| `alt/neutrino_strategy.py` | Single-file NEUTRINO implementation (baseline) |
+| `alt/neutrino_div_strategy.py` | NEUTRINO_DIVERSIFIED with sector tilt |
 | `alt/NEUTRINO_DESIGN.md` | This document |
 | `data/results/neutrino_metrics.json` | Full metrics |
 | `data/results/neutrino_returns.csv` | Daily returns + overlay scales |
 | `data/results/neutrino_weights.csv` | Daily target weights |
+| `data/results/neutrino_div_*.{json,csv}` | Diversified variant outputs |
+| `data/results/neutrino_universe_expansion.json` | Full expansion experiment results (22 configs) |

@@ -156,6 +156,23 @@ document.addEventListener('click', function(e) {
 <div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)"><strong style="color:var(--t1)">How to read this.</strong> Phoenix is a 4-sleeve ensemble; NEUTRINO is a single sleeve with 3 holdings. NEUTRINO trades higher Sharpe for higher CAGR. NEUTRINO is 0.36 correlated with Phoenix, so a small NEUTRINO sleeve (10-20%) added to a Phoenix-anchored portfolio raises blend CAGR while keeping MDD bounded.</div>
 </div>
 
+<!-- DIVERSIFIED VARIANT -->
+<div class="section">
+<div class="section-title">NEUTRINO_DIVERSIFIED &mdash; Sector-Tilt Variant</div>
+<div class="card" style="font-size:0.78rem;color:var(--t2);line-height:1.6">
+<p><strong style="color:var(--t1)">Universe expansion experiment.</strong> We tested adding small-cap (TNA, URTY -- not in dataset), international (EDC, YINN), and sector LETFs (TECL, SOXL, FAS, ERX, DRN) to the equity leg. Findings:</p>
+<ul style="margin-left:20px;margin-top:6px">
+<li><strong>International (EDC, YINN) HURT</strong> performance materially &mdash; emerging markets underperformed Nasdaq through 2010-2024, dragging Sharpe from 1.29 to 0.95-1.01.</li>
+<li><strong>Adding sector LETFs at small allocation IMPROVES OOS CAGR</strong> while keeping Sharpe near baseline.</li>
+<li><strong>Multi-bond defensive (TYD+UGL+TMF+UBT) lifted IS Sharpe to 1.31 but HURT OOS</strong> &mdash; long-bond exposure was punished by 2022's rate spike. We rejected this variant as IS overfitting.</li>
+<li><strong>Best variant: TQQQ45% + TECL15% + TYD/UGL10%.</strong></li>
+</ul>
+<p style="margin-top:8px"><strong style="color:var(--t1)">NEUTRINO_DIV vs baseline (full sample):</strong></p>
+</div>
+<div class="card" style="overflow-x:auto"><table id="divTable"></table></div>
+<div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)"><strong style="color:var(--t1)">Trade-off.</strong> NEUTRINO_DIV trades ~0.03 Sharpe for ~6pp CAGR (mostly OOS) at ~5pp deeper drawdowns. Same architecture, just adds a 15% target-vol TECL leg to the equity allocation. See <code>alt/neutrino_div_strategy.py</code>.</div>
+</div>
+
 <!-- DRAWDOWN CHART -->
 <div class="section">
 <div class="section-title">Drawdown</div>
@@ -254,11 +271,13 @@ fetch('neutrino_data.json').then(r=>r.json()).then(data => {
   // Comparison table
   const cmp = [
     ['NEUTRINO', m, '#7c3aed'],
+    ['NEUTRINO_DIV', data.metrics['NEUTRINO_DIV'], '#9333ea'],
     ['Phoenix v2', data.metrics['Phoenix v2'], '#ea580c'],
     ['POLARIS', data.metrics['POLARIS'], '#0d9e6d'],
   ];
   let cmpHtml = '<thead><tr><th>Strategy</th><th>Window</th><th>Sharpe</th><th>CAGR</th><th>Vol</th><th>MDD</th><th>Sortino</th></tr></thead><tbody>';
   for (const [name, mm, color] of cmp) {
+    if (!mm) continue;
     for (const w of ['FULL','IS','OOS']) {
       const r = mm[w] || {};
       cmpHtml += `<tr><td><span style="color:${color};font-weight:700">${name}</span></td><td>${w}</td>`;
@@ -271,6 +290,25 @@ fetch('neutrino_data.json').then(r=>r.json()).then(data => {
   }
   cmpHtml += '</tbody>';
   document.getElementById('cmpTable').innerHTML = cmpHtml;
+
+  // Diversified variant comparison
+  const div = data.metrics['NEUTRINO_DIV'];
+  if (div) {
+    let divHtml = '<thead><tr><th>Variant</th><th>Window</th><th>Sharpe</th><th>CAGR</th><th>Vol</th><th>MDD</th><th>Universe</th></tr></thead><tbody>';
+    for (const w of ['FULL','IS','OOS']) {
+      const b = m[w]; const d = div[w];
+      divHtml += `<tr><td><span style="color:#7c3aed;font-weight:700">NEUTRINO</span></td><td>${w}</td>`;
+      divHtml += `<td>${b.sharpe.toFixed(2)}</td><td class="${sgn(b.cagr)}">${(b.cagr*100).toFixed(1)}%</td>`;
+      divHtml += `<td>${(b.ann_vol*100).toFixed(1)}%</td><td class="neg">${(b.mdd*100).toFixed(1)}%</td>`;
+      divHtml += `<td>${w==='FULL' ? 'TQQQ + TYD + UGL':'-'}</td></tr>`;
+      divHtml += `<tr><td><span style="color:#9333ea;font-weight:700">NEUTRINO_DIV</span></td><td>${w}</td>`;
+      divHtml += `<td>${d.sharpe.toFixed(2)}</td><td class="${sgn(d.cagr)}">${(d.cagr*100).toFixed(1)}%</td>`;
+      divHtml += `<td>${(d.ann_vol*100).toFixed(1)}%</td><td class="neg">${(d.mdd*100).toFixed(1)}%</td>`;
+      divHtml += `<td>${w==='FULL' ? 'TQQQ + TECL + TYD + UGL':'-'}</td></tr>`;
+    }
+    divHtml += '</tbody>';
+    document.getElementById('divTable').innerHTML = divHtml;
+  }
 
   // Yearly returns
   const years = Object.keys(data.yearly).sort();

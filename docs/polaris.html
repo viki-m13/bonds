@@ -148,6 +148,22 @@ document.addEventListener('click', function(e) {
 <div class="card" style="overflow-x:auto"><table id="cmpTable"></table></div>
 </div>
 
+<!-- DIVERSIFIED VARIANT -->
+<div class="section">
+<div class="section-title">POLARIS_DIVERSIFIED &mdash; Multi-Equity Variant</div>
+<div class="card" style="font-size:0.78rem;color:var(--t2);line-height:1.6">
+<p><strong style="color:var(--t1)">Universe expansion experiment.</strong> We tested expanding the VOLT_RP equity sleeve from QLD-only to include sector LETFs (TECL, SOXL, FAS, ERX), small-cap (TNA -- not in dataset), international (EDC, YINN), and other large-cap (UPRO).</p>
+<ul style="margin-left:20px;margin-top:6px">
+<li><strong>International (EDC, YINN) HURT</strong> performance &mdash; emerging markets underperformed Nasdaq 2010-2024.</li>
+<li><strong>Multi-equity {QLD, TQQQ, TECL} at 15% target each</strong> gives a 3pp MDD improvement (-23.6% &rarr; -20.7%) with essentially identical Sharpe and CAGR.</li>
+<li><strong>5-sector basket</strong> dilutes too much &mdash; Sharpe drops slightly without meaningful gain.</li>
+</ul>
+<p style="margin-top:8px"><strong style="color:var(--t1)">POLARIS_DIV vs baseline (full sample):</strong></p>
+</div>
+<div class="card" style="overflow-x:auto"><table id="divTable"></table></div>
+<div class="card" style="margin-top:4px;font-size:0.74rem;color:var(--t2)"><strong style="color:var(--t1)">Trade-off.</strong> POLARIS_DIV is essentially identical on Sharpe and CAGR but offers ~3pp lower MDD via within-equity diversification. Same architecture, just expands the S1 (VOLT_RP) sleeve from QLD-only to {QLD, TQQQ, TECL}. See <code>alt/polaris_div_strategy.py</code>.</div>
+</div>
+
 <!-- DRAWDOWN CHART -->
 <div class="section">
 <div class="section-title">Drawdown</div>
@@ -240,11 +256,13 @@ fetch('polaris_data.json').then(r=>r.json()).then(data => {
 
   const cmp = [
     ['POLARIS', m, '#0d9e6d'],
+    ['POLARIS_DIV', data.metrics['POLARIS_DIV'], '#16a34a'],
     ['Phoenix v2', data.metrics['Phoenix v2'], '#ea580c'],
     ['NEUTRINO', data.metrics['NEUTRINO'], '#7c3aed'],
   ];
   let cmpHtml = '<thead><tr><th>Strategy</th><th>Window</th><th>Sharpe</th><th>CAGR</th><th>Vol</th><th>MDD</th><th>Sortino</th></tr></thead><tbody>';
   for (const [name, mm, color] of cmp) {
+    if (!mm) continue;
     for (const w of ['FULL','IS','OOS']) {
       const r = mm[w] || {};
       cmpHtml += `<tr><td><span style="color:${color};font-weight:700">${name}</span></td><td>${w}</td>`;
@@ -257,6 +275,25 @@ fetch('polaris_data.json').then(r=>r.json()).then(data => {
   }
   cmpHtml += '</tbody>';
   document.getElementById('cmpTable').innerHTML = cmpHtml;
+
+  // Diversified variant comparison
+  const div = data.metrics['POLARIS_DIV'];
+  if (div) {
+    let divHtml = '<thead><tr><th>Variant</th><th>Window</th><th>Sharpe</th><th>CAGR</th><th>Vol</th><th>MDD</th><th>Equity universe</th></tr></thead><tbody>';
+    for (const w of ['FULL','IS','OOS']) {
+      const b = m[w]; const d = div[w];
+      divHtml += `<tr><td><span style="color:#0d9e6d;font-weight:700">POLARIS</span></td><td>${w}</td>`;
+      divHtml += `<td>${b.sharpe.toFixed(2)}</td><td class="${sgn(b.cagr)}">${(b.cagr*100).toFixed(1)}%</td>`;
+      divHtml += `<td>${(b.ann_vol*100).toFixed(1)}%</td><td class="neg">${(b.mdd*100).toFixed(1)}%</td>`;
+      divHtml += `<td>${w==='FULL' ? 'QLD only':'-'}</td></tr>`;
+      divHtml += `<tr><td><span style="color:#16a34a;font-weight:700">POLARIS_DIV</span></td><td>${w}</td>`;
+      divHtml += `<td>${d.sharpe.toFixed(2)}</td><td class="${sgn(d.cagr)}">${(d.cagr*100).toFixed(1)}%</td>`;
+      divHtml += `<td>${(d.ann_vol*100).toFixed(1)}%</td><td class="neg">${(d.mdd*100).toFixed(1)}%</td>`;
+      divHtml += `<td>${w==='FULL' ? 'QLD + TQQQ + TECL':'-'}</td></tr>`;
+    }
+    divHtml += '</tbody>';
+    document.getElementById('divTable').innerHTML = divHtml;
+  }
 
   const years = Object.keys(data.yearly).sort();
   let yrHtml = '<thead><tr><th>Year</th>' + years.map(y => `<th>${y}</th>`).join('') + '</tr></thead><tbody><tr><td>Return</td>';
