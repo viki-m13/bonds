@@ -4,22 +4,22 @@
     "tc_bps_per_side": 5.0,
     "trade_threshold_pct": 0.5
   },
-  "as_of": "2026-05-08",
+  "as_of": "2026-05-11",
   "start_date": "2026-04-13",
-  "current_nav": 12304.96,
-  "total_return_pct": 23.05,
-  "spy_total_return_pct": 8.49,
-  "n_trade_days": 20,
-  "ann_return_pct": 268.23,
-  "ann_vol_pct": 26.06,
-  "sharpe": 10.291,
+  "current_nav": 12560.03,
+  "total_return_pct": 25.6,
+  "spy_total_return_pct": 8.72,
+  "n_trade_days": 21,
+  "ann_return_pct": 280.33,
+  "ann_vol_pct": 25.64,
+  "sharpe": 10.932,
   "mdd_pct": -2.61,
   "tracking_error_vs_backtest": {
-    "n_days": 20,
-    "mean_diff_bps": 59.65,
-    "stdev_diff_bps": 191.22,
+    "n_days": 21,
+    "mean_diff_bps": 55.29,
+    "stdev_diff_bps": 189.15,
     "max_abs_diff_bps": 492.77,
-    "ann_tracking_error_bps": 3035.5,
+    "ann_tracking_error_bps": 3002.6,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
@@ -30,7 +30,7 @@
       "Side": "BUY",
       "Weight_Delta": 0.0656,
       "Fill_Price": 43.18,
-      "Shares": 18.6841,
+      "Shares": 18.6842,
       "Notional_USD": 806.78
     },
     {
@@ -49,8 +49,8 @@
       "Ticker": "IBIT",
       "Side": "BUY",
       "Weight_Delta": 0.0361,
-      "Fill_Price": 45.08,
-      "Shares": 9.8592,
+      "Fill_Price": 45.085,
+      "Shares": 9.8581,
       "Notional_USD": 444.45
     },
     {
@@ -60,7 +60,7 @@
       "Side": "BUY",
       "Weight_Delta": 0.0361,
       "Fill_Price": 18.44,
-      "Shares": 24.1026,
+      "Shares": 24.1027,
       "Notional_USD": 444.45
     },
     {
@@ -70,7 +70,7 @@
       "Side": "SELL",
       "Weight_Delta": -0.0656,
       "Fill_Price": 91.46,
-      "Shares": -8.8298,
+      "Shares": -8.8299,
       "Notional_USD": -807.58
     },
     {
@@ -460,10 +460,17 @@
     },
     {
       "d": "2026-05-08",
-      "v": 12304.96,
-      "ret": 0.002473,
+      "v": 12305.02,
+      "ret": 0.002477,
       "turnover": 0.2756,
       "tc": 0.000138
+    },
+    {
+      "d": "2026-05-11",
+      "v": 12560.03,
+      "ret": 0.020728,
+      "turnover": 0.0072,
+      "tc": 4e-06
     }
   ],
   "spy_series": [
@@ -546,6 +553,10 @@
     {
       "d": "2026-05-08",
       "v": 10849.12
+    },
+    {
+      "d": "2026-05-11",
+      "v": 10871.56
     }
   ]
 }
