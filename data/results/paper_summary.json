@@ -4,25 +4,55 @@
     "tc_bps_per_side": 5.0,
     "trade_threshold_pct": 0.5
   },
-  "as_of": "2026-05-12",
+  "as_of": "2026-05-13",
   "start_date": "2026-04-13",
-  "current_nav": 12572.99,
-  "total_return_pct": 25.73,
-  "spy_total_return_pct": 8.78,
-  "n_trade_days": 22,
-  "ann_return_pct": 268.79,
-  "ann_vol_pct": 25.26,
-  "sharpe": 10.642,
+  "current_nav": 12558.84,
+  "total_return_pct": 25.59,
+  "spy_total_return_pct": 9.01,
+  "n_trade_days": 23,
+  "ann_return_pct": 255.91,
+  "ann_vol_pct": 24.98,
+  "sharpe": 10.244,
   "mdd_pct": -2.61,
   "tracking_error_vs_backtest": {
-    "n_days": 22,
-    "mean_diff_bps": 53.33,
-    "stdev_diff_bps": 186.74,
+    "n_days": 23,
+    "mean_diff_bps": 49.89,
+    "stdev_diff_bps": 183.46,
     "max_abs_diff_bps": 492.77,
-    "ann_tracking_error_bps": 2964.4,
+    "ann_tracking_error_bps": 2912.3,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
+    {
+      "Date": "2026-05-13",
+      "signal_date": "2026-05-12",
+      "Ticker": "UCO",
+      "Side": "SELL",
+      "Weight_Delta": -0.0295,
+      "Fill_Price": 49.09,
+      "Shares": -7.5557,
+      "Notional_USD": -370.91
+    },
+    {
+      "Date": "2026-05-13",
+      "signal_date": "2026-05-12",
+      "Ticker": "TQQQ",
+      "Side": "BUY",
+      "Weight_Delta": 0.0286,
+      "Fill_Price": 75.81,
+      "Shares": 4.7298,
+      "Notional_USD": 358.57
+    },
+    {
+      "Date": "2026-05-13",
+      "signal_date": "2026-05-12",
+      "Ticker": "BIL",
+      "Side": "BUY",
+      "Weight_Delta": 0.006,
+      "Fill_Price": 91.49,
+      "Shares": 0.8202,
+      "Notional_USD": 75.04
+    },
     {
       "Date": "2026-05-12",
       "signal_date": "2026-05-11",
@@ -106,6 +136,16 @@
     {
       "Date": "2026-05-06",
       "signal_date": "2026-05-05",
+      "Ticker": "BIL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0391,
+      "Fill_Price": 91.42,
+      "Shares": 5.1842,
+      "Notional_USD": 473.94
+    },
+    {
+      "Date": "2026-05-06",
+      "signal_date": "2026-05-05",
       "Ticker": "QLD",
       "Side": "SELL",
       "Weight_Delta": -0.0084,
@@ -122,16 +162,6 @@
       "Fill_Price": 157.84,
       "Shares": -0.3934,
       "Notional_USD": -62.09
-    },
-    {
-      "Date": "2026-05-06",
-      "signal_date": "2026-05-05",
-      "Ticker": "BIL",
-      "Side": "BUY",
-      "Weight_Delta": 0.0391,
-      "Fill_Price": 91.42,
-      "Shares": 5.1842,
-      "Notional_USD": 473.94
     },
     {
       "Date": "2026-05-06",
@@ -266,16 +296,6 @@
     {
       "Date": "2026-05-04",
       "signal_date": "2026-05-01",
-      "Ticker": "ERX",
-      "Side": "BUY",
-      "Weight_Delta": 0.0062,
-      "Fill_Price": 93.8,
-      "Shares": 0.7611,
-      "Notional_USD": 71.39
-    },
-    {
-      "Date": "2026-05-04",
-      "signal_date": "2026-05-01",
       "Ticker": "UCO",
       "Side": "BUY",
       "Weight_Delta": 0.0109,
@@ -296,32 +316,12 @@
     {
       "Date": "2026-05-04",
       "signal_date": "2026-05-01",
-      "Ticker": "BIL",
-      "Side": "SELL",
-      "Weight_Delta": -0.0297,
-      "Fill_Price": 91.41,
-      "Shares": -3.7456,
-      "Notional_USD": -342.38
-    },
-    {
-      "Date": "2026-05-01",
-      "signal_date": "2026-04-30",
-      "Ticker": "BIL",
+      "Ticker": "ERX",
       "Side": "BUY",
-      "Weight_Delta": 0.0069,
-      "Fill_Price": 91.41,
-      "Shares": 0.8559,
-      "Notional_USD": 78.24
-    },
-    {
-      "Date": "2026-04-30",
-      "signal_date": "2026-04-29",
-      "Ticker": "BIL",
-      "Side": "SELL",
-      "Weight_Delta": -0.011,
-      "Fill_Price": 91.64,
-      "Shares": -1.3397,
-      "Notional_USD": -122.77
+      "Weight_Delta": 0.0062,
+      "Fill_Price": 93.8,
+      "Shares": 0.7611,
+      "Notional_USD": 71.39
     }
   ],
   "nav_series": [
@@ -474,10 +474,17 @@
     },
     {
       "d": "2026-05-12",
-      "v": 12572.99,
-      "ret": 0.001041,
+      "v": 12572.96,
+      "ret": 0.001038,
       "turnover": 0.0327,
       "tc": 1.6e-05
+    },
+    {
+      "d": "2026-05-13",
+      "v": 12558.84,
+      "ret": -0.001089,
+      "turnover": 0.0691,
+      "tc": 3.5e-05
     }
   ],
   "spy_series": [
@@ -568,6 +575,10 @@
     {
       "d": "2026-05-12",
       "v": 10878.05
+    },
+    {
+      "d": "2026-05-13",
+      "v": 10901.37
     }
   ]
 }
