@@ -1,0 +1,48 @@
+name: Deploy Pages
+
+# Triggered after the daily cron workflows finish (and on demand). We use
+# workflow_run rather than `on: push` because the crons commit & push with
+# the default GITHUB_TOKEN — and pushes made by GITHUB_TOKEN do NOT trigger
+# `on: push` workflows. workflow_run fires on workflow completion regardless
+# of who pushed, so the published site stays in sync with main.
+on:
+  workflow_run:
+    workflows: ["PHOENIX Live Signal", "Daily Dashboard Update"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Deploy on manual runs, or whenever a triggering cron completed
+    # successfully (the crons always commit+push their refresh before exiting).
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - name: Checkout main
+      uses: actions/checkout@v4
+      with:
+        ref: main
+
+    - name: Configure Pages
+      uses: actions/configure-pages@v5
+
+    - name: Upload docs/ artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: docs
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
