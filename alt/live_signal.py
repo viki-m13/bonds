@@ -462,8 +462,12 @@ def main():
     if pos_file.exists():
         prev_df = pd.read_csv(pos_file, parse_dates=["Date"]).set_index("Date").sort_index()
         prev_df = prev_df.drop(columns=["ret"], errors="ignore")
-        if as_of_close is not None:
-            prev_df = prev_df[prev_df.index < pd.Timestamp(context["as_of"])]
+        # Always diff against the most recent row STRICTLY BEFORE the signal
+        # date. Otherwise, when the cron pipeline runs us twice (backfill writes
+        # today's row, then refresh_all re-invokes us with --skip-fetch), the
+        # second invocation would read its own freshly-written row back and
+        # report trades_today=[] even when the day genuinely had trades.
+        prev_df = prev_df[prev_df.index < pd.Timestamp(context["as_of"])]
         if len(prev_df) > 0:
             prev_row = prev_df.iloc[-1]
             prev_weights = prev_row[prev_row != 0]
