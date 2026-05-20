@@ -551,6 +551,15 @@ def main():
     print("\n=== Regenerating audit bundle ===")
     regenerate_audit_bundle()
 
+    # 7b. Period-returns table (MTD/QTD/YTD/1Y/3Y/5Y/10Y/ITD for backtest and
+    # paper trade). Writes into phoenix_factsheet.json under `performance` so
+    # inject_into_html picks it up via const F. Must run AFTER paper_trader
+    # has updated paper_summary.json and AFTER regenerate_factsheet has
+    # written the base factsheet.
+    print("\n=== Computing period returns (MTD/QTD/YTD/...) ===")
+    run([sys.executable, str(ALT / "compute_performance.py")],
+        "Compute period returns")
+
     # 8. Inject all data into HTML
     print("\n=== Injecting into docs/phoenix.html ===")
     inject_into_html()
