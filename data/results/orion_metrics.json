@@ -3,27 +3,27 @@
   "IS_cagr": 0.1209242674062434,
   "IS_vol": 0.19461103275059013,
   "IS_mdd": -0.3165844729517806,
-  "OOS_sharpe": 1.1406890464500228,
-  "OOS_cagr": 0.34178606514351184,
-  "OOS_vol": 0.2965479376078252,
+  "OOS_sharpe": 1.1113896398682126,
+  "OOS_cagr": 0.33127395397539705,
+  "OOS_vol": 0.2975654386337828,
   "OOS_mdd": -0.24345492868657848,
-  "Full_sharpe": 0.9196079909682384,
-  "Full_cagr": 0.21654532332858212,
-  "Full_vol": 0.24634929082103413,
+  "Full_sharpe": 0.9037337452287484,
+  "Full_cagr": 0.21225360570502372,
+  "Full_vol": 0.24692837876894222,
   "Full_mdd": -0.3165844729517806,
-  "avg_turnover_annualised": 13.582166543846721,
-  "sharpe_gap_IS_OOS": 0.45621499280737887,
+  "avg_turnover_annualised": 13.575497176528359,
+  "sharpe_gap_IS_OOS": 0.4269155862255687,
   "per_signal_sharpe": {
-    "S1_momentum": 0.8280336168290028,
-    "S2_trend": 0.8388778650893955,
-    "S3_lowvol_safe": 0.35742633811824875,
-    "S4_regime": 0.48377420003863186
+    "S1_momentum": 0.816690385761835,
+    "S2_trend": 0.8335735610093242,
+    "S3_lowvol_safe": 0.35152056213289434,
+    "S4_regime": 0.4796185339478853
   },
   "signal_return_corr": {
     "S1_momentum": {
       "S1_momentum": 1.0,
       "S2_trend": 0.714,
-      "S3_lowvol_safe": -0.14,
+      "S3_lowvol_safe": -0.139,
       "S4_regime": 0.552
     },
     "S2_trend": {
@@ -33,29 +33,29 @@
       "S4_regime": 0.667
     },
     "S3_lowvol_safe": {
-      "S1_momentum": -0.14,
+      "S1_momentum": -0.139,
       "S2_trend": 0.075,
       "S3_lowvol_safe": 1.0,
-      "S4_regime": 0.022
+      "S4_regime": 0.023
     },
     "S4_regime": {
       "S1_momentum": 0.552,
       "S2_trend": 0.667,
-      "S3_lowvol_safe": 0.022,
+      "S3_lowvol_safe": 0.023,
       "S4_regime": 1.0
     }
   },
   "sleeve_sharpe": {
-    "RISK_sleeve": 0.7798694134776796,
-    "SAFE_sleeve": 0.4414723328194477
+    "RISK_sleeve": 0.7667958468038374,
+    "SAFE_sleeve": 0.43502981629609316
   },
   "sleeve_corr": {
     "RISK": {
       "RISK": 1.0,
-      "SAFE": -0.058
+      "SAFE": -0.056
     },
     "SAFE": {
-      "RISK": -0.058,
+      "RISK": -0.056,
       "SAFE": 1.0
     }
   },
