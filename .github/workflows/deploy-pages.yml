@@ -1,11 +1,14 @@
 name: Deploy Pages
 
-# Triggered after the daily cron workflows finish (and on demand). We use
-# workflow_run rather than `on: push` because the crons commit & push with
-# the default GITHUB_TOKEN — and pushes made by GITHUB_TOKEN do NOT trigger
-# `on: push` workflows. workflow_run fires on workflow completion regardless
-# of who pushed, so the published site stays in sync with main.
+# Triggers (any of these redeploys the site):
+#  - push to main: catches human PR merges and direct commits.
+#  - workflow_run on the two crons: catches bot-pushed commits, which the
+#    `on: push` event does NOT see (pushes made with the default
+#    GITHUB_TOKEN intentionally don't trigger downstream workflows).
+#  - workflow_dispatch: manual button in the Actions tab.
 on:
+  push:
+    branches: [main]
   workflow_run:
     workflows: ["PHOENIX Live Signal", "Daily Dashboard Update"]
     types: [completed]
