@@ -1,27 +1,27 @@
 ticker,name,category,rows,start,end
-SHY,iShares 1-3 Year Treasury Bond,treasury_short,5379,2005-01-03,2026-05-20
-IEI,iShares 3-7 Year Treasury Bond,treasury_medium,4870,2007-01-11,2026-05-20
-IEF,iShares 7-10 Year Treasury Bond,treasury_intermediate,5379,2005-01-03,2026-05-20
-TLH,iShares 10-20 Year Treasury Bond,treasury_long,4870,2007-01-11,2026-05-20
-TLT,iShares 20+ Year Treasury Bond,treasury_ultra_long,5379,2005-01-03,2026-05-20
-GOVT,iShares US Treasury Bond,treasury_broad,3580,2012-02-24,2026-05-20
-SPTL,SPDR Portfolio Long Term Treasury,treasury_long,4775,2007-05-30,2026-05-20
-VGLT,Vanguard Long-Term Treasury,treasury_long,4120,2010-01-04,2026-05-20
-LQD,iShares Investment Grade Corporate,corp_ig,5379,2005-01-03,2026-05-20
-VCIT,Vanguard Intermediate-Term Corp Bond,corp_ig,4147,2009-11-23,2026-05-20
-VCSH,Vanguard Short-Term Corp Bond,corp_ig_short,4147,2009-11-23,2026-05-20
-IGIB,iShares 5-10 Year IG Corp Bond,corp_ig,4870,2007-01-11,2026-05-20
-HYG,iShares High Yield Corporate Bond,high_yield,4809,2007-04-11,2026-05-20
-JNK,SPDR Bloomberg High Yield Bond,high_yield,4644,2007-12-04,2026-05-20
-USHY,iShares Broad USD High Yield Corp,high_yield,2152,2017-10-26,2026-05-20
-AGG,iShares Core US Aggregate Bond,aggregate,5379,2005-01-03,2026-05-20
-BND,Vanguard Total Bond Market,aggregate,4810,2007-04-10,2026-05-20
-TIP,iShares TIPS Bond,tips,5379,2005-01-03,2026-05-20
-SCHP,Schwab US TIPS,tips,3972,2010-08-05,2026-05-20
-MUB,iShares National Muni Bond,municipal,4704,2007-09-10,2026-05-20
-VTEB,Vanguard Tax-Exempt Bond,municipal,2700,2015-08-25,2026-05-20
-EMB,iShares JP Morgan USD EM Bond,emerging_market,4633,2007-12-19,2026-05-20
-VWOB,Vanguard Emerging Markets Govt Bond,emerging_market,3261,2013-06-04,2026-05-20
-FLOT,iShares Floating Rate Bond,floating_rate,3753,2011-06-17,2026-05-20
-MBB,iShares MBS,mbs,4826,2007-03-16,2026-05-20
-VMBS,Vanguard Mortgage-Backed Securities,mbs,4147,2009-11-23,2026-05-20
+SHY,iShares 1-3 Year Treasury Bond,treasury_short,5380,2005-01-03,2026-05-21
+IEI,iShares 3-7 Year Treasury Bond,treasury_medium,4871,2007-01-11,2026-05-21
+IEF,iShares 7-10 Year Treasury Bond,treasury_intermediate,5380,2005-01-03,2026-05-21
+TLH,iShares 10-20 Year Treasury Bond,treasury_long,4871,2007-01-11,2026-05-21
+TLT,iShares 20+ Year Treasury Bond,treasury_ultra_long,5380,2005-01-03,2026-05-21
+GOVT,iShares US Treasury Bond,treasury_broad,3581,2012-02-24,2026-05-21
+SPTL,SPDR Portfolio Long Term Treasury,treasury_long,4776,2007-05-30,2026-05-21
+VGLT,Vanguard Long-Term Treasury,treasury_long,4121,2010-01-04,2026-05-21
+LQD,iShares Investment Grade Corporate,corp_ig,5380,2005-01-03,2026-05-21
+VCIT,Vanguard Intermediate-Term Corp Bond,corp_ig,4148,2009-11-23,2026-05-21
+VCSH,Vanguard Short-Term Corp Bond,corp_ig_short,4148,2009-11-23,2026-05-21
+IGIB,iShares 5-10 Year IG Corp Bond,corp_ig,4871,2007-01-11,2026-05-21
+HYG,iShares High Yield Corporate Bond,high_yield,4810,2007-04-11,2026-05-21
+JNK,SPDR Bloomberg High Yield Bond,high_yield,4645,2007-12-04,2026-05-21
+USHY,iShares Broad USD High Yield Corp,high_yield,2153,2017-10-26,2026-05-21
+AGG,iShares Core US Aggregate Bond,aggregate,5380,2005-01-03,2026-05-21
+BND,Vanguard Total Bond Market,aggregate,4811,2007-04-10,2026-05-21
+TIP,iShares TIPS Bond,tips,5380,2005-01-03,2026-05-21
+SCHP,Schwab US TIPS,tips,3973,2010-08-05,2026-05-21
+MUB,iShares National Muni Bond,municipal,4705,2007-09-10,2026-05-21
+VTEB,Vanguard Tax-Exempt Bond,municipal,2701,2015-08-25,2026-05-21
+EMB,iShares JP Morgan USD EM Bond,emerging_market,4634,2007-12-19,2026-05-21
+VWOB,Vanguard Emerging Markets Govt Bond,emerging_market,3262,2013-06-04,2026-05-21
+FLOT,iShares Floating Rate Bond,floating_rate,3754,2011-06-17,2026-05-21
+MBB,iShares MBS,mbs,4827,2007-03-16,2026-05-21
+VMBS,Vanguard Mortgage-Backed Securities,mbs,4148,2009-11-23,2026-05-21
