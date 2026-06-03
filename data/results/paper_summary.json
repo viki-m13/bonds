@@ -4,22 +4,22 @@
     "tc_bps_per_side": 5.0,
     "trade_threshold_pct": 0.5
   },
-  "as_of": "2026-06-01",
+  "as_of": "2026-06-02",
   "start_date": "2026-04-13",
-  "current_nav": 12309.91,
-  "total_return_pct": 23.1,
-  "spy_total_return_pct": 11.51,
-  "n_trade_days": 35,
-  "ann_return_pct": 154.7,
-  "ann_vol_pct": 24.29,
-  "sharpe": 6.369,
+  "current_nav": 12429.4,
+  "total_return_pct": 24.29,
+  "spy_total_return_pct": 11.75,
+  "n_trade_days": 36,
+  "ann_return_pct": 157.2,
+  "ann_vol_pct": 23.96,
+  "sharpe": 6.562,
   "mdd_pct": -4.45,
   "tracking_error_vs_backtest": {
-    "n_days": 35,
-    "mean_diff_bps": 32.86,
-    "stdev_diff_bps": 166.72,
+    "n_days": 36,
+    "mean_diff_bps": 32.26,
+    "stdev_diff_bps": 164.8,
     "max_abs_diff_bps": 492.77,
-    "ann_tracking_error_bps": 2646.7,
+    "ann_tracking_error_bps": 2616.1,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
@@ -30,8 +30,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.0923,
       "Fill_Price": 54.87,
-      "Shares": -20.6975,
-      "Notional_USD": -1135.67
+      "Shares": -20.6976,
+      "Notional_USD": -1135.68
     },
     {
       "Date": "2026-06-01",
@@ -40,7 +40,7 @@
       "Side": "BUY",
       "Weight_Delta": 0.0892,
       "Fill_Price": 98.16,
-      "Shares": 11.1819,
+      "Shares": 11.182,
       "Notional_USD": 1097.62
     },
     {
@@ -565,10 +565,17 @@
     },
     {
       "d": "2026-06-01",
-      "v": 12309.91,
-      "ret": -0.002279,
+      "v": 12309.99,
+      "ret": -0.002272,
       "turnover": 0.195,
       "tc": 9.8e-05
+    },
+    {
+      "d": "2026-06-02",
+      "v": 12429.4,
+      "ret": 0.009701,
+      "turnover": 0.0025,
+      "tc": 1e-06
     }
   ],
   "spy_series": [
@@ -711,6 +718,10 @@
     {
       "d": "2026-06-01",
       "v": 11150.71
+    },
+    {
+      "d": "2026-06-02",
+      "v": 11175.36
     }
   ]
 }
