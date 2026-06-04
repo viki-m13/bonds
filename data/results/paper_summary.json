@@ -4,22 +4,22 @@
     "tc_bps_per_side": 5.0,
     "trade_threshold_pct": 0.5
   },
-  "as_of": "2026-06-03",
+  "as_of": "2026-06-04",
   "start_date": "2026-04-13",
-  "current_nav": 12555.63,
-  "total_return_pct": 25.56,
-  "spy_total_return_pct": 11.92,
-  "n_trade_days": 37,
-  "ann_return_pct": 159.87,
-  "ann_vol_pct": 23.65,
-  "sharpe": 6.761,
+  "current_nav": 12272.22,
+  "total_return_pct": 22.72,
+  "spy_total_return_pct": 11.03,
+  "n_trade_days": 38,
+  "ann_return_pct": 140.7,
+  "ann_vol_pct": 24.48,
+  "sharpe": 5.746,
   "mdd_pct": -4.45,
   "tracking_error_vs_backtest": {
-    "n_days": 37,
-    "mean_diff_bps": 31.65,
-    "stdev_diff_bps": 163.8,
+    "n_days": 38,
+    "mean_diff_bps": 30.55,
+    "stdev_diff_bps": 166.07,
     "max_abs_diff_bps": 492.77,
-    "ann_tracking_error_bps": 2600.3,
+    "ann_tracking_error_bps": 2636.2,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
@@ -579,10 +579,17 @@
     },
     {
       "d": "2026-06-03",
-      "v": 12555.63,
-      "ret": 0.010162,
+      "v": 12555.78,
+      "ret": 0.010173,
       "turnover": 0.0086,
       "tc": 4e-06
+    },
+    {
+      "d": "2026-06-04",
+      "v": 12272.22,
+      "ret": -0.022584,
+      "turnover": 0.0004,
+      "tc": 0.0
     }
   ],
   "spy_series": [
@@ -733,6 +740,10 @@
     {
       "d": "2026-06-03",
       "v": 11191.89
+    },
+    {
+      "d": "2026-06-04",
+      "v": 11102.58
     }
   ]
 }
