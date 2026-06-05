@@ -301,13 +301,6 @@ tr:hover td:first-child{box-shadow:inset 3px 0 0 var(--ember)}
 .pos{color:var(--green);font-weight:600}
 .neg{color:var(--red);font-weight:600}
 
-/* Cursor-follow ember dot (desktop only, non-touch) */
-.cursor-dot{position:fixed;top:0;left:0;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fbbf24 0%,#c2410c 70%);pointer-events:none;z-index:80;mix-blend-mode:multiply;opacity:0;transform:translate(-50%,-50%);transition:opacity .25s, width .2s var(--bezier-emph), height .2s var(--bezier-emph);will-change:transform}
-.cursor-dot.is-show{opacity:0.65}
-.cursor-dot.is-link{width:38px;height:38px;mix-blend-mode:normal;background:rgba(194,65,12,0.18);border:1px solid var(--ember);opacity:1}
-@media (hover:none){.cursor-dot{display:none}}
-@media (pointer:coarse){.cursor-dot{display:none}}
-
 /* Hero scroll-blur — content gently softens as it leaves viewport */
 .hero{will-change:filter,opacity}
 
@@ -587,9 +580,6 @@ button.btn.ember:hover{background:var(--ember-deep)}
 </style>
 </head>
 <body>
-
-<!-- Cursor-follow dot (desktop) -->
-<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
 
 <!-- Scroll progress -->
 <div class="progressbar" aria-hidden="true"><i id="scrollProg"></i></div>
@@ -1766,31 +1756,6 @@ button.btn.ember:hover{background:var(--ember-deep)}
   }, {passive:true});
   window.addEventListener('resize', rafParallax);
   rafParallax();
-
-  // Cursor-follow dot (desktop only)
-  var cdot = document.getElementById('cursorDot');
-  if (cdot && window.matchMedia('(hover:hover) and (pointer:fine)').matches){
-    var cx = 0, cy = 0, tx = 0, ty = 0, raf = false;
-    function moveDot(){
-      cx += (tx - cx) * 0.18;
-      cy += (ty - cy) * 0.18;
-      cdot.style.transform = 'translate(' + cx + 'px,' + cy + 'px) translate(-50%,-50%)';
-      if (Math.abs(tx - cx) > 0.1 || Math.abs(ty - cy) > 0.1) requestAnimationFrame(moveDot);
-      else raf = false;
-    }
-    document.addEventListener('mousemove', function(e){
-      tx = e.clientX; ty = e.clientY;
-      cdot.classList.add('is-show');
-      if (!raf){ raf = true; requestAnimationFrame(moveDot); }
-    });
-    document.addEventListener('mouseleave', function(){ cdot.classList.remove('is-show'); });
-    // Enlarge over interactive elements
-    var hoverSel = 'a, button, .nav-pill, .preset, .sleeve, .kpi, summary, input';
-    document.querySelectorAll(hoverSel).forEach(function(el){
-      el.addEventListener('mouseenter', function(){ cdot.classList.add('is-link'); });
-      el.addEventListener('mouseleave', function(){ cdot.classList.remove('is-link'); });
-    });
-  }
 
   // Cinematic hero — keep crisp until ~70% past, then quick fade-out
   var heroEl = document.querySelector('.hero');
