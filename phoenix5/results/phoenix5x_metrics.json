@@ -60,5 +60,32 @@
       "navx": 188.8
     },
     "dominates_production_oos": true
+  },
+  "turbo_rv": {
+    "oos": {
+      "sr": 2.252,
+      "sortino": 3.323,
+      "cagr": 0.3756,
+      "vol": 0.1465,
+      "mdd": -0.1702,
+      "navx": 11.64
+    },
+    "is": {
+      "sr": 2.524,
+      "sortino": 4.006,
+      "cagr": 0.4395,
+      "vol": 0.1488,
+      "mdd": -0.1273,
+      "navx": 2.65
+    },
+    "full": {
+      "sr": 2.323,
+      "sortino": 3.487,
+      "cagr": 0.3916,
+      "vol": 0.147,
+      "mdd": -0.1702,
+      "navx": 30.85
+    },
+    "dominates_production_oos": true
   }
 }

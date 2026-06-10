@@ -56,14 +56,14 @@ lower vol *and* shallower drawdown — under the no-margin constraint
 (multiplier ≤ 1.0, leverage only inside LETFs). The production core (sleeves,
 weights, vol target, DD throttle) is untouched; only two kinds of changes:
 
-| OOS 2019–2026 | production | 5X-CONSERVATIVE | 5X-RECOMMENDED |
-|---|---|---|---|
-| Sharpe | 2.15 | 2.15 | **2.18** |
-| CAGR | 35.7% | 35.8% | **36.2%** |
-| Vol | 14.71% | 14.74% | **14.68%** |
-| Max drawdown | −17.7% | **−17.2%** | −17.5% |
-| $100k → (2019–2026) | $1.046M | $1.057M | **$1.080M** |
-| strict dominance | — | ~tie (vol +0.03pp) | **yes, all metrics** |
+| OOS 2019–2026 | production | 5X-CONSERVATIVE | 5X-RECOMMENDED | 5X-TURBO |
+|---|---|---|---|---|
+| Sharpe | 2.15 | 2.15 | 2.18 | **2.25** |
+| CAGR | 35.7% | 35.8% | 36.2% | **37.6%** |
+| Vol | 14.71% | 14.74% | 14.68% | **14.61%** |
+| Max drawdown | −17.7% | −17.2% | −17.5% | **−17.0%** |
+| $100k → (2019–2026) | $1.046M | $1.057M | $1.080M | **$1.165M** |
+| strict dominance | — | ~tie (vol +0.03pp) | yes, all metrics | **yes, all metrics** |
 
 - **5X-CONSERVATIVE** = correct-by-construction fixes only: 3-day smoothing of
   the overlay multiplier (cuts whipsaw TC) and idle de-risked capital earning
@@ -74,6 +74,20 @@ weights, vol target, DD throttle) is untouched; only two kinds of changes:
   vol days). **Caveat:** the deeper gate's OOS gain is concentrated in the
   2020/2022 vol episodes and costs ~0.03 IS Sharpe (`research/dominance_validate.py`)
   — the +0.4pp CAGR edge over CONSERVATIVE is regime-dependent, not a law.
+
+- **5X-TURBO** = RECOMMENDED + an intraday realized-vol accelerated overlay
+  (`research/rv_overlay.py`): the 60d vol estimate in the vol target is
+  multiplied by the 5d/60d ratio of market intraday RV (SPY/QQQ/TLT 5-min
+  bars, clipped 0.6–2.5). The overlay then de-risks within days of a vol
+  shock and — just as important — re-risks within days of it decaying, so
+  capital spends more time deployed. Mechanism-consistent gains: vs the
+  production-equivalent baseline it added +10.3pp in 2020 and +4.3pp in 2022
+  (the vol-episode years) while giving back ~1–3pp in calm years.
+  **Caveats:** intraday data exists only from 2016, so this variant runs
+  2016-06 onward and its pre-2019 validation window is short; the 2020 gain
+  is one episode. The mechanism (fast-RV vol management) has strong academic
+  support (vol-managed portfolio literature), which is why it's offered
+  despite the short sample.
 
 Magnitude honesty: production is already near its no-leverage efficiency
 frontier. Without margin, the diversifiers found in this research can only be

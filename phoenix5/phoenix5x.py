@@ -119,10 +119,29 @@ def build_parking(index):
     return bil, div
 
 
-def run_variant(raw, park, gate_lvl, smooth=3):
+def intraday_rv(t):
+    df = pd.read_csv(ROOT / f"data/intraday_5min/{t}.csv", parse_dates=["ts"])
+    df["date"] = df["ts"].dt.normalize()
+    r = df.groupby("date")["close"].apply(lambda s: (np.log(s / s.shift(1)) ** 2).sum())
+    return np.sqrt(r * 252)
+
+
+def rv_ratio(index):
+    """Intraday-RV acceleration factor: 5d/60d ratio of market realized vol
+    (SPY/QQQ/TLT 5-min bars). >1 when vol is rising faster than the 60d window
+    can see; <1 when a past spike is decaying. Available 2016+."""
+    rv = pd.concat([intraday_rv(t) for t in ["SPY", "QQQ", "TLT"]], axis=1).mean(axis=1)
+    rv = rv.reindex(index).ffill()
+    return (rv.rolling(5).mean() / rv.rolling(60).mean()).clip(0.6, 2.5)
+
+
+def run_variant(raw, park, gate_lvl, smooth=3, rv_accel=None):
     """Production overlay with smoothing + idle parking. gate_lvl is the
-    exposure retained on extreme-vol days (production = 0.5)."""
+    exposure retained on extreme-vol days (production = 0.5). rv_accel, if
+    given, multiplies the vol estimate (intraday-RV acceleration)."""
     rv = raw.rolling(60).std() * np.sqrt(252)
+    if rv_accel is not None:
+        rv = rv * rv_accel.reindex(raw.index).fillna(1.0)
     vol_mult = (0.15 / rv).clip(0.25, 1.0).shift(1).fillna(1.0)
     scaled = raw * vol_mult
     cum = (1 + scaled).cumprod()
@@ -157,10 +176,14 @@ def main():
     park = 0.5 * bil + 0.5 * div
     reco, state_r = run_variant(raw, park, gate_lvl=0.25)
     show(reco, "5X-RECOMMENDED")
+    accel = rv_ratio(raw.index)
+    turbo, state_t = run_variant(raw, park, gate_lvl=0.25, rv_accel=accel)
+    turbo = turbo.loc["2016-06-01":]   # intraday data era only
+    show(turbo, "5X-TURBO (RV overlay)")
 
     bench = metrics(phx.loc[OOS:])
     out = {"benchmark_oos": bench}
-    for name, r in [("conservative", cons), ("recommended", reco)]:
+    for name, r in [("conservative", cons), ("recommended", reco), ("turbo_rv", turbo)]:
         o = metrics(r.loc[OOS:])
         out[name] = {
             "oos": o, "is": metrics(r.loc[:IS_END]), "full": metrics(r),
@@ -171,7 +194,8 @@ def main():
         print(f"  {name}: strict OOS dominance = {out[name]['dominates_production_oos']}")
 
     (OUT / "phoenix5x_metrics.json").write_text(json.dumps(out, indent=2))
-    pd.DataFrame({"conservative": cons, "recommended": reco}).dropna().to_csv(
+    pd.DataFrame({"conservative": cons, "recommended": reco,
+                  "turbo_rv": turbo}).dropna(how="all").to_csv(
         OUT / "phoenix5x_returns.csv")
     state_r.reset_index().rename(columns={"index": "Date"}).to_csv(
         OUT / "phoenix5x_state.csv", index=False)
