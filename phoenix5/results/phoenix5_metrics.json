@@ -1,0 +1,204 @@
+{
+  "sleeves": {
+    "PHXCORE": {
+      "is": {
+        "sharpe": 2.442,
+        "sortino": 3.587,
+        "cagr": 0.4234,
+        "vol": 0.1492,
+        "mdd": -0.1797,
+        "calmar": 2.357,
+        "navx": 25.01,
+        "n": 2298
+      },
+      "oos": {
+        "sharpe": 1.992,
+        "sortino": 2.779,
+        "cagr": 0.4351,
+        "vol": 0.1906,
+        "mdd": -0.2006,
+        "calmar": 2.169,
+        "navx": 16.14,
+        "n": 1940
+      },
+      "full": {
+        "sharpe": 2.192,
+        "sortino": 3.085,
+        "cagr": 0.4286,
+        "vol": 0.1694,
+        "mdd": -0.2006,
+        "calmar": 2.137,
+        "navx": 403.62,
+        "n": 4239
+      }
+    },
+    "MOSAIC": {
+      "is": {
+        "sharpe": 1.091,
+        "sortino": 1.327,
+        "cagr": 0.099,
+        "vol": 0.0903,
+        "mdd": -0.1526,
+        "calmar": 0.649,
+        "navx": 2.83,
+        "n": 2777
+      },
+      "oos": {
+        "sharpe": 1.133,
+        "sortino": 1.294,
+        "cagr": 0.108,
+        "vol": 0.0945,
+        "mdd": -0.163,
+        "calmar": 0.662,
+        "navx": 1.82,
+        "n": 1470
+      },
+      "full": {
+        "sharpe": 1.106,
+        "sortino": 1.313,
+        "cagr": 0.1021,
+        "vol": 0.0918,
+        "mdd": -0.163,
+        "calmar": 0.626,
+        "navx": 5.15,
+        "n": 4247
+      }
+    },
+    "CREDLO": {
+      "is": {
+        "sharpe": 0.185,
+        "sortino": 0.232,
+        "cagr": 0.0029,
+        "vol": 0.0161,
+        "mdd": -0.0508,
+        "calmar": 0.056,
+        "navx": 1.02,
+        "n": 1896
+      },
+      "oos": {
+        "sharpe": 1.882,
+        "sortino": 2.032,
+        "cagr": 0.0476,
+        "vol": 0.0249,
+        "mdd": -0.0509,
+        "calmar": 0.935,
+        "navx": 1.4,
+        "n": 1823
+      },
+      "full": {
+        "sharpe": 1.17,
+        "sortino": 1.339,
+        "cagr": 0.0246,
+        "vol": 0.0209,
+        "mdd": -0.0509,
+        "calmar": 0.482,
+        "navx": 1.43,
+        "n": 3719
+      }
+    },
+    "MFUT": {
+      "is": {},
+      "oos": {
+        "sharpe": 0.849,
+        "sortino": 1.033,
+        "cagr": 0.0951,
+        "vol": 0.1148,
+        "mdd": -0.1921,
+        "calmar": 0.495,
+        "navx": 1.87,
+        "n": 1735
+      },
+      "full": {
+        "sharpe": 0.849,
+        "sortino": 1.033,
+        "cagr": 0.0951,
+        "vol": 0.1148,
+        "mdd": -0.1921,
+        "calmar": 0.495,
+        "navx": 1.87,
+        "n": 1735
+      }
+    }
+  },
+  "correlations": {
+    "PHXCORE": {
+      "PHXCORE": 1.0,
+      "MOSAIC": 0.434,
+      "CREDLO": 0.323,
+      "MFUT": 0.06
+    },
+    "MOSAIC": {
+      "PHXCORE": 0.434,
+      "MOSAIC": 1.0,
+      "CREDLO": 0.547,
+      "MFUT": 0.216
+    },
+    "CREDLO": {
+      "PHXCORE": 0.323,
+      "MOSAIC": 0.547,
+      "CREDLO": 1.0,
+      "MFUT": 0.209
+    },
+    "MFUT": {
+      "PHXCORE": 0.06,
+      "MOSAIC": 0.216,
+      "CREDLO": 0.209,
+      "MFUT": 1.0
+    }
+  },
+  "phoenix5": {
+    "full": {
+      "sharpe": 2.496,
+      "sortino": 3.238,
+      "cagr": 0.1982,
+      "vol": 0.0736,
+      "mdd": -0.1098,
+      "calmar": 1.806,
+      "navx": 17.75,
+      "n": 4008
+    },
+    "is": {
+      "sharpe": 2.293,
+      "sortino": 3.177,
+      "cagr": 0.1835,
+      "vol": 0.0747,
+      "mdd": -0.0952,
+      "calmar": 1.928,
+      "navx": 3.98,
+      "n": 2067
+    },
+    "oos": {
+      "sharpe": 2.721,
+      "sortino": 3.297,
+      "cagr": 0.2142,
+      "vol": 0.0723,
+      "mdd": -0.1098,
+      "calmar": 1.951,
+      "navx": 4.46,
+      "n": 1940
+    },
+    "oos_sr_ci95": [
+      1.7,
+      3.799
+    ],
+    "avg_mult": 0.962
+  },
+  "benchmark_phoenix_oos": {
+    "sharpe": 2.149,
+    "sortino": 3.163,
+    "cagr": 0.3566,
+    "vol": 0.1471,
+    "mdd": -0.1765,
+    "calmar": 2.02,
+    "navx": 10.46,
+    "n": 1940
+  },
+  "params": {
+    "sleeve_vt": 0.1,
+    "port_vt": 0.15,
+    "vol_cap": 1.0,
+    "min_hist": 189,
+    "tilt_cap": 3.0,
+    "weight_refresh_days": 21
+  }
+}

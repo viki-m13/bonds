@@ -1,0 +1,37 @@
+{
+  "config": {
+    "N": 21,
+    "K": 3,
+    "embargo": 21,
+    "retrain": "annual, expanding window",
+    "tc_bps": 10.0
+  },
+  "full": {
+    "sharpe": 0.554,
+    "cagr": 0.1601,
+    "vol": 0.4707,
+    "mdd": -0.678,
+    "n": 3379
+  },
+  "is": {
+    "sharpe": 0.2715,
+    "cagr": 0.023,
+    "vol": 0.4376,
+    "mdd": -0.614,
+    "n": 1510
+  },
+  "oos": {
+    "sharpe": 0.7572,
+    "cagr": 0.2843,
+    "vol": 0.4957,
+    "mdd": -0.678,
+    "n": 1869
+  },
+  "frozen_quantum_oos": {
+    "sharpe": 0.8637,
+    "cagr": 0.3826,
+    "vol": 0.5595,
+    "mdd": -0.5201,
+    "n": 1869
+  }
+}
