@@ -48,6 +48,43 @@ The two "Sharpe ≈ 4–5 OOS" streams already present in `data/results/`
 (`strategy_v10`, OOS 4.58) were audited as part of this work and shown to be
 artifacts — see the research log below.
 
+## PHOENIX-5X — "more money AND less risk", no leverage (`phoenix5x.py`)
+
+PHOENIX-5 above maximizes Sharpe but earns less in absolute terms. PHOENIX-5X
+instead targets **strict dominance** of production PHOENIX — higher CAGR *and*
+lower vol *and* shallower drawdown — under the no-margin constraint
+(multiplier ≤ 1.0, leverage only inside LETFs). The production core (sleeves,
+weights, vol target, DD throttle) is untouched; only two kinds of changes:
+
+| OOS 2019–2026 | production | 5X-CONSERVATIVE | 5X-RECOMMENDED |
+|---|---|---|---|
+| Sharpe | 2.15 | 2.15 | **2.18** |
+| CAGR | 35.7% | 35.8% | **36.2%** |
+| Vol | 14.71% | 14.74% | **14.68%** |
+| Max drawdown | −17.7% | **−17.2%** | −17.5% |
+| $100k → (2019–2026) | $1.046M | $1.057M | **$1.080M** |
+| strict dominance | — | ~tie (vol +0.03pp) | **yes, all metrics** |
+
+- **5X-CONSERVATIVE** = correct-by-construction fixes only: 3-day smoothing of
+  the overlay multiplier (cuts whipsaw TC) and idle de-risked capital earning
+  BIL (T-bills) instead of 0%.
+- **5X-RECOMMENDED** = additionally parks idle capital 50/50 in BIL and a
+  no-margin diversifier basket (CREDLO + DBMF/KMLM/CTA managed futures), and
+  deepens the extreme-vol gate (de-risk to 25% instead of 50% on 99th-pctile
+  vol days). **Caveat:** the deeper gate's OOS gain is concentrated in the
+  2020/2022 vol episodes and costs ~0.03 IS Sharpe (`research/dominance_validate.py`)
+  — the +0.4pp CAGR edge over CONSERVATIVE is regime-dependent, not a law.
+
+Magnitude honesty: production is already near its no-leverage efficiency
+frontier. Without margin, the diversifiers found in this research can only be
+funded by displacing the ~36%-CAGR core, so the strictly-dominant gains are
+real but small (≈ +0.5pp CAGR, ≈ −0.2pp MDD, +0.03 SR). Larger risk-adjusted
+gains (PHOENIX-5's 2.72 Sharpe) inherently trade away absolute return.
+Also tested and rejected for this goal: walk-forward Sharpe-tilted sleeve
+weights at full risk (OOS SR 1.89–2.08, all worse), parking idle capital in
+MOSAIC (MDD worsens), softer/earlier DD throttles (no improvement)
+(`research/parking_grid.py`).
+
 ## What PHOENIX-5 is
 
 A meta-ensemble of four return streams, combined with fully causal machinery:
