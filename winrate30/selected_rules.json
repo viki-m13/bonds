@@ -1,0 +1,56 @@
+{
+  "generated": "2026-06-10",
+  "horizon_trading_days": 21,
+  "rules": [
+    [
+      "spy_above_200",
+      "vix_gt30",
+      "rsi_lt35",
+      "vol_low"
+    ],
+    [
+      "spy_above_200",
+      "vix_gt30",
+      "golden",
+      "dd_-10_-25",
+      "vol_low",
+      "mom_pos"
+    ]
+  ],
+  "rule_train_stats": [
+    {
+      "rule": [
+        "spy_above_200",
+        "vix_gt30",
+        "rsi_lt35",
+        "vol_low"
+      ],
+      "n": 187,
+      "hits": 154,
+      "rate": 0.8235294117647058,
+      "wilson_lb": 0.7625388645618929,
+      "description": "S&P 500 above its 200-day average (market uptrend); VIX above 30 (panic); RSI(14) below 35 (oversold); volatility in the bottom third of its own 1-year range"
+    },
+    {
+      "rule": [
+        "spy_above_200",
+        "vix_gt30",
+        "golden",
+        "dd_-10_-25",
+        "vol_low",
+        "mom_pos"
+      ],
+      "n": 160,
+      "hits": 128,
+      "rate": 0.8,
+      "wilson_lb": 0.7313136012818622,
+      "description": "S&P 500 above its 200-day average (market uptrend); VIX above 30 (panic); stock above 200-day avg and 50-day avg above 200-day avg; 10-25% below its 52-week high; volatility in the bottom third of its own 1-year range; positive 12-month momentum (excluding last month)"
+    }
+  ],
+  "oos_pooled": {
+    "n": 268,
+    "hits": 190,
+    "rate": 0.7089552238805971,
+    "wilson_lb": 0.6519224288615735
+  }
+}
