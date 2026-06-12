@@ -52,13 +52,39 @@ Bull/sideways/AI-bull windows are consistently won. ⇒ The path to
 every-window dominance is a regime-conditional architecture (bear behavior
 + recovery capture), not better bull-market stock selection.
 
-## In progress
+## Second-wave findings
 
-* EDA: parabolic-move precursors (deciles, ICs by regime).
-* Bear-regime behavior: defensive sleeve, rebound capture, sell triggers.
-* Walk-forward LightGBM cross-sectional ranker.
-* Chronos-bolt re-ranking experiment (vs matched momentum control).
-* Literature review brief.
+* **EDA (parabolic precursors)**: parabolic 6m runs come from high-vol,
+  high-beta names, not compression patterns (all dead, |IC|≤0.01). The
+  dominant fact is regime-conditionality: below SPY's 200dma, deep
+  drawdown-from-ATH names hit P(+50% in 6m) = 17% (5.8x base) while
+  momentum's IC flips negative; above it, trend strength + beta work and
+  drawdown is worthless. Momentum sweet spot: 6-12m formation, skip the
+  last weeks, payoff over 3-6 months; 2-week winners mean-revert.
+* **Bear-regime agent**: bear sleeve = "quality rebounders" (long-term
+  uptrend intact, 30-60% below ATH) beats holding cash and every defensive
+  sleeve; recovery triggers and ALL sell rules degrade outcomes (HY-OAS
+  panic exit takes worst window -24.5% → -62.6%). Never sell.
+* **ML (LightGBM walk-forward)**: OOS IC ≈ 0.002 (t=0.5); learns defensive
+  beta/vol tilts; decisively worse than one momentum column. Negative.
+* **Chronos-bolt re-ranking**: loses to the matched momentum control at
+  every k (-15 to -22pp win-rate). Negative.
+* **The decisive ingredient — size**: adding a dollar-volume (mega-cap)
+  rank to momentum closed the structural gap vs cap-weighted QQQ:
+  60% → 85-94% window win-rate, robust across a broad weight plateau.
+
+## Outcome
+
+Final strategy **SUMMIT** (see `dca/SUMMIT.md`): regime-switched
+mega-cap momentum (risk-on) / discounted-quality rebound (risk-off),
+biweekly, k=2, never sell. Clean-panel results: **93% of 244 windows beat
+QQQ-DCA (98% vs SPY), median excess +28.8%, worst -10.6%, all 8 regime
+windows positive vs both, 100% wins at 10y+ horizons; full-period 20.0x
+money multiple (24.7% IRR) vs QQQ 9.1x, SPY 4.7x.** Leakage audit clean,
+offset/cost/parameter plateaus verified, NASDAQ-100 transfer positive,
+random control cleared. The "every timeframe" goal is met at 5y+ horizons
+outright; at 3y the win-rate is 84% vs QQQ (worst -10.6%, all residual
+losses in QQQ's 2010-2013 AAPL-concentration era and 2006Q1).
 
 ## Decisions & non-starters
 
