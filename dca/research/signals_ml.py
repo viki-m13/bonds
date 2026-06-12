@@ -133,10 +133,22 @@ FEATURES = [
 # walk-forward
 # ---------------------------------------------------------------------------
 
-def build_scores(force: bool = False, verbose: bool = True):
-    """Run the full walk-forward, cache scores to parquet.  Returns scores."""
-    if not force and os.path.exists(SCORES_PQ):
-        return pd.read_parquet(SCORES_PQ)
+def _paths(spec):
+    suf = "" if spec == "l2" else f"_{spec}"
+    return (os.path.join(_HERE, f"ml_scores{suf}.parquet"),
+            os.path.join(_HERE, f"ml_meta{suf}.json"))
+
+
+def build_scores(force: bool = False, verbose: bool = True, spec: str = "l2"):
+    """Run the full walk-forward, cache scores to parquet.  Returns scores.
+
+    spec: "l2"    — LGBMRegressor on the rank label (headline spec)
+          "lrank" — LGBMRanker (lambdarank, grouped by date, decile labels);
+                    same trees/lr/leaves, no other tuning.
+    """
+    scores_pq, meta_json = _paths(spec)
+    if not force and os.path.exists(scores_pq):
+        return pd.read_parquet(scores_pq)
 
     import lightgbm as lgb
 
@@ -181,18 +193,34 @@ def build_scores(force: bool = False, verbose: bool = True):
 
     for fi, t in enumerate(fit_positions):
         tr_pos = labeled[labeled <= t - EMBARGO]
-        Xs, ys = [], []
+        if spec == "lrank":
+            # row cap by subsampling whole dates (groups must stay intact)
+            counts = label_ok[tr_pos].sum(axis=1)
+            while counts.sum() > MAX_TRAIN_ROWS and len(tr_pos) > 10:
+                keep = rng.choice(len(tr_pos),
+                                  int(len(tr_pos) * 0.9), replace=False)
+                keep.sort()
+                tr_pos, counts = tr_pos[keep], counts[keep]
+        Xs, ys, groups = [], [], []
         for p in tr_pos:
             ok = label_ok[p]
             Xs.append(cube[p][ok])
             ys.append(y_rank[p][ok])
+            groups.append(int(ok.sum()))
         X = np.concatenate(Xs)
         y = np.concatenate(ys)
-        if len(X) > MAX_TRAIN_ROWS:
-            sel = rng.choice(len(X), MAX_TRAIN_ROWS, replace=False)
-            X, y = X[sel], y[sel]
-        model = lgb.LGBMRegressor(**LGBM_PARAMS)
-        model.fit(X, y, feature_name=FEATURES)
+        if spec == "lrank":
+            yi = np.clip((y * 10).astype(int), 0, 9)   # decile relevance
+            model = lgb.LGBMRanker(objective="lambdarank",
+                                   **{k: v for k, v in LGBM_PARAMS.items()
+                                      if k != "objective"})
+            model.fit(X, yi, group=groups, feature_name=FEATURES)
+        else:
+            if len(X) > MAX_TRAIN_ROWS:
+                sel = rng.choice(len(X), MAX_TRAIN_ROWS, replace=False)
+                X, y = X[sel], y[sel]
+            model = lgb.LGBMRegressor(**LGBM_PARAMS)
+            model.fit(X, y, feature_name=FEATURES)
         gain = model.booster_.feature_importance(importance_type="gain")
         importances.append((gain / gain.sum()).tolist())
         fit_dates.append(str(idx[t].date()))
@@ -213,11 +241,12 @@ def build_scores(force: bool = False, verbose: bool = True):
                   f"rows={len(X)} ({time.time()-t0:.0f}s)", flush=True)
 
     S = pd.DataFrame(scores, index=idx, columns=cols)
-    S.to_parquet(SCORES_PQ)
+    S.to_parquet(scores_pq)
 
     # diagnostics: rank-IC (Spearman) of score vs realized fwd return by year
     ic = _rank_ic(S, fwd, member)
     meta = {
+        "spec": spec,
         "features": FEATURES,
         "lgbm_params": {k: v for k, v in LGBM_PARAMS.items()},
         "fit_dates": fit_dates,
@@ -228,10 +257,10 @@ def build_scores(force: bool = False, verbose: bool = True):
         "ic_overall_mean": float(ic.mean()),
         "ic_overall_t": float(ic.mean() / ic.std() * np.sqrt(len(ic))),
     }
-    with open(META_JSON, "w") as f:
+    with open(meta_json, "w") as f:
         json.dump(meta, f, indent=1)
     if verbose:
-        print(f"done in {time.time()-t0:.0f}s; cached {SCORES_PQ}", flush=True)
+        print(f"done in {time.time()-t0:.0f}s; cached {scores_pq}", flush=True)
     return S
 
 
@@ -257,9 +286,11 @@ def builder(panels):  # audit-compatible entry point (uses cached scores)
 if __name__ == "__main__":
     import protocol
 
-    S = build_scores(force="--force" in sys.argv)
-    meta = json.load(open(META_JSON))
+    spec = "lrank" if "--lrank" in sys.argv else "l2"
+    name = "ml_lgbm_rank" if spec == "l2" else "ml_lgbm_lrank"
+    S = build_scores(force="--force" in sys.argv, spec=spec)
+    meta = json.load(open(_paths(spec)[1]))
     print("first prediction:", meta["first_prediction"])
     print("IC by year:", {k: round(v, 3) for k, v in meta["ic_by_year"].items()})
     for k in (1, 2, 3, 5):
-        protocol.evaluate_signal(S, f"ml_lgbm_rank_k{k}", k=k)
+        protocol.evaluate_signal(S, f"{name}_k{k}", k=k)

@@ -1,0 +1,41 @@
+[bear_ref_mom126] k=3 win_qqq=59% win_spy=86% med_vs_qqq=+6.0% worst_vs_qqq=-25.7%
+[bear_pure_lowvol_rs] k=3 win_qqq=5% win_spy=27% med_vs_qqq=-21.5% worst_vs_qqq=-68.5%
+[bear_pure_defq] k=3 win_qqq=6% win_spy=28% med_vs_qqq=-22.0% worst_vs_qqq=-68.0%
+[bear_pure_rebound] k=3 win_qqq=28% win_spy=57% med_vs_qqq=-10.3% worst_vs_qqq=-51.9%
+[bear_pure_rebound_fb] k=3 win_qqq=28% win_spy=57% med_vs_qqq=-10.3% worst_vs_qqq=-51.9%
+[bear_pure_mom_lowbeta] k=3 win_qqq=17% win_spy=61% med_vs_qqq=-14.2% worst_vs_qqq=-44.7%
+
+bear days (base mask): 27.3% of sample
+[bear_sw_cash] k=3 win_qqq=60% win_spy=86% med_vs_qqq=+5.1% worst_vs_qqq=-29.7%
+[bear_sw_lowvol_rs] k=3 win_qqq=53% win_spy=88% med_vs_qqq=+1.6% worst_vs_qqq=-21.5%
+[bear_sw_defq] k=3 win_qqq=53% win_spy=89% med_vs_qqq=+1.3% worst_vs_qqq=-21.5%
+[bear_sw_rebound] k=3 win_qqq=61% win_spy=91% med_vs_qqq=+5.7% worst_vs_qqq=-24.5%
+[bear_sw_rebound_fb] k=3 win_qqq=61% win_spy=91% med_vs_qqq=+5.7% worst_vs_qqq=-24.5%
+[bear_sw_mom_lowbeta] k=3 win_qqq=55% win_spy=83% med_vs_qqq=+2.4% worst_vs_qqq=-22.0%
+  recovery 'thrust': +4.9% of days flipped early to bull
+[bear_sw_rebound_fb_rec_thrust] k=3 win_qqq=59% win_spy=91% med_vs_qqq=+5.3% worst_vs_qqq=-24.5%
+[bear_sw_lowvol_rs_rec_thrust] k=3 win_qqq=53% win_spy=88% med_vs_qqq=+1.6% worst_vs_qqq=-21.5%
+[bear_sw_defq_rec_thrust] k=3 win_qqq=53% win_spy=89% med_vs_qqq=+1.3% worst_vs_qqq=-21.5%
+  recovery 'vixrlx': +9.8% of days flipped early to bull
+[bear_sw_rebound_fb_rec_vixrlx] k=3 win_qqq=55% win_spy=84% med_vs_qqq=+2.6% worst_vs_qqq=-26.1%
+[bear_sw_lowvol_rs_rec_vixrlx] k=3 win_qqq=54% win_spy=85% med_vs_qqq=+1.8% worst_vs_qqq=-22.6%
+[bear_sw_defq_rec_vixrlx] k=3 win_qqq=54% win_spy=84% med_vs_qqq=+1.3% worst_vs_qqq=-21.6%
+  recovery 'spy50': +2.6% of days flipped early to bull
+[bear_sw_rebound_fb_rec_spy50] k=3 win_qqq=58% win_spy=87% med_vs_qqq=+4.8% worst_vs_qqq=-24.4%
+[bear_sw_lowvol_rs_rec_spy50] k=3 win_qqq=53% win_spy=87% med_vs_qqq=+1.5% worst_vs_qqq=-21.0%
+[bear_sw_defq_rec_spy50] k=3 win_qqq=53% win_spy=89% med_vs_qqq=+1.2% worst_vs_qqq=-21.1%
+  recovery 'all': +14.7% of days flipped early to bull
+[bear_sw_rebound_fb_rec_all] k=3 win_qqq=55% win_spy=84% med_vs_qqq=+2.6% worst_vs_qqq=-26.1%
+[bear_sw_lowvol_rs_rec_all] k=3 win_qqq=54% win_spy=85% med_vs_qqq=+1.7% worst_vs_qqq=-23.3%
+[bear_sw_defq_rec_all] k=3 win_qqq=54% win_spy=85% med_vs_qqq=+1.2% worst_vs_qqq=-23.2%
+
+panic-liquidation days: 9.7% of sample
+[bear_sw_rebound_fb_sellpanic] k=3 win_qqq=55% win_spy=70% med_vs_qqq=+1.9% worst_vs_qqq=-62.6%
+[bear_sw_lowvol_rs_sellpanic] k=3 win_qqq=48% win_spy=67% med_vs_qqq=-1.4% worst_vs_qqq=-62.5%
+[bear_mom126_sellpanic] k=3 win_qqq=48% win_spy=64% med_vs_qqq=-1.6% worst_vs_qqq=-62.0%
+stop300 firing share (member-days): 10.0%
+[bear_mom126_stop300] k=3 win_qqq=57% win_spy=82% med_vs_qqq=+2.0% worst_vs_qqq=-42.0%
+[bear_sw_rebound_fb_stop300] k=3 win_qqq=39% win_spy=79% med_vs_qqq=-4.9% worst_vs_qqq=-33.4%
+
+high-VIX (pct3y>0.9) days: 11.6% of sample
+[bear_sw_rebound_fb_vixaggro] k=3 win_qqq=61% win_spy=90% med_vs_qqq=+6.8% worst_vs_qqq=-25.7%

@@ -73,3 +73,20 @@ fit 31/37 at 2023-01-18 rows=165897 (124s)
   warnings.warn(
 /usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
   warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+fit 36/37 at 2025-07-24 rows=195987 (152s)
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+fit 37/37 at 2026-01-23 rows=202338 (157s)
+done in 158s; cached /home/user/bonds/dca/research/ml_scores.parquet
+first prediction: 2008-01-14
+IC by year: {'2008': 0.039, '2009': -0.133, '2010': 0.0, '2011': 0.088, '2012': -0.061, '2013': -0.072, '2014': 0.031, '2015': 0.039, '2016': -0.013, '2017': -0.019, '2018': 0.065, '2019': 0.041, '2020': 0.008, '2021': -0.01, '2022': 0.032, '2023': -0.007, '2024': 0.019, '2025': 0.003}
+[ml_lgbm_rank_k1] k=1 win_qqq=30% win_spy=80% med_vs_qqq=-6.2% worst_vs_qqq=-41.9%
+[ml_lgbm_rank_k2] k=2 win_qqq=32% win_spy=84% med_vs_qqq=-5.4% worst_vs_qqq=-36.2%
+[ml_lgbm_rank_k3] k=3 win_qqq=28% win_spy=83% med_vs_qqq=-7.0% worst_vs_qqq=-39.2%
+[ml_lgbm_rank_k5] k=5 win_qqq=22% win_spy=82% med_vs_qqq=-7.8% worst_vs_qqq=-38.7%
