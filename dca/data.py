@@ -79,6 +79,62 @@ def build_panel(force: bool = False) -> dict:
     return panels
 
 
+def build_panel_n100(force: bool = False) -> dict:
+    """Secondary universe: NASDAQ-100 point-in-time (2015+), from the
+    jmccarrell/n100tickers dataset. Coverage is partial (delisted names that
+    Yahoo lacks) — use only as a transfer/robustness check with its own
+    random-pick control."""
+    fields = ["open", "high", "low", "close", "volume"]
+    paths = {f: os.path.join(PIT_DIR, f"n100_panel_{f}.parquet")
+             for f in fields + ["member"]}
+    if not force and all(os.path.exists(p) for p in paths.values()):
+        return {f: pd.read_parquet(p) for f, p in paths.items()}
+
+    mem = pd.read_csv(os.path.join(PIT_DIR, "n100_pit_membership.csv"))
+    mem["date"] = pd.to_datetime(mem["date"])
+    mem = mem.set_index("date").sort_index()
+    allt = sorted({t.replace(".", "-") for row in mem["tickers"]
+                   for t in row.split(",")})
+
+    n100_dir = os.path.join(PIT_DIR, "prices_n100")
+    frames = {f: {} for f in fields}
+    for t in allt:
+        for d in (n100_dir, PRICE_DIR):
+            p = os.path.join(d, f"{t}.csv")
+            if os.path.exists(p):
+                df = pd.read_csv(p, index_col=0, parse_dates=True)
+                df = df[~df.index.duplicated()]
+                gaps = df.index.to_series().diff().dt.days
+                brk = gaps[gaps > 30]
+                if len(brk):
+                    df = df.loc[:brk.index[0] - pd.Timedelta(days=1)]
+                if len(df) < 50:
+                    break
+                for f in fields:
+                    col = f.capitalize()
+                    if col in df.columns:
+                        frames[f][t] = df[col]
+                break
+    panels = {f: pd.DataFrame(frames[f]).sort_index() for f in fields}
+    idx, cols = panels["close"].index, panels["close"].columns
+    locs = mem.index.searchsorted(idx, side="right") - 1
+    arr = np.zeros((len(idx), len(cols)), dtype=bool)
+    col_pos = {c: i for i, c in enumerate(cols)}
+    cache = {}
+    for i, li in enumerate(locs):
+        if li < 0:
+            continue
+        if li not in cache:
+            ticks = [t.replace(".", "-") for t in
+                     mem["tickers"].iloc[li].split(",")]
+            cache[li] = [col_pos[t] for t in ticks if t in col_pos]
+        arr[i, cache[li]] = True
+    panels["member"] = pd.DataFrame(arr, index=idx, columns=cols)
+    for f, p in paths.items():
+        panels[f].to_parquet(p)
+    return panels
+
+
 def load_benchmark(ticker: str) -> pd.DataFrame:
     """Adjusted OHLCV for a benchmark ETF from data/etfs_extended (Adj-scaled)."""
     path = os.path.join(ROOT, "data", "etfs_extended", f"{ticker}.csv")
