@@ -211,3 +211,20 @@ BUILDERS = {
     "mom_high52_gated": high52_gated_mom,
     "mom126_x_high52": mom126_x_high52,
 }
+
+
+# ---------- sensitivity variants around 12-1 ---------------------------------
+
+def mom_126_21(p):  return mom(p, 126, skip=21)       # 6-1
+def mom_189_21(p):  return mom(p, 189, skip=21)       # 9-1
+def mom_252_10(p):  return mom(p, 252, skip=10)
+def mom_252_42(p):  return mom(p, 252, skip=42)       # 12-2
+def mom_231_21(p):  return mom(p, 231, skip=21)
+
+SENSITIVITY = {
+    "mom_6_1": mom_126_21,
+    "mom_9_1": mom_189_21,
+    "mom_12_0p5": mom_252_10,
+    "mom_12_2": mom_252_42,
+    "mom_11_1": mom_231_21,
+}

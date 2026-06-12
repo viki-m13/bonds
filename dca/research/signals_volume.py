@@ -192,3 +192,40 @@ def accum_plus_momentum(P: dict, accum: str = "chaikin",
         "obv_div": lambda: obv_divergence(P),
     }
     return _xrank(builders[accum]()) + _xrank(_ret(P["close"], mom_win))
+
+
+# ----------------------- momentum-dominant blends (volume as tilt / veto)
+def _accum_builder(P: dict, accum: str) -> pd.DataFrame:
+    return {
+        "footprints": lambda: footprints(P, 63, 1.5),
+        "chaikin": lambda: chaikin_flow(P, 63),
+        "updown": lambda: updown_ratio(P, 63),
+        "obv_div": lambda: obv_divergence(P),
+        "hv": lambda: hv_premium(P, mode="interact"),
+    }[accum]()
+
+
+def mom_tilt(P: dict, accum: str = "updown", w: float = 0.25,
+             mom_win: int = 126) -> pd.DataFrame:
+    """rank(6m momentum) + w * rank(accumulation): volume as a tiebreaker."""
+    return (_xrank(_ret(P["close"], mom_win))
+            + w * _xrank(_accum_builder(P, accum)))
+
+
+def mom_veto(P: dict, accum: str = "updown",
+             mom_win: int = 126) -> pd.DataFrame:
+    """6m momentum, but names under net distribution (accum <= 0) are
+    pushed below all net-accumulated names (volume as a veto)."""
+    a = _accum_builder(P, accum)
+    mom = _xrank(_ret(P["close"], mom_win))
+    return mom.where(a > 0, mom - 10.0).where(a.notna())
+
+
+def mom_gate_accum(P: dict, accum: str = "updown", q: float = 0.8,
+                   mom_win: int = 126) -> pd.DataFrame:
+    """Among the top-(1-q) momentum names, rank by accumulation; everything
+    else falls back to a penalized momentum rank."""
+    mom = _xrank(_ret(P["close"], mom_win))
+    a = _accum_builder(P, accum)
+    gated = a.where(mom >= q).rank(axis=1, pct=True)
+    return (1.0 + gated).where(mom >= q).fillna(mom - 10.0).where(mom.notna())

@@ -165,3 +165,45 @@ def lowvol_gate_sharpe(P, window=126, vol_window=126):
     med = vol.median(axis=1)
     gate = vol.le(med, axis=0)
     return sharpe_mom(P, window).where(gate)
+
+
+def residual_mom_skip(P, beta_window=252, mom_window=126, skip=10):
+    """Residual momentum measured through d-skip (short-term reversal guard).
+    shift(+skip) uses strictly older info, so still causal."""
+    return residual_mom(P, beta_window, mom_window).shift(skip)
+
+
+def resid_mom_blend(P, beta_window=252, mom_window=126):
+    """Sum of cross-sectional ranks: residual momentum + raw momentum."""
+    return (_xrank(residual_mom(P, beta_window, mom_window), P["member"])
+            + _xrank(plain_mom(P, mom_window), P["member"]))
+
+
+def resid_antilottery(P, beta_window=252, mom_window=126,
+                      max_window=21, cut=0.9):
+    """MAX-effect filter applied to residual momentum."""
+    r = _rets(P)
+    mx = r.rolling(max_window).max().where(P["member"])
+    thr = mx.quantile(cut, axis=1)
+    return residual_mom(P, beta_window, mom_window).where(mx.lt(thr, axis=0))
+
+
+def residual_mom_ewmkt(P, beta_window=252, mom_window=126):
+    """Residual momentum vs the equal-weight member-mean return factor
+    (full panel coverage; robustness check on factor choice)."""
+    r = _rets(P)
+    m = r.where(P["member"]).mean(axis=1)
+    r_mu = r.rolling(beta_window).mean()
+    m_mu = m.rolling(beta_window).mean()
+    cov = r.mul(m, axis=0).rolling(beta_window).mean() - r_mu.mul(m_mu, axis=0)
+    var = (m ** 2).rolling(beta_window).mean() - m_mu ** 2
+    beta = cov.div(var.replace(0.0, np.nan), axis=0)
+    return r.sub(beta.mul(m, axis=0)).rolling(mom_window).sum()
+
+
+def resid_skewpos(P, weight=0.5):
+    """Residual momentum rank + weight * positive-skew rank."""
+    r = _rets(P)
+    sk = r.rolling(126).skew()
+    return (_xrank(residual_mom(P, 252, 126), P["member"])
+            + weight * _xrank(sk, P["member"]))

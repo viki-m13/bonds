@@ -18,6 +18,30 @@ PRICE_DIR = os.path.join(PIT_DIR, "prices")
 CACHE = os.path.join(PIT_DIR, "panel.parquet")
 
 
+def _clean_prices(df: pd.DataFrame) -> pd.DataFrame:
+    """Repair corrupted Yahoo records on delisted tickers.
+
+    Two defenses (data repair, not signal logic — bad ticks never existed in
+    the real market):
+      1. Bad-tick removal: a price >4x or <0.25x the median of its +/-5-day
+         neighborhood is a recording error -> drop the row.
+      2. Truncation: if the cleaned close series still jumps >75% in a day
+         (essentially impossible for an S&P large cap), the tail is a
+         different/garbage listing -> truncate before the first jump.
+    """
+    med = df["Close"].rolling(11, center=True, min_periods=3).median()
+    ratio = df["Close"] / med
+    bad = (ratio > 4) | (ratio < 0.25)
+    if bad.any():
+        df = df[~bad]
+    r = df["Close"].pct_change()
+    crazy = r.abs() > 0.75
+    if crazy.any():
+        first = crazy.idxmax()
+        df = df.loc[:first].iloc[:-1]
+    return df
+
+
 def _load_membership() -> pd.DataFrame:
     mem = pd.read_csv(os.path.join(PIT_DIR, "sp500_pit_membership.csv"))
     mem["date"] = pd.to_datetime(mem["date"])
@@ -45,6 +69,7 @@ def build_panel(force: bool = False) -> dict:
         brk = gaps[gaps > 30]
         if len(brk):
             df = df.loc[:brk.index[0] - pd.Timedelta(days=1)]
+        df = _clean_prices(df)
         if len(df) < 50:
             continue
         for f in fields:
@@ -108,6 +133,7 @@ def build_panel_n100(force: bool = False) -> dict:
                 brk = gaps[gaps > 30]
                 if len(brk):
                     df = df.loc[:brk.index[0] - pd.Timedelta(days=1)]
+                df = _clean_prices(df)
                 if len(df) < 50:
                     break
                 for f in fields:

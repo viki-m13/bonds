@@ -157,6 +157,39 @@ def vcb_sqz_exp_tight(P, lag=21, sqz_pct=0.20, n=20, lookback=252):
     return (1.0 - pct.shift(lag)).where(cond)
 
 
+# ------------------------------------------------- momentum-hybrid variants
+# Found in the sweep: pure compression scores pick low-beta laggards and lose
+# to QQQ badly; compression only (mildly) works as a CONDITION on top of a
+# momentum score.  These builders implement that family.
+
+def vcb_comp_gate_mom(P, short=20, long=120, gate=0.5, mom=126):
+    """6m momentum score, restricted to uptrend names whose rv(short)/rv(long)
+    compression is in the better (more compressed) `gate` fraction of the
+    cross-section that day."""
+    c = P["close"]
+    ratio = _rv(c, short) / _rv(c, long)
+    comp_rk = (-ratio).rank(axis=1, pct=True)
+    return _ret(c, mom).where(_uptrend(c) & (comp_rk >= gate))
+
+
+def vcb_mom_comp_tilt(P, short=20, long=120, w=0.25, mom=126):
+    """rank(6m momentum) + w * rank(compression), uptrend-gated."""
+    c = P["close"]
+    ratio = _rv(c, short) / _rv(c, long)
+    comp_rk = (-ratio).rank(axis=1, pct=True)
+    mom_rk = _ret(c, mom).rank(axis=1, pct=True)
+    return (mom_rk + w * comp_rk).where(_uptrend(c))
+
+
+def vcb_ownhist_comp_mom(P, short=20, long=120, pct_max=0.30, mom=126):
+    """6m momentum score among uptrend names whose vol-compression ratio is
+    in the bottom `pct_max` of its OWN trailing year (point-in-time)."""
+    c = P["close"]
+    ratio = _rv(c, short) / _rv(c, long)
+    cp = _trail_pct(ratio, 252)
+    return _ret(c, mom).where(_uptrend(c) & (cp <= pct_max))
+
+
 BUILDERS = {
     "vcb_volcomp": vcb_volcomp,
     "vcb_volcomp_rank": vcb_volcomp_rank,
@@ -167,4 +200,7 @@ BUILDERS = {
     "vcb_basebreak": vcb_basebreak,
     "vcb_sqz_exp": vcb_sqz_exp,
     "vcb_sqz_exp_tight": vcb_sqz_exp_tight,
+    "vcb_comp_gate_mom": vcb_comp_gate_mom,
+    "vcb_mom_comp_tilt": vcb_mom_comp_tilt,
+    "vcb_ownhist_comp_mom": vcb_ownhist_comp_mom,
 }

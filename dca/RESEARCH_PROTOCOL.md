@@ -51,8 +51,15 @@ cost_bps=5, sell=None)`:
 
 | signal | win_qqq | win_spy | med_vs_qqq | worst_vs_qqq |
 |---|---|---|---|---|
-| naive 6m momentum | 73% | 88% | +14% | -40% |
-| random picks (30 draws) | see research/random_control.csv | | | |
+| naive 6m momentum | 59% | 86% | +6% | -26% |
+| 12-2 momentum k=2 | 61% | 87% | +5% | -23% |
+| 9-1 momentum k=3 (best pure mom) | 66% | 86% | +8% | -24% |
+| random picks | beats SPY 55% / QQQ 8% of windows | | | |
+
+NOTE (2026-06-12): the panel was rebuilt after discovering corrupted Yahoo
+records on ~14 delisted tickers (garbage 1000x price spikes). Any scorecard
+produced before the rebuild is inflated — re-run builders on the clean panel
+before trusting numbers.
 
 A candidate is interesting if `win_qqq ≥ 85%` with `med_vs_qqq` clearly
 positive; it must also beat the random control (survivorship check).
