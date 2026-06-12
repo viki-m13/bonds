@@ -17,14 +17,14 @@
     "tc_bps_per_lev_chg": 10.0
   },
   "full": {
-    "sharpe": 2.3353,
-    "sortino": 3.4634,
-    "cagr": 0.3673,
+    "sharpe": 2.3373,
+    "sortino": 3.4661,
+    "cagr": 0.3676,
     "vol": 0.1381,
     "mdd": -0.1765,
-    "calmar": 2.0804,
-    "navx": 193.1003,
-    "n": 4240
+    "calmar": 2.0821,
+    "navx": 194.0723,
+    "n": 4241
   },
   "is": {
     "sharpe": 2.5577,
@@ -37,18 +37,18 @@
     "n": 2298
   },
   "oos": {
-    "sharpe": 2.1125,
-    "sortino": 3.1117,
-    "cagr": 0.35,
-    "vol": 0.1473,
+    "sharpe": 2.1166,
+    "sortino": 3.117,
+    "cagr": 0.3507,
+    "vol": 0.1472,
     "mdd": -0.1765,
-    "calmar": 1.9827,
-    "navx": 10.0904,
-    "n": 1941
+    "calmar": 1.9865,
+    "navx": 10.1412,
+    "n": 1942
   },
-  "is_oos_gap": 0.4452,
-  "avg_total_mult": 0.8520774806845076,
-  "avg_vol_target_mult": 0.8915930267442149,
+  "is_oos_gap": 0.4411,
+  "avg_total_mult": 0.8520259681712897,
+  "avg_vol_target_mult": 0.891532196724263,
   "correlations": {
     "VANGUARD": {
       "VANGUARD": 1.0,
@@ -61,7 +61,7 @@
       "VANGUARD": -0.017,
       "ORION": 1.0,
       "HELIOS": -0.017,
-      "QUANTUM": 0.185,
+      "QUANTUM": 0.184,
       "CRYPTO": 0.001
     },
     "HELIOS": {
@@ -73,16 +73,16 @@
     },
     "QUANTUM": {
       "VANGUARD": 0.041,
-      "ORION": 0.185,
+      "ORION": 0.184,
       "HELIOS": -0.036,
       "QUANTUM": 1.0,
-      "CRYPTO": 0.006
+      "CRYPTO": 0.005
     },
     "CRYPTO": {
       "VANGUARD": 0.128,
       "ORION": 0.001,
       "HELIOS": 0.017,
-      "QUANTUM": 0.006,
+      "QUANTUM": 0.005,
       "CRYPTO": 1.0
     }
   }
