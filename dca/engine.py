@@ -92,13 +92,16 @@ def run_dca(open_px: pd.DataFrame, close_px: pd.DataFrame,
 
     sig_set = set(sig_dates)
     pos = idx.searchsorted(sig_dates[0])
-    end_pos = idx.searchsorted(sig_dates[-1]) + 1
+    if end is not None:
+        end_pos = idx.searchsorted(pd.Timestamp(end), side="right")
+    else:
+        end_pos = len(idx)
     last_close = {}
 
     pending_buy = None   # (exec_date, tickers)
     pending_sell = None
 
-    for i in range(pos, len(idx)):
+    for i in range(pos, end_pos):
         d = idx[i]
         # --- execute pending orders at today's open ---
         if pending_sell is not None and pending_sell[0] == d:
@@ -177,7 +180,7 @@ def run_dca(open_px: pd.DataFrame, close_px: pd.DataFrame,
         invested_rows.append(total_in)
         hlog.append({"date": d, "n_pos": len(shares), "cash": cash})
 
-    span = idx[pos:]
+    span = idx[pos:end_pos]
     value = pd.Series(value_rows, index=span, name="value")
     invested = pd.Series(invested_rows, index=span, name="invested")
     return DCAResult(value, invested, trades, hlog, cash)

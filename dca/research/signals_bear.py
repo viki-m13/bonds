@@ -284,7 +284,6 @@ def main():
         ev(switch(bull, s, on_base), f"bear_sw_{nm}")
 
     # ---- 3. recovery triggers: switch back to bull sleeve early
-    best_bear = sleeves["rebound_fb"]   # re-pointed after stage-2 inspection
     combos = {
         "thrust": ["thrust"],
         "vixrlx": ["vix_rlx"],
@@ -328,6 +327,15 @@ def main():
         ev(overlay(base_sc, aggro, hot & ~on_base), f"bear_sw_{snm}_vixaggro")
     # aggro overlay on plain momentum (no bear sleeve at all)
     ev(overlay(bull, aggro, hot), "bear_mom126_vixaggro")
+    # refinements: lower threshold; beta ranked within the rebound band only
+    S_reb = switch(bull, sleeves["rebound"], on_base)
+    ev(overlay(S_reb, aggro, (R["vix_pct3y"] > 0.85) & ~on_base),
+       "bear_sw_rebound_vixaggro85")
+    dd = _dd_ath(P)
+    aggro_band = _beta252(P).where(_quality_uptrend(P)
+                                   & (dd <= -0.30) & (dd >= -0.60))
+    ev(overlay(S_reb, aggro_band, hot & ~on_base),
+       "bear_sw_rebound_vixaggro_beta3060")
 
     # ---- 6. best switched + best recovery + vix aggro stacked
     on_best = risk_on_with_recovery(["thrust", "vix_rlx", "spy50"])
@@ -353,5 +361,54 @@ def main():
         print(line)
 
 
+def sensitivity():
+    """Parameter sensitivity for the headline config (bear_sw_rebound):
+    dd band, score direction, quality strictness, bear mask, schedule
+    offset, k. Run after main()."""
+    sh = shared()
+    P = sh["P"]
+    R = sh["R"]
+    bull = mom126(P)
+    dd = _dd_ath(P)
+    on_base = ~bear_mask_base()
+    c = P["close"]
+
+    def rebound_var(lo, hi, deep_first=True, strict=False):
+        if strict:
+            ma400 = c.rolling(400, min_periods=300).mean()
+            q = (c > ma400) & (c / c.shift(504) - 1 > 0)
+        else:
+            q = _quality_uptrend(P)
+        elig = q & (dd <= -lo) & (dd >= -hi)
+        return ((-dd) if deep_first else dd).where(elig)
+
+    for lo, hi in [(0.20, 0.50), (0.30, 0.60), (0.40, 0.70), (0.25, 0.75)]:
+        protocol.evaluate_signal(
+            switch(bull, rebound_var(lo, hi), on_base),
+            f"bear_sens_band_{int(lo*100)}_{int(hi*100)}", k=3)
+    protocol.evaluate_signal(
+        switch(bull, rebound_var(0.30, 0.60, deep_first=False), on_base),
+        "bear_sens_shallow_first", k=3)
+    protocol.evaluate_signal(
+        switch(bull, rebound_var(0.30, 0.60, strict=True), on_base),
+        "bear_sens_strict_quality", k=3)
+    masks = {
+        "trendonly": R["spy_above_200"] >= 1,
+        "breadth35": ~((R["spy_above_200"] < 1)
+                       | (R["breadth_200_ma10"] < 0.35)),
+        "breadth45": ~((R["spy_above_200"] < 1)
+                       | (R["breadth_200_ma10"] < 0.45)),
+    }
+    reb = bear_rebound(P)
+    for nm, on in masks.items():
+        protocol.evaluate_signal(switch(bull, reb, on),
+                                 f"bear_sens_mask_{nm}", k=3)
+    for off in (3, 7):
+        protocol.evaluate_signal(switch(bull, reb, on_base),
+                                 f"bear_sens_off{off}", k=3, offset=off)
+    protocol.evaluate_signal(switch(bull, reb, on_base), "bear_sens_k5", k=5)
+
+
 if __name__ == "__main__":
     main()
+    sensitivity()

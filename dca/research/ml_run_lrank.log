@@ -1,2 +1,92 @@
 features+ranks built in 10s
 first labeled date 2004-07-12, first fit 2008-01-11, 37 refits
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+fit 1/37 at 2008-01-11 rows=21952 (16s)
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+fit 6/37 at 2010-07-14 rows=42004 (51s)
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+fit 11/37 at 2013-01-14 rows=63367 (99s)
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+fit 16/37 at 2015-07-16 rows=86170 (165s)
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+fit 21/37 at 2018-01-16 rows=110964 (247s)
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+fit 26/37 at 2020-07-17 rows=137524 (350s)
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+fit 31/37 at 2023-01-18 rows=165897 (472s)
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+fit 36/37 at 2025-07-24 rows=195987 (612s)
+/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRanker was fitted with feature names
+  warnings.warn(
+fit 37/37 at 2026-01-23 rows=202338 (642s)
+done in 643s; cached /home/user/bonds/dca/research/ml_scores_lrank.parquet
+first prediction: 2008-01-14
+IC by year: {'2008': -0.1, '2009': 0.068, '2010': 0.024, '2011': -0.137, '2012': -0.008, '2013': 0.035, '2014': -0.024, '2015': -0.16, '2016': 0.074, '2017': -0.04, '2018': -0.059, '2019': -0.095, '2020': 0.321, '2021': -0.074, '2022': -0.007, '2023': 0.027, '2024': -0.122, '2025': 0.111}
+[ml_lgbm_lrank_k1] k=1 win_qqq=45% win_spy=73% med_vs_qqq=-4.6% worst_vs_qqq=-41.5%
+[ml_lgbm_lrank_k2] k=2 win_qqq=43% win_spy=80% med_vs_qqq=-4.0% worst_vs_qqq=-36.1%
+[ml_lgbm_lrank_k3] k=3 win_qqq=38% win_spy=81% med_vs_qqq=-3.1% worst_vs_qqq=-37.0%
+[ml_lgbm_lrank_k5] k=5 win_qqq=28% win_spy=81% med_vs_qqq=-5.1% worst_vs_qqq=-36.7%

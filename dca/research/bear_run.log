@@ -39,3 +39,42 @@ stop300 firing share (member-days): 10.0%
 
 high-VIX (pct3y>0.9) days: 11.6% of sample
 [bear_sw_rebound_fb_vixaggro] k=3 win_qqq=61% win_spy=90% med_vs_qqq=+6.8% worst_vs_qqq=-25.7%
+[bear_sw_lowvol_rs_vixaggro] k=3 win_qqq=57% win_spy=89% med_vs_qqq=+3.8% worst_vs_qqq=-25.0%
+[bear_mom126_vixaggro] k=3 win_qqq=60% win_spy=85% med_vs_qqq=+8.1% worst_vs_qqq=-29.5%
+[bear_stack_rebound_rec_all_vixaggro] k=3 win_qqq=57% win_spy=85% med_vs_qqq=+6.2% worst_vs_qqq=-25.9%
+
+=== SUMMARY ===
+name                                           win_qqq     win_spy  med_vs_qqq worst_vs_qqq   full_mult   GFC    recov  bear22 vol18
+bear_ref_mom126                                  0.594       0.857       0.060      -0.257      13.291 -0.18 -0.03 -0.16 -0.09
+bear_pure_lowvol_rs                              0.053       0.270      -0.215      -0.685       2.904 -0.08 -0.04 -0.17 +0.04
+bear_pure_defq                                   0.061       0.283      -0.220      -0.680       2.914 -0.09 -0.03 -0.16 +0.03
+bear_pure_rebound                                0.283       0.570      -0.103      -0.519      12.701 -0.05 +0.07 -0.06 -0.10
+bear_pure_rebound_fb                             0.283       0.570      -0.103      -0.519      12.701 -0.05 +0.07 -0.06 -0.10
+bear_pure_mom_lowbeta                            0.168       0.615      -0.142      -0.447       5.036 -0.16 +0.06 -0.12 -0.04
+bear_sw_cash                                     0.598       0.865       0.051      -0.297      16.608 +0.01 -0.09 -0.19 -0.09
+bear_sw_lowvol_rs                                0.529       0.881       0.016      -0.215      11.719 -0.08 -0.05 -0.16 -0.09
+bear_sw_defq                                     0.529       0.889       0.013      -0.215      11.717 -0.09 -0.04 -0.14 -0.09
+bear_sw_rebound                                  0.607       0.906       0.057      -0.245      15.378 -0.03 +0.03 -0.08 -0.08
+bear_sw_rebound_fb                               0.607       0.906       0.057      -0.245      15.378 -0.03 +0.03 -0.08 -0.08
+bear_sw_mom_lowbeta                              0.545       0.828       0.024      -0.220      12.089 -0.16 -0.02 -0.12 -0.10
+bear_sw_rebound_fb_rec_thrust                    0.594       0.906       0.053      -0.245      15.362 -0.03 +0.03 -0.11 -0.08
+bear_sw_lowvol_rs_rec_thrust                     0.533       0.881       0.016      -0.215      11.721 -0.08 -0.05 -0.16 -0.09
+bear_sw_defq_rec_thrust                          0.529       0.889       0.013      -0.215      11.720 -0.09 -0.04 -0.14 -0.09
+bear_sw_rebound_fb_rec_vixrlx                    0.545       0.836       0.026      -0.261      14.124 -0.20 -0.01 -0.15 -0.08
+bear_sw_lowvol_rs_rec_vixrlx                     0.537       0.848       0.018      -0.226      11.948 -0.16 -0.02 -0.16 -0.09
+bear_sw_defq_rec_vixrlx                          0.537       0.844       0.013      -0.216      11.952 -0.15 -0.02 -0.16 -0.09
+bear_sw_rebound_fb_rec_spy50                     0.582       0.869       0.048      -0.244      15.066 -0.12 -0.02 -0.08 -0.08
+bear_sw_lowvol_rs_rec_spy50                      0.529       0.873       0.015      -0.210      11.961 -0.11 -0.03 -0.16 -0.09
+bear_sw_defq_rec_spy50                           0.529       0.885       0.012      -0.211      11.917 -0.10 -0.03 -0.14 -0.09
+bear_sw_rebound_fb_rec_all                       0.545       0.836       0.026      -0.261      14.032 -0.20 -0.02 -0.15 -0.08
+bear_sw_lowvol_rs_rec_all                        0.537       0.848       0.017      -0.233      11.978 -0.16 -0.02 -0.16 -0.09
+bear_sw_defq_rec_all                             0.537       0.848       0.012      -0.232      11.974 -0.15 -0.02 -0.16 -0.09
+bear_sw_rebound_fb_sellpanic                     0.549       0.705       0.019      -0.626      10.648 -0.08 +0.04 -0.08 -0.08
+bear_sw_lowvol_rs_sellpanic                      0.480       0.668      -0.014      -0.625      10.699 -0.07 -0.06 -0.16 -0.09
+bear_mom126_sellpanic                            0.475       0.643      -0.016      -0.620      10.214 -0.28 -0.03 -0.16 -0.09
+bear_mom126_stop300                              0.566       0.816       0.020      -0.420      10.977 -0.33 -0.06 -0.13 -0.07
+bear_sw_rebound_fb_stop300                       0.393       0.791      -0.049      -0.334       7.424 -0.05 +0.05 -0.07 -0.03
+bear_sw_rebound_fb_vixaggro                      0.611       0.902       0.068      -0.257      14.600 -0.07 +0.03 -0.08 -0.09
+bear_sw_lowvol_rs_vixaggro                       0.570       0.889       0.038      -0.250      12.326 -0.06 -0.05 -0.16 -0.09
+bear_mom126_vixaggro                             0.602       0.848       0.081      -0.295      12.282 -0.11 -0.03 -0.16 -0.08
+bear_stack_rebound_rec_all_vixaggro              0.574       0.852       0.062      -0.259      13.769 -0.20 -0.02 -0.15 -0.09
