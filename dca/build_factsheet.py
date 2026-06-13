@@ -186,6 +186,40 @@ def _extras(P, cfg, full_res):
             "n_positions": len(holdings), "trim": trim}
 
 
+def _positions(P, res):
+    """Per-position book with cost basis / value / gain-loss for the model's
+    accumulated (never-sell) portfolio, from the engine's trade log."""
+    buys, firstdate = {}, {}
+    for tr in res.trades:
+        if tr["side"] == "buy":
+            t = tr["ticker"]
+            buys[t] = buys.get(t, 0.0) + tr["notional"]
+            d = tr["date"]
+            if t not in firstdate or d < firstdate[t]:
+                firstdate[t] = d
+    last = P["close"].iloc[-1]
+    rows = []
+    for t, val in res.holdings.items():
+        if not (val == val and val > 0):
+            continue
+        cost = buys.get(t, float("nan"))
+        px = float(last.get(t, float("nan")))
+        sh = val / px if (px == px and px > 0) else float("nan")
+        gain = (val / cost - 1) if (cost == cost and cost > 0) else float("nan")
+        rows.append({"ticker": t, "shares": sh, "cost": cost,
+                     "value": float(val), "price": px,
+                     "avg_cost": (cost / sh) if (sh == sh and sh > 0) else float("nan"),
+                     "gain_pct": gain,
+                     "since": str(firstdate[t].date()) if t in firstdate else None})
+    rows.sort(key=lambda r: -r["value"])
+    tot_val = sum(r["value"] for r in rows) + float(res.cash)
+    invested = float(res.invested.iloc[-1])
+    pnl = {"total_value": tot_val, "total_invested": invested,
+           "cash": float(res.cash), "n": len(rows),
+           "total_gain_pct": tot_val / invested - 1 if invested else float("nan")}
+    return rows, pnl
+
+
 def build(cfg, P=None, write=True):
     if P is None:
         P = data_mod.build_panel()
@@ -218,6 +252,7 @@ def build(cfg, P=None, write=True):
     if extras:
         signal["holdings"] = extras["holdings"]
         signal["n_positions"] = extras["n_positions"]
+        signal["positions"], signal["pnl"] = _positions(P, full_res)
 
     headline = {"itd_mult": returns_rows[0]["strat_mult"],
                 "itd_irr": returns_rows[0]["strat_irr"],

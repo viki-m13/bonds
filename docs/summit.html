@@ -134,6 +134,17 @@ footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var
 <div class="holds" id="holds"></div>
 <div class="trimstats" id="trimstats"></div>
 
+<!-- ===== open positions / P&L ===== -->
+<h2>Open positions &amp; profit / loss</h2>
+<div class="lead">The model's live book — every name it currently holds, accumulated since 2006 and never sold, with each position's gain or loss. <strong id="pnl-summary"></strong></div>
+<div class="tablescroll">
+<table id="postable">
+<thead><tr><th>stock</th><th>held since</th><th>weight</th><th>value</th><th>gain / loss</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+<div class="tiny" id="pos-note"></div>
+
 <!-- ===== chart ===== -->
 <h2>How it has grown</h2>
 <div class="chartwrap">
@@ -304,6 +315,32 @@ function renderReturns(R){
 }
 
 let TRIM=null, TRIMSEL='none';
+function money(v){
+  if(v>=1e6) return '$'+(v/1e6).toFixed(2)+'M';
+  if(v>=1e3) return '$'+(v/1e3).toFixed(0)+'k';
+  return '$'+Math.round(v);
+}
+function renderPositions(sig){
+  if(!sig.positions||!sig.pnl) return;
+  const p=sig.pnl, tot=p.total_value;
+  document.getElementById('pnl-summary').innerHTML=
+    `Put in ${money(p.total_invested)} → now worth <span class="green">${money(p.total_value)}</span> `+
+    `(<span class="green">${FMT.pct0(p.total_gain_pct)}</span>) across ${p.n} positions.`;
+  const tb=document.querySelector('#postable tbody'); tb.innerHTML='';
+  const top=sig.positions.slice(0,25);
+  top.forEach(x=>{
+    const w=x.value/tot, g=x.gain_pct, cls=g>=0?'green':'red';
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td><b>${x.ticker}</b></td><td>${x.since||'—'}</td><td>${(w*100).toFixed(1)}%</td>`+
+      `<td>${money(x.value)}</td><td class="${cls}">${FMT.pct0(g)}</td></tr>`);
+  });
+  if(sig.positions.length>25){
+    const rest=sig.positions.slice(25), rv=rest.reduce((a,x)=>a+x.value,0);
+    document.getElementById('pos-note').textContent=
+      `+ ${rest.length} more smaller positions (${(rv/tot*100).toFixed(0)}% of the book). `+
+      `Dollar figures are the model's paper book since 2006 — they scale with how long you run it; the gain/loss % is per position.`;
+  }
+}
 function renderHoldingsVariant(v){
   const top=v.holdings.slice(0,12), max=top[0].pct, el=document.getElementById('holds');
   el.innerHTML=top.map(h=>`<div class="hrow"><span class="ht">${h.ticker}</span><span class="hb"><i style="width:${(h.pct/max*100).toFixed(1)}%"></i></span><span class="hp">${(h.pct*100).toFixed(1)}%</span></div>`).join('')
@@ -350,6 +387,7 @@ Promise.all([
     document.getElementById('a-picks').textContent=signal.picks.join('  ·  ');
     document.getElementById('a-reg').textContent=signal.regime;
   }
+  if(signal) renderPositions(signal);
   if(returns&&returns.trim) setupTrim(returns.trim, signal?signal.n_positions:returns.trim[0].n);
   if(returns) renderReturns(returns);
   buildChart();
