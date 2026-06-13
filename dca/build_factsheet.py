@@ -178,9 +178,9 @@ def _extras(P, cfg, full_res):
                 "med_vs_qqq": float(np.median(vq)),
                 "worst_vs_qqq": float(vq.min()), "full_mult": float(full)}
 
-    trim = [variant("none", "No cap (default)", None, None),
-            variant("a33", "Cap 33% a year", 0.33, "annual"),
-            variant("a25", "Cap 25% a year", 0.25, "annual")]
+    trim = [variant("none", "No cap", None, None),
+            variant("a33", "Cap 33%", 0.33, "annual"),
+            variant("a25", "Cap 25%", 0.25, "annual")]
     return {"winrate": card["by_horizon"], "regimes": card["regimes"],
             "cadence": cadence, "holdings": holdings,
             "n_positions": len(holdings), "trim": trim}

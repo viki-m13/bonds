@@ -24,7 +24,8 @@ header{padding:34px 0 6px}
 h1{font-family:'Instrument Serif',serif;font-size:clamp(40px,8vw,70px);font-weight:400;letter-spacing:.5px;line-height:1}
 h1 .peak{color:var(--accent)}
 .sub{color:var(--t2);font-size:clamp(15px,2.4vw,17px);max-width:760px;margin-top:12px}
-.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:1.3px;text-transform:uppercase;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;color:var(--t2);margin-bottom:14px}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:5px 13px;color:var(--t2);margin-bottom:14px;white-space:nowrap}
+@media(max-width:430px){.badge{letter-spacing:.4px;font-size:9.5px;padding:5px 11px}}
 h2{font-family:'Instrument Serif',serif;font-size:clamp(24px,4.5vw,30px);font-weight:400;margin:42px 0 6px;border-bottom:1px solid var(--rule);padding-bottom:8px}
 .lead{color:var(--t2);font-size:15px;margin:8px 0 14px}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px;margin:18px 0}
@@ -43,8 +44,8 @@ h2{font-family:'Instrument Serif',serif;font-size:clamp(24px,4.5vw,30px);font-we
 .sched{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
 @media(max-width:560px){.sched{grid-template-columns:1fr}}
 .sbox{background:var(--paper);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
-.sbox h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:7px;display:flex;justify-content:space-between}
-.sbox h4 span{color:var(--t3);font-weight:400;letter-spacing:0}
+.sbox h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);margin-bottom:7px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:1px 10px}
+.sbox h4 span{color:var(--t3);font-weight:400;letter-spacing:0;font-size:10px}
 .sbox .d{font-family:'JetBrains Mono',monospace;font-size:13.5px;color:var(--t1);padding:2px 0}
 .sbox .d.next{font-weight:600;color:var(--accent)}
 .tiny{font-size:12px;color:var(--t3);margin-top:8px}
@@ -61,7 +62,8 @@ h2{font-family:'Instrument Serif',serif;font-size:clamp(24px,4.5vw,30px);font-we
 .chip b{color:var(--t1)} .chip.g b{color:var(--green)} .chip.r b{color:var(--red)}
 @media(max-width:480px){
   td,th{padding:7px 6px;font-size:12px}
-  #postable td:first-child,#postable th:first-child{padding-left:9px}
+  #postable td:first-child,#postable th:first-child{padding-left:10px}
+  #postable td:last-child,#postable th:last-child{padding-right:11px}
 }
 
 table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:14px;margin:12px 0}
@@ -96,7 +98,7 @@ footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var
 <body>
 <div class="wrap">
 <header>
-  <div class="badge">DCA · buy biweekly or monthly · S&amp;P 500 · never sell</div>
+  <div class="badge">Biweekly or monthly · S&amp;P 500 · never sell</div>
   <h1>SUM<span class="peak">MIT</span></h1>
   <div class="sub">A simple rule for steady investors: every two weeks (or once a month), put your contribution into <strong>two stocks the model picks</strong> — the market's largest leaders when things are healthy, the largest quality names on sale when they're not — and <strong>never sell</strong>. Below is exactly what to buy, when, what you'd be holding, and how it has done.</div>
 </header>
@@ -144,7 +146,7 @@ footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var
 <div class="controls"><div class="grp" id="postf"></div></div>
 <div class="tablescroll">
 <table id="postable">
-<thead><tr><th>stock</th><th>since</th><th>weight</th><th>value</th><th>gain / loss</th></tr></thead>
+<thead><tr><th>stock</th><th>since</th><th>weight</th><th>value</th><th>return</th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
