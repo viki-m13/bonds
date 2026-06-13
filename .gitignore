@@ -9,3 +9,5 @@ venv/
 node_modules/
 data/pit/prices/
 data/pit/panel_*.parquet
+data/pit/prices_broad/
+data/pit/prices_n100/
