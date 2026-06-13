@@ -13,38 +13,54 @@
 :root{
   --paper:#f5efe2; --card:#fffdf7; --card2:#ebe2cf; --border:#d8cdb6;
   --rule:#bdb094; --t1:#0e0a07; --t2:#5b4f3f; --t3:#8d8270;
-  --accent:#155e75; --accent2:#0e7490; --green:#15803d; --red:#b91c1c;
-  --gold:#a16207;
+  --accent:#0f5f73; --accent2:#0e7490; --green:#15803d; --red:#b3331f;
+  --gold:#a16207; --qqq:#c2410c; --spy:#a16207;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Bricolage Grotesque',Helvetica,Arial,sans-serif;background:var(--paper);color:var(--t1);line-height:1.55;padding-bottom:80px}
-.wrap{max-width:1060px;margin:0 auto;padding:0 20px}
-header{padding:54px 0 10px}
-h1{font-family:'Instrument Serif',serif;font-size:clamp(42px,7vw,72px);font-weight:400;letter-spacing:.5px}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Bricolage Grotesque',Helvetica,Arial,sans-serif;background:var(--paper);color:var(--t1);line-height:1.55;padding-bottom:70px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+header{padding:46px 0 6px}
+h1{font-family:'Instrument Serif',serif;font-size:clamp(40px,8vw,70px);font-weight:400;letter-spacing:.5px;line-height:1}
 h1 .peak{color:var(--accent)}
-.sub{color:var(--t2);font-size:17px;max-width:760px;margin-top:10px}
-.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;color:var(--t2);margin-bottom:14px}
-h2{font-family:'Instrument Serif',serif;font-size:30px;font-weight:400;margin:48px 0 14px;border-bottom:1px solid var(--rule);padding-bottom:8px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:26px 0}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:0 4px 12px -6px rgba(14,10,7,.12)}
-.card .v{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600}
-.card .l{color:var(--t3);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.sub{color:var(--t2);font-size:clamp(15px,2.4vw,17px);max-width:760px;margin-top:12px}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:1.3px;text-transform:uppercase;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;color:var(--t2);margin-bottom:14px}
+h2{font-family:'Instrument Serif',serif;font-size:clamp(24px,4.5vw,30px);font-weight:400;margin:44px 0 12px;border-bottom:1px solid var(--rule);padding-bottom:8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px;margin:24px 0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 16px;box-shadow:0 4px 12px -7px rgba(14,10,7,.14)}
+.card .v{font-family:'JetBrains Mono',monospace;font-size:clamp(21px,4vw,26px);font-weight:600}
+.card .l{color:var(--t3);font-size:11px;text-transform:uppercase;letter-spacing:.7px;margin-top:3px;line-height:1.3}
 .green{color:var(--green)} .red{color:var(--red)} .accent{color:var(--accent)}
-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:14.5px;margin:14px 0}
-th{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--t2);background:var(--card2);text-align:right;padding:9px 12px}
+.signal{display:flex;flex-wrap:wrap;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;padding:14px 18px;margin:18px 0}
+.signal .reg{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.5px;color:var(--t2)}
+.signal .pk{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:19px;color:var(--accent)}
+.chartwrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 14px 6px;margin:16px 0}
+.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center}
+.controls .grp{display:flex;gap:4px;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:3px}
+.controls button{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;border:none;background:transparent;color:var(--t2);padding:5px 10px;border-radius:6px;cursor:pointer;transition:all .15s}
+.controls button.on{background:var(--accent);color:#fff}
+.controls .sp{flex:1}
+.chartbox{position:relative;height:340px}
+@media(max-width:640px){.chartbox{height:300px}}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:14px;margin:12px 0}
+.tablescroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
+th{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--t2);background:var(--card2);text-align:right;padding:9px 11px;white-space:nowrap}
 th:first-child,td:first-child{text-align:left}
-td{padding:8px 12px;border-top:1px solid var(--border);text-align:right;font-family:'JetBrains Mono',monospace;font-size:13.5px}
+td{padding:8px 11px;border-top:1px solid var(--border);text-align:right;font-family:'JetBrains Mono',monospace;font-size:13px;white-space:nowrap}
 td:first-child{font-family:'Bricolage Grotesque',sans-serif}
-.chartbox{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin:18px 0}
+tr.best td{background:rgba(15,95,115,.06)}
 p{margin:10px 0;color:var(--t2)} p strong{color:var(--t1)}
-ul{margin:8px 0 8px 22px;color:var(--t2)} li{margin:5px 0}
-.note{background:var(--card2);border-left:3px solid var(--gold);border-radius:6px;padding:12px 16px;font-size:14px;color:var(--t2);margin:16px 0}
-.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:18px 0}
-.rule-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
-.rule-card h3{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
-.rule-card p{font-size:14.5px;margin:6px 0}
+ul{margin:8px 0 8px 20px;color:var(--t2)} li{margin:5px 0}
+.note{background:var(--card2);border-left:3px solid var(--gold);border-radius:6px;padding:12px 15px;font-size:13.5px;color:var(--t2);margin:16px 0}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px;margin:16px 0}
+.rule-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.rule-card h3{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
+.rule-card p{font-size:14px;margin:5px 0}
 a{color:var(--accent)}
-footer{margin-top:60px;color:var(--t3);font-size:13px;border-top:1px solid var(--rule);padding-top:16px}
+footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var(--rule);padding-top:16px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--t2);padding:2px 4px 8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
 </style>
 </head>
 <body>
@@ -55,32 +71,76 @@ footer{margin-top:60px;color:var(--t3);font-size:13px;border-top:1px solid var(-
   <div class="sub">Every two weeks, buy two stocks: the <strong>largest names that are leading</strong> when the market is healthy, the <strong>largest quality names at panic discounts</strong> when it isn't. Hold forever. Validated against QQQ-DCA and SPY-DCA across 244 rolling windows and every major regime, on point-in-time constituents with leakage audits.</div>
 </header>
 
-<div class="cards">
-  <div class="card"><div class="v">20.0×</div><div class="l">money multiple 2006→2026</div></div>
-  <div class="card"><div class="v">24.7%</div><div class="l">IRR (vs QQQ ~19%, SPY ~14%)</div></div>
+<div class="signal" id="signal">
+  <div><div class="reg" id="sig-reg">loading signal…</div></div>
+  <div class="sp" style="flex:1"></div>
+  <div><div class="reg">next buy</div><div class="pk" id="sig-picks">—</div></div>
+</div>
+
+<div class="cards" id="cards">
+  <div class="card"><div class="v" id="c-itd">20.0×</div><div class="l">money multiple since 2006</div></div>
+  <div class="card"><div class="v" id="c-irr">24.7%</div><div class="l">IRR · QQQ ~19% · SPY ~14%</div></div>
   <div class="card"><div class="v green">93%</div><div class="l">windows beat QQQ-DCA (244)</div></div>
   <div class="card"><div class="v green">98%</div><div class="l">windows beat SPY-DCA</div></div>
   <div class="card"><div class="v">+28.8%</div><div class="l">median excess vs QQQ</div></div>
-  <div class="card"><div class="v">−10.6%</div><div class="l">worst window vs QQQ</div></div>
+  <div class="card"><div class="v red">−10.6%</div><div class="l">worst window vs QQQ</div></div>
 </div>
 
-<div class="chartbox">
-  <canvas id="eq" height="120"></canvas>
+<h2>Growth of a DCA</h2>
+<div class="chartwrap">
+  <div class="controls">
+    <div class="grp" id="tf"></div>
+    <div class="sp"></div>
+    <div class="grp" id="mode">
+      <button data-mode="mult" class="on">× multiple</button>
+      <button data-mode="value">$ value</button>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i style="background:#0f5f73"></i>SUMMIT</span>
+    <span><i style="background:#c2410c"></i>QQQ DCA</span>
+    <span><i style="background:#a16207"></i>SPY DCA</span>
+    <span><i style="background:#8d8270"></i>Contributed</span>
+  </div>
+  <div class="chartbox"><canvas id="eq"></canvas></div>
 </div>
-<p style="font-size:13px;color:var(--t3)">$1,000 contributed every 10 trading days from Jan 2006 ($515k total). All series: same cadence, same costs (5 bps), execution at next open. Log scale.</p>
+<p style="font-size:12.5px;color:var(--t3)">Same cadence, same 5 bps cost, execution at next open for all three. <b>× multiple</b> = portfolio value ÷ dollars contributed (every line starts at 1.0 and fans out — the clearest view of the edge). <b>$ value</b> = absolute dollars at $1,000 per buy, log scale.</p>
 
-<h2>Win rate by horizon</h2>
+<h2>Returns by horizon</h2>
+<p style="margin-top:2px">If you had started this DCA N years ago and run it to today — money multiple (value ÷ contributed) and money-weighted IRR — versus the same DCA into QQQ and SPY.</p>
+<div class="tablescroll">
+<table id="rettable">
+<thead><tr><th>started</th><th>SUMMIT ×</th><th>SUMMIT IRR</th><th>QQQ ×</th><th>QQQ IRR</th><th>SPY ×</th><th>SPY IRR</th><th>SUMMIT vs QQQ</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<h2>Calendar-year value growth</h2>
+<div class="tablescroll">
+<table id="yeartable">
+<thead><tr><th>year</th><th>SUMMIT</th><th>QQQ DCA</th><th>SPY DCA</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<h2>Win rate by holding length</h2>
+<div class="tablescroll">
 <table>
-<tr><th>horizon</th><th>windows</th><th>beat QQQ</th><th>beat SPY</th><th>median vs QQQ</th><th>worst vs QQQ</th></tr>
+<thead><tr><th>horizon</th><th>windows</th><th>beat QQQ</th><th>beat SPY</th><th>median vs QQQ</th><th>worst vs QQQ</th></tr></thead>
+<tbody>
 <tr><td>3 years</td><td>70</td><td>84%</td><td>91%</td><td class="green">+10.0%</td><td class="red">−10.6%</td></tr>
 <tr><td>5 years</td><td>62</td><td>92%</td><td>100%</td><td class="green">+19.1%</td><td class="red">−7.4%</td></tr>
-<tr><td>10 years</td><td>42</td><td><b>100%</b></td><td><b>100%</b></td><td class="green">+31.6%</td><td class="green">+8.4%</td></tr>
-<tr><td>to present</td><td>70</td><td><b>100%</b></td><td><b>100%</b></td><td class="green">+120%</td><td class="green">+45.9%</td></tr>
+<tr class="best"><td>10 years</td><td>42</td><td><b>100%</b></td><td><b>100%</b></td><td class="green">+31.6%</td><td class="green">+8.4%</td></tr>
+<tr class="best"><td>to present</td><td>70</td><td><b>100%</b></td><td><b>100%</b></td><td class="green">+120%</td><td class="green">+45.9%</td></tr>
+</tbody>
 </table>
+</div>
 
 <h2>Regime windows — all positive</h2>
+<div class="tablescroll">
 <table>
-<tr><th>regime</th><th>multiple</th><th>vs QQQ</th><th>vs SPY</th></tr>
+<thead><tr><th>regime</th><th>multiple</th><th>vs QQQ</th><th>vs SPY</th></tr></thead>
+<tbody>
 <tr><td>GFC 2007–2009</td><td>1.28×</td><td class="green">+9.0%</td><td class="green">+21.0%</td></tr>
 <tr><td>Recovery 2009–2012</td><td>1.43×</td><td class="green">+6.8%</td><td class="green">+12.1%</td></tr>
 <tr><td>Bull 2013–2017</td><td>2.03×</td><td class="green">+26.9%</td><td class="green">+43.2%</td></tr>
@@ -89,7 +149,9 @@ footer{margin-top:60px;color:var(--t3);font-size:13px;border-top:1px solid var(-
 <tr><td>COVID 2020–2021</td><td>1.58×</td><td class="green">+13.8%</td><td class="green">+19.0%</td></tr>
 <tr><td>Bear 2022–mid-2023</td><td>1.41×</td><td class="green">+17.6%</td><td class="green">+27.9%</td></tr>
 <tr><td>AI bull 2023–2026</td><td>2.40×</td><td class="green">+49.3%</td><td class="green">+69.3%</td></tr>
+</tbody>
 </table>
+</div>
 
 <h2>The rules</h2>
 <div class="rules">
@@ -100,58 +162,112 @@ footer{margin-top:60px;color:var(--t3);font-size:13px;border-top:1px solid var(-
   <div class="rule-card"><h3>3 · Risk-off buy</h3>
     <p>Keep buying. Among names with long-term uptrend intact (above 400-day MA or +24-month return) trading <strong>30–60% below all-time high</strong>: top-2 by rank(discount) + rank(dollar volume).</p></div>
   <div class="rule-card"><h3>4 · Execution &amp; holding</h3>
-    <p>Signal at Friday close, buy at next open, half the contribution per name. <strong>Never sell.</strong> No stops, no panic exits, no recovery triggers — each tested and rejected.</p></div>
+    <p>Signal at close, buy at next open, half the contribution per name. <strong>Never sell.</strong> No stops, no panic exits, no recovery triggers — each tested and rejected.</p></div>
 </div>
-
-<h2>What it actually bought</h2>
-<table>
-<tr><th>era</th><th colspan="3" style="text-align:left">most-bought names (mechanically selected, causal)</th></tr>
-<tr><td>2006–2009</td><td colspan="3" style="text-align:left">AAPL ×50 · GS ×25 · AMZN ×14 · MA ×10 (GS/MA bought in the GFC trough by the rebound sleeve)</td></tr>
-<tr><td>2010–2013</td><td colspan="3" style="text-align:left">NFLX ×40 · AAPL ×38 · BAC · GE · BKNG</td></tr>
-<tr><td>2014–2017</td><td colspan="3" style="text-align:left">AAPL ×30 · NVDA ×29 · AMZN ×26 · MU · NFLX</td></tr>
-<tr><td>2018–2021</td><td colspan="3" style="text-align:left">AMD ×30 · NVDA ×26 · AMZN ×23 · AAPL ×23 · TSLA</td></tr>
-<tr><td>2022–2026</td><td colspan="3" style="text-align:left">NVDA ×57 · AMD ×20 · PLTR ×20 · META ×17 · MU</td></tr>
-</table>
 
 <h2>Validation</h2>
 <ul>
   <li><strong>Point-in-time universe</strong>: S&amp;P 500 membership 1996–2026; no name selectable outside its membership window; delisting-aware accounting.</li>
   <li><strong>Leakage audit</strong>: panel hard-truncated at random dates, signals recomputed — zero difference. Execution strictly next-open.</li>
-  <li><strong>Robustness</strong>: win-rate 93–95% across all 10 schedule phases; unchanged at 5→40 bps costs; k=1/2/3 → 95/93/91%; monthly cadence equivalent; broad parameter plateaus (weights 3–8 / 0.5–2 all 89–94%).</li>
+  <li><strong>Robustness</strong>: win-rate 93–95% across all 10 schedule phases; unchanged at 5→40 bps costs; k=1/2/3 → 95/93/91%; monthly cadence equivalent; broad parameter plateaus.</li>
   <li><strong>Split-sample</strong>: 2006–2014 starts 90% win vs QQQ; 2015–2023 starts 99%.</li>
   <li><strong>Transfer</strong>: NASDAQ-100 PIT universe (2015+) — beats QQQ-DCA at all 15 start dates.</li>
   <li><strong>Survivorship control</strong>: random picks from the same universe ≈ SPY and beat QQQ in only 8% of windows — the edge is selection, not the universe.</li>
   <li><strong>Honest negatives</strong>: LightGBM ranker (OOS IC≈0), Chronos re-ranking, vol-compression breakouts, volume signals, low-vol tilts, all sell rules — tested, failed, documented in <code>dca/research/</code>.</li>
 </ul>
 
-<div class="note"><strong>Caveats.</strong> Free price data lacks ~26% of historical constituents (mostly pre-2015 delistings) — mitigated by the random-pick control and the mega-cap tilt, but residual upward bias can't be fully excluded; apply the repo-standard ~3% CAGR mental haircut. Pre-2004 (dot-com) behavior is untested. The 16 windows that still lose to QQQ (worst −10.6%) are 3–5-year windows starting 2010–2013, peak AAPL-concentration era. Past performance ≠ future results.</div>
+<div class="note"><strong>Caveats.</strong> Free price data lacks ~26% of historical constituents (mostly pre-2015 delistings) — mitigated by the random-pick control and the mega-cap tilt, but residual upward bias can't be fully excluded; apply a ~3% CAGR mental haircut. Pre-2004 (dot-com) behavior is untested. The 16 windows that still lose to QQQ (worst −10.6%) are 3–5-year windows starting 2010–2013, peak AAPL-concentration era. Past performance ≠ future results.</div>
 
-<h2>Current signal</h2>
-<p>As of <strong>2026-06-12</strong> close: regime <strong>RISK-ON</strong> → picks <strong>MU, SNDK</strong> (execute at next open). Live helper: <code>strategy_dca.current_picks(2)</code>.</p>
-
-<footer>SUMMIT · biweekly DCA stock selection · research &amp; validation trail in <code>dca/</code> · built 2026-06-12</footer>
+<footer>SUMMIT · biweekly DCA stock selection · research &amp; validation trail in <code>dca/</code> · figures refresh daily after market close</footer>
 </div>
 
 <script>
-fetch('summit_data.json').then(r=>r.json()).then(d=>{
-  new Chart(document.getElementById('eq'),{
+const FMT = {
+  pct:v=> (v==null||isNaN(v))?'—':(v>=0?'+':'')+(v*100).toFixed(1)+'%',
+  mult:v=> (v==null||isNaN(v))?'—':v.toFixed(2)+'×',
+};
+let CURVES=null, MODE='mult', TF='ITD', chart=null;
+
+function buildChart(){
+  const c = CURVES.curves[TF];
+  const inv = c.invested;
+  const transform = MODE==='mult'
+    ? (arr)=> arr.map((v,i)=> inv[i]>0 ? v/inv[i] : null)
+    : (arr)=> arr;
+  const ds = [
+    {label:'SUMMIT',data:transform(c.summit),borderColor:'#0f5f73',backgroundColor:'rgba(15,95,115,.08)',borderWidth:2.6,fill:MODE==='mult'?'origin':false,pointRadius:0,tension:.12},
+    {label:'QQQ DCA',data:transform(c.qqq),borderColor:'#c2410c',borderWidth:1.8,pointRadius:0,tension:.12},
+    {label:'SPY DCA',data:transform(c.spy),borderColor:'#a16207',borderWidth:1.8,pointRadius:0,tension:.12},
+  ];
+  if(MODE==='value') ds.push({label:'Contributed',data:c.invested,borderColor:'#8d8270',borderDash:[5,4],borderWidth:1.3,pointRadius:0});
+  const yScale = MODE==='value'
+    ? {type:'logarithmic',ticks:{callback:v=>{const k=[1e4,3e4,1e5,3e5,1e6,3e6,1e7,3e7];return k.includes(v)?'$'+(v>=1e6?(v/1e6)+'M':(v/1e3)+'k'):null},font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{color:'rgba(189,176,148,.25)'}}
+    : {ticks:{callback:v=>v.toFixed(1)+'×',font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{color:'rgba(189,176,148,.25)'}};
+  if(chart) chart.destroy();
+  chart = new Chart(document.getElementById('eq'),{
     type:'line',
-    data:{labels:d.dates,datasets:[
-      {label:'SUMMIT',data:d.summit,borderColor:'#155e75',backgroundColor:'transparent',borderWidth:2.2,pointRadius:0},
-      {label:'QQQ DCA',data:d.qqq,borderColor:'#c2410c',backgroundColor:'transparent',borderWidth:1.6,pointRadius:0},
-      {label:'SPY DCA',data:d.spy,borderColor:'#a16207',backgroundColor:'transparent',borderWidth:1.6,pointRadius:0},
-      {label:'Contributed',data:d.invested,borderColor:'#8d8270',borderDash:[5,4],backgroundColor:'transparent',borderWidth:1.2,pointRadius:0}
-    ]},
+    data:{labels:c.dates,datasets:ds},
     options:{
-      animation:false,responsive:true,
+      animation:false,responsive:true,maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
-      plugins:{legend:{labels:{font:{family:'JetBrains Mono',size:11}}}},
-      scales:{
-        y:{type:'logarithmic',ticks:{callback:v=>{const k=[1e4,3e4,1e5,3e5,1e6,3e6,1e7];return k.includes(v)?'$'+(v>=1e6?(v/1e6)+'M':(v/1e3)+'k'):null},font:{family:'JetBrains Mono',size:10}}},
-        x:{ticks:{maxTicksLimit:12,font:{family:'JetBrains Mono',size:10}},grid:{display:false}}
-      }
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:ctx=> ctx.dataset.label+': '+(MODE==='mult'? (ctx.parsed.y==null?'—':ctx.parsed.y.toFixed(2)+'×') : '$'+Math.round(ctx.parsed.y).toLocaleString())}}},
+      scales:{y:yScale,x:{ticks:{maxTicksLimit:8,font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{display:false}}}
     }
   });
+}
+
+function renderTables(R){
+  const tb = document.querySelector('#rettable tbody'); tb.innerHTML='';
+  const labelMap={ITD:'since 2006','10y':'10 years ago','7y':'7 years ago','5y':'5 years ago','3y':'3 years ago','1y':'1 year ago'};
+  R.table.forEach(r=>{
+    const excess = r.summit_mult/r.qqq_mult-1;
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td>${labelMap[r.horizon]||r.horizon}</td>
+        <td><b>${FMT.mult(r.summit_mult)}</b></td><td>${FMT.pct(r.summit_irr)}</td>
+        <td>${FMT.mult(r.qqq_mult)}</td><td>${FMT.pct(r.qqq_irr)}</td>
+        <td>${FMT.mult(r.spy_mult)}</td><td>${FMT.pct(r.spy_irr)}</td>
+        <td class="${excess>=0?'green':'red'}">${FMT.pct(excess)}</td></tr>`);
+  });
+  const yt = document.querySelector('#yeartable tbody'); yt.innerHTML='';
+  R.years.slice().reverse().forEach(y=>{
+    const cls=v=> isNaN(v)?'':(v>=0?'green':'red');
+    yt.insertAdjacentHTML('beforeend',
+      `<tr><td>${y.year}</td>
+        <td class="${cls(y.summit)}">${isNaN(y.summit)?'—':FMT.pct(y.summit)}</td>
+        <td class="${cls(y.qqq)}">${isNaN(y.qqq)?'—':FMT.pct(y.qqq)}</td>
+        <td class="${cls(y.spy)}">${isNaN(y.spy)?'—':FMT.pct(y.spy)}</td></tr>`);
+  });
+}
+
+Promise.all([
+  fetch('summit_data.json').then(r=>r.json()),
+  fetch('summit_returns.json').then(r=>r.json()).catch(()=>null),
+  fetch('summit_signal.json').then(r=>r.json()).catch(()=>null),
+]).then(([data,returns,signal])=>{
+  CURVES=data;
+  // timeframe buttons
+  const tf=document.getElementById('tf');
+  data.horizons.forEach((h,i)=>{
+    const b=document.createElement('button');
+    b.textContent = h==='ITD'?'All':h.toUpperCase(); b.dataset.tf=h;
+    if(h===TF) b.classList.add('on');
+    b.onclick=()=>{TF=h;[...tf.children].forEach(x=>x.classList.toggle('on',x.dataset.tf===h));buildChart();};
+    tf.appendChild(b);
+  });
+  document.querySelectorAll('#mode button').forEach(b=>{
+    b.onclick=()=>{MODE=b.dataset.mode;document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x===b));buildChart();};
+  });
+  if(data.headline){
+    document.getElementById('c-itd').textContent=data.headline.itd_mult.toFixed(1)+'×';
+    document.getElementById('c-irr').textContent=(data.headline.itd_irr*100).toFixed(1)+'%';
+  }
+  if(signal){
+    document.getElementById('sig-reg').innerHTML='<b>'+signal.regime+'</b> &nbsp;·&nbsp; as of '+signal.as_of;
+    document.getElementById('sig-picks').textContent=signal.picks.join('  ·  ');
+  }
+  if(returns) renderTables(returns);
+  buildChart();
 });
 </script>
 </body>

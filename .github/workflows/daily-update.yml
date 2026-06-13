@@ -25,7 +25,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install pandas numpy yfinance requests
+        pip install pandas numpy yfinance requests pyarrow scipy
 
     - name: Download fresh ETF data
       run: python scripts/download_bond_etfs.py
@@ -58,6 +58,12 @@ jobs:
       run: |
         sed -i 's|/home/user/bonds|.|g' scripts/generate_dashboard_data.py
         REPO_ROOT=. python scripts/generate_dashboard_data.py
+
+    - name: Refresh SUMMIT factsheet
+      run: python dca/update_summit.py
+      continue-on-error: true
+      env:
+        PYTHONUNBUFFERED: '1'
 
     - name: Rebuild HTML page
       run: |

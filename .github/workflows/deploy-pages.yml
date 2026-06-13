@@ -27,7 +27,7 @@ jobs:
   deploy:
     # Deploy on manual runs, or whenever a triggering cron completed
     # successfully (the crons always commit+push their refresh before exiting).
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages
