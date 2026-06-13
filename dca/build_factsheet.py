@@ -79,7 +79,7 @@ def _curve_for_horizon(P, years, cfg):
         "spy_irr": _irr(bs.value, bs.invested),
         "start": str(pd.Timestamp(start).date()), "end": str(end.date()),
     }
-    return out, metrics
+    return out, metrics, res
 
 
 def _calendar_years(P, cfg):
@@ -223,9 +223,9 @@ def _positions(P, res):
 def build(cfg, P=None, write=True):
     if P is None:
         P = data_mod.build_panel()
-    curves, returns_rows = {}, []
+    curves, returns_rows, pos_by_h = {}, [], {}
     for label, yrs in HORIZONS:
-        out, metrics = _curve_for_horizon(P, yrs, cfg)
+        out, metrics, hres = _curve_for_horizon(P, yrs, cfg)
         m = out["summit"].resample("ME").last().dropna()
 
         def samp(series):
@@ -235,6 +235,9 @@ def build(cfg, P=None, write=True):
                          "summit": samp(out["summit"]), "qqq": samp(out["qqq"]),
                          "spy": samp(out["spy"]), "invested": samp(out["invested"])}
         returns_rows.append({"horizon": label, **metrics})
+        if cfg.get("extras"):
+            ps, pn = _positions(P, hres)
+            pos_by_h[label] = {"positions": ps, "pnl": pn}
 
     yr_rows, full_res = _calendar_years(P, cfg)
 
@@ -253,6 +256,8 @@ def build(cfg, P=None, write=True):
         signal["holdings"] = extras["holdings"]
         signal["n_positions"] = extras["n_positions"]
         signal["positions"], signal["pnl"] = _positions(P, full_res)
+        signal["positions_by_horizon"] = pos_by_h
+        signal["horizons"] = [h[0] for h in HORIZONS]
 
     headline = {"itd_mult": returns_rows[0]["strat_mult"],
                 "itd_irr": returns_rows[0]["strat_irr"],

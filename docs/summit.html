@@ -59,6 +59,10 @@ h2{font-family:'Instrument Serif',serif;font-size:clamp(24px,4.5vw,30px);font-we
 .trimstats{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 2px}
 .chip{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 11px;color:var(--t2)}
 .chip b{color:var(--t1)} .chip.g b{color:var(--green)} .chip.r b{color:var(--red)}
+@media(max-width:480px){
+  td,th{padding:7px 6px;font-size:12px}
+  #postable td:first-child,#postable th:first-child{padding-left:9px}
+}
 
 table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:14px;margin:12px 0}
 .tablescroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
@@ -128,18 +132,19 @@ footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var
 
 <!-- ===== holdings ===== -->
 <h2>What you'd be holding</h2>
-<div class="lead">Because SUMMIT never sells, contributions pile up into a portfolio of past winners — today <strong id="h-count">—</strong> names, heavily tilted to the few that ran the most. A new investor starts empty and builds toward this over time.</div>
-<div class="lead" style="margin-top:2px"><strong>Optional — cap any single stock.</strong> If you'd rather not let one name get huge, you can <em>trim</em>: once a year, sell just the slice of any holding above a chosen cap and move it into that period's picks. It barely changes the returns, stays tax-light (only the excess of the biggest one or two names is sold), and never touches the rest. Pick a cap to preview it — the default is no cap.</div>
-<div class="controls"><div class="grp" id="trimtoggle"></div></div>
+<div class="lead">Because SUMMIT never sells, contributions pile up into a portfolio of past winners — <strong id="h-count">—</strong> names, heavily tilted to the few that ran the most. Pick how long ago you'd have started:</div>
+<div class="controls"><div class="grp" id="holdtf"></div><div class="sp"></div><div class="grp" id="trimtoggle"></div></div>
 <div class="holds" id="holds"></div>
 <div class="trimstats" id="trimstats"></div>
+<div class="tiny" id="trim-note">Trim (optional, on the full history): sell just the slice of any holding above a cap once a year and redeploy it — caps single-name risk at little cost, and stays tax-light.</div>
 
 <!-- ===== open positions / P&L ===== -->
 <h2>Open positions &amp; profit / loss</h2>
-<div class="lead">The model's live book — every name it currently holds, accumulated since 2006 and never sold, with each position's gain or loss. <strong id="pnl-summary"></strong></div>
+<div class="lead">The model's book — every name it holds, never sold, with each position's gain or loss. Pick how long ago you'd have started. <strong id="pnl-summary"></strong></div>
+<div class="controls"><div class="grp" id="postf"></div></div>
 <div class="tablescroll">
 <table id="postable">
-<thead><tr><th>stock</th><th>held since</th><th>weight</th><th>value</th><th>gain / loss</th></tr></thead>
+<thead><tr><th>stock</th><th>since</th><th>weight</th><th>value</th><th>gain / loss</th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
@@ -314,56 +319,81 @@ function renderReturns(R){
       rt.insertAdjacentHTML('beforeend',`<tr><td>${REGLABEL[k]}</td><td>${FMT.mult(v.mult)}</td><td class="${v.vs_qqq>=0?'green':'red'}">${FMT.pct(v.vs_qqq)}</td><td class="${v.vs_spy>=0?'green':'red'}">${FMT.pct(v.vs_spy)}</td></tr>`);});}
 }
 
-let TRIM=null, TRIMSEL='none';
+let TRIM=null, TRIMSEL='none', POS=null, POSTF='ITD', HOLDTF='ITD';
+const TFLABEL={ITD:'All','10y':'10Y','7y':'7Y','5y':'5Y','3y':'3Y','1y':'1Y'};
 function money(v){
   if(v>=1e6) return '$'+(v/1e6).toFixed(2)+'M';
   if(v>=1e3) return '$'+(v/1e3).toFixed(0)+'k';
   return '$'+Math.round(v);
 }
-function renderPositions(sig){
-  if(!sig.positions||!sig.pnl) return;
-  const p=sig.pnl, tot=p.total_value;
+function yr(s){ return s? s.slice(0,4) : '—'; }
+
+function tfButtons(elId, sel, onpick){
+  const el=document.getElementById(elId); el.innerHTML='';
+  (POS?Object.keys(TFLABEL).filter(h=>POS[h]):['ITD']).forEach(h=>{
+    const b=document.createElement('button'); b.textContent=TFLABEL[h]; b.dataset.h=h;
+    if(h===sel()) b.classList.add('on');
+    b.onclick=()=>{onpick(h);[...el.children].forEach(x=>x.classList.toggle('on',x.dataset.h===h));};
+    el.appendChild(b);
+  });
+}
+
+function renderPositions(){
+  const pb=POS&&POS[POSTF]; if(!pb) return;
+  const p=pb.pnl, tot=p.total_value;
   document.getElementById('pnl-summary').innerHTML=
     `Put in ${money(p.total_invested)} → now worth <span class="green">${money(p.total_value)}</span> `+
     `(<span class="green">${FMT.pct0(p.total_gain_pct)}</span>) across ${p.n} positions.`;
   const tb=document.querySelector('#postable tbody'); tb.innerHTML='';
-  const top=sig.positions.slice(0,25);
-  top.forEach(x=>{
+  pb.positions.slice(0,25).forEach(x=>{
     const w=x.value/tot, g=x.gain_pct, cls=g>=0?'green':'red';
     tb.insertAdjacentHTML('beforeend',
-      `<tr><td><b>${x.ticker}</b></td><td>${x.since||'—'}</td><td>${(w*100).toFixed(1)}%</td>`+
+      `<tr><td><b>${x.ticker}</b></td><td>${yr(x.since)}</td><td>${(w*100).toFixed(1)}%</td>`+
       `<td>${money(x.value)}</td><td class="${cls}">${FMT.pct0(g)}</td></tr>`);
   });
-  if(sig.positions.length>25){
-    const rest=sig.positions.slice(25), rv=rest.reduce((a,x)=>a+x.value,0);
-    document.getElementById('pos-note').textContent=
-      `+ ${rest.length} more smaller positions (${(rv/tot*100).toFixed(0)}% of the book). `+
-      `Dollar figures are the model's paper book since 2006 — they scale with how long you run it; the gain/loss % is per position.`;
-  }
+  const rest=pb.positions.slice(25), rv=rest.reduce((a,x)=>a+x.value,0);
+  document.getElementById('pos-note').textContent= rest.length
+    ? `+ ${rest.length} more smaller positions (${(rv/tot*100).toFixed(0)}% of the book). Dollar figures are the model's paper book — they scale with how long you run it; the gain/loss % is per position.`
+    : `Dollar figures are the model's paper book; the gain/loss % is per position.`;
 }
-function renderHoldingsVariant(v){
-  const top=v.holdings.slice(0,12), max=top[0].pct, el=document.getElementById('holds');
+
+function renderBars(items){
+  const top=items.slice(0,12), max=top[0].pct, el=document.getElementById('holds');
   el.innerHTML=top.map(h=>`<div class="hrow"><span class="ht">${h.ticker}</span><span class="hb"><i style="width:${(h.pct/max*100).toFixed(1)}%"></i></span><span class="hp">${(h.pct*100).toFixed(1)}%</span></div>`).join('')
-    + (v.holdings.length>12?`<div class="tiny">+ ${v.holdings.length-12} smaller positions</div>`:'');
-  const capM=v.label.match(/(\d+)%/);
-  const capTxt=capM?`limited to ${capM[1]}%`:'no limit';
-  document.getElementById('trimstats').innerHTML=
-    `<span class="chip">biggest stock now <b>${(v.top_weight*100).toFixed(0)}%</b> · ${capTxt}</span>`+
-    `<span class="chip g">beats QQQ <b>${FMT.pct0(v.win_qqq)}</b> of the time</span>`+
-    `<span class="chip g">typical lead <b>${FMT.pct(v.med_vs_qqq)}</b></span>`+
-    `<span class="chip r">worst <b>${FMT.pct(v.worst_vs_qqq)}</b></span>`+
-    `<span class="chip">grew to <b>${v.full_mult.toFixed(1)}×</b></span>`;
+    + (items.length>12?`<div class="tiny">+ ${items.length-12} smaller positions</div>`:'');
+}
+function renderHolds(){
+  const tg=document.getElementById('trimtoggle');
+  const note=document.getElementById('trim-note');
+  if(HOLDTF==='ITD' && TRIM){               // full history: trim what-if available
+    tg.style.display=''; note.style.display='';
+    const v=TRIM[TRIMSEL]; renderBars(v.holdings);
+    document.getElementById('h-count').textContent=v.n;
+    const capM=v.label.match(/(\d+)%/), capTxt=capM?`limited to ${capM[1]}%`:'no limit';
+    document.getElementById('trimstats').innerHTML=
+      `<span class="chip">biggest stock <b>${(v.top_weight*100).toFixed(0)}%</b> · ${capTxt}</span>`+
+      `<span class="chip g">beats QQQ <b>${FMT.pct0(v.win_qqq)}</b> of the time</span>`+
+      `<span class="chip g">typical lead <b>${FMT.pct(v.med_vs_qqq)}</b></span>`+
+      `<span class="chip r">worst <b>${FMT.pct(v.worst_vs_qqq)}</b></span>`+
+      `<span class="chip">grew to <b>${v.full_mult.toFixed(1)}×</b></span>`;
+  } else {                                   // shorter start: that book's holdings
+    tg.style.display='none'; note.style.display='none';
+    const pb=POS[HOLDTF], tot=pb.positions.reduce((a,x)=>a+x.value,0);
+    renderBars(pb.positions.map(x=>({ticker:x.ticker,pct:x.value/tot})));
+    document.getElementById('h-count').textContent=pb.pnl.n;
+    document.getElementById('trimstats').innerHTML=
+      `<span class="chip">biggest stock <b>${(pb.positions[0].value/tot*100).toFixed(0)}%</b></span>`+
+      `<span class="chip">grew to <b>${(pb.pnl.total_value/pb.pnl.total_invested).toFixed(1)}×</b></span>`+
+      `<span class="chip g">gain <b>${FMT.pct0(pb.pnl.total_gain_pct)}</b></span>`;
+  }
 }
 function setupTrim(variants,nPos){
   TRIM={}; variants.forEach(v=>TRIM[v.id]=v);
-  document.getElementById('h-count').textContent=nPos;
-  const tg=document.getElementById('trimtoggle');
-  tg.innerHTML='';
+  const tg=document.getElementById('trimtoggle'); tg.innerHTML='';
   variants.forEach(v=>{const b=document.createElement('button');b.textContent=v.label;b.dataset.id=v.id;
     if(v.id===TRIMSEL)b.classList.add('on');
-    b.onclick=()=>{TRIMSEL=v.id;[...tg.children].forEach(x=>x.classList.toggle('on',x.dataset.id===v.id));renderHoldingsVariant(TRIM[v.id]);};
+    b.onclick=()=>{TRIMSEL=v.id;[...tg.children].forEach(x=>x.classList.toggle('on',x.dataset.id===v.id));renderHolds();};
     tg.appendChild(b);});
-  renderHoldingsVariant(TRIM[TRIMSEL]);
 }
 
 Promise.all([
@@ -387,8 +417,14 @@ Promise.all([
     document.getElementById('a-picks').textContent=signal.picks.join('  ·  ');
     document.getElementById('a-reg').textContent=signal.regime;
   }
-  if(signal) renderPositions(signal);
+  if(signal&&signal.positions_by_horizon){
+    POS=signal.positions_by_horizon;
+    tfButtons('postf',()=>POSTF,h=>{POSTF=h;renderPositions();});
+    renderPositions();
+  }
   if(returns&&returns.trim) setupTrim(returns.trim, signal?signal.n_positions:returns.trim[0].n);
+  tfButtons('holdtf',()=>HOLDTF,h=>{HOLDTF=h;renderHolds();});
+  renderHolds();
   if(returns) renderReturns(returns);
   buildChart();
 });
