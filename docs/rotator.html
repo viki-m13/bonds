@@ -20,7 +20,7 @@
 html{-webkit-text-size-adjust:100%}
 body{font-family:'Bricolage Grotesque',Helvetica,Arial,sans-serif;background:var(--paper);color:var(--t1);line-height:1.55;padding-bottom:70px}
 .wrap{max-width:1040px;margin:0 auto;padding:0 18px}
-header{padding:46px 0 6px}
+header{padding:26px 0 6px}
 h1{font-family:'Instrument Serif',serif;font-size:clamp(40px,8vw,70px);font-weight:400;letter-spacing:.5px;line-height:1}
 h1 .peak{color:var(--accent)}
 .sub{color:var(--t2);font-size:clamp(15px,2.4vw,17px);max-width:780px;margin-top:12px}
@@ -60,6 +60,11 @@ ul{margin:8px 0 8px 20px;color:var(--t2)} li{margin:5px 0}
 .rule-card p{font-size:14px;margin:5px 0}
 a{color:var(--accent)}
 .win{color:var(--teal);font-weight:600}
+.switchbar{position:sticky;top:0;z-index:60;background:var(--paper);border-bottom:1px solid var(--border);padding:10px 0;margin:0 -18px 6px;}
+.pageswitch{display:flex;gap:5px;background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:4px;width:max-content;margin:0 auto}
+.pageswitch a{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.8px;text-decoration:none;color:var(--t2);padding:7px 22px;border-radius:8px;transition:all .15s}
+.pageswitch a.on{background:var(--accent);color:#fff;box-shadow:0 2px 8px -3px var(--accent)}
+.pageswitch a:not(.on):hover{background:var(--border);color:var(--t1)}
 footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var(--rule);padding-top:16px}
 .legend{display:flex;flex-wrap:wrap;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--t2);padding:2px 4px 8px}
 .legend span{display:inline-flex;align-items:center;gap:6px}
@@ -68,6 +73,10 @@ footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var
 </head>
 <body>
 <div class="wrap">
+<div class="switchbar"><div class="pageswitch">
+  <a href="summit.html">SUMMIT</a>
+  <a href="rotator.html" class="on">ROTATOR</a>
+</div></div>
 <header>
   <div class="badge">Independent replication · same harness as SUMMIT · point-in-time</div>
   <h1>ROTA<span class="peak">TOR</span></h1>
