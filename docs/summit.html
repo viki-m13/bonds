@@ -56,6 +56,9 @@ h2{font-family:'Instrument Serif',serif;font-size:clamp(24px,4.5vw,30px);font-we
 .hrow .hb{flex:1;height:14px;background:var(--card2);border-radius:4px;overflow:hidden}
 .hrow .hb i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px}
 .hrow .hp{width:52px;text-align:right;color:var(--t2)}
+.trimstats{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 2px}
+.chip{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 11px;color:var(--t2)}
+.chip b{color:var(--t1)} .chip.g b{color:var(--green)} .chip.r b{color:var(--red)}
 
 table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:14px;margin:12px 0}
 .tablescroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
@@ -125,8 +128,11 @@ footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var
 
 <!-- ===== holdings ===== -->
 <h2>What you'd be holding</h2>
-<div class="lead">Because SUMMIT never sells, the contributions pile up into a portfolio of past winners. If you'd run it since 2006 you'd hold <strong id="h-count">—</strong> names today — heavily tilted to the few that ran the most. A new investor starts empty and builds toward this over time. The biggest positions now:</div>
+<div class="lead">Because SUMMIT never sells, contributions pile up into a portfolio of past winners — today <strong id="h-count">—</strong> names, heavily tilted to the few that ran the most. A new investor starts empty and builds toward this over time.</div>
+<div class="lead" style="margin-top:2px"><strong>Optional — cap any single stock.</strong> If you'd rather not let one name get huge, you can <em>trim</em>: once a year, sell just the slice of any holding above a chosen cap and move it into that period's picks. It barely changes the returns, stays tax-light (only the excess of the biggest one or two names is sold), and never touches the rest. Pick a cap to preview it — the default is no cap.</div>
+<div class="controls"><div class="grp" id="trimtoggle"></div></div>
 <div class="holds" id="holds"></div>
+<div class="trimstats" id="trimstats"></div>
 
 <!-- ===== chart ===== -->
 <h2>How it has grown</h2>
@@ -297,12 +303,28 @@ function renderReturns(R){
       rt.insertAdjacentHTML('beforeend',`<tr><td>${REGLABEL[k]}</td><td>${FMT.mult(v.mult)}</td><td class="${v.vs_qqq>=0?'green':'red'}">${FMT.pct(v.vs_qqq)}</td><td class="${v.vs_spy>=0?'green':'red'}">${FMT.pct(v.vs_spy)}</td></tr>`);});}
 }
 
-function renderHoldings(sig){
-  if(!sig.holdings)return;
-  document.getElementById('h-count').textContent=sig.n_positions;
-  const top=sig.holdings.slice(0,12), max=top[0].pct, el=document.getElementById('holds');
+let TRIM=null, TRIMSEL='none';
+function renderHoldingsVariant(v){
+  const top=v.holdings.slice(0,12), max=top[0].pct, el=document.getElementById('holds');
   el.innerHTML=top.map(h=>`<div class="hrow"><span class="ht">${h.ticker}</span><span class="hb"><i style="width:${(h.pct/max*100).toFixed(1)}%"></i></span><span class="hp">${(h.pct*100).toFixed(1)}%</span></div>`).join('')
-    + (sig.holdings.length>12?`<div class="tiny">+ ${sig.holdings.length-12} smaller positions</div>`:'');
+    + (v.holdings.length>12?`<div class="tiny">+ ${v.holdings.length-12} smaller positions</div>`:'');
+  document.getElementById('trimstats').innerHTML=
+    `<span class="chip">biggest holding <b>${(v.top_weight*100).toFixed(0)}%</b></span>`+
+    `<span class="chip g">beats QQQ <b>${FMT.pct0(v.win_qqq)}</b> of the time</span>`+
+    `<span class="chip g">typical lead <b>${FMT.pct(v.med_vs_qqq)}</b></span>`+
+    `<span class="chip r">worst <b>${FMT.pct(v.worst_vs_qqq)}</b></span>`+
+    `<span class="chip">grew to <b>${v.full_mult.toFixed(1)}×</b></span>`;
+}
+function setupTrim(variants,nPos){
+  TRIM={}; variants.forEach(v=>TRIM[v.id]=v);
+  document.getElementById('h-count').textContent=nPos;
+  const tg=document.getElementById('trimtoggle');
+  tg.innerHTML='';
+  variants.forEach(v=>{const b=document.createElement('button');b.textContent=v.label;b.dataset.id=v.id;
+    if(v.id===TRIMSEL)b.classList.add('on');
+    b.onclick=()=>{TRIMSEL=v.id;[...tg.children].forEach(x=>x.classList.toggle('on',x.dataset.id===v.id));renderHoldingsVariant(TRIM[v.id]);};
+    tg.appendChild(b);});
+  renderHoldingsVariant(TRIM[TRIMSEL]);
 }
 
 Promise.all([
@@ -325,8 +347,8 @@ Promise.all([
     document.getElementById('a-asof').textContent='as of '+signal.as_of;
     document.getElementById('a-picks').textContent=signal.picks.join('  ·  ');
     document.getElementById('a-reg').textContent=signal.regime;
-    renderHoldings(signal);
   }
+  if(returns&&returns.trim) setupTrim(returns.trim, signal?signal.n_positions:returns.trim[0].n);
   if(returns) renderReturns(returns);
   buildChart();
 });

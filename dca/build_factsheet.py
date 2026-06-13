@@ -142,9 +142,48 @@ def _extras(P, cfg, full_res):
     hl = sorted(((t, v) for t, v in full_res.holdings.items()
                  if v == v and v > 0), key=lambda x: -x[1])
     holdings = [{"ticker": t, "pct": v / tot} for t, v in hl]
+
+    # optional concentration-trim variants (no-cap default + annual caps)
+    wins, bench = protocol._bench_grid(10, 0, 1000.0, cfg["cost_bps"])
+    Snp = scores.reindex(index=fd.index, columns=fd.columns).to_numpy(float)
+
+    def variant(vid, label, cap, period):
+        vq, vs, full = [], [], None
+        for wname, s, e in wins:
+            if wname in protocol.REGIMES:
+                continue
+            _, vals, inv = fast.run_fast(fd, Snp, k=cfg["k"], every=10,
+                                         start=s, end=e, cost_bps=cfg["cost_bps"],
+                                         trim_cap=cap, trim_period=period)
+            if inv[0] <= 0:
+                continue
+            m = vals[0] / inv[0]
+            vq.append(m / bench["qqq"][wname] - 1)
+            vs.append(m / bench["spy"][wname] - 1)
+            if wname.endswith("_end") and full is None:
+                full = m
+        vq, vs = np.array(vq), np.array(vs)
+        _, _, _, hold = fast.run_fast(fd, Snp, k=cfg["k"], every=10,
+                                      start=ANCHOR, cost_bps=cfg["cost_bps"],
+                                      trim_cap=cap, trim_period=period,
+                                      return_holdings=True)
+        t2 = sum(x for x in hold.values() if x == x and x > 0)
+        hl2 = sorted(((t, x / t2) for t, x in hold.items()
+                      if x == x and x > 0), key=lambda z: -z[1])
+        return {"id": vid, "label": label,
+                "holdings": [{"ticker": t, "pct": w} for t, w in hl2],
+                "n": len(hl2), "top_weight": hl2[0][1] if hl2 else None,
+                "win_qqq": float((vq > 0).mean()),
+                "win_spy": float((vs > 0).mean()),
+                "med_vs_qqq": float(np.median(vq)),
+                "worst_vs_qqq": float(vq.min()), "full_mult": float(full)}
+
+    trim = [variant("none", "No cap (default)", None, None),
+            variant("a33", "Cap 33% a year", 0.33, "annual"),
+            variant("a25", "Cap 25% a year", 0.25, "annual")]
     return {"winrate": card["by_horizon"], "regimes": card["regimes"],
             "cadence": cadence, "holdings": holdings,
-            "n_positions": len(holdings)}
+            "n_positions": len(holdings), "trim": trim}
 
 
 def build(cfg, P=None, write=True):
@@ -192,6 +231,7 @@ def build(cfg, P=None, write=True):
         returns_json["winrate"] = extras["winrate"]
         returns_json["regimes"] = extras["regimes"]
         returns_json["cadence"] = extras["cadence"]
+        returns_json["trim"] = extras["trim"]
     if write:
         pre = cfg["prefix"]
         _dump(data_json, os.path.join(DOCS, f"{pre}_data.json"))
