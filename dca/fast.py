@@ -43,7 +43,9 @@ class FastData:
 
 def run_fast(fd: FastData, scores: np.ndarray, k=3, every=10, offset=0,
              start=None, end=None, contribution=1000.0, cost_bps=5.0,
-             sell: np.ndarray | None = None, eval_positions=None):
+             sell: np.ndarray | None = None, eval_positions=None,
+             trim_cap: float | None = None,
+             trim_period: str | None = None, return_holdings=False):
     """Forward pass. `scores`/`sell` are numpy (days x tickers) aligned to fd.
     Returns (eval_positions, values, invested) where values[j] is portfolio
     value at fd.index[eval_positions[j]] for a DCA starting at `start`.
@@ -74,6 +76,14 @@ def run_fast(fd: FastData, scores: np.ndarray, k=3, every=10, offset=0,
             v += sh * fd.close_ff[pos, t]
         return v
 
+    def _pkey(ts):
+        if trim_period == "monthly":
+            return (ts.year, ts.month)
+        if trim_period == "quarterly":
+            return (ts.year, (ts.month - 1) // 3)
+        return ts.year                      # annual
+    prev_key = None
+
     prev_pos = sig[0]
     for si, p in enumerate(sig):
         # evaluate any eval positions strictly before this signal's exec
@@ -100,6 +110,33 @@ def run_fast(fd: FastData, scores: np.ndarray, k=3, every=10, offset=0,
                 if np.isnan(px):
                     px = fd.close_ff[p, t]
                 cash += shares.pop(t) * px * (1 - cost)
+        # concentration trim: sell each holding's excess over trim_cap (by
+        # close-of-signal weight) at the next open; proceeds redeployed in the
+        # buy below. Partial sells only -> most of the book (and its deferred
+        # gains) is left untouched.
+        do_trim = False
+        if trim_cap is not None and trim_period is not None:
+            key = _pkey(fd.index[p])
+            if prev_key is not None and key != prev_key:
+                do_trim = True
+            prev_key = key
+        if do_trim and shares:
+            hv = {t: shares[t] * fd.close_ff[p, t] for t in shares}
+            tot = sum(v for v in hv.values() if v == v)
+            if tot > 0:
+                for t, val in list(hv.items()):
+                    if val == val and val > trim_cap * tot:
+                        cpx = fd.close_ff[p, t]
+                        if cpx <= 0:
+                            continue
+                        sh_sell = min((val - trim_cap * tot) / cpx, shares[t])
+                        opx = fd.open[ex, t]
+                        if np.isnan(opx):
+                            opx = cpx
+                        cash += sh_sell * opx * (1 - cost)
+                        shares[t] -= sh_sell
+                        if shares[t] <= 1e-12:
+                            del shares[t]
         # pick top-k eligible
         row = scores[p].copy()
         mask = fd.member[p] & fd.enough[p] & ~np.isnan(fd.close[p])
@@ -123,6 +160,12 @@ def run_fast(fd: FastData, scores: np.ndarray, k=3, every=10, offset=0,
         values[ev_i] = mark(eval_positions[ev_i])
         invested[ev_i] = total_in
         ev_i += 1
+    if return_holdings:
+        cols = fd.columns
+        ep = eval_positions[-1]
+        holdings = {cols[t]: sh * fd.close_ff[ep, t]
+                    for t, sh in shares.items()}
+        return eval_positions, values, invested, holdings
     return eval_positions, values, invested
 
 
