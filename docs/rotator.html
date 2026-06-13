@@ -120,6 +120,15 @@ footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var
 </table>
 </div>
 
+<h2>Calendar-year value growth</h2>
+<p style="margin-top:2px">Within-year growth of the running portfolio (net of that year's new contributions), vs the same DCA into QQQ and SPY. This is where ROTATOR's variance shows: huge up years, but also flat/down years the cash switch and concentration produce.</p>
+<div class="tablescroll">
+<table id="yeartable">
+<thead><tr><th>year</th><th>ROTATOR</th><th>QQQ DCA</th><th>SPY DCA</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
 <h2>Win rate by holding length <span style="font-size:14px;color:var(--t3)">— the honest, unbiased view</span></h2>
 <p style="margin-top:2px">Across <em>all</em> rolling start dates (244 windows), how often each holding length actually beat QQQ-DCA. SUMMIT shown for contrast.</p>
 <div class="tablescroll">
@@ -244,6 +253,15 @@ function renderTables(R){
         <td>${FMT.mult(r.qqq_mult)}</td><td>${FMT.pct(r.qqq_irr)}</td>
         <td>${FMT.mult(r.spy_mult)}</td><td>${FMT.pct(r.spy_irr)}</td>
         <td class="${excess>=0?'green':'red'}">${FMT.pct(excess)}</td></tr>`);
+  });
+  const yt = document.querySelector('#yeartable tbody'); yt.innerHTML='';
+  const cls=v=> (v==null||isNaN(v))?'':(v>=0?'green':'red');
+  R.years.slice().reverse().forEach(y=>{
+    yt.insertAdjacentHTML('beforeend',
+      `<tr><td>${y.year}</td>
+        <td class="${cls(y.summit)}">${FMT.pct(y.summit)}</td>
+        <td class="${cls(y.qqq)}">${FMT.pct(y.qqq)}</td>
+        <td class="${cls(y.spy)}">${FMT.pct(y.spy)}</td></tr>`);
   });
 }
 
