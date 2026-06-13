@@ -47,7 +47,7 @@ def run_fast(fd: FastData, scores: np.ndarray, k=3, every=10, offset=0,
              trim_cap: float | None = None,
              trim_period: str | None = None, return_holdings=False,
              sector_ids: np.ndarray | None = None, diversify: bool = False,
-             sector_cap: float | None = None):
+             sector_cap: float | None = None, new_only: bool = False):
     """Forward pass. `scores`/`sell` are numpy (days x tickers) aligned to fd.
     Returns (eval_positions, values, invested) where values[j] is portfolio
     value at fd.index[eval_positions[j]] for a DCA starting at `start`.
@@ -174,6 +174,9 @@ def run_fast(fd: FastData, scores: np.ndarray, k=3, every=10, offset=0,
         row = scores[p].copy()
         mask = fd.member[p] & fd.enough[p] & ~np.isnan(fd.close[p])
         row[~mask] = np.nan
+        if new_only and shares:                  # never add to a held name
+            for t in shares:
+                row[t] = np.nan
         ok = ~np.isnan(row)
         nok = ok.sum()
         if nok:
