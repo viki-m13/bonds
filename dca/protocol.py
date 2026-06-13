@@ -118,8 +118,20 @@ def evaluate_signal(scores: pd.DataFrame, name: str, k: int = 3,
                      "vs_qqq": mult / bench["qqq"][wname] - 1,
                      "vs_spy": mult / bench["spy"][wname] - 1})
     df = pd.DataFrame(rows)
-    grid = df[~df["window"].isin(REGIMES)]
+    grid = df[~df["window"].isin(REGIMES)].copy()
     reg = df[df["window"].isin(REGIMES)]
+    grid["horizon"] = grid["window"].str.rsplit("_", n=1).str[-1]
+    by_horizon = {}
+    for h in ("3", "5", "10", "end"):
+        sub = grid[grid["horizon"] == h]
+        if len(sub):
+            by_horizon[h] = {
+                "n": int(len(sub)),
+                "win_qqq": float((sub["vs_qqq"] > 0).mean()),
+                "win_spy": float((sub["vs_spy"] > 0).mean()),
+                "med_vs_qqq": float(sub["vs_qqq"].median()),
+                "worst_vs_qqq": float(sub["vs_qqq"].min()),
+            }
     card = {
         "name": name, "k": k, "every": every, "offset": offset,
         "cost_bps": cost_bps, "n_windows": len(grid),
@@ -135,6 +147,7 @@ def evaluate_signal(scores: pd.DataFrame, name: str, k: int = 3,
         "regimes": {r["window"]: {"mult": r["mult"], "vs_qqq": r["vs_qqq"],
                                   "vs_spy": r["vs_spy"]}
                     for _, r in reg.iterrows()},
+        "by_horizon": by_horizon,
     }
     if not quiet:
         print(f"[{name}] k={k} win_qqq={card['win_qqq']:.0%} "

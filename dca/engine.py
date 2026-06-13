@@ -37,12 +37,14 @@ def schedule_dates(index: pd.DatetimeIndex, every: int = TRADING_DAYS_BIWEEKLY,
 
 
 class DCAResult:
-    def __init__(self, value, invested, trades, holdings_log, cash):
+    def __init__(self, value, invested, trades, holdings_log, cash,
+                 holdings=None):
         self.value = value              # daily portfolio value (Series)
         self.invested = invested        # cumulative contributions (Series)
         self.trades = trades            # list of dicts
         self.holdings_log = holdings_log
         self.cash = cash
+        self.holdings = holdings or {}  # ticker -> current market value
 
     @property
     def final_multiple(self):
@@ -183,7 +185,8 @@ def run_dca(open_px: pd.DataFrame, close_px: pd.DataFrame,
     span = idx[pos:end_pos]
     value = pd.Series(value_rows, index=span, name="value")
     invested = pd.Series(invested_rows, index=span, name="invested")
-    return DCAResult(value, invested, trades, hlog, cash)
+    holdings = {t: sh * last_close.get(t, np.nan) for t, sh in shares.items()}
+    return DCAResult(value, invested, trades, hlog, cash, holdings)
 
 
 def run_benchmark_dca(bench: pd.DataFrame, every: int = TRADING_DAYS_BIWEEKLY,

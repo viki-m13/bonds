@@ -107,7 +107,44 @@ def _calendar_years(P, cfg):
         rows.append({"year": int(yr), "summit": yr_ret(grp),
                      "qqq": yr_ret(q.loc[grp.index]),
                      "spy": yr_ret(sp.loc[grp.index])})
-    return rows
+    return rows, res
+
+
+def _extras(P, cfg, full_res):
+    """Daily-fresh validation metrics for the focused (SUMMIT) page:
+    win-rate by horizon, regime windows, the cadence robustness table, and the
+    current portfolio holdings. Uses the fast grid engine on the supplied
+    (stitched) panel so the numbers track live data."""
+    import fast
+    import protocol
+    fd = fast.FastData(P["open"], P["close"], P["member"])
+    protocol._cache.clear()
+    protocol._cache["panels"] = P
+    protocol._cache["fd"] = fd
+    protocol._cache["qqq"] = data_mod.load_benchmark("QQQ")
+    protocol._cache["spy"] = data_mod.load_benchmark("SPY")
+    scores = cfg["scores"](P)
+    sell = cfg["sell"](P) if cfg.get("sell") else None
+    card = protocol.evaluate_signal(scores, "live", k=cfg["k"], every=10,
+                                    cost_bps=cfg["cost_bps"], sell=sell,
+                                    save=False, quiet=True)
+    cadence = {}
+    for cname, ev in (("daily", 1), ("weekly", 5), ("biweekly", 10),
+                      ("monthly", 21)):
+        c = protocol.evaluate_signal(scores, "live", k=cfg["k"], every=ev,
+                                     cost_bps=cfg["cost_bps"], sell=sell,
+                                     save=False, quiet=True)
+        cadence[cname] = {"win_qqq": c["win_qqq"], "win_spy": c["win_spy"],
+                          "med_vs_qqq": c["med_vs_qqq"],
+                          "worst_vs_qqq": c["worst_vs_qqq"],
+                          "full_mult": c["full_mult"]}
+    tot = sum(v for v in full_res.holdings.values() if v == v and v > 0)
+    hl = sorted(((t, v) for t, v in full_res.holdings.items()
+                 if v == v and v > 0), key=lambda x: -x[1])
+    holdings = [{"ticker": t, "pct": v / tot} for t, v in hl]
+    return {"winrate": card["by_horizon"], "regimes": card["regimes"],
+            "cadence": cadence, "holdings": holdings,
+            "n_positions": len(holdings)}
 
 
 def build(cfg, P=None, write=True):
@@ -126,7 +163,7 @@ def build(cfg, P=None, write=True):
                          "spy": samp(out["spy"]), "invested": samp(out["invested"])}
         returns_rows.append({"horizon": label, **metrics})
 
-    yr_rows = _calendar_years(P, cfg)
+    yr_rows, full_res = _calendar_years(P, cfg)
 
     # current signal
     s = cfg["scores"](P)
@@ -138,6 +175,11 @@ def build(cfg, P=None, write=True):
               "regime": cfg["regime"](P), "picks": list(row.index[:cfg["k"]]),
               "next_label": cfg.get("next_label", "next buy")}
 
+    extras = _extras(P, cfg, full_res) if cfg.get("extras") else None
+    if extras:
+        signal["holdings"] = extras["holdings"]
+        signal["n_positions"] = extras["n_positions"]
+
     headline = {"itd_mult": returns_rows[0]["strat_mult"],
                 "itd_irr": returns_rows[0]["strat_irr"],
                 "qqq_mult": returns_rows[0]["qqq_mult"],
@@ -146,6 +188,10 @@ def build(cfg, P=None, write=True):
                  "headline": headline}
     returns_json = {"table": returns_rows, "years": yr_rows,
                     "as_of": signal["as_of"]}
+    if extras:
+        returns_json["winrate"] = extras["winrate"]
+        returns_json["regimes"] = extras["regimes"]
+        returns_json["cadence"] = extras["cadence"]
     if write:
         pre = cfg["prefix"]
         _dump(data_json, os.path.join(DOCS, f"{pre}_data.json"))
@@ -155,6 +201,8 @@ def build(cfg, P=None, write=True):
 
 
 def _sanitize(o):
+    if isinstance(o, np.generic):
+        o = o.item()
     if isinstance(o, float):
         return None if (np.isnan(o) or np.isinf(o)) else o
     if isinstance(o, dict):
@@ -173,7 +221,7 @@ def _dump(obj, path):
 
 def summit_cfg():
     import strategy_dca
-    return {"prefix": "summit", "k": 2, "cost_bps": 5,
+    return {"prefix": "summit", "k": 2, "cost_bps": 5, "extras": True,
             "scores": strategy_dca.build_scores, "sell": None,
             "next_label": "next buy",
             "regime": lambda P: ("RISK-OFF (rebound sleeve)"
