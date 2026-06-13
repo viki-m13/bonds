@@ -45,7 +45,9 @@ def run_fast(fd: FastData, scores: np.ndarray, k=3, every=10, offset=0,
              start=None, end=None, contribution=1000.0, cost_bps=5.0,
              sell: np.ndarray | None = None, eval_positions=None,
              trim_cap: float | None = None,
-             trim_period: str | None = None, return_holdings=False):
+             trim_period: str | None = None, return_holdings=False,
+             sector_ids: np.ndarray | None = None, diversify: bool = False,
+             sector_cap: float | None = None):
     """Forward pass. `scores`/`sell` are numpy (days x tickers) aligned to fd.
     Returns (eval_positions, values, invested) where values[j] is portfolio
     value at fd.index[eval_positions[j]] for a DCA starting at `start`.
@@ -115,12 +117,13 @@ def run_fast(fd: FastData, scores: np.ndarray, k=3, every=10, offset=0,
         # buy below. Partial sells only -> most of the book (and its deferred
         # gains) is left untouched.
         do_trim = False
-        if trim_cap is not None and trim_period is not None:
+        if trim_period is not None and (trim_cap is not None
+                                        or sector_cap is not None):
             key = _pkey(fd.index[p])
             if prev_key is not None and key != prev_key:
                 do_trim = True
             prev_key = key
-        if do_trim and shares:
+        if do_trim and shares and trim_cap is not None:
             hv = {t: shares[t] * fd.close_ff[p, t] for t in shares}
             tot = sum(v for v in hv.values() if v == v)
             if tot > 0:
@@ -137,6 +140,36 @@ def run_fast(fd: FastData, scores: np.ndarray, k=3, every=10, offset=0,
                         shares[t] -= sh_sell
                         if shares[t] <= 1e-12:
                             del shares[t]
+        # sector-level cap: on rebalance, trim any sector over sector_cap of the
+        # book proportionally across its names, redeployed in the buy below.
+        if do_trim and shares and sector_cap is not None \
+                and sector_ids is not None:
+            hv = {t: shares[t] * fd.close_ff[p, t] for t in shares}
+            tot = sum(v for v in hv.values() if v == v)
+            if tot > 0:
+                secval = {}
+                for t, val in hv.items():
+                    if val == val:
+                        secval[sector_ids[t]] = secval.get(sector_ids[t], 0.0) + val
+                for s_, sval in secval.items():
+                    if s_ < 0 or sval <= sector_cap * tot:
+                        continue
+                    excess = sval - sector_cap * tot
+                    for t in [t for t in list(shares) if sector_ids[t] == s_]:
+                        val = hv[t]
+                        if val != val:
+                            continue
+                        cpx = fd.close_ff[p, t]
+                        if cpx <= 0:
+                            continue
+                        sh_sell = min(excess * (val / sval) / cpx, shares[t])
+                        opx = fd.open[ex, t]
+                        if np.isnan(opx):
+                            opx = cpx
+                        cash += sh_sell * opx * (1 - cost)
+                        shares[t] -= sh_sell
+                        if shares[t] <= 1e-12:
+                            del shares[t]
         # pick top-k eligible
         row = scores[p].copy()
         mask = fd.member[p] & fd.enough[p] & ~np.isnan(fd.close[p])
@@ -145,7 +178,26 @@ def run_fast(fd: FastData, scores: np.ndarray, k=3, every=10, offset=0,
         nok = ok.sum()
         if nok:
             kk = min(k, nok)
-            picks = np.argpartition(-np.where(ok, row, -np.inf), kk - 1)[:kk]
+            if diversify and sector_ids is not None:
+                elig = np.where(ok)[0]
+                order = elig[np.argsort(-row[elig])]
+                picks, used = [], set()
+                for j in order:
+                    sj = sector_ids[j]
+                    if sj >= 0 and sj in used:
+                        continue
+                    picks.append(j); used.add(sj)
+                    if len(picks) >= kk:
+                        break
+                if len(picks) < kk:                       # not enough sectors
+                    for j in order:
+                        if j not in picks:
+                            picks.append(j)
+                        if len(picks) >= kk:
+                            break
+                picks = np.array(picks)
+            else:
+                picks = np.argpartition(-np.where(ok, row, -np.inf), kk - 1)[:kk]
             opx = fd.open[ex, picks]
             good = ~np.isnan(opx)
             picks, opx = picks[good], opx[good]
