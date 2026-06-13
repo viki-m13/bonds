@@ -308,8 +308,10 @@ function renderHoldingsVariant(v){
   const top=v.holdings.slice(0,12), max=top[0].pct, el=document.getElementById('holds');
   el.innerHTML=top.map(h=>`<div class="hrow"><span class="ht">${h.ticker}</span><span class="hb"><i style="width:${(h.pct/max*100).toFixed(1)}%"></i></span><span class="hp">${(h.pct*100).toFixed(1)}%</span></div>`).join('')
     + (v.holdings.length>12?`<div class="tiny">+ ${v.holdings.length-12} smaller positions</div>`:'');
+  const capM=v.label.match(/(\d+)%/);
+  const capTxt=capM?`limited to ${capM[1]}%`:'no limit';
   document.getElementById('trimstats').innerHTML=
-    `<span class="chip">biggest holding <b>${(v.top_weight*100).toFixed(0)}%</b></span>`+
+    `<span class="chip">biggest stock now <b>${(v.top_weight*100).toFixed(0)}%</b> · ${capTxt}</span>`+
     `<span class="chip g">beats QQQ <b>${FMT.pct0(v.win_qqq)}</b> of the time</span>`+
     `<span class="chip g">typical lead <b>${FMT.pct(v.med_vs_qqq)}</b></span>`+
     `<span class="chip r">worst <b>${FMT.pct(v.worst_vs_qqq)}</b></span>`+
