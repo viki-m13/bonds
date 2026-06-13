@@ -2,6 +2,20 @@
 
 Bond trading model using historical bond market data.
 
+## Strategies
+
+This repo hosts several systematic strategies with live, self-updating
+factsheets at https://viki-m13.github.io/bonds/ :
+
+- **SUMMIT** — a concentrated biweekly/monthly **DCA stock-selection** strategy
+  on point-in-time S&P 500 data (beats QQQ-DCA in 93% of rolling windows). Full
+  project record, research log, and reproduction steps in [`dca/README.md`](dca/README.md);
+  live page `docs/summit.html`.
+- **ROTATOR** — an external leadership-rotation strategy, independently
+  replicated and compared on the identical harness (`docs/rotator.html`).
+- **PHOENIX / APEX** and other leveraged-ETF strategies — see `alt/`, `apex/`,
+  and `docs/`.
+
 ## Data Sources
 
 ### 1. Bond ETFs (via Yahoo Finance)
