@@ -221,10 +221,10 @@ function renderTables(R){
   const tb = document.querySelector('#rettable tbody'); tb.innerHTML='';
   const labelMap={ITD:'since 2006','10y':'10 years ago','7y':'7 years ago','5y':'5 years ago','3y':'3 years ago','1y':'1 year ago'};
   R.table.forEach(r=>{
-    const excess = r.summit_mult/r.qqq_mult-1;
+    const excess = r.strat_mult/r.qqq_mult-1;
     tb.insertAdjacentHTML('beforeend',
       `<tr><td>${labelMap[r.horizon]||r.horizon}</td>
-        <td><b>${FMT.mult(r.summit_mult)}</b></td><td>${FMT.pct(r.summit_irr)}</td>
+        <td><b>${FMT.mult(r.strat_mult)}</b></td><td>${FMT.pct(r.strat_irr)}</td>
         <td>${FMT.mult(r.qqq_mult)}</td><td>${FMT.pct(r.qqq_irr)}</td>
         <td>${FMT.mult(r.spy_mult)}</td><td>${FMT.pct(r.spy_irr)}</td>
         <td class="${excess>=0?'green':'red'}">${FMT.pct(excess)}</td></tr>`);

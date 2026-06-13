@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f5efe2">
+<title>ROTATOR — Biweekly Leadership Rotation (replicated &amp; validated)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --paper:#f5efe2; --card:#fffdf7; --card2:#ebe2cf; --border:#d8cdb6;
+  --rule:#bdb094; --t1:#0e0a07; --t2:#5b4f3f; --t3:#8d8270;
+  --accent:#b45309; --accent2:#c2410c; --green:#15803d; --red:#b3331f;
+  --gold:#a16207; --teal:#0f5f73;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Bricolage Grotesque',Helvetica,Arial,sans-serif;background:var(--paper);color:var(--t1);line-height:1.55;padding-bottom:70px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+header{padding:46px 0 6px}
+h1{font-family:'Instrument Serif',serif;font-size:clamp(40px,8vw,70px);font-weight:400;letter-spacing:.5px;line-height:1}
+h1 .peak{color:var(--accent)}
+.sub{color:var(--t2);font-size:clamp(15px,2.4vw,17px);max-width:780px;margin-top:12px}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:1.3px;text-transform:uppercase;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;color:var(--t2);margin-bottom:14px}
+h2{font-family:'Instrument Serif',serif;font-size:clamp(24px,4.5vw,30px);font-weight:400;margin:44px 0 12px;border-bottom:1px solid var(--rule);padding-bottom:8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px;margin:24px 0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 16px;box-shadow:0 4px 12px -7px rgba(14,10,7,.14)}
+.card .v{font-family:'JetBrains Mono',monospace;font-size:clamp(21px,4vw,26px);font-weight:600}
+.card .l{color:var(--t3);font-size:11px;text-transform:uppercase;letter-spacing:.7px;margin-top:3px;line-height:1.3}
+.green{color:var(--green)} .red{color:var(--red)} .accent{color:var(--accent)}
+.signal{display:flex;flex-wrap:wrap;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;padding:14px 18px;margin:18px 0}
+.signal .reg{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.5px;color:var(--t2)}
+.signal .pk{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:19px;color:var(--accent)}
+.chartwrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 14px 6px;margin:16px 0}
+.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center}
+.controls .grp{display:flex;gap:4px;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:3px}
+.controls button{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;border:none;background:transparent;color:var(--t2);padding:5px 10px;border-radius:6px;cursor:pointer;transition:all .15s}
+.controls button.on{background:var(--accent);color:#fff}
+.controls .sp{flex:1}
+.chartbox{position:relative;height:340px}
+@media(max-width:640px){.chartbox{height:300px}}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:14px;margin:12px 0}
+.tablescroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
+th{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--t2);background:var(--card2);text-align:right;padding:9px 11px;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td{padding:8px 11px;border-top:1px solid var(--border);text-align:right;font-family:'JetBrains Mono',monospace;font-size:13px;white-space:nowrap}
+td:first-child{font-family:'Bricolage Grotesque',sans-serif}
+tr.best td{background:rgba(180,83,9,.07)}
+tr.warn td{background:rgba(179,51,31,.06)}
+p{margin:10px 0;color:var(--t2)} p strong{color:var(--t1)}
+ul{margin:8px 0 8px 20px;color:var(--t2)} li{margin:5px 0}
+.note{background:var(--card2);border-left:3px solid var(--gold);border-radius:6px;padding:12px 15px;font-size:13.5px;color:var(--t2);margin:16px 0}
+.warnbox{background:#fbf1ec;border-left:3px solid var(--red);border-radius:6px;padding:12px 15px;font-size:13.5px;color:var(--t2);margin:16px 0}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px;margin:16px 0}
+.rule-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.rule-card h3{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
+.rule-card p{font-size:14px;margin:5px 0}
+a{color:var(--accent)}
+.win{color:var(--teal);font-weight:600}
+footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var(--rule);padding-top:16px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--t2);padding:2px 4px 8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="badge">Independent replication · same harness as SUMMIT · point-in-time</div>
+  <h1>ROTA<span class="peak">TOR</span></h1>
+  <div class="sub">A biweekly <strong>leadership-rotation</strong> strategy: hold the 3 strongest-and-steadiest S&amp;P 500 names, rotate as ranks change, and go fully to <strong>cash</strong> when SPY breaks its 210-day average. This page is our <strong>independent rebuild</strong>, run through the <em>exact same</em> point-in-time engine, costs and 244-window grid as SUMMIT — so the two are directly comparable. <a href="summit.html">↗ compare with SUMMIT</a></div>
+</header>
+
+<div class="signal" id="signal">
+  <div><div class="reg" id="sig-reg">loading signal…</div></div>
+  <div class="sp" style="flex:1"></div>
+  <div><div class="reg">currently holding</div><div class="pk" id="sig-picks">—</div></div>
+</div>
+
+<div class="cards" id="cards">
+  <div class="card"><div class="v" id="c-itd">30.0×</div><div class="l">money multiple since 2006</div></div>
+  <div class="card"><div class="v" id="c-irr">28%</div><div class="l">IRR · QQQ ~19% · SPY ~14%</div></div>
+  <div class="card"><div class="v">+21.3%</div><div class="l">median excess vs QQQ</div></div>
+  <div class="card"><div class="v">65%</div><div class="l">windows beat QQQ-DCA (244)</div></div>
+  <div class="card"><div class="v red">−57.5%</div><div class="l">worst window vs QQQ</div></div>
+  <div class="card"><div class="v red">−23.4%</div><div class="l">10th-pct window vs QQQ</div></div>
+</div>
+
+<div class="warnbox"><strong>Read this first.</strong> ROTATOR posts a higher <em>terminal</em> multiple than SUMMIT (30× vs 20×) and a high median — but it is a <strong>much higher-variance bet</strong>. Across independent rolling holding periods it beats QQQ only ~50-65% of the time, its worst window is <strong>−57%</strong> vs QQQ (SUMMIT: −10.6%), and most of its lifetime edge comes from <strong>one regime</strong> — the 2023-2026 memory/AI run (+206% vs QQQ), the very theme it holds today (STX/WDC/INTC). It also turns over ~26 trades/yr (short-term-gain tax drag) and is cost-sensitive. Higher ceiling, far higher floor risk.</div>
+
+<h2>Growth of a DCA</h2>
+<div class="chartwrap">
+  <div class="controls">
+    <div class="grp" id="tf"></div>
+    <div class="sp"></div>
+    <div class="grp" id="mode">
+      <button data-mode="mult" class="on">× multiple</button>
+      <button data-mode="value">$ value</button>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i style="background:#b45309"></i>ROTATOR</span>
+    <span><i style="background:#c2410c"></i>QQQ DCA</span>
+    <span><i style="background:#a16207"></i>SPY DCA</span>
+    <span><i style="background:#8d8270"></i>Contributed</span>
+  </div>
+  <div class="chartbox"><canvas id="eq"></canvas></div>
+</div>
+<p style="font-size:12.5px;color:var(--t3)">Same cadence, same 10 bps/side cost, execution at next open. <b>× multiple</b> = value ÷ dollars contributed. <b>$ value</b> = absolute dollars at $1,000 per buy, log scale. Note how nearly all of ROTATOR's separation from QQQ opens up in the final stretch (2023+).</p>
+
+<h2>Returns by horizon</h2>
+<p style="margin-top:2px">If you had started this DCA N years ago and run it to today. <b>Caveat:</b> every "to-present" horizon includes the 2023-2026 boom, which flatters all of these — see the rolling-window table below for the unbiased view.</p>
+<div class="tablescroll">
+<table id="rettable">
+<thead><tr><th>started</th><th>ROTATOR ×</th><th>ROTATOR IRR</th><th>QQQ ×</th><th>QQQ IRR</th><th>SPY ×</th><th>SPY IRR</th><th>ROTATOR vs QQQ</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<h2>Win rate by holding length <span style="font-size:14px;color:var(--t3)">— the honest, unbiased view</span></h2>
+<p style="margin-top:2px">Across <em>all</em> rolling start dates (244 windows), how often each holding length actually beat QQQ-DCA. SUMMIT shown for contrast.</p>
+<div class="tablescroll">
+<table>
+<thead><tr><th>holding length</th><th>windows</th><th>ROTATOR beat QQQ</th><th>ROTATOR worst</th><th>SUMMIT beat QQQ</th><th>SUMMIT worst</th></tr></thead>
+<tbody>
+<tr class="warn"><td>3 years</td><td>70</td><td>51%</td><td class="red">−45.3%</td><td class="win">84%</td><td>−10.6%</td></tr>
+<tr class="warn"><td>5 years</td><td>62</td><td>50%</td><td class="red">−55.6%</td><td class="win">92%</td><td>−7.4%</td></tr>
+<tr class="warn"><td>10 years</td><td>42</td><td>52%</td><td class="red">−57.5%</td><td class="win">100%</td><td>+8.4%</td></tr>
+<tr><td>to present</td><td>70</td><td>100%</td><td class="green">+40.3%</td><td>100%</td><td>+45.9%</td></tr>
+</tbody>
+</table>
+</div>
+<p style="font-size:12.5px;color:var(--t3)">ROTATOR's "to-present" row is 100% only because every such window rides 2023-2026. On <em>independent</em> 3/5/10-year holds it is roughly a coin-flip vs QQQ with deep worst cases — the price of three-name concentration plus a cash switch that whipsaws.</p>
+
+<h2>Regime windows</h2>
+<div class="tablescroll">
+<table>
+<thead><tr><th>regime</th><th>multiple</th><th>ROTATOR vs QQQ</th><th>SUMMIT vs QQQ</th></tr></thead>
+<tbody>
+<tr><td>GFC 2007–2009</td><td>1.32×</td><td class="green">+13%</td><td>+9%</td></tr>
+<tr class="warn"><td>Recovery 2009–2012</td><td>1.08×</td><td class="red">−20%</td><td class="win">+7%</td></tr>
+<tr><td>Bull 2013–2017</td><td>2.23×</td><td class="green">+40%</td><td>+27%</td></tr>
+<tr><td>Sideways 2015–2016</td><td>1.25×</td><td class="green">+14%</td><td>+4%</td></tr>
+<tr class="warn"><td>Vol shock 2018–19</td><td>0.95×</td><td class="red">−13%</td><td class="win">+1%</td></tr>
+<tr class="warn"><td>COVID 2020–2021</td><td>1.33×</td><td class="red">−4%</td><td class="win">+14%</td></tr>
+<tr><td>Bear 2022–mid-2023</td><td>1.19×</td><td>−0%</td><td class="win">+18%</td></tr>
+<tr><td>AI bull 2023–2026</td><td>4.94×</td><td class="green">+206%</td><td>+48%</td></tr>
+</tbody>
+</table>
+</div>
+<p style="font-size:12.5px;color:var(--t3)">ROTATOR's cash switch whipsaws in choppy recoveries (2009-12, 2018, COVID rebound) — it sells into the bottom and re-enters higher. SUMMIT stays positive in every regime by switching <em>what</em> it buys rather than going to cash.</p>
+
+<h2>SUMMIT vs ROTATOR — head to head</h2>
+<p style="margin-top:2px">Both run on the identical engine, S&amp;P 500 point-in-time universe, next-open fills, and 244-window grid. ROTATOR at its native k=3 / 10 bps; SUMMIT at k=2 / 5 bps.</p>
+<div class="tablescroll">
+<table>
+<thead><tr><th>metric</th><th>SUMMIT</th><th>ROTATOR</th><th>edge</th></tr></thead>
+<tbody>
+<tr><td>Beat QQQ (244 windows)</td><td class="win">93%</td><td>65%</td><td>SUMMIT</td></tr>
+<tr><td>Beat SPY</td><td class="win">98%</td><td>77%</td><td>SUMMIT</td></tr>
+<tr><td>Median excess vs QQQ</td><td class="win">+28.8%</td><td>+21.3%</td><td>SUMMIT</td></tr>
+<tr><td>10th-pct window vs QQQ</td><td class="win">+3.0%</td><td class="red">−23.4%</td><td>SUMMIT</td></tr>
+<tr><td>Worst window vs QQQ</td><td class="win">−10.6%</td><td class="red">−57.5%</td><td>SUMMIT</td></tr>
+<tr><td>Full-period multiple (2006→)</td><td>20.0×</td><td class="win">30.0×</td><td>ROTATOR</td></tr>
+<tr><td>Best regime (AI bull)</td><td>+48%</td><td class="win">+206%</td><td>ROTATOR</td></tr>
+<tr><td>Trades / year</td><td class="win">~0 (never sells)</td><td>~26</td><td>SUMMIT</td></tr>
+<tr><td>Cost drag 5→10 bps (full mult)</td><td class="win">none</td><td>32.8×→30.0×</td><td>SUMMIT</td></tr>
+<tr><td>Tax profile</td><td class="win">deferred / LT</td><td>mostly short-term</td><td>SUMMIT</td></tr>
+</tbody>
+</table>
+</div>
+<p>In one line: <strong>ROTATOR has the higher ceiling, SUMMIT the higher floor.</strong> ROTATOR wins terminal wealth and explosive regimes; SUMMIT wins consistency, drawdown, turnover and taxes. For buy-and-hold money you can't perfectly time the entry of, SUMMIT's 93%/−10.6% profile is the safer expectation; ROTATOR is a higher-variance satellite whose recent dominance leans heavily on one concentrated theme.</p>
+
+<h2>The rules (as replicated)</h2>
+<div class="rules">
+  <div class="rule-card"><h3>1 · Leadership score</h3>
+    <p>Rank by <strong>average(3-month, 6-month return) × fraction of rising weeks over 6 months</strong>. "Strong AND steady beats strong alone."</p></div>
+  <div class="rule-card"><h3>2 · MAX screen</h3>
+    <p>Exclude any name whose biggest 1-day jump in the past month is in the universe's top 5% — "names that just went vertical tend to give it back."</p></div>
+  <div class="rule-card"><h3>3 · Hold &amp; rotate</h3>
+    <p>Hold the top 3, equal weight. Keep a position while it stays in the top 8; sell once it drops below rank 8. Buy at next open.</p></div>
+  <div class="rule-card"><h3>4 · Cash switch</h3>
+    <p>If SPY closes below its 210-day average, <strong>sell everything to cash</strong>; re-enter at the first rebalance after SPY reclaims it.</p></div>
+</div>
+
+<h2>Validation</h2>
+<ul>
+  <li><strong>Causality</strong>: leadership score and sell rule both pass the truncation leakage audit (panel hard-truncated at random dates, recomputed — zero difference). Execution strictly next-open.</li>
+  <li><strong>Same harness as SUMMIT</strong>: identical point-in-time S&amp;P 500 universe (no survivorship), delisting-aware engine, 244-window grid, regime windows, random-pick control.</li>
+  <li><strong>Cost honesty</strong>: ROTATOR turns over ~26×/yr, so it is cost-sensitive (full multiple 32.8× at 5 bps → 30.0× at 10 bps); shown at its stated 10 bps/side.</li>
+  <li><strong>Concentration of edge</strong>: removing the 2023-2026 window collapses most of ROTATOR's outperformance — its rolling 3/5/10-year win-rates vs QQQ are 51/50/52%.</li>
+</ul>
+
+<div class="note"><strong>Caveats.</strong> Our replication is faithful to the published v2.0 spec but rendered in the DCA harness (regime checked at each biweekly date, not intraday) on the S&amp;P 500 PIT universe (the original adds the Nasdaq-100). Free price data lacks ~26% of historical constituents (mostly pre-2015 delistings); the mega-/large-cap leadership tilt sits in the best-covered names, but residual survivorship bias can't be fully excluded. ROTATOR <em>will</em> draw down 35-50% and can trail for years when leadership is broad. Concentration is real (today: one storage/memory theme). ~26 short-term-gain sales/yr — hold in a tax-advantaged account. Past performance ≠ future results. Not investment advice.</div>
+
+<footer>ROTATOR · independent replication &amp; validation · same engine and grid as <a href="summit.html">SUMMIT</a> · research trail in <code>dca/</code> · figures refresh daily after market close</footer>
+</div>
+
+<script>
+const FMT = {
+  pct:v=> (v==null||isNaN(v))?'—':(v>=0?'+':'')+(v*100).toFixed(1)+'%',
+  mult:v=> (v==null||isNaN(v))?'—':v.toFixed(2)+'×',
+};
+let CURVES=null, MODE='mult', TF='ITD', chart=null;
+const STRAT_COLOR='#b45309', STRAT_FILL='rgba(180,83,9,.08)';
+
+function buildChart(){
+  const c = CURVES.curves[TF];
+  const inv = c.invested;
+  const transform = MODE==='mult'
+    ? (arr)=> arr.map((v,i)=> inv[i]>0 ? v/inv[i] : null)
+    : (arr)=> arr;
+  const ds = [
+    {label:'ROTATOR',data:transform(c.summit),borderColor:STRAT_COLOR,backgroundColor:STRAT_FILL,borderWidth:2.6,fill:MODE==='mult'?'origin':false,pointRadius:0,tension:.12},
+    {label:'QQQ DCA',data:transform(c.qqq),borderColor:'#c2410c',borderWidth:1.8,pointRadius:0,tension:.12,borderDash:[6,3]},
+    {label:'SPY DCA',data:transform(c.spy),borderColor:'#a16207',borderWidth:1.8,pointRadius:0,tension:.12},
+  ];
+  if(MODE==='value') ds.push({label:'Contributed',data:c.invested,borderColor:'#8d8270',borderDash:[5,4],borderWidth:1.3,pointRadius:0});
+  const yScale = MODE==='value'
+    ? {type:'logarithmic',ticks:{callback:v=>{const k=[1e4,3e4,1e5,3e5,1e6,3e6,1e7,3e7];return k.includes(v)?'$'+(v>=1e6?(v/1e6)+'M':(v/1e3)+'k'):null},font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{color:'rgba(189,176,148,.25)'}}
+    : {ticks:{callback:v=>v.toFixed(1)+'×',font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{color:'rgba(189,176,148,.25)'}};
+  if(chart) chart.destroy();
+  chart = new Chart(document.getElementById('eq'),{
+    type:'line', data:{labels:c.dates,datasets:ds},
+    options:{animation:false,responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:ctx=> ctx.dataset.label+': '+(MODE==='mult'? (ctx.parsed.y==null?'—':ctx.parsed.y.toFixed(2)+'×') : '$'+Math.round(ctx.parsed.y).toLocaleString())}}},
+      scales:{y:yScale,x:{ticks:{maxTicksLimit:8,font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{display:false}}}}
+  });
+}
+
+function renderTables(R){
+  const tb = document.querySelector('#rettable tbody'); tb.innerHTML='';
+  const labelMap={ITD:'since 2006','10y':'10 years ago','7y':'7 years ago','5y':'5 years ago','3y':'3 years ago','1y':'1 year ago'};
+  R.table.forEach(r=>{
+    const excess = r.strat_mult/r.qqq_mult-1;
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td>${labelMap[r.horizon]||r.horizon}</td>
+        <td><b>${FMT.mult(r.strat_mult)}</b></td><td>${FMT.pct(r.strat_irr)}</td>
+        <td>${FMT.mult(r.qqq_mult)}</td><td>${FMT.pct(r.qqq_irr)}</td>
+        <td>${FMT.mult(r.spy_mult)}</td><td>${FMT.pct(r.spy_irr)}</td>
+        <td class="${excess>=0?'green':'red'}">${FMT.pct(excess)}</td></tr>`);
+  });
+}
+
+Promise.all([
+  fetch('rotator_data.json').then(r=>r.json()),
+  fetch('rotator_returns.json').then(r=>r.json()).catch(()=>null),
+  fetch('rotator_signal.json').then(r=>r.json()).catch(()=>null),
+]).then(([data,returns,signal])=>{
+  CURVES=data;
+  const tf=document.getElementById('tf');
+  data.horizons.forEach((h)=>{
+    const b=document.createElement('button');
+    b.textContent = h==='ITD'?'All':h.toUpperCase(); b.dataset.tf=h;
+    if(h===TF) b.classList.add('on');
+    b.onclick=()=>{TF=h;[...tf.children].forEach(x=>x.classList.toggle('on',x.dataset.tf===h));buildChart();};
+    tf.appendChild(b);
+  });
+  document.querySelectorAll('#mode button').forEach(b=>{
+    b.onclick=()=>{MODE=b.dataset.mode;document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x===b));buildChart();};
+  });
+  if(data.headline){
+    document.getElementById('c-itd').textContent=data.headline.itd_mult.toFixed(1)+'×';
+    document.getElementById('c-irr').textContent=(data.headline.itd_irr*100).toFixed(0)+'%';
+  }
+  if(signal){
+    document.getElementById('sig-reg').innerHTML='<b>'+signal.regime+'</b> &nbsp;·&nbsp; as of '+signal.as_of;
+    document.getElementById('sig-picks').textContent=signal.picks.join('  ·  ');
+  }
+  if(returns) renderTables(returns);
+  buildChart();
+});
+</script>
+</body>
+</html>

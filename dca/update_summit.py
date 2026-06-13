@@ -130,11 +130,11 @@ def main():
         print("recent refresh failed, using frozen panel:", e)
         P = frozen
     print("panel now through", P["close"].index[-1].date())
-    _, r, s = build_factsheet.build_factsheet(P=P, write=True)
-    print("signal:", s)
-    print("ITD SUMMIT %.2fx vs QQQ %.2fx vs SPY %.2fx" % (
-        r["table"][0]["summit_mult"], r["table"][0]["qqq_mult"],
-        r["table"][0]["spy_mult"]))
+    for cfg in (build_factsheet.summit_cfg(), build_factsheet.rotator_cfg()):
+        _, r, s = build_factsheet.build(cfg, P=P, write=True)
+        print(f"[{cfg['prefix']}] {s['regime']} picks={s['picks']} | "
+              f"ITD {r['table'][0]['strat_mult']:.2f}x vs QQQ "
+              f"{r['table'][0]['qqq_mult']:.2f}x")
 
 
 if __name__ == "__main__":
