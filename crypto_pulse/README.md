@@ -78,16 +78,16 @@ Pushing to a genuine high Sharpe, the HFT-quant way: a market-neutral, beta-
 hedged 1-minute book that **fades idiosyncratic (residual) moves** (the entire
 edge; the BTC→alt lead-lag adds ~0), executed honestly — enter next-minute open,
 skip the formation bar (no bid-ask-bounce mirage), costs charged on turnover.
-Data: 60 days of Coinbase 1-min bars on 13 liquid coins. Full record in
+Data: 60 days of Coinbase 1-min bars on 15 liquid coins. Full record in
 [`research/hft.md`](research/hft.md) ([`hft.py`](hft.py)).
 
 **The signal is real and OOS-robust — but the whole answer is the breakeven cost:**
 
 | hold | gross Sharpe | OOS gross | edge/trade | breakeven | net @0.2bps (maker+rebate) | net @1.5 (HL maker) | net @4.5 (HL taker) |
 |---|---|---|---|---|---|---|---|
-| 5m | +19 | +23 | 0.31 bps | 0.22 bps | +1.9 | −111 | −353 |
-| 10m | +12 | +11 | 0.40 bps | 0.29 bps | **+7.7** | −52 | −177 |
-| 45m | +7 | +5 | 0.95 bps | 0.68 bps | +4.7 | −8 | −37 |
+| 3m | +28 | +35 | 0.33 bps | 0.23 bps | +4.1 | −150 | −478 |
+| 5m | +18 | +21 | 0.34 bps | 0.24 bps | +2.9 | −96 | −313 |
+| 20m | +8 | +7 | 0.61 bps | 0.44 bps | **+4.6** | −20 | −77 |
 
 ![VELOCITY](research/velocity_equity.png)
 

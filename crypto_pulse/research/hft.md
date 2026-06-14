@@ -1,6 +1,6 @@
 # VELOCITY — 1-minute market-neutral crypto stat-arb (honest)
 
-Data: Coinbase 1-min, 2026-04-15 14:01:00 -> 2026-06-14 14:00:00  (85,953 min, 13 coins). Execution: enter next-min OPEN, hold H min, exit at open (formation bar skipped). Dollar-neutral, beta-hedged. Sharpe annualized at 525,600 min/yr. IS = first 70% of the window, OOS = last 30%.
+Data: Coinbase 1-min, 2026-04-15 14:01:00 -> 2026-06-14 14:00:00  (85,921 min, 15 coins). Execution: enter next-min OPEN, hold H min, exit at open (formation bar skipped). Dollar-neutral, beta-hedged. Sharpe annualized at 525,600 min/yr. IS = first 70% of the window, OOS = last 30%.
 
 ## Gross edge vs cost — the whole story is the breakeven
 
@@ -8,20 +8,20 @@ The signal is strong and OOS-robust GROSS, but the per-trade edge is sub-bp, so 
 
 | hold | gross Sharpe | OOS gross | turn/reb | edge/trade (bps) | breakeven (bps/side) | net@0.2 | net@1.5 (HL maker) | net@4.5 (HL taker) |
 |---|---|---|---|---|---|---|---|---|
-| 1m | +62.7 | +77.8 | 1.44 | 0.230 | 0.160 | -15.6 | -509.4 | -1388.5 |
-| 3m | +31.4 | +32.4 | 1.42 | 0.328 | 0.231 | +4.2 | -171.0 | -535.5 |
-| 5m | +20.7 | +23.1 | 1.42 | 0.350 | 0.247 | +3.9 | -104.1 | -336.3 |
-| 10m | +16.3 | +20.0 | 1.42 | 0.535 | 0.377 | +7.7 | -48.4 | -172.9 |
-| 20m | +9.3 | +11.4 | 1.40 | 0.570 | 0.407 | +4.7 | -25.0 | -92.1 |
-| 45m | +4.4 | +6.1 | 1.39 | 0.563 | 0.405 | +2.2 | -11.9 | -44.2 |
+| 1m | +58.0 | +78.6 | 1.44 | 0.236 | 0.164 | -12.6 | -460.4 | -1289.0 |
+| 3m | +28.0 | +34.9 | 1.42 | 0.332 | 0.234 | +4.1 | -150.2 | -477.7 |
+| 5m | +18.2 | +21.2 | 1.42 | 0.336 | 0.237 | +2.9 | -96.4 | -312.7 |
+| 10m | +7.1 | +10.8 | 1.41 | 0.266 | 0.188 | -0.5 | -49.5 | -159.5 |
+| 20m | +8.4 | +7.3 | 1.40 | 0.614 | 0.438 | +4.6 | -20.3 | -76.9 |
+| 45m | +2.0 | +4.1 | 1.41 | 0.321 | 0.228 | +0.3 | -11.2 | -37.5 |
 
 ## Component decomposition (gross, H=5m)
 
 | component | gross Sharpe | OOS |
 |---|---|---|
-| lead-lag continuation only | +2.3 | +3.7 |
-| residual reversal only | +20.7 | +23.1 |
-| combined (VELOCITY) | +20.7 | +23.1 |
+| lead-lag continuation only | +0.2 | -4.3 |
+| residual reversal only | +18.7 | +22.0 |
+| combined (VELOCITY) | +18.2 | +21.2 |
 
 ## Verdict
 
