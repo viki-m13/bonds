@@ -20,3 +20,6 @@ data/hl_funding/
 
 # fetched 1-min crypto (Coinbase), reproducible via crypto_pulse/fetch_1min.py
 data/crypto_1min/
+
+# fetched Coinbase hourly, reproducible via crypto_pulse/fetch (see intraday.py)
+data/crypto_hourly_cb/
