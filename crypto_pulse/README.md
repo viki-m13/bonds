@@ -36,6 +36,28 @@ on liquid crypto majors has weakened as the market matured. Treat PULSE as a
 **small, monitored sleeve**, not a confident standalone — and paper-trade first
 (see [`BOT_DEPLOYMENT.md`](BOT_DEPLOYMENT.md)).
 
+## Pushing toward Sharpe 2: multi-sleeve (TREND + funding CARRY)
+
+[`multi_sleeve.py`](multi_sleeve.py) stacks uncorrelated, taker-survivable sleeves
+on the HL universe (real funding + 4.5 bps taker, IS/OOS split):
+
+| sleeve | Sharpe | IS | OOS | maxDD |
+|---|---|---|---|---|
+| TREND (PULSE) | 0.75 | 1.13 | 0.11 | −11% |
+| CARRY (funding, **trend-filtered**) | 0.92 | 0.48 | 1.60 | −15% |
+| REVERSAL (weekly) | −0.35 | — | — | dead at taker |
+| **TREND + CARRY blend** | **1.13** | **1.07** | **1.24** | **−9.9%** |
+
+Funding carry is a genuine, uncorrelated (+0.08) addition — but **only when
+trend-filtered** (don't short coins still pumping; else it's unstable with −24%
+negative-skew drawdowns). The blend is a real, validated lift over PULSE alone
+(0.75 → **1.13**, stable across both halves).
+
+**Honest ceiling:** a *robust* net Sharpe of **2 is not achievable** on daily
+crypto — trend+carry tops out ~1.1–1.2 net; the only Sharpe-2+-breadth signals
+(intraday reversal) are maker-only (see VELOCITY). The validated, deployable
+number is **~1.1 (HL era) / ~1.2 (full sample)** — real, but short of 2.
+
 `live_signal.py` emits today's target signed notional per coin for the bot
 (`LONG_ONLY=True` for the spot-style variant); `executor.py` reconciles those to
 live Hyperliquid positions and places maker orders — **dry-run by default**, with
