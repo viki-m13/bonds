@@ -4,18 +4,23 @@ Turning the validated `live_signal.py` targets into a safe Hyperliquid bot.
 Read alongside `research/hl_validation.md` (the numbers) and the HL mechanics in
 `research/SHARPE_INVESTIGATION.md`.
 
-## Architecture
-1. **Signal (this repo).** Once per UTC day, after the daily close, compute
-   target signed notional per coin (`live_signal.py`). Signal uses only closed
-   daily bars; no intraday dependence.
-2. **Reconciler.** Pull current positions via `clearinghouseState`; diff vs
-   targets to get per-coin deltas.
-3. **Executor.** Place orders for the deltas. Prefer **ALO/limit** near mid for
-   majors; **TWAP** for larger mid-cap clips. Always set **reduce-only** on any
-   order that shrinks/flips a position. Round price to tick, size to lot; skip
-   deltas under the **$10** min notional.
+## Architecture (implemented in `executor.py`, dry-run by default)
+1. **Signal (`live_signal.py`).** Once per UTC day after the daily close, compute
+   target signed notional per coin (PULSE daily; `LONG_ONLY` toggle). Uses only
+   closed daily bars.
+2. **Reconciler (`executor.reconcile`).** Pull `clearinghouseState`; diff vs
+   targets to per-coin deltas. Pure/inspectable — no network, no signing — so it
+   unit-tests cleanly.
+3. **Executor (`executor.main`).** ALO/limit one `SLIP_LIMIT_BPS` inside mid
+   (maker) for the deltas; **reduce-only** on any shrink/flip; round size to the
+   asset's `szDecimals`; skip deltas under **$10**. DRY-RUN prints orders; `--live`
+   signs via the hyperliquid SDK (`pip install hyperliquid-python-sdk eth-account`)
+   only when `HL_ACCOUNT` + `HL_SECRET_KEY` are set.
 4. **Monitor.** Track fills, funding accrual (hourly), equity, gross/net
-   leverage, and drawdown; alert on deviations.
+   leverage, drawdown; pass `--high-water` so the kill-switch can trip.
+
+Run order: `python executor.py` (signal-only) → `HL_ACCOUNT=0x.. python
+executor.py` (dry-run vs live state) → `--live` only after the gate below.
 
 ## Hard risk limits (the bot must enforce, not just the signal)
 - **Gross leverage cap** (`MAX_GROSS_LEVERAGE`, default 3x) — refuse to exceed,

@@ -37,7 +37,10 @@ on liquid crypto majors has weakened as the market matured. Treat PULSE as a
 (see [`BOT_DEPLOYMENT.md`](BOT_DEPLOYMENT.md)).
 
 `live_signal.py` emits today's target signed notional per coin for the bot
-(`LONG_ONLY=True` for the spot-style variant).
+(`LONG_ONLY=True` for the spot-style variant); `executor.py` reconciles those to
+live Hyperliquid positions and places maker orders — **dry-run by default**, with
+gross-leverage / per-coin / funding / drawdown-kill gates enforced in code (see
+[`BOT_DEPLOYMENT.md`](BOT_DEPLOYMENT.md)).
 
 ### Long-only vs L/S on HL (2023-05→now, fees+funding)
 
