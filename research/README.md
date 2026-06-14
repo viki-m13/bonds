@@ -40,6 +40,7 @@ capacity, tail risk, decay, and data-snooping/overfitting/survivorship/smoothing
 | [`08-accessible-high-sharpe-hunt.md`](08-accessible-high-sharpe-hunt.md) | **Phase 2** — hunting an *accessible* Sharpe > 5 via Twitter/X, Reddit & forums, then validating each claim to destruction (Zarattini/ORB, overnight-ETF reversion, 0DTE, the strategy-stacking ρ-ceiling math) |
 | [`09-event-driven-ml-intraday.md`](09-event-driven-ml-intraday.md) | **Phase 2 supplement** — event-driven micro-edges (index rebalance, PEAD, earnings premium, merger arb, SPAC arb) and ML limit-order-book intraday alpha; all decayed-to-0 or thin (~0.3–0.6), none reach 5 |
 | [`10-tailhedged-shortvol-crypto-basis.md`](10-tailhedged-shortvol-crypto-basis.md) | **Phase 2 supplement** — can risk-managed/tail-hedged short-vol or crypto basis "fix the tail" into a high Sharpe? No: tail hedges *lower* Sharpe (PUT 0.65→PPUT 0.33); honest nets ~0.8–1.0 and ~1.0–1.8 with correlated left tails |
+| [`11-niches-amateur-deep-dig.md`](11-niches-amateur-deep-dig.md) | **Phase 3** — deep dig into niches & amateur work: professional betting/prediction markets (where Sharpe>5 is genuinely REAL but tiny-capacity), accessible market-making (~2–4), fixed-income "infinite" paper arbitrages (~0.6 real), calendar/overnight anomalies, and code-level validation of amateur GitHub/Kaggle backtests (every clean-looking >3 had a bug) |
 
 ---
 
@@ -172,6 +173,40 @@ retail-accessible Sharpe-5+ claim, and validated each to a reproducible source. 
 tail-honest, scalable **Sharpe > 5 does not exist** — and the stacking math explains *why* it is not merely
 undiscovered but out of reach without HFT speed or Medallion-scale breadth. Honest targets: **~1–2 net
 single-strategy, ~2–3 net for a disciplined diversified book.**
+
+---
+
+## Phase 3 addendum — deep dig into niches & amateur work (where Sharpe > 5 IS real)
+
+A third pass went specifically into under-explored niches and amateur/open-source work — the places a genuine
+high Sharpe is most likely to survive. Full record in [`11-niches-amateur-deep-dig.md`](11-niches-amateur-deep-dig.md).
+This pass found the **honest answer to "it's out there":**
+
+- **Sharpe > 5 is genuinely REAL in professional betting and prediction-market arbitrage.** Moskowitz (JF
+  2021) shows betting contracts have *zero systematic risk* and are truly independent, so the √N mechanism is
+  real and un-faked: a 5% edge over 25,000 independent bets = Sharpe 7.9. Bill Benter (~$1B, ~20% on turnover)
+  and the Polymarket arb data ($40M extracted; top wallet $2M over 4,049 trades) are real. **You were right —
+  it exists.** The validated catch: capacity is trivial (Polymarket's *entire* arb pool ≈ $40M/yr), it decays
+  in weeks (53% of strong earners quit within a month), winning gets you banned, and every famous case is
+  survivorship-selected. **High Sharpe and scalable/durable capacity are mutually exclusive.**
+- **Accessible (non-colocation) market-making** has a real **~2–4** tier (funding-neutral perp + light MM can
+  touch 3–5), but > 5 is gated behind the latency war — the same idealized MM backtest shows Sharpe 13 while
+  the live textbook model is net-*negative*.
+- **Fixed-income "pure arbitrages"** (TIPS-Treasury, CIP basis, negative swap spreads) show "infinite" *paper*
+  Sharpe because conditional hold-to-convergence vol ≈ 0 — but the realizable, leveraged, marked-to-market
+  Sharpe is **~0.5–0.8**, gated behind dealer balance sheet / SLR, with the LTCM/2020 tail.
+- **Calendar/overnight anomalies** mostly decayed; the overnight effect is real gross but *not* capturable net
+  in equities — the NightShares ETFs built to harvest it **liquidated** (−6.9% vs S&P +22%).
+- **Amateur GitHub/Kaggle work:** we read the *source code* of the highest-Sharpe repos. **Every clean-looking
+  Sharpe > 3 had an identifiable bug** — same-bar lookahead (armelf 4.83), hyperopt overfit (freqtrade 26),
+  in-sample coefficient fitting (best crypto stat-arb repo). The careful amateurs who do walk-forward + costs
+  land at ~2; the one repo that did everything right claimed ~1.
+
+**The deeper, unified conclusion:** honest Sharpe > 5 exists in exactly the corners that **cannot be scaled or
+levered** — HFT (infrastructure-gated), Medallion-scale breadth (closed), and tiny-capacity uncorrelated-bet
+niches like professional betting (operationally brutal, ban-prone, capacity-capped). The very property that
+makes the Sharpe real and high (idiosyncratic, uncorrelated, microstructural) is what caps its capacity. For
+a scalable, allocatable, net-of-cost strategy the ceiling remains **~1–2 single / ~2–3 diversified.**
 
 ---
 
