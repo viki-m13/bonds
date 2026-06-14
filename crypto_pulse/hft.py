@@ -39,20 +39,64 @@ MIN_PER_YEAR = 60 * 24 * 365
 
 
 def load():
-    op, cl = {}, {}
+    op, cl, hi, lo = {}, {}, {}, {}
     for f in sorted(glob.glob(os.path.join(DIR, "*.csv"))):
         t = os.path.basename(f)[:-4]
         d = pd.read_csv(f)
         d["ts"] = pd.to_datetime(d["ts"], unit="s")
         d = d[~d["ts"].duplicated()].set_index("ts").sort_index()
-        op[t], cl[t] = d["open"], d["close"]
+        op[t], cl[t], hi[t], lo[t] = d["open"], d["close"], d["high"], d["low"]
     O = pd.DataFrame(op).sort_index()
     C = pd.DataFrame(cl).sort_index()
-    # regular 1-min grid; require most coins present
+    H = pd.DataFrame(hi).sort_index()
+    L = pd.DataFrame(lo).sort_index()
     idx = pd.date_range(C.index[0], C.index[-1], freq="1min")
-    O, C = O.reindex(idx), C.reindex(idx)
+    O, C, H, L = (x.reindex(idx) for x in (O, C, H, L))
     good = C.notna().sum(axis=1) >= max(5, C.shape[1] // 2)
-    return O[good], C[good]
+    return O[good], C[good], H[good], L[good]
+
+
+# live HL half-spreads (bps), measured 2026-06-14; smaller coins are far wider.
+HL_HALF_SPREAD_BPS = {
+    "BTC": 0.08, "ETH": 0.30, "SOL": 0.08, "XRP": 0.44, "DOGE": 0.06,
+    "ADA": 0.90, "AVAX": 0.08, "LINK": 0.96, "LTC": 0.91, "DOT": 3.65,
+    "BCH": 0.25, "UNI": 1.40, "ATOM": 2.59, "ETC": 1.99, "AAVE": 1.07,
+}
+
+
+def maker_sim(O, C, H, L, sig, hold=10, maker_fee_bps=0.0, taker_fee_bps=4.5,
+              coins=None):
+    """Honest maker-fill simulator. Entry is a PASSIVE limit one half-spread
+    inside the open; it fills only if the bar actually trades to it (touch via
+    1-min low/high) -> embeds adverse selection and miss risk. Exit is a TAKER
+    cross at open+H (pays taker fee + half-spread slippage). Optionally restrict
+    to a `coins` subset (e.g. the tight-spread liquid names)."""
+    cols = list(coins) if coins else list(C.columns)
+    O, C, H, L = O[cols], C[cols], H[cols], L[cols]
+    sig = sig[cols]
+    delta = np.array([HL_HALF_SPREAD_BPS.get(c, 3.0) / 1e4 for c in cols])
+    elig = C.notna() & O.notna()
+    z = sig.where(elig)
+    z = z.sub(z.mean(axis=1), axis=0)
+    w = z.div(z.abs().sum(axis=1), axis=0)
+    pos = np.arange(len(w)) % hold == 0
+    wp = w[pos]
+    side = np.sign(wp.to_numpy())
+    o1 = O.shift(-1).loc[wp.index].to_numpy()           # entry bar open
+    lo1 = L.shift(-1).loc[wp.index].to_numpy()
+    hi1 = H.shift(-1).loc[wp.index].to_numpy()
+    entry_px = o1 * (1 - side * delta)                  # passive: bid below / ask above
+    filled = ((side > 0) & (lo1 <= entry_px)) | ((side < 0) & (hi1 >= entry_px))
+    exit_px = O.shift(-1 - hold).loc[wp.index].to_numpy()
+    # taker exit slippage = half-spread; fees on both legs
+    pos_ret = side * (exit_px * (1 - side * delta) / entry_px - 1)
+    pos_ret = pos_ret - (maker_fee_bps + taker_fee_bps) / 1e4
+    wf = np.abs(wp.to_numpy()) * filled
+    wf = wf / np.nansum(np.where(np.isnan(wf), 0, wf), axis=1, keepdims=True)
+    pnl = np.nansum(np.where(np.isnan(pos_ret * wf), 0, pos_ret * wf), axis=1)
+    fill_rate = np.nanmean(filled[~np.isnan(side)]) if filled.size else np.nan
+    ann = MIN_PER_YEAR / hold
+    return pd.Series(pnl, index=wp.index), ann, fill_rate
 
 
 def sharpe(p, ann=MIN_PER_YEAR):
@@ -106,7 +150,7 @@ def backtest(O, C, sig, hold=3, cost_bps=4.5):
 
 
 def main():
-    O, C = load()
+    O, C, H, L = load()
     span = f"{C.index[0]} -> {C.index[-1]}  ({len(C):,} min, {C.shape[1]} coins)"
     n = len(C)
     cut = C.index[int(n * 0.7)]
@@ -157,7 +201,14 @@ def main():
                      f"{sharpe(g[idx>=cut], ann):+.1f} |")
     lines.append("")
     lines.append("## Verdict\n")
-    lines.append("- The lead-lag + residual-reversal signal is **real and OOS-"
+    lines.append("- **GATE RESULT (see maker-fill sim below):** with a realistic "
+                 "taker EXIT the strategy is deeply negative even at maker-rebate "
+                 "fees — the ~0.3bps/trade edge cannot survive crossing the "
+                 "spread once. The positive net@0.2bps figures are the OPTIMISTIC "
+                 "idealization of making on BOTH legs at ~0 fee with guaranteed "
+                 "passive fills. So VELOCITY is viable only as full professional "
+                 "market-making, not as anything that ever takes liquidity.\n"
+                 "- The lead-lag + residual-reversal signal is **real and OOS-"
                  "robust** with enormous GROSS Sharpe (breadth: ~100k+ bets/yr).\n"
                  "- But the **edge is sub-bp per trade and diffuse** across the "
                  "cross-section (concentrating into the extreme signals *loses* "
@@ -193,6 +244,37 @@ def main():
         ax.grid(alpha=0.3)
         fig.tight_layout()
         fig.savefig(os.path.join(HERE, "velocity_equity.png"), dpi=110)
+
+    # ----- the gate: realistic MAKER-FILL simulation (touch-fill + real spreads)
+    lines.append("## Maker-fill reality check (touch-fill via 1-min high/low, "
+                 "real HL spreads)\n")
+    lines.append("Passive entry one half-spread inside the open, filled only if "
+                 "the bar actually trades to it (embeds adverse selection + "
+                 "misses); taker exit at +H (pays taker fee + half-spread). Real "
+                 "HL half-spreads: BTC/SOL/AVAX/DOGE ~0.06-0.08bps, ETH/BCH "
+                 "~0.25-0.30, the rest 0.9-3.7bps. HL base maker fee is 1.5bps "
+                 "(only top rebate tiers reach ~0).\n")
+    tight = [c for c in C.columns if HL_HALF_SPREAD_BPS.get(c, 9) <= 0.31]
+    lines.append(f"Tight-spread liquid subset: {', '.join(tight)}\n")
+    lines.append("| universe | hold | maker fee | fill rate | net Sharpe | OOS |")
+    lines.append("|---|---|---|---|---|---|")
+    for uni, cols in [("all 15", None), (f"tight {len(tight)}", tight)]:
+        for hold in (5, 10, 20):
+            sig = velocity_signal(C, lookback=min(hold, 15))
+            for mf, ftag in ((1.5, "base 1.5bps"), (0.0, "top 0.0bps"),
+                             (-0.3, "rebate -0.3bps")):
+                pnl, ann, fr = maker_sim(O, C, H, L, sig, hold=hold,
+                                         maker_fee_bps=mf, taker_fee_bps=4.5,
+                                         coins=cols)
+                idx = pnl.index
+                lines.append(f"| {uni} | {hold}m | {ftag} | {fr:.0%} | "
+                             f"{sharpe(pnl, ann):+.2f} | "
+                             f"{sharpe(pnl[idx>=cut], ann):+.2f} |")
+        lines.append("| | | | | | |")
+    lines.append("\n*Taker exit is the conservative choice; a maker exit (post "
+                 "+ hope to get filled) would lower cost but add more miss/"
+                 "adverse-selection risk. Even so this shows whether the edge "
+                 "survives paying to cross only once.*\n")
 
     out = "\n".join(lines)
     with open(os.path.join(HERE, "hft.md"), "w") as fh:

@@ -91,16 +91,25 @@ Data: 60 days of Coinbase 1-min bars on 15 liquid coins. Full record in
 
 ![VELOCITY](research/velocity_equity.png)
 
-**Verdict (honest):** the alpha is genuine and large *gross* (~100k bets/yr), but
-the per-trade edge is **sub-bp and diffuse** — concentrating into the extreme
-signals actually *loses*, the hallmark of a **liquidity-provision** edge, not a
-takeable one. So **net Sharpe ≥3 is reachable only at ≤~0.3 bps effective cost —
-i.e. as a passive maker capturing the spread + rebate, not a taker.** At HL maker
-(1.5 bps) or taker (4.5 bps) it's deeply negative. And whether the maker fills
-actually materialize can't be proven from 1-min bars — that needs L2/queue
-simulation. Caveat: 60-day window = one regime; treat the level as indicative.
-**This is the real reason crypto HFT is a maker/colocation game, not a retail
-taker bot** — and the honest endpoint of "make it Sharpe 3."
+**Verdict (honest, after the fill-simulation gate):** the alpha is genuine and
+large *gross* (~100k bets/yr), but the per-trade edge is **sub-bp and diffuse** —
+concentrating into the extremes actually *loses* (a **liquidity-provision** edge,
+not a takeable one). I then built the honest gate: a **touch-fill simulator**
+(passive entry filled only if the 1-min bar trades to it, using **real measured
+HL spreads** — BTC/SOL/AVAX/DOGE ~0.06–0.08 bps, others wider) with a realistic
+**taker exit**. Result: **deeply negative even at maker-rebate fees**, on the full
+universe *and* the tight-spread liquid subset. The positive "net @0.2 bps"
+numbers are the **optimistic idealization of making on BOTH legs at ~0 fee with
+guaranteed passive fills**; the moment any leg crosses the spread, the edge is
+gone. So:
+
+> **VELOCITY is viable only as full professional market-making** (maker on both
+> sides, top rebate tier, queue priority) — **not as any bot that ever takes
+> liquidity.** Net Sharpe ≥3 exists only in that idealization. Caveat: 60-day
+> window = one regime.
+
+This is the honest endpoint of "make it Sharpe 3": the alpha is real but lives
+inside the spread, and crossing it even once on exit kills it.
 
 ## What you actually get
 
