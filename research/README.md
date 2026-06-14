@@ -39,6 +39,7 @@ capacity, tail risk, decay, and data-snooping/overfitting/survivorship/smoothing
 | [`07-validation-checklist.md`](07-validation-checklist.md) | Practical rubric for vetting any claimed Sharpe > 5 |
 | [`08-accessible-high-sharpe-hunt.md`](08-accessible-high-sharpe-hunt.md) | **Phase 2** — hunting an *accessible* Sharpe > 5 via Twitter/X, Reddit & forums, then validating each claim to destruction (Zarattini/ORB, overnight-ETF reversion, 0DTE, the strategy-stacking ρ-ceiling math) |
 | [`09-event-driven-ml-intraday.md`](09-event-driven-ml-intraday.md) | **Phase 2 supplement** — event-driven micro-edges (index rebalance, PEAD, earnings premium, merger arb, SPAC arb) and ML limit-order-book intraday alpha; all decayed-to-0 or thin (~0.3–0.6), none reach 5 |
+| [`10-tailhedged-shortvol-crypto-basis.md`](10-tailhedged-shortvol-crypto-basis.md) | **Phase 2 supplement** — can risk-managed/tail-hedged short-vol or crypto basis "fix the tail" into a high Sharpe? No: tail hedges *lower* Sharpe (PUT 0.65→PPUT 0.33); honest nets ~0.8–1.0 and ~1.0–1.8 with correlated left tails |
 
 ---
 
