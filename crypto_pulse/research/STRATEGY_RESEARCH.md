@@ -96,6 +96,32 @@ to 3." This matches our validated ~1.1–1.3 (we have 2 of those sleeves, recent
   Twitter-screenshot or course-seller "70–80% win rate". The crypto-ORB that
   *looked* like Sharpe 3.48 on 60 days was an IS −5 / OOS +8 regime mirage.
 
+## Why a backtested Sharpe 3 ≠ a live Sharpe 3 (the calibration that matters most)
+
+The strongest evidence on the brief isn't any one strategy — it's how reliably high
+backtest Sharpes evaporate live:
+- **Quantopian, 888 algos, each ≥6 months genuine out-of-sample:** backtest Sharpe
+  has **almost no power** to predict live Sharpe (**R² < 0.025**); selecting by best
+  in-sample Sharpe gave a live portfolio Sharpe of only **~0.7**. More backtesting →
+  *larger* live shortfall (overfitting, measured).
+- **Bailey & López de Prado (Deflated Sharpe / False Strategy Theorem):** try enough
+  zero-skill strategies and the best one shows Sharpe 4–6 **by luck alone**. Our own
+  ORB (3.48 full → IS −5/OOS +8) and hourly-reversal (Sharpe 17 → −7 skip-a-bar) are
+  textbook instances.
+- **Ernie Chan:** "not difficult to get a backtest Sharpe of 3; very difficult live
+  over ~3 years unless you're an HFT." His example: 4.8 gross → 3.5 after **10 bps**.
+- **Rule of thumb across sources:** expect **live ≈ half of backtest**; Medallion —
+  the global pinnacle — runs a headline Sharpe **~2**.
+- **Best falsifiable carry dataset:** Ethena USDe, 3 years on-chain incl. 2022 bear:
+  BTC funding **7.8%/yr**, ETH **9.15%/yr**, only **8.84% of days negative** — real,
+  but a single-digit-APY carry, and basis has compressed (93% of 2025 days below the
+  ~5% breakeven). Live MM reality: Hummingbot's real-money bot battle had **40% of
+  bots lose money**, fees ate ~55% of gross.
+
+Implication: a *claimed* Sharpe 3 is, in expectation, a live ~1–1.5 — which is
+exactly where our validated PULSE + carry sits. We didn't fall short of 3; 3 was
+never really there.
+
 ## Honest bottom line for the brief
 
 A validated, honest **Sharpe 3 from taker price-action does not exist** on the data
