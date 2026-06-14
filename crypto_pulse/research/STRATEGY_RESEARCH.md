@@ -39,6 +39,46 @@ tradeable 2023→now window. **A taker price-action Sharpe 3 is not real here.**
 | **Intraday seasonality / funding-settlement** | economically tiny; "Sharpe 7.75" overnight claim = overfit | overlay only | Periodicity is statistically real but below costs; use only to size up MM/carry in active windows. |
 | **Volatility / variance-risk-premium** (short straddles) | ~1.15, **catastrophic left tail** | maker on options | Sharpe flatters it by ignoring the tail; not a clean Sharpe-3 path; needs options infra. |
 
+## Hyperliquid-native specifics (the structural facts that decide viability)
+
+- **Maker rebates are gated on EXCHANGE-WIDE maker share** (>0.5 / 1.5 / 3.0% of
+  total HL maker volume → −0.1 / −0.2 / −0.3 bps), **not your own volume**. So the
+  negative-fee tier that makes market-making (and VELOCITY) work is **structurally
+  pro-MM-only** — a small trader pays the 1.5 bps maker fee and competes on the
+  wrong side of the queue. This is *why* the maker path is walled off for retail.
+- **No third-party liquidator race:** liquidations below 2/3 maintenance margin go
+  to the HLP liquidator vault, PnL to HLP. The classic CEX "liquidation bot" edge
+  does not exist here.
+- **HLP deposit** shows a *backward-looking* Sharpe ~2.89 (~20% CAGR, −6.6% normal
+  maxDD) — but it's **passive yield underwriting adverse selection + a fat left
+  tail** (−27% NAV in the Mar-2025 JELLY attack), decaying as TVL grows. It is not
+  a Sharpe-3 *strategy you control*; its transparency is a liability to copy, not a
+  signal (naive HLP-fading eats adverse selection).
+- **Cascade-fade** (fade liquidation overshoots) is the one retail-accessible
+  liquidation edge (no race to win) and HL's **on-chain liquidations are fully
+  visible** (CEX liq feeds are censored ~6–20×). One credible walk-forward
+  (Curupira) got PF ~2.5–2.9 on ETH/SOL but **BTC failed**, and live PnL was
+  bps-thin (+$0.51 on $200/2wk). The viral "Sharpe 3.58 cascade" piece is just
+  **leveraged beta, not alpha**.
+- **Oracle-lag arb** on exotic HIP-3 markets (HL oracle = validator median of 8
+  CEX spot prices, excludes HL's own book, ≤1% change/update, ~3s) — a real infra
+  edge but needs an external feed + bot, on exotic markets only.
+- **Funding capacity** is capped by per-asset OI limits exactly when funding is
+  fattest; net of ~0.23% round-trip taker on spot+perp, slippage (~12 bps at
+  $500K) — not fees — is the binding constraint on carry.
+- **Shill/attack flags:** "Season 2 airdrop farming" (unconfirmed, referral spam),
+  HypervaultFi rug (~$3.6M), MM "6,800→1.5M" rebate clickbait (cumulative, not ROI).
+
+**Refined verdict on Sharpe 3 (practitioner-grounded):** crypto HF industry avg
+Sharpe ~1.6 (2025); a sophisticated algo *without HFT infra* tops out ~2–3, and
+**net Sharpe >3 should make you suspicious** (look-ahead / survivorship / omitted
+costs). On HL specifically: **not reachable as a directional taker; not reachable
+for retail via the maker/MM route (walled off).** The realistic target for a
+well-built multi-sleeve HL deployment is **net ~1.5–2.0** (trend + vol-targeting
+core + a small slippage-aware funding-carry sleeve + cascade-fade only if execution
+is cheap) — "easier to build three orthogonal Sharpe-2.5 sleeves than squeeze one
+to 3." This matches our validated ~1.1–1.3 (we have 2 of those sleeves, recent era).
+
 ## What the research says to actually do (and what it doesn't)
 
 - **For a genuine ~3:** run a **passive market maker** with maker rebates + an OFI/
