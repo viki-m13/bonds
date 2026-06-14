@@ -206,7 +206,12 @@ team stayed top-5 on both boards; G-Research Crypto "saw many big jumps and prec
 contestant "stassl" fell from **#1 on the public leaderboard to #154 on the private/live data**). That shakeup
 *is* the overfitting tax made visible: even elite competitors with rigorous CV see their edge shrink out of
 sample — and these are *prediction-accuracy* metrics (R²/correlation/RMSPE), which translate to even smaller
-*net* Sharpe once costs and execution are added. It's the same lesson as the repos, from the opposite direction — honest OOS predictive signal in
+*net* Sharpe once costs and execution are added. The most telling verified number: in the **Jane Street
+Real-Time Market Data Forecasting** competition (Oct 2024–Jan 2025, 3,757 teams, $120k), the **winning** model
+("ms capital") scored a sample-weighted out-of-sample **R² of just 0.0139** — i.e., the best of nearly 4,000
+elite quant competitors explained ~1.4% of return variance on live data. That is the empirical ceiling of
+honest predictive signal in liquid markets, and it is a *gross* statistical edge before any trading cost — a
+stark, independent confirmation that durable net Sharpe in liquid markets is small. It's the same lesson as the repos, from the opposite direction — honest OOS predictive signal in
 liquid markets is small, and anything that looked huge in-sample reverts.
 
 ---
