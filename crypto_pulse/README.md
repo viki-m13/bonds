@@ -38,6 +38,25 @@ on liquid crypto majors has weakened as the market matured. Treat PULSE as a
 
 `live_signal.py` emits today's target signed notional per coin for the bot.
 
+## Does the edge travel to other assets? (spot crypto / ETFs / leveraged ETFs / PIT stocks)
+
+[`cross_asset.py`](cross_asset.py) runs the identical PULSE signal on four spot
+universes ([`research/cross_asset.md`](research/cross_asset.md)). **It doesn't
+travel — the trend/breakout edge is crypto-specific:**
+
+| universe | directional L/S Sharpe | long-only Sharpe |
+|---|---|---|
+| spot crypto (111) | **+1.20** | +0.91 |
+| spot leveraged ETFs (17) | +0.14 | +0.58 |
+| spot ETFs unlevered (14) | −0.30 | +0.41 |
+| PIT S&P 500 stocks (720) | **−0.61** | +0.39 |
+
+Directional trend L/S only works on crypto (the inefficient, strongly-trending
+market). On efficient equities it's flat-to-negative and whipsaws at reversals;
+the only positive equity numbers come from the long-only variant simply
+harvesting market drift via trend-timing (~0.4–0.6), not a real cross-asset
+alpha. Net: **PULSE belongs on crypto.**
+
 ## What you actually get
 
 - **PULSE** ([`strategy_daily.py`](strategy_daily.py)) — the best *honest* result:
