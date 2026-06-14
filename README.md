@@ -15,6 +15,11 @@ factsheets at https://viki-m13.github.io/bonds/ :
   replicated and compared on the identical harness (`docs/rotator.html`).
 - **PHOENIX / APEX** and other leveraged-ETF strategies — see `alt/`, `apex/`,
   and `docs/`.
+- **IGNITION** — a price-action/volume strategy that tries to buy stocks
+  **before they go parabolic** (+50% / 6 months). Grounded in an extensive
+  academic + FinTwit + retail research sweep, validated with an honest IS/OOS
+  event study and a survivorship-matched random control. Full record in
+  [`parabolic/README.md`](parabolic/README.md).
 
 ## Data Sources
 
