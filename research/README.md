@@ -38,6 +38,7 @@ capacity, tail risk, decay, and data-snooping/overfitting/survivorship/smoothing
 | [`06-validation-methodology.md`](06-validation-methodology.md) | Deflated Sharpe, backtest overfitting / MinBTL, multiple-testing haircuts, post-publication decay, data-snooping, annualization/autocorrelation, return smoothing, survivorship, who actually achieves high Sharpe |
 | [`07-validation-checklist.md`](07-validation-checklist.md) | Practical rubric for vetting any claimed Sharpe > 5 |
 | [`08-accessible-high-sharpe-hunt.md`](08-accessible-high-sharpe-hunt.md) | **Phase 2** — hunting an *accessible* Sharpe > 5 via Twitter/X, Reddit & forums, then validating each claim to destruction (Zarattini/ORB, overnight-ETF reversion, 0DTE, the strategy-stacking ρ-ceiling math) |
+| [`09-event-driven-ml-intraday.md`](09-event-driven-ml-intraday.md) | **Phase 2 supplement** — event-driven micro-edges (index rebalance, PEAD, earnings premium, merger arb, SPAC arb) and ML limit-order-book intraday alpha; all decayed-to-0 or thin (~0.3–0.6), none reach 5 |
 
 ---
 
