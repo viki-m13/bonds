@@ -14,3 +14,6 @@ data/pit/prices_n100/
 
 # fetched, reproducible via crypto_pulse/fetch_hourly.py
 data/crypto_hourly/
+
+# fetched HL funding, reproducible via crypto_pulse fetch
+data/hl_funding/

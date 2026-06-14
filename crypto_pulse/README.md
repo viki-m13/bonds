@@ -12,6 +12,30 @@ once you stop trading at the exact bar used to form the signal.
 
 ![PULSE equity curve](research/pulse_equity.png)
 
+## Live validation on Hyperliquid perps (for the bot)
+
+PULSE was re-validated under **real Hyperliquid execution** — HL-listed universe
+(57 coins), HL taker fees (4.5 bps/side), and **realized hourly HL funding** —
+over the genuinely tradeable era (HL launched ~2023-05). Full numbers in
+[`research/hl_validation.md`](research/hl_validation.md); mechanics reference in
+[`research/SHARPE_INVESTIGATION.md`](research/SHARPE_INVESTIGATION.md).
+
+| | Sharpe | ann | maxDD |
+|---|---|---|---|
+| PULSE-HL, 2023-05→now (fees+funding) | **~0.80** | +10.6% | −12.9% |
+| full-sample spot proxy (pre-HL) | 1.33 | +19.7% | −15.7% |
+
+**Mechanically it deploys cleanly:** fees only −2%/yr (turnover 0.12/day),
+funding −1.5%/yr, **gross leverage ~0.26× at a 12% vol target** so liquidation is
+a non-issue (Sharpe is leverage-invariant; lever to taste up to a drawdown
+budget). **But the edge has decayed** — by year: 2023 **+2.07**, 2024 +0.65,
+2025 +0.51, **2026 YTD −0.57**. Trend/breakout on liquid crypto majors has
+weakened as the market matured. Treat PULSE as a **small, monitored sleeve**, not
+a confident standalone — and paper-trade first (see
+[`BOT_DEPLOYMENT.md`](BOT_DEPLOYMENT.md)).
+
+`live_signal.py` emits today's target signed notional per coin for the bot.
+
 ## What you actually get
 
 - **PULSE** ([`strategy_daily.py`](strategy_daily.py)) — the best *honest* result:
