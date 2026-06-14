@@ -11,3 +11,6 @@ data/pit/prices/
 data/pit/panel_*.parquet
 data/pit/prices_broad/
 data/pit/prices_n100/
+
+# fetched, reproducible via crypto_pulse/fetch_hourly.py
+data/crypto_hourly/
