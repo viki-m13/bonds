@@ -36,6 +36,36 @@ on liquid crypto majors has weakened as the market matured. Treat PULSE as a
 **small, monitored sleeve**, not a confident standalone — and paper-trade first
 (see [`BOT_DEPLOYMENT.md`](BOT_DEPLOYMENT.md)).
 
+## MOSAIC: a proprietary regime-adaptive technical/price-action ensemble
+
+[`ensemble.py`](ensemble.py) invents and tests **MOSAIC** — an ensemble of 7
+causal technical signals (trend, TS-momentum, breakout-proximity, acceleration,
+volume-shock, low-vol, trend-filtered funding carry) with two proprietary
+combiners: **regime-adaptive family rotation** (up-weight trend in trending
+regimes, mean-reversion/carry in chop — measured from basket trend strength +
+return autocorrelation) and **IC-decay weighting** (down-weight signals whose
+trailing rank-IC is fading). Full numbers in
+[`research/ensemble.md`](research/ensemble.md).
+
+**The honest, counter-intuitive result: more techniques did *not* help.**
+
+| construction | Sharpe | IS | OOS | maxDD |
+|---|---|---|---|---|
+| MOSAIC — 7-signal regime+IC ensemble | 0.50 | +1.15 | **−0.47** | −22% |
+| **PARSIMONIOUS — trend + carry (2 sleeve)** | **1.11** | **+0.74** | **+1.68** | **−15%** |
+
+The elaborate ensemble is **beaten by the simple 2-sleeve blend**. The extra
+price-action signals (breakout, acceleration, volume-shock, low-vol) are mostly
+**redundant trend exposure** — they add variance, not Sharpe, and dragged the
+OOS half. What matters is diversification across the *two genuinely uncorrelated
+families* (trend vs carry, mean pairwise sleeve corr +0.18), not piling on
+correlated trend variants. The regime/IC combiners help the kitchen-sink version
+at the margin (0.39→0.50) but can't rescue it. **Parsimony wins:** the deployable
+book is trend + trend-filtered carry (~1.1–1.3, positive in both regime-halves),
+not a many-signal ensemble.
+
+![MOSAIC vs parsimony](research/mosaic_equity.png)
+
 ## Pushing toward Sharpe 2: multi-sleeve (TREND + funding CARRY)
 
 [`multi_sleeve.py`](multi_sleeve.py) stacks uncorrelated, taker-survivable sleeves
