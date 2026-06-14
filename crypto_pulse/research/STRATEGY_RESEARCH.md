@@ -65,6 +65,20 @@ trend-filtered carry, HL fees+funding, IS/OOS-stable). The only credible route t
 proving it needs live L2/queue-fill data, not 1-min bars). Everything in between
 (~1.7–2.4) is either pre-2024-regime-dependent or carry that has already decayed.
 
+## What we tested ourselves (not just read) — all confirm the verdict
+
+On real data (Coinbase 1-min / daily crypto, HL fees+funding, IS/OOS):
+- **Crypto ORB** (opening-range breakout): full-sample Sharpe 3.48 but **IS −5.2 / OOS +8.5** — a 60-day trend-regime mirage, not an edge.
+- **Daily cross-sectional residual & raw reversal** (broad universe): nets **~0–0.3** at HL taker — the blog "Sharpe 2" does NOT replicate.
+- **Mechanical liquidity-sweep reversal** (the one falsifiable ICT kernel), tested
+  vs the controls the research prescribed: **−9.7 bps/trade, 32% win, IS −8.9 /
+  OOS −10.5, and it does NOT beat random-entry (−7.7) or naive-breakout-fade
+  (−7.7).** It is *worse* than random once costs are paid — ICT/SMC falsified.
+- **Intraday momentum / VWAP-reclaim / VWAP-bands**: negative-to-catastrophic net.
+- **What DID validate:** vol-scaled trend (PULSE, ~1.2 full / 0.75 HL) + trend-
+  filtered funding carry (0.92 HL) → blend **~1.1–1.3**, IS/OOS-stable. That is the
+  honest deployable number; everything claiming taker Sharpe 3 was a mirage.
+
 ### Primary sources
 - Borri, Liu, Tsyvinski, Wu — *Cryptocurrency as an Investable Asset Class* (arXiv 2510.14435): carry 6.45→neg, CMOM 2.6%/wk.
 - *Systematic Trend-Following w/ Adaptive Portfolio Construction* (arXiv 2602.11708): net trend Sharpe 1.83–2.41.
