@@ -37,6 +37,7 @@ capacity, tail risk, decay, and data-snooping/overfitting/survivorship/smoothing
 | [`05-crypto-niche.md`](05-crypto-niche.md) | Crypto carry/funding-rate arb, triangular/cross-exchange arb, MEV, AMM LP, crypto momentum/stat-arb, stablecoin delta-neutral, prediction-market & power-spread arb |
 | [`06-validation-methodology.md`](06-validation-methodology.md) | Deflated Sharpe, backtest overfitting / MinBTL, multiple-testing haircuts, post-publication decay, data-snooping, annualization/autocorrelation, return smoothing, survivorship, who actually achieves high Sharpe |
 | [`07-validation-checklist.md`](07-validation-checklist.md) | Practical rubric for vetting any claimed Sharpe > 5 |
+| [`08-accessible-high-sharpe-hunt.md`](08-accessible-high-sharpe-hunt.md) | **Phase 2** — hunting an *accessible* Sharpe > 5 via Twitter/X, Reddit & forums, then validating each claim to destruction (Zarattini/ORB, overnight-ETF reversion, 0DTE, the strategy-stacking ρ-ceiling math) |
 
 ---
 
@@ -139,6 +140,38 @@ for any participant who is not already a top-tier HFT firm. The honest targets a
   the realistic ceiling, and where the best funds on earth actually live.
 - **Sharpe > 5** only as the non-scalable property of latency-advantaged market-making, or as
   a measurement illusion (gross / smoothed / leveraged / tail-blind) everywhere else.
+
+---
+
+## Phase 2 addendum — the dedicated hunt for an *accessible* Sharpe > 5
+
+After the Phase 1 survey, a second pass went straight to where practitioners post real strategies
+(Twitter/X, Reddit r/algotrading & r/quant, EliteTrader, Hacker News), collected every concrete
+retail-accessible Sharpe-5+ claim, and validated each to a reproducible source. Full record in
+[`08-accessible-high-sharpe-hunt.md`](08-accessible-high-sharpe-hunt.md). Result:
+
+- The strongest documented practitioner strategies (Carlo Zarattini / Concretum) headline at **Sharpe
+  1.3–2.8 in-sample** but **collapse to ~0.4–1.3 net** in every independent replication once real spreads,
+  slippage, small-cap short-borrow costs, and a fair 1× leverage benchmark are imposed. **Leverage doesn't
+  change Sharpe** — the 1,484% TQQQ ORB headline is the same ~1.0 Sharpe as unlevered.
+- The one viral "Sharpe 7.1" (cross-sectional overnight→intraday ETF reversion) is a **gross,
+  multiple-tested, open-auction microstructure artifact** — its backtest assumes you both read the open
+  price to form the signal *and* fill at that same open (circular), and it claims its biggest edge in the
+  liquid US sector ETFs that Petajisto's foundational paper shows are efficiently priced. Honest net: ~0–1.5.
+- **Sleeve-stacking is mathematically capped:** combined Sharpe = `s·√(N/(1+(N−1)ρ))` → ceiling **s/√ρ**
+  regardless of N. At the empirically measured ρ≈0.16 for short-horizon equity alphas (Kakushadze's 101
+  Formulaic Alphas), an s=1 stack maxes at **~2.5 even with infinite sleeves**; a disciplined open-source
+  18-sleeve stack lands at 2.2. You cannot add your way to 5.
+- Verified Sharpe > 5 remains **only Renaissance Medallion** — the √BR/execution-moat corner (millions of
+  near-coin-flip bets, closed since 1993, capped ~$10B). It exists; it is structurally unreachable by
+  sleeve-stacking or retail infrastructure.
+
+**Conclusion unchanged and now quantitatively grounded:** a retail-accessible, net-of-cost, out-of-sample,
+tail-honest, scalable **Sharpe > 5 does not exist** — and the stacking math explains *why* it is not merely
+undiscovered but out of reach without HFT speed or Medallion-scale breadth. Honest targets: **~1–2 net
+single-strategy, ~2–3 net for a disciplined diversified book.**
+
+---
 
 *This survey is research only. No existing repository files were modified; all content lives
 under `research/`. Figures are attributed to primary sources in each domain file; several
