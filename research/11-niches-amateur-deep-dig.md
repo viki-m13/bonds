@@ -202,9 +202,11 @@ otherwise.* [Chan – low-frequency data](http://epchan.blogspot.com/2016/09/rea
 **Kaggle quant competitions** (Jane Street, Optiver, G-Research Crypto, Two Sigma, Ubiquant) are an
 instructive control: they score on utility / R² / weighted-correlation, *not* Sharpe, on a held-out private
 test set — and they are defined by **massive public→private leaderboard shakeups** (e.g., Two Sigma: only one
-team stayed top-5 on both boards; G-Research Crypto "saw many big jumps and precipitous drops"). That shakeup
+team stayed top-5 on both boards; G-Research Crypto "saw many big jumps and precipitous drops"; in Optiver,
+contestant "stassl" fell from **#1 on the public leaderboard to #154 on the private/live data**). That shakeup
 *is* the overfitting tax made visible: even elite competitors with rigorous CV see their edge shrink out of
-sample. It's the same lesson as the repos, from the opposite direction — honest OOS predictive signal in
+sample — and these are *prediction-accuracy* metrics (R²/correlation/RMSPE), which translate to even smaller
+*net* Sharpe once costs and execution are added. It's the same lesson as the repos, from the opposite direction — honest OOS predictive signal in
 liquid markets is small, and anything that looked huge in-sample reverts.
 
 ---
