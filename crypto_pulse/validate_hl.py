@@ -78,7 +78,7 @@ def stats(p, ann=ANN):
                 n=len(p))
 
 
-def build_weights(C, V, H, L, vol_target=0.12):
+def build_weights(C, V, H, L, vol_target=0.12, long_only=False):
     R = C.pct_change()
     R[R.abs() > 2.0] = np.nan
     dv = (C * V).rolling(30).mean()
@@ -88,13 +88,16 @@ def build_weights(C, V, H, L, vol_target=0.12):
     don = ((C >= H.shift(1).rolling(20).max()).astype(float)
            - (C <= L.shift(1).rolling(20).min()).astype(float))
     sig = trend + don
+    if long_only:
+        sig = sig.clip(lower=0)                       # long uptrends / flat else
     w = (sig / sd).where(elig)
-    w = w.div(w.abs().sum(axis=1), axis=0)            # gross-1 dollar weights
+    w = w.div(w.abs().sum(axis=1), axis=0)            # gross-1 weights
     return w, R, elig
 
 
-def run(C, V, H, L, F, vol_target=0.12, taker_bps=TAKER_BPS, funding=True):
-    w, R, elig = build_weights(C, V, H, L, vol_target)
+def run(C, V, H, L, F, vol_target=0.12, taker_bps=TAKER_BPS, funding=True,
+        long_only=False):
+    w, R, elig = build_weights(C, V, H, L, vol_target, long_only=long_only)
     wl = w.shift(1)                                    # trade next day
     gross_ret = (wl * R).sum(axis=1)
     turn = (wl - wl.shift(1)).abs().sum(axis=1)
@@ -198,6 +201,32 @@ def main():
                  "negligible at this vol target.\n")
 
     # HL-era yearly sub-periods (honesty: recent regime)
+    # long-only variant (the realistic spot version; funding is a pure cost)
+    lo_net, lo_comp, _ = run(C, V, H, L, F, funding=True, long_only=True)
+    lo_nofund, _, _ = run(C, V, H, L, F, funding=False, long_only=True)
+    lines.append("## Long-only variant (long uptrends / flat — true-spot, also "
+                 "runnable as long-only perps)\n")
+    lines.append("| config | Sharpe | ann | vol | maxDD | days |")
+    lines.append("|---|---|---|---|---|---|")
+    lines.append(_row("long-only (fees+funding)", stats(lo_net[hl])))
+    lines.append(_row("long-only (fees only)", stats(lo_nofund[hl])))
+    lines.append(_row("L/S directional (reference)", stats(net[hl])))
+    lg = lo_comp["gross"][hl].mean() * ANN
+    lfe = lo_comp["fee"][hl].mean() * ANN
+    lfu = lo_comp["funding"][hl].mean() * ANN
+    lines.append("")
+    lines.append(f"Long-only attribution (HL era): gross **{lg:+.1%}**, fees "
+                 f"**{-lfe:+.1%}**, funding **{lfu:+.1%}** (a PURE cost here — no "
+                 f"short leg to offset it, vs {comp['funding'][hl].mean()*ANN:+.1%}"
+                 " for L/S), net "
+                 f"**{lg - lfe + lfu:+.1%}**. Long-only carries crypto market "
+                 "beta (deeper drawdowns, directional), but de-risks to cash when "
+                 "nothing trends.\n")
+    lines.append("Long-only by year (fees+funding): " + ", ".join(
+        f"{y} {stats(lo_net[(idx.year == y) & hl])['sharpe']:+.2f}"
+        for y in (2023, 2024, 2025, 2026)
+        if stats(lo_net[(idx.year == y) & hl])['n'] >= 60) + "\n")
+
     lines.append("## HL-era by year (fees+funding)\n")
     lines.append("| year | Sharpe | ann | maxDD | days |")
     lines.append("|---|---|---|---|---|")
@@ -240,10 +269,13 @@ def main():
 
     fig, ax = plt.subplots(figsize=(11, 5))
     (1 + net[hl]).cumprod().plot(ax=ax, color="#8e44ad", lw=1.7,
-                                 label=f"PULSE-HL fees+funding (Sharpe "
+                                 label=f"L/S directional, fees+funding (Sharpe "
                                  f"{stats(net[hl])['sharpe']:.2f})")
-    (1 + net_nofund[hl]).cumprod().plot(ax=ax, color="#bdc3c7", lw=1.2, ls="--",
-                                        label="fees only (no funding)")
+    (1 + lo_net[hl]).cumprod().plot(ax=ax, color="#16a085", lw=1.7,
+                                    label=f"long-only, fees+funding (Sharpe "
+                                    f"{stats(lo_net[hl])['sharpe']:.2f})")
+    (1 + net_nofund[hl]).cumprod().plot(ax=ax, color="#bdc3c7", lw=1.0, ls="--",
+                                        label="L/S, fees only (no funding)")
     ax.set_title("PULSE on Hyperliquid perps — 2023-05 to present (HL-tradeable)")
     ax.set_ylabel("growth of $1")
     ax.legend()

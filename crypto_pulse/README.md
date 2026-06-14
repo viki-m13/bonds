@@ -36,7 +36,22 @@ on liquid crypto majors has weakened as the market matured. Treat PULSE as a
 **small, monitored sleeve**, not a confident standalone — and paper-trade first
 (see [`BOT_DEPLOYMENT.md`](BOT_DEPLOYMENT.md)).
 
-`live_signal.py` emits today's target signed notional per coin for the bot.
+`live_signal.py` emits today's target signed notional per coin for the bot
+(`LONG_ONLY=True` for the spot-style variant).
+
+### Long-only vs L/S on HL (2023-05→now, fees+funding)
+
+| variant | Sharpe | ann | maxDD | funding cost | by year |
+|---|---|---|---|---|---|
+| **long-only** (long uptrends / flat) | **0.86** | +11.2% | −16.3% | −1.1% | '23 +2.26 · '24 +1.19 · '25 +0.49 · '26 −2.20 |
+| L/S directional | 0.75 | +9.9% | −13.1% | −2.3% | '23 +2.00 · '24 +0.57 · '25 +0.49 · '26 −0.61 |
+
+Long-only is **simpler and slightly higher-Sharpe**: it sits in cash when nothing
+trends, so it pays **less funding** (−1.1% vs −2.3% — no always-on short leg) and
+needs no borrow/short. The trade-off is it carries **crypto market beta** —
+shallower in calm years but a worse 2026 (−2.20) when the held uptrends reversed,
+and a deeper max drawdown. Pick long-only for spot/simplicity, L/S for lower
+beta; neither escapes the 2026 decay.
 
 ## Does the edge travel to other assets? (spot crypto / ETFs / leveraged ETFs / PIT stocks)
 

@@ -27,6 +27,7 @@ import validate_hl as v
 # Account configuration (edit per deployment) -------------------------------
 ACCOUNT_EQUITY_USD = 10_000.0
 VOL_TARGET = 0.20            # annual; ~0.5x gross on HL, far from any liq.
+LONG_ONLY = False           # True = long uptrends / flat (spot-style, less funding)
 TAKER_BPS = v.TAKER_BPS
 MAX_GROSS_LEVERAGE = 3.0     # hard cap the bot will never exceed
 MIN_ORDER_USD = 12.0        # HL min notional is $10; pad it
@@ -37,7 +38,8 @@ def current_targets():
              if os.path.exists(os.path.join(v.CRYPTO, f"{c}_USD.csv"))]
     C, V, H, L = v.load_prices(coins)
     F = v.load_daily_funding(coins, C.index)
-    net, comp, w = v.run(C, V, H, L, F, vol_target=VOL_TARGET, funding=True)
+    net, comp, w = v.run(C, V, H, L, F, vol_target=VOL_TARGET, funding=True,
+                         long_only=LONG_ONLY)
     # the per-day scale is embedded in comp via gross_lev; recover today's scale
     last = C.index[-1]
     raw_w = w.loc[last]                                   # gross-1 weights

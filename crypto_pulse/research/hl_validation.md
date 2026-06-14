@@ -29,6 +29,18 @@ Universe: 57 coins listed on HL perps AND in our daily panel. Funding history pr
 - worst 1-day P&L: -3.0%; max drawdown -13.1%
 - account collateral vs HL maintenance margin: at mean gross leverage 0.26x and a blended ~5% maintenance margin, a same-day adverse move of ~379% across the whole book would be required to liquidate — vs the observed worst day of -3.0%. Liquidation risk is negligible at this vol target.
 
+## Long-only variant (long uptrends / flat — true-spot, also runnable as long-only perps)
+
+| config | Sharpe | ann | vol | maxDD | days |
+|---|---|---|---|---|---|
+| long-only (fees+funding) | +0.86 | +11.2% | 13.1% | -16.3% | 1079 |
+| long-only (fees only) | +0.93 | +12.2% | 13.1% | -16.0% | 1079 |
+| L/S directional (reference) | +0.75 | +9.9% | 13.2% | -13.1% | 1079 |
+
+Long-only attribution (HL era): gross **+14.2%**, fees **-1.9%**, funding **-1.1%** (a PURE cost here — no short leg to offset it, vs -2.3% for L/S), net **+11.2%**. Long-only carries crypto market beta (deeper drawdowns, directional), but de-risks to cash when nothing trends.
+
+Long-only by year (fees+funding): 2023 +2.26, 2024 +1.19, 2025 +0.49, 2026 -2.20
+
 ## HL-era by year (fees+funding)
 
 | year | Sharpe | ann | maxDD | days |
