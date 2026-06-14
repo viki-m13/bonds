@@ -72,6 +72,36 @@ the only positive equity numbers come from the long-only variant simply
 harvesting market drift via trend-timing (~0.4–0.6), not a real cross-asset
 alpha. Net: **PULSE belongs on crypto.**
 
+## Going HFT: VELOCITY — 1-minute market-neutral stat-arb
+
+Pushing to a genuine high Sharpe, the HFT-quant way: a market-neutral, beta-
+hedged 1-minute book that **fades idiosyncratic (residual) moves** (the entire
+edge; the BTC→alt lead-lag adds ~0), executed honestly — enter next-minute open,
+skip the formation bar (no bid-ask-bounce mirage), costs charged on turnover.
+Data: 60 days of Coinbase 1-min bars on 13 liquid coins. Full record in
+[`research/hft.md`](research/hft.md) ([`hft.py`](hft.py)).
+
+**The signal is real and OOS-robust — but the whole answer is the breakeven cost:**
+
+| hold | gross Sharpe | OOS gross | edge/trade | breakeven | net @0.2bps (maker+rebate) | net @1.5 (HL maker) | net @4.5 (HL taker) |
+|---|---|---|---|---|---|---|---|
+| 5m | +19 | +23 | 0.31 bps | 0.22 bps | +1.9 | −111 | −353 |
+| 10m | +12 | +11 | 0.40 bps | 0.29 bps | **+7.7** | −52 | −177 |
+| 45m | +7 | +5 | 0.95 bps | 0.68 bps | +4.7 | −8 | −37 |
+
+![VELOCITY](research/velocity_equity.png)
+
+**Verdict (honest):** the alpha is genuine and large *gross* (~100k bets/yr), but
+the per-trade edge is **sub-bp and diffuse** — concentrating into the extreme
+signals actually *loses*, the hallmark of a **liquidity-provision** edge, not a
+takeable one. So **net Sharpe ≥3 is reachable only at ≤~0.3 bps effective cost —
+i.e. as a passive maker capturing the spread + rebate, not a taker.** At HL maker
+(1.5 bps) or taker (4.5 bps) it's deeply negative. And whether the maker fills
+actually materialize can't be proven from 1-min bars — that needs L2/queue
+simulation. Caveat: 60-day window = one regime; treat the level as indicative.
+**This is the real reason crypto HFT is a maker/colocation game, not a retail
+taker bot** — and the honest endpoint of "make it Sharpe 3."
+
 ## What you actually get
 
 - **PULSE** ([`strategy_daily.py`](strategy_daily.py)) — the best *honest* result:

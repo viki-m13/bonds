@@ -17,3 +17,6 @@ data/crypto_hourly/
 
 # fetched HL funding, reproducible via crypto_pulse fetch
 data/hl_funding/
+
+# fetched 1-min crypto (Coinbase), reproducible via crypto_pulse/fetch_1min.py
+data/crypto_1min/
