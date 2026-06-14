@@ -22,17 +22,19 @@ over the genuinely tradeable era (HL launched ~2023-05). Full numbers in
 
 | | Sharpe | ann | maxDD |
 |---|---|---|---|
-| PULSE-HL, 2023-05→now (fees+funding) | **~0.80** | +10.6% | −12.9% |
+| PULSE-HL, 2023-05→now (fees+funding, 57/57 coins) | **0.75** | +9.9% | −13.1% |
 | full-sample spot proxy (pre-HL) | 1.33 | +19.7% | −15.7% |
 
-**Mechanically it deploys cleanly:** fees only −2%/yr (turnover 0.12/day),
-funding −1.5%/yr, **gross leverage ~0.26× at a 12% vol target** so liquidation is
-a non-issue (Sharpe is leverage-invariant; lever to taste up to a drawdown
-budget). **But the edge has decayed** — by year: 2023 **+2.07**, 2024 +0.65,
-2025 +0.51, **2026 YTD −0.57**. Trend/breakout on liquid crypto majors has
-weakened as the market matured. Treat PULSE as a **small, monitored sleeve**, not
-a confident standalone — and paper-trade first (see
-[`BOT_DEPLOYMENT.md`](BOT_DEPLOYMENT.md)).
+**Mechanically it deploys cleanly:** P&L attribution is gross **+14.2%**, HL taker
+fees **−2.0%/yr** (turnover only 0.12/day), funding **−2.3%/yr** (the single
+biggest cost — bigger than fees), net **+9.9%**. **Gross leverage ~0.26× at a 12%
+vol target** so liquidation is a non-issue (Sharpe is leverage-invariant; lever to
+taste up to a drawdown budget — 60% vol ≈ 1.3× gross, still inside HL's 10–40×
+caps). Even 3× funding leaves Sharpe +0.40. **But the edge has decayed** — by
+year: 2023 **+2.00**, 2024 +0.57, 2025 +0.49, **2026 YTD −0.61**. Trend/breakout
+on liquid crypto majors has weakened as the market matured. Treat PULSE as a
+**small, monitored sleeve**, not a confident standalone — and paper-trade first
+(see [`BOT_DEPLOYMENT.md`](BOT_DEPLOYMENT.md)).
 
 `live_signal.py` emits today's target signed notional per coin for the bot.
 
