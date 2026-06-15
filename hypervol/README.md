@@ -18,8 +18,12 @@ answer with ablations, IS/OOS, cost stress, and parameter robustness.
    falls to ~1.3 and OOS return to low-single-digits.
 3. **The entire Concretum signal apparatus (DVOL/eVRP gating, regime switching)
    adds no value in crypto — it actively *destroys* it.** Funding already prices
-   the premium directly, so the best rule is the dumbest one: always be on the
-   receiving side of funding. This is the most important finding here.
+   the premium directly, so the best rule is the dumbest one: be on the receiving
+   side of funding. This is the most important finding here.
+4. **Intraday (§5) re-prices the risk honestly:** the carry's true vol is ~12%,
+   not the 2% daily marks suggest (the basis mean-reverts within the day), and in
+   today's compressed/dispersed-funding regime a diversified, funding-*sign*
+   carry basket (Sharpe ~0.5, ~3.5%/yr) beats the old "always short" rule.
 
 ---
 
@@ -164,15 +168,71 @@ clever signal stack is unnecessary.
 
 ---
 
-## 5. Reproduce
+## 5. Intraday extension — pricing the tail the daily model can't see
+
+Hyperliquid retains ~5000 1h candles (~208 days), so we pulled an **hourly** book
+(HL 1h perp + Binance.US 1h spot + HL hourly funding) for 2025-11 → 2026-06 — the
+current, crowded regime — to do two things the daily backtest cannot.
+(`fetch_intraday.py`, `intraday.py`, `basket.py`.)
+
+**(a) The carry is ~6× more volatile intraday than daily marks imply.**
+
+```
+                 daily-close model      hourly-MTM (same trade, current regime)
+BTC carry vol         ~2%                       11.8%   (Sharpe +0.30)
+ETH carry vol         ~2%                       12.7%   (Sharpe +0.40)
+```
+
+The position's P&L is `Δbasis + funding`; the basis swings hard intraday and
+mean-reverts by the daily close, so daily sampling *cancels* the risk that
+actually liquidates positions. Worst intraday perp-rich basis spikes over the
+window were +0.44% (BTC), +0.88% (ETH) — modest (no de-peg cascade occurred),
+implying you must avoid running the perp leg above ~90–175× before *basis alone*
+liquidates a delta-neutral book. The binding real-world risk is the directional
+move forcing cross-venue margin calls, which is operational, not in this model.
+
+**(b) The regime-adaptive funding-sign rule now beats "always short", and
+diversification helps — but the edge is thin and cost-sensitive.**
+
+Funding has compressed and *dispersed*: BTC +3.8%, ETH +5.1%, LINK +9%, NEAR +9%
+but SOL −2.8%, DOT −11%, ATOM −14%, APT −15% (annualized, current). So "always be
+short the perp" (the 2023-24 winner) now bleeds on the negative-funding coins,
+and being on the *receiving side of each coin's funding* adds value again.
+
+Liquid 5-coin basket (BTC, ETH, SOL, XRP, DOGE — coins whose Binance.US spot is
+tight enough that the basis is real and not stale-quote noise), hourly, net costs:
+
+```
+OLD: always-short  risk-parity        CAGR +2.7%  vol 8.9%  Sharpe +0.35
+NEW: sign-follow   risk-parity        CAGR +3.5%  vol 7.7%  Sharpe +0.49   <- headline
+```
+
+Robust across funding-smoothing windows 120–336h (Sharpe 0.43–0.49); 72h churns.
+**But** it halves at 2× costs (Sharpe 0.20) because flipping sides is expensive,
+and 12 of 17 fetched coins had to be dropped — their Binance.US spot is too stale
+to trade the basis against, so a live book needs better spot venues per coin.
+
+**Intraday verdict:** the diversified, funding-sign carry is a genuine, robust,
+*low* return today (~3.5%/yr, Sharpe ~0.5, sub-1% drawdown on daily marks) whose
+true risk lives in intraday basis spikes and cross-venue margin, not in the
+benign daily P&L. It is a real cash-management yield, not the Sharpe-6 machine the
+2023-24 daily numbers advertised.
+
+---
+
+## 6. Reproduce
 
 ```bash
 pip install -r requirements.txt pyarrow
-python -m hypervol.fetch_data     # pulls HL funding+candles, Deribit DVOL -> data/hypervol/
-python -m hypervol.validate       # full report -> results/validation.json
-python -m hypervol.plot           # results/equity_curves.png
+python -m hypervol.fetch_data       # HL funding+candles + Deribit DVOL (daily)
+python -m hypervol.validate         # full daily report -> results/validation.json
+python -m hypervol.plot             # results/equity_curves.png
+python -m hypervol.fetch_intraday   # HL 1h perp + Binance.US 1h spot + hourly funding
+python -m hypervol.intraday         # intraday tail / liquidation audit
+python -m hypervol.basket           # diversified funding-sign carry basket
 ```
 
-Files: `fetch_data.py` (data layer), `engine.py` (signals + directional
-backtest), `carry.py` (delta-neutral carry), `validate.py` (all tests),
-`plot.py` (figure).
+Files: `fetch_data.py` / `fetch_intraday.py` (data), `engine.py` (signals +
+directional backtest), `carry.py` (daily delta-neutral carry), `intraday.py`
+(hourly tail audit), `basket.py` (diversified intraday carry), `validate.py`
+(all daily tests), `plot.py` (figure).
