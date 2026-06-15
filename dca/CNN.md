@@ -111,15 +111,29 @@ pretraining-corpus-overlap caveat that weakened the earlier Chronos test
 forward 63-day return (a pure cross-sectional ranking objective). Biennial
 refit, ~103k parameters, MSE loss, PatchTST's own causal instance-norm.
 
-<!-- PATCHTST_RESULTS: filled by cnn_report.py once the run completes -->
+Active-period DCA grid (same 180 windows as the CNN table above):
 
-**Expected verdict (to be confirmed against the numbers above).** The prior is
-that a SOTA transformer does **not** break the ceiling: with OHLCV-only inputs
-the cross-sectional forward-return signal is ≈ 0 IC out-of-sample, so PatchTST,
-the CNN, LightGBM (`results_ml.md`) and Chronos (`results_chronos.md`) should
-converge on the same place — beating the random control and SPY-DCA but losing
-to QQQ-DCA and to plain momentum. This would reconfirm
+| signal | win vs QQQ | win vs SPY | median vs QQQ | worst vs QQQ |
+|---|---|---|---|---|
+| PatchTST k=2 | 12% | 42% | -13.9% | -44.0% |
+| PatchTST k=3 | 8% | 51% | -16.5% | -39.7% |
+| PatchTST k=10 | 5% | 43% | -19.9% | -38.2% |
+| CNN k=2 (for ref) | 17% | 57% | -14.7% | -46.2% |
+| 9-1 momentum k=3 | **69%** | **89%** | **+10.6%** | -19.9% |
+| random k=3 | 9% | 44% | -15.7% | -40.9% |
+
+Out-of-sample IC (rank corr vs forward return): **+0.003 or less at every
+horizon** (−0.004 @21d, +0.003 @63d, +0.003 @126d) — statistically
+indistinguishable from zero, and *weaker* than the CNN's small positive IC.
+
+**Verdict — confirmed.** The SOTA transformer did **not** break the ceiling:
+it lands essentially on the random control (12% vs 9% win-vs-QQQ) and slightly
+*below* the simpler CNN. With OHLCV-only inputs the cross-sectional
+forward-return signal is ≈ 0 IC out-of-sample, so PatchTST, the CNN, LightGBM
+(`results_ml.md`) and Chronos (`results_chronos.md`) all converge on the same
+place — they beat (or tie) the random control and SPY-DCA but lose decisively
+to QQQ-DCA and to plain 9-1 momentum (69% win-vs-QQQ). This reconfirms
 `research/VALIDATION_METHODOLOGY.md`'s bottom line: **the binding constraint is
 the absence of durable cross-sectional alpha in public price/volume data over a
-momentum-heavy benchmark, not model capacity** — bigger/fancier models do not
-manufacture signal that isn't there.
+momentum-heavy benchmark, not model capacity.** Bigger/fancier models do not
+manufacture signal that isn't there. Not promoted to a live factsheet.
