@@ -1,0 +1,57 @@
+== leakage audit ==
+  audit 2011-01-18: max|Δ|=0.00e+00 nan-mismatch=0 -> OK
+  audit 2012-08-14: max|Δ|=0.00e+00 nan-mismatch=0 -> OK
+  audit 2012-08-24: max|Δ|=0.00e+00 nan-mismatch=0 -> OK
+  audit 2013-08-05: max|Δ|=0.00e+00 nan-mismatch=0 -> OK
+  audit 2023-02-02: max|Δ|=0.00e+00 nan-mismatch=0 -> OK
+  audit 2023-03-30: max|Δ|=0.00e+00 nan-mismatch=0 -> OK
+== reference engine cross-check ==
+  2007-01-03: ref=2.5557 fast=2.5557
+  2012-01-03: ref=3.1358 fast=3.1358
+  2016-01-04: ref=9.8977 fast=9.8977
+== offset sweep ==
+  off=0 win_qqq=95% med=+43.2% worst=-11.2%
+  off=1 win_qqq=95% med=+41.7% worst=-11.9%
+  off=2 win_qqq=95% med=+41.9% worst=-12.9%
+  off=3 win_qqq=95% med=+42.5% worst=-12.0%
+  off=4 win_qqq=95% med=+40.8% worst=-13.6%
+  off=5 win_qqq=95% med=+43.4% worst=-11.2%
+  off=6 win_qqq=95% med=+41.4% worst=-12.3%
+  off=7 win_qqq=95% med=+41.6% worst=-10.1%
+  off=8 win_qqq=93% med=+44.0% worst=-10.7%
+  off=9 win_qqq=95% med=+43.6% worst=-11.0%
+== cost sweep ==
+  5bps win_qqq=95% med=+43.2%
+  10bps win_qqq=95% med=+43.2%
+  20bps win_qqq=95% med=+43.2%
+  40bps win_qqq=95% med=+43.2%
+== k & cadence sweep ==
+  k=1 every=10 win_qqq=95% med=+43.2% worst=-11.2%
+  k=1 every=21 win_qqq=94% med=+42.7% worst=-15.0%
+  k=2 every=10 win_qqq=93% med=+28.8% worst=-10.6%
+  k=2 every=21 win_qqq=93% med=+30.9% worst=-11.2%
+  k=3 every=10 win_qqq=91% med=+21.7% worst=-10.8%
+  k=3 every=21 win_qqq=90% med=+23.3% worst=-10.4%
+  k=4 every=10 win_qqq=84% med=+14.8% worst=-11.4%
+  k=4 every=21 win_qqq=86% med=+15.3% worst=-9.9%
+  k=5 every=10 win_qqq=82% med=+10.3% worst=-11.6%
+  k=5 every=21 win_qqq=80% med=+9.8% worst=-12.7%
+== NASDAQ-100 transfer (2015+) ==
+  2016-01-01 strat=9.64 qqq=3.27 rand=3.57
+  2016-07-01 strat=10.02 qqq=3.07 rand=3.23
+  2017-01-01 strat=9.48 qqq=2.87 rand=2.74
+  2017-07-01 strat=7.38 qqq=2.72 rand=2.55
+  2018-01-01 strat=5.14 qqq=2.56 rand=2.47
+  2018-07-01 strat=5.57 qqq=2.45 rand=2.47
+  2019-01-01 strat=4.63 qqq=2.31 rand=2.24
+  2019-07-01 strat=3.83 qqq=2.18 rand=1.98
+  2020-01-01 strat=3.67 qqq=2.04 rand=1.93
+  2020-07-01 strat=3.56 qqq=1.92 rand=1.78
+  2021-01-01 strat=3.81 qqq=1.85 rand=1.70
+  2021-07-01 strat=3.76 qqq=1.81 rand=1.76
+  2022-01-01 strat=3.58 qqq=1.79 rand=1.63
+  2022-07-01 strat=3.65 qqq=1.74 rand=1.65
+  2023-01-01 strat=2.83 qqq=1.61 rand=1.47
+== headline grid ==
+[ZENITH_FINAL] k=1 win_qqq=95% win_spy=98% med_vs_qqq=+43.2% worst_vs_qqq=-11.2%
+GAUNTLET DONE
