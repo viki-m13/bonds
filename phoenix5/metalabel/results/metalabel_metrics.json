@@ -1,0 +1,65 @@
+{
+  "model": "logistic",
+  "purged_cv_auc": {
+    "logit": 0.5318,
+    "gbm": 0.5169
+  },
+  "overlay": {
+    "alpha": 3.0,
+    "p0": 0.4,
+    "floor": 0.0
+  },
+  "production": {
+    "is": {
+      "sr": 2.616,
+      "sortino": 4.045,
+      "cagr": 0.4119,
+      "vol": 0.1354,
+      "mdd": -0.1632
+    },
+    "oos": {
+      "sr": 2.149,
+      "sortino": 3.163,
+      "cagr": 0.3566,
+      "vol": 0.1471,
+      "mdd": -0.1765
+    }
+  },
+  "metalabel": {
+    "is": {
+      "sr": 2.913,
+      "sortino": 4.409,
+      "cagr": 0.3468,
+      "vol": 0.1041,
+      "mdd": -0.0916
+    },
+    "oos": {
+      "sr": 2.005,
+      "sortino": 2.116,
+      "cagr": 0.1446,
+      "vol": 0.0685,
+      "mdd": -0.1562
+    }
+  },
+  "avg_mult_oos": 0.313,
+  "strict_oos_dominance": false,
+  "feature_importance": {
+    "sleeve_disp": -0.494,
+    "vix_z": -0.407,
+    "vol_21": 0.404,
+    "vix": 0.326,
+    "dd_63": -0.296,
+    "dd_252": 0.252,
+    "ret_10": 0.236,
+    "vol_63": 0.177,
+    "term": -0.137,
+    "hyoas": -0.12,
+    "sleeve_corr": -0.115,
+    "vol_accel": -0.043,
+    "ret_21": -0.042,
+    "dollar_21": 0.038,
+    "vix_chg5": 0.025,
+    "hyoas_chg20": 0.018,
+    "ret_5": 0.008
+  }
+}

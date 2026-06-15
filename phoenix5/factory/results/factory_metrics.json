@@ -1,0 +1,192 @@
+{
+  "candidates": [
+    {
+      "stream": "tsmom_GLD",
+      "is_sr": 0.09,
+      "oos_sr": 1.0,
+      "full_sr": 0.54,
+      "vol": 0.081
+    },
+    {
+      "stream": "credit_jnk",
+      "is_sr": 0.82,
+      "oos_sr": 0.66,
+      "full_sr": 0.74,
+      "vol": 0.057
+    },
+    {
+      "stream": "credit_ig",
+      "is_sr": 0.86,
+      "oos_sr": 0.64,
+      "full_sr": 0.74,
+      "vol": 0.032
+    },
+    {
+      "stream": "credit_em",
+      "is_sr": 0.61,
+      "oos_sr": 0.62,
+      "full_sr": 0.61,
+      "vol": 0.061
+    },
+    {
+      "stream": "credit_hy",
+      "is_sr": 0.73,
+      "oos_sr": 0.6,
+      "full_sr": 0.67,
+      "vol": 0.057
+    },
+    {
+      "stream": "tsmom_HYG",
+      "is_sr": 0.33,
+      "oos_sr": 0.54,
+      "full_sr": 0.43,
+      "vol": 0.079
+    },
+    {
+      "stream": "tsmom_EEM",
+      "is_sr": 0.12,
+      "oos_sr": 0.46,
+      "full_sr": 0.29,
+      "vol": 0.077
+    },
+    {
+      "stream": "tsmom_SLV",
+      "is_sr": 0.17,
+      "oos_sr": 0.45,
+      "full_sr": 0.31,
+      "vol": 0.08
+    },
+    {
+      "stream": "volcarry_svxy",
+      "is_sr": 0.5,
+      "oos_sr": 0.37,
+      "full_sr": 0.44,
+      "vol": 0.161
+    },
+    {
+      "stream": "tsmom_UUP",
+      "is_sr": 0.11,
+      "oos_sr": 0.36,
+      "full_sr": 0.22,
+      "vol": 0.076
+    },
+    {
+      "stream": "tsmom_IEF",
+      "is_sr": 0.28,
+      "oos_sr": 0.34,
+      "full_sr": 0.31,
+      "vol": 0.075
+    },
+    {
+      "stream": "tsmom_EFA",
+      "is_sr": 0.06,
+      "oos_sr": 0.26,
+      "full_sr": 0.15,
+      "vol": 0.078
+    },
+    {
+      "stream": "tsmom_DBC",
+      "is_sr": 0.65,
+      "oos_sr": 0.21,
+      "full_sr": 0.45,
+      "vol": 0.078
+    },
+    {
+      "stream": "tsmom_USO",
+      "is_sr": 0.33,
+      "oos_sr": 0.11,
+      "full_sr": 0.23,
+      "vol": 0.079
+    },
+    {
+      "stream": "tsmom_UDN",
+      "is_sr": 0.08,
+      "oos_sr": 0.07,
+      "full_sr": 0.08,
+      "vol": 0.077
+    },
+    {
+      "stream": "volhedge_vixy",
+      "is_sr": -0.32,
+      "oos_sr": 0.04,
+      "full_sr": -0.1,
+      "vol": 0.033
+    },
+    {
+      "stream": "tsmom_VNQ",
+      "is_sr": 0.03,
+      "oos_sr": 0.02,
+      "full_sr": 0.02,
+      "vol": 0.076
+    },
+    {
+      "stream": "tsmom_TLT",
+      "is_sr": 0.22,
+      "oos_sr": -0.04,
+      "full_sr": 0.09,
+      "vol": 0.072
+    },
+    {
+      "stream": "bondxs_mom6",
+      "is_sr": -0.44,
+      "oos_sr": -0.15,
+      "full_sr": -0.29,
+      "vol": 0.062
+    },
+    {
+      "stream": "bondxs_carry_lo",
+      "is_sr": -0.65,
+      "oos_sr": -0.34,
+      "full_sr": -0.47,
+      "vol": 0.025
+    },
+    {
+      "stream": "bondxs_carry",
+      "is_sr": -0.3,
+      "oos_sr": -0.35,
+      "full_sr": -0.32,
+      "vol": 0.058
+    },
+    {
+      "stream": "bondxs_mom3",
+      "is_sr": 0.02,
+      "oos_sr": -0.63,
+      "full_sr": -0.28,
+      "vol": 0.068
+    },
+    {
+      "stream": "bondxs_creditmr",
+      "is_sr": NaN,
+      "oos_sr": NaN,
+      "full_sr": NaN,
+      "vol": 0.0
+    }
+  ],
+  "factory": {
+    "sr_floor": 0.0,
+    "is": {
+      "sr": 0.33,
+      "cagr": 0.0083,
+      "vol": 0.026,
+      "mdd": -0.0416,
+      "n": 2218
+    },
+    "oos": {
+      "sr": 0.855,
+      "cagr": 0.0288,
+      "vol": 0.0338,
+      "mdd": -0.0627,
+      "n": 1869
+    },
+    "full": {
+      "sr": 0.599,
+      "cagr": 0.0176,
+      "vol": 0.0299,
+      "mdd": -0.0627,
+      "n": 4087
+    },
+    "corr_phoenix": 0.194,
+    "deflated_sharpe_prob": 0.626,
+    "n_trials": 23
+  }
+}

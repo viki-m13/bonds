@@ -99,6 +99,21 @@ weights at full risk (OOS SR 1.89–2.08, all worse), parking idle capital in
 MOSAIC (MDD worsens), softer/earlier DD throttles (no improvement)
 (`research/parking_grid.py`).
 
+## Round-2 advanced research (`ADVANCED_RESEARCH.md`)
+
+A second research round tried four genuinely different methods (causal sleeve
+factory, parameter bagging, meta-labeling, new-data signals). Full writeup in
+`ADVANCED_RESEARCH.md`. Headlines:
+- **Parameter bagging** showed production's canonical OOS Sharpe (2.15) is
+  ~0.27 optimistic — the overfit-robust estimate is **~1.88 with −25% MDD**,
+  because ORION/HELIOS canonical parameters were partly lucky. Budget for the
+  robust number going forward; a bagged-sleeve production base is available as
+  a sturdier (lower-backtest) option.
+- **Sleeve factory** and **meta-labeling** were rigorous negatives (no usable
+  new return; no 5-day predictability, AUC 0.52). Confirms the existing daily
+  data is mined out — further gains need new *data*, not new math.
+- Net: 5X-TURBO remains the one durable, mechanism-backed improvement.
+
 ## What PHOENIX-5 is
 
 A meta-ensemble of four return streams, combined with fully causal machinery:
