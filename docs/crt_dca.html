@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f5efe2">
+<title>Daily Stock Guide — DCA vs S&amp;P-DCA vs QQQ-DCA, honestly</title>
+<meta name="description" content="An independent, honest DCA-vs-SPY-DCA-vs-QQQ-DCA reading of the CRT / Daily Stock Guide strategy on its own real point-in-time data — full period, era by era, and against a clean walk-forward retrain.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --paper:#f5efe2; --card:#fffdf7; --card2:#ebe2cf; --border:#d8cdb6;
+  --rule:#bdb094; --t1:#0e0a07; --t2:#5b4f3f; --t3:#8d8270;
+  --accent:#0f5f73; --accent2:#0e7490; --green:#15803d; --red:#b3331f;
+  --gold:#a16207; --qqq:#c2410c; --spy:#a16207; --strat:#0f5f73;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Bricolage Grotesque',Helvetica,Arial,sans-serif;background:var(--paper);color:var(--t1);line-height:1.55;padding-bottom:70px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+header{padding:34px 0 6px;text-align:center}
+h1{font-family:'Instrument Serif',serif;font-size:clamp(36px,7vw,62px);font-weight:400;letter-spacing:.5px;line-height:1.02}
+h1 .peak{color:var(--accent)}
+.sub{color:var(--t2);font-size:clamp(15px,2.4vw,17px);max-width:760px;margin:14px auto 0}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:5px 13px;color:var(--t2);margin-bottom:14px;white-space:nowrap}
+@media(max-width:430px){.badge{letter-spacing:.4px;font-size:9.5px;padding:5px 11px}}
+h2{font-family:'Instrument Serif',serif;font-size:clamp(24px,4.5vw,30px);font-weight:400;margin:46px 0 6px;border-bottom:1px solid var(--rule);padding-bottom:8px;text-align:center}
+.lead{color:var(--t2);font-size:15px;margin:10px auto 14px;text-align:center;max-width:740px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px;margin:18px 0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 16px;box-shadow:0 4px 12px -7px rgba(14,10,7,.14);text-align:center}
+.card .v{font-family:'JetBrains Mono',monospace;font-size:clamp(20px,3.7vw,25px);font-weight:600}
+.card .l{color:var(--t3);font-size:11px;text-transform:uppercase;letter-spacing:.7px;margin-top:3px;line-height:1.3}
+.green{color:var(--green)} .red{color:var(--red)} .accent{color:var(--accent)}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:14px;margin:12px 0}
+.tablescroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
+th{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--t2);background:var(--card2);text-align:right;padding:9px 11px;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td{padding:8px 11px;border-top:1px solid var(--border);text-align:right;font-family:'JetBrains Mono',monospace;font-size:13px;white-space:nowrap}
+td:first-child{font-family:'Bricolage Grotesque',sans-serif}
+tr.hot td{background:rgba(179,51,31,.07)}
+@media(max-width:480px){td,th{padding:7px 6px;font-size:12px}}
+.chartwrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 14px 6px;margin:12px 0}
+.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center;justify-content:center}
+.controls .grp{display:flex;gap:4px;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:3px}
+.controls button{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;border:none;background:transparent;color:var(--t2);padding:5px 10px;border-radius:6px;cursor:pointer;transition:all .15s}
+.controls button.on{background:var(--accent);color:#fff}
+.chartbox{position:relative;height:340px}
+@media(max-width:640px){.chartbox{height:300px}}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--t2);padding:2px 4px 8px;justify-content:center}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+p{margin:10px 0;color:var(--t2)} p strong{color:var(--t1)}
+.note{background:var(--card2);border-top:3px solid var(--gold);border-radius:6px;padding:14px 16px;font-size:13.5px;color:var(--t2);margin:16px auto;max-width:820px;text-align:left}
+.note b,.note strong{color:var(--t1)}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:16px 0}
+@media(max-width:640px){.twocol{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.panel.good{border-top:4px solid var(--green)}
+.panel.bad{border-top:4px solid var(--red)}
+.panel h3{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:1px;text-transform:uppercase;color:var(--t2);margin-bottom:8px}
+.panel .big{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;margin:2px 0}
+.panel p{font-size:13.5px;margin:6px 0 0}
+a{color:var(--accent)}
+footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var(--rule);padding-top:16px;text-align:center}
+.tiny{font-size:12px;color:var(--t3);text-align:center;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="badge">Independent reading · monthly DCA · real point-in-time data</div>
+  <h1>Daily Stock Guide<br><span class="peak">vs S&amp;P-DCA vs QQQ-DCA</span></h1>
+  <div class="sub">The <a href="https://dailystockguide.com/">Daily Stock Guide</a> picker headlines <em>"beat S&amp;P-DCA in 100% of 10-year windows."</em> True — but the honest question is <strong>"versus what, and when?"</strong> Here is the same monthly-DCA experiment run on the strategy's own real point-in-time return stream, against <strong>both</strong> S&amp;P-DCA and the right growth benchmark, <strong>QQQ-DCA</strong> — full period, era by era, and against a clean walk-forward retrain.</div>
+</header>
+
+<!-- headline -->
+<h2>If you DCA-ed $1 a month, 2003–2026</h2>
+<div class="lead">Contribute $1 at the start of every month into each option and let it ride. Money-weighted return per year (IRR), money multiple, and the deepest the accumulating account ever fell from its peak. Strategy figures are the site's published v5 / E2 stream, net of costs.</div>
+<div class="cards" id="cards"></div>
+<div class="tiny" id="asof">—</div>
+
+<!-- chart -->
+<h2>The DCA account over time</h2>
+<div class="chartwrap">
+  <div class="controls">
+    <div class="grp" id="tf"></div>
+    <div class="grp" id="mode">
+      <button data-mode="mult" class="on">× growth</button>
+      <button data-mode="value">$ value</button>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i style="background:#0f5f73"></i>Strategy DCA</span>
+    <span><i style="background:#c2410c"></i>QQQ-DCA</span>
+    <span><i style="background:#a16207"></i>S&amp;P-DCA</span>
+    <span><i style="background:#8d8270"></i>What you put in</span>
+  </div>
+  <div class="chartbox"><canvas id="eq"></canvas></div>
+</div>
+<p class="tiny"><b>× growth</b> = times your money grew (each line starts at 1). <b>$ value</b> = dollars on a log scale if each monthly contribution were $1,000. Same dates, same contributions for all three.</p>
+
+<!-- rolling -->
+<h2>Rolling-window beat rates</h2>
+<div class="lead">For every possible start month, the money-weighted return of the strategy's DCA versus the identical contributions into SPY and into QQQ. The "100%" headline is real at 10 years — and it also clears QQQ. The honest caveat is in the <em>next</em> section: where that edge comes from.</div>
+<div class="tablescroll">
+<table id="rolltable">
+<thead><tr><th>if you held for</th><th>windows</th><th>beat S&amp;P-DCA</th><th>beat QQQ-DCA</th><th>typical strat / yr</th><th>S&amp;P / yr</th><th>QQQ / yr</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- eras: the reveal -->
+<h2>The edge is front-loaded — era by era</h2>
+<div class="lead">Split the 23 years into four non-overlapping eras and DCA within each. The 2003–2009 crash-recovery era carries almost the entire edge; in every later era the lead over <strong>QQQ</strong>-DCA shrinks to single-to-low-double digits, and the most recent era is the slimmest.</div>
+<div class="tablescroll">
+<table id="eratable">
+<thead><tr><th>era</th><th>strategy / yr</th><th>S&amp;P / yr</th><th>QQQ / yr</th><th>lead vs S&amp;P</th><th>lead vs QQQ</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+<div class="note"><strong>Read this honestly.</strong> The strategy genuinely beats S&amp;P-DCA <em>and</em> QQQ-DCA in all four eras on this stream — but the <em>magnitude</em> is overwhelmingly a one-off: ~+120 pp/yr in the 2003–2009 GFC recovery, fading to a single-digit lead over QQQ in 2021–2026. This is mechanically a <strong>crash-recovery / high-beta amplifier</strong>, which is also why the account fell ~−56% peak-to-trough. The repeatable, steady-state edge over a growth benchmark is a fraction of the 55%/yr headline.</div>
+
+<!-- validation: the other layer -->
+<h2>What a clean retrain shows</h2>
+<div class="lead">The 55%/yr stream above is the production pipeline's own output. When a faithful <strong>walk-forward retrain</strong> of a comparable recipe is forced to train and pick on strictly point-in-time membership — no cached-universe survivorship — the DCA edge over a growth benchmark disappears. (Source: the CRT repo's own <code>research/validation/REPORT.md</code>.)</div>
+<div class="twocol" id="valpanels"></div>
+<div class="note"><strong>The two layers, side by side.</strong> The published stream beats QQQ-DCA on every horizon; an independent walk-forward retrain on clean PIT data <em>loses</em> to QQQ-DCA by ~9–11 pp/yr and barely matches (or trails) S&amp;P-DCA. The truth is in between and depends on how much of the production stream's 2003–2009 magnitude survives out of sample. Treat the headline as "real but front-loaded and beta-driven," not as a durable 55%/yr selection edge.</div>
+
+<!-- what changed -->
+<h2>How this differs from the live site</h2>
+<div class="lead">Three honest additions to the dailystockguide.com presentation, all using the site's own data.</div>
+<div class="twocol">
+  <div class="panel"><h3>1 · Add the QQQ benchmark</h3><p>The site benchmarks only against S&amp;P-DCA. A picker that tilts to high-beta growth <em>should</em> beat the S&amp;P — the honest test is whether it beats <strong>QQQ</strong>-DCA. Here it does on the production stream, but the lead is far smaller and vanishes on a clean retrain.</p></div>
+  <div class="panel"><h3>2 · Lead the era table, not the headline</h3><p>The "100% of 10y windows" stat is true but lets one era do the work. Showing the four-era breakdown up front makes the front-loading impossible to miss: ~+120 pp/yr then fading to single digits.</p></div>
+  <div class="panel"><h3>3 · Show the clean-retrain number</h3><p>The CRT repo already contains an honest walk-forward PIT validation (~11% CAGR, loses to QQQ). Publishing it next to the 55% headline is the single most credibility-building change.</p></div>
+  <div class="panel"><h3>Keep what's already good</h3><p>The site's methodology hygiene is genuinely strong — real walk-forward + 7-month embargo + PIT membership + measured survivorship correction + frank drawdown/front-loading disclosures. This page builds on that, it doesn't contradict it.</p></div>
+</div>
+
+<div class="note"><strong>Method &amp; caveats.</strong> One DCA convention throughout: contribute $1 at the start of each month, earn that month's return; strategy net of 10 bps. The strategy and S&amp;P streams are taken verbatim from the Daily Stock Guide production data (<code>experiments/monthly_dca/v5</code>); QQQ is total-return adjusted close from this repo's <code>data/etfs/QQQ.csv</code>, aligned to the same month-ends. Reconstruction matches the site exactly (v5 money multiple 2450.5×, S&amp;P 5.31×). Nothing here is re-tuned. The clean-retrain figures are a <em>different, comparable</em> recipe, not the production model — they bound how much of the headline is durable. Past performance does not predict future results. Research, not financial advice.</div>
+
+<footer>Independent DCA reading of the CRT / Daily Stock Guide strategy · real point-in-time data · benchmarked vs S&amp;P-DCA and QQQ-DCA · research in <code>dca/research/crt_dca/</code></footer>
+</div>
+
+<script>
+const FMT={
+  pct:v=>(v==null||isNaN(v))?'—':(v>=0?'+':'')+(v*100).toFixed(1)+'%',
+  pct0:v=>(v==null||isNaN(v))?'—':Math.round(v*100)+'%',
+  irr:v=>(v==null||isNaN(v))?'—':(v*100).toFixed(1)+'%',
+  moic:v=>(v==null||isNaN(v))?'—':(v>=100?Math.round(v).toLocaleString():v.toFixed(2))+'×',
+};
+let DATA=null,MODE='mult',TF='all',chart=null;
+
+function cards(){
+  const f=DATA.full_period, r=DATA.rolling['10y'];
+  const C=[
+    ['v', FMT.moic(f.strat.moic),'strategy money multiple','accent'],
+    ['v', FMT.irr(f.strat.irr)+'/yr','strategy return (IRR)','accent'],
+    ['v', FMT.irr(f.spy.irr)+'/yr','S&P-DCA return','spy'],
+    ['v', FMT.irr(f.qqq.irr)+'/yr','QQQ-DCA return','qqq'],
+    ['v', FMT.pct0(r.beat_qqq),'of 10y windows beat QQQ-DCA','green'],
+    ['v', FMT.pct(f.strat.max_dd),'worst the account fell','red'],
+  ];
+  document.getElementById('cards').innerHTML=C.map(c=>
+    `<div class="card"><div class="v ${c[3]==='spy'?'':c[3]==='qqq'?'':c[3]}" style="${c[3]==='spy'?'color:var(--spy)':c[3]==='qqq'?'color:var(--qqq)':''}">${c[1]}</div><div class="l">${c[2]}</div></div>`).join('');
+  document.getElementById('asof').textContent='Production v5 / E2 stream · '+DATA.window+' · '+DATA.n_months+' months';
+}
+
+function buildChart(){
+  const g=DATA.growth;
+  let rows=g;
+  if(TF!=='all'){const yrs={'3y':3,'5y':5,'10y':10,'20y':20}[TF]; rows=g.slice(Math.max(0,g.length-yrs*12));}
+  // rebuild a FRESH DCA over the selected window: $1 contributed at the start
+  // of each month in view, earning that month's return (r/s/q).
+  const dca=(key)=>{let v=0;return rows.map(row=>{v=(v+1)*(1+row[key]);return v;});};
+  const eqStrat=dca('r'), eqSpy=dca('s'), eqQqq=dca('q'), inv=rows.map((_,i)=>i+1);
+  const norm=(eq)=> MODE==='mult' ? eq.map((v,i)=>v/inv[i]) : eq.map(v=>v*1000);
+  const ds=[
+    {label:'Strategy',data:norm(eqStrat),borderColor:'#0f5f73',backgroundColor:'rgba(15,95,115,.07)',borderWidth:2.6,fill:MODE==='mult'?'origin':false,pointRadius:0,tension:.12},
+    {label:'QQQ',data:norm(eqQqq),borderColor:'#c2410c',borderWidth:1.8,pointRadius:0,tension:.12},
+    {label:'S&P 500',data:norm(eqSpy),borderColor:'#a16207',borderWidth:1.8,pointRadius:0,tension:.12},
+  ];
+  if(MODE==='value') ds.push({label:'What you put in',data:inv.map(i=>i*1000),borderColor:'#8d8270',borderDash:[5,4],borderWidth:1.3,pointRadius:0});
+  const labels=rows.map(r=>r.date.slice(0,7));
+  const y=MODE==='value'
+    ?{type:'logarithmic',ticks:{callback:v=>{const k=[1e3,3e3,1e4,3e4,1e5,3e5,1e6,3e6,1e7,3e7,1e8];return k.includes(v)?'$'+(v>=1e6?(v/1e6)+'M':(v/1e3)+'k'):null},font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{color:'rgba(189,176,148,.25)'}}
+    :{type:'logarithmic',ticks:{callback:v=>{const k=[1,2,5,10,25,50,100,250,500,1000,2500];return k.includes(v)?v+'×':null},font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{color:'rgba(189,176,148,.25)'}};
+  if(chart)chart.destroy();
+  chart=new Chart(document.getElementById('eq'),{type:'line',data:{labels,datasets:ds},
+    options:{animation:false,responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>x.dataset.label+': '+(MODE==='mult'?(x.parsed.y==null?'—':x.parsed.y.toFixed(2)+'×'):'$'+Math.round(x.parsed.y).toLocaleString())}}},
+      scales:{y,x:{ticks:{maxTicksLimit:8,font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{display:false}}}}});
+}
+
+function rolling(){
+  const L={'3y':'3 years','5y':'5 years','10y':'10 years'};
+  const tb=document.querySelector('#rolltable tbody');tb.innerHTML='';
+  ['3y','5y','10y'].forEach(h=>{const r=DATA.rolling[h];
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td>${L[h]}</td><td>${r.windows}</td><td class="green">${FMT.pct0(r.beat_spy)}</td>`+
+      `<td class="${r.beat_qqq>=0.5?'green':'red'}">${FMT.pct0(r.beat_qqq)}</td>`+
+      `<td><b>${FMT.irr(r.med_strat)}</b></td><td>${FMT.irr(r.med_spy)}</td><td>${FMT.irr(r.med_qqq)}</td></tr>`);});
+}
+
+function eras(){
+  const tb=document.querySelector('#eratable tbody');tb.innerHTML='';
+  DATA.eras.forEach((e,i)=>{const ls=e.strat_irr-e.spy_irr, lq=e.strat_irr-e.qqq_irr;
+    tb.insertAdjacentHTML('beforeend',
+      `<tr${i===0?' class="hot"':''}><td>${e.era}</td><td><b>${FMT.irr(e.strat_irr)}</b></td>`+
+      `<td>${FMT.irr(e.spy_irr)}</td><td>${FMT.irr(e.qqq_irr)}</td>`+
+      `<td class="${ls>=0?'green':'red'}">${FMT.pct(ls)}</td>`+
+      `<td class="${lq>=0?'green':'red'}">${FMT.pct(lq)}</td></tr>`);});
+}
+
+function valpanels(){
+  const el=document.getElementById('valpanels');
+  el.innerHTML=DATA.validation.map(v=>{
+    const lq=v.strat_irr-v.qqq_irr, ls=v.strat_irr-v.spy_irr;
+    return `<div class="panel bad"><h3>${v.name} · ${v.window.replace(/-\d\d /g,' ').replace(/ \.\. /,' → ')}</h3>`+
+      `<div class="big">${FMT.irr(v.strat_irr)}<span style="font-size:13px;color:var(--t3)">/yr DCA</span></div>`+
+      `<p>vs S&P-DCA <b class="${ls>=0?'green':'red'}">${FMT.pct(ls)}</b> · vs QQQ-DCA <b class="${lq>=0?'green':'red'}">${FMT.pct(lq)}</b><br>`+
+      `<span style="color:var(--t3)">S&P ${FMT.irr(v.spy_irr)} · QQQ ${FMT.irr(v.qqq_irr)} per year</span></p></div>`;
+  }).join('');
+}
+
+fetch('crt_dca_data.json?v='+Date.now()).then(r=>r.json()).then(d=>{
+  DATA=d;
+  const tf=document.getElementById('tf');
+  ['3y','5y','10y','20y','all'].forEach(h=>{const b=document.createElement('button');b.textContent=h==='all'?'All':h.toUpperCase();b.dataset.tf=h;if(h===TF)b.classList.add('on');b.onclick=()=>{TF=h;[...tf.children].forEach(x=>x.classList.toggle('on',x.dataset.tf===h));buildChart();};tf.appendChild(b);});
+  document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{MODE=b.dataset.mode;document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x===b));buildChart();});
+  cards();rolling();eras();valpanels();buildChart();
+});
+</script>
+</body>
+</html>

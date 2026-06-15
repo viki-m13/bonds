@@ -11,6 +11,14 @@ trusting headline numbers.*
 **The best-validated DCA stock-picker reviewed so far** (genuinely good
 methodology hygiene), audited 2026-06-15. Live = "v5 / E2".
 
+> **Honest DCA factsheet (this repo):** an independent monthly-DCA reading of
+> CRT's *own* real PIT streams vs **both** S&P-DCA and QQQ-DCA — full period,
+> era-by-era (the front-loading reveal), and against a clean walk-forward
+> retrain — lives in [`crt_dca/`](crt_dca/README.md) with a live page at
+> `docs/crt_dca.html`. Headline: on the production stream it beats QQQ-DCA on
+> every horizon, but ~+120 pp/yr of that is the 2003–2009 era (fading to +6 pp
+> vs QQQ by 2021–2026), and a clean PIT retrain *loses* to QQQ-DCA by ~9–11 pp/yr.
+
 ### How it works
 - **Universe:** point-in-time S&P 500 (985 unique tickers across 2003–2026),
   membership-masked. Broader 1,833-ticker panel for pre-2003 / generalization.
