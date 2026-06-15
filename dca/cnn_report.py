@@ -58,10 +58,16 @@ def main():
     Srand = rng.random(Scnn.shape)
 
     rows = []
-    for label, Smat, k in [("CNN k=2", Scnn, 2), ("CNN k=3", Scnn, 3),
-                           ("CNN k=10", Scnn, 10),
-                           ("9-1 momentum k=3", Smom, 3),
-                           ("random k=3", Srand, 3)]:
+    entries = [("CNN k=2", Scnn, 2), ("CNN k=3", Scnn, 3),
+               ("CNN k=10", Scnn, 10)]
+    pt_path = os.path.join(HERE, "research", "patchtst_scores.parquet")
+    if os.path.exists(pt_path):
+        Spt = (pd.read_parquet(pt_path).reindex(index=fd.index, columns=fd.columns)
+               .to_numpy(float))
+        entries += [("PatchTST k=2", Spt, 2), ("PatchTST k=3", Spt, 3),
+                    ("PatchTST k=10", Spt, 10)]
+    entries += [("9-1 momentum k=3", Smom, 3), ("random k=3", Srand, 3)]
+    for label, Smat, k in entries:
         r = _win_grid(Smat, k, ACTIVE_START)
         rows.append((label, r))
         print(f"{label:20s} n={r['n']} win_qqq={r['win_qqq']:.0%} "

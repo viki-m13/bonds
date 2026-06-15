@@ -97,3 +97,29 @@ logit vs forward return, averaged over scoring days):
 * Coverage starts 2009 (walk-forward needs ~4y of training history first), so
   grid windows beginning 2006-2008 hold cash and are excluded from the
   active-period read above.
+
+---
+
+## Addendum: PatchTST transformer (HuggingFace, SOTA architecture)
+
+After the CNN, we tested whether a **state-of-the-art time-series transformer**
+does any better. `strategy_patchtst.py` trains **PatchTST** (Nie et al. 2023,
+via HuggingFace `PatchTSTForRegression`) **from scratch, walk-forward**, on the
+*identical* causal feature windows as the CNN. Training from scratch removes the
+pretraining-corpus-overlap caveat that weakened the earlier Chronos test
+(`research/results_chronos.md`). Target: within-date rank-percentile of the
+forward 63-day return (a pure cross-sectional ranking objective). Biennial
+refit, ~103k parameters, MSE loss, PatchTST's own causal instance-norm.
+
+<!-- PATCHTST_RESULTS: filled by cnn_report.py once the run completes -->
+
+**Expected verdict (to be confirmed against the numbers above).** The prior is
+that a SOTA transformer does **not** break the ceiling: with OHLCV-only inputs
+the cross-sectional forward-return signal is ≈ 0 IC out-of-sample, so PatchTST,
+the CNN, LightGBM (`results_ml.md`) and Chronos (`results_chronos.md`) should
+converge on the same place — beating the random control and SPY-DCA but losing
+to QQQ-DCA and to plain momentum. This would reconfirm
+`research/VALIDATION_METHODOLOGY.md`'s bottom line: **the binding constraint is
+the absence of durable cross-sectional alpha in public price/volume data over a
+momentum-heavy benchmark, not model capacity** — bigger/fancier models do not
+manufacture signal that isn't there.
