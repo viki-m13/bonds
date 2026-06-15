@@ -1,5 +1,13 @@
 # Literature & landscape review — signals for concentrated DCA stock selection
 
+> **⚠️ SUPERSEDED (2026-06-15).** This note's citations were "from memory" because the
+> original web-research agent stalled. A from-scratch, multi-source, fact-checked sweep with
+> **real primary-source citations and verified effect sizes** now lives in
+> **[`literature_review_cited.md`](literature_review_cited.md)** — use that as the
+> authoritative review. This file is retained for its **[panel]** cross-references (the
+> per-signal "our verdict" annotations tying each idea to our own `results_*.md` experiments),
+> which the cited review links back to.
+
 (Compiled from the canonical literature plus this project's own experiments;
 the original web-research agent stalled, so citations are from memory of the
 canonical papers — magnitudes are the commonly reported ones, and every

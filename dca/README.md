@@ -291,7 +291,11 @@ robust optimum; the only honest knobs left are optional, mild tail buffers
   `regime.py`, `audit.py`, `build_factsheet.py`, `update_summit.py`,
   `validate_final.py`, `download_pit_universe.py`, `RESEARCH_PROTOCOL.md`
 * **Research write-ups (`research/`):** `SUMMARY.md` (running narrative),
-  `literature_review.md`, `eda_parabolic.md`, `results_momentum.md`,
+  `literature_review_cited.md` (**authoritative**, fully-cited 2026 literature & evidence
+  review — DCA scheduling + security selection, with a scorecard of the literature vs SUMMIT's
+  own findings and a ranked list of honest untested directions),
+  `literature_review.md` (superseded, retained for its panel cross-refs),
+  `eda_parabolic.md`, `results_momentum.md`,
   `results_ram.md`, `results_vcb.md`, `results_volume.md`, `results_bear.md`,
   `results_ml.md`, `results_chronos.md`, `results_cadence.md`,
   `results_cadence_followup.md`, `results_universe.md`, `results_etf.md`,
