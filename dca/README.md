@@ -10,6 +10,16 @@ probing whether the strategy can be improved.
 This README is the authoritative, complete record. Detailed numbers for each
 study live in `research/results_*.md`; this document ties everything together.
 
+> **Before trusting any headline here, read
+> [`research/VALIDATION_METHODOLOGY.md`](research/VALIDATION_METHODOLOGY.md)** —
+> the independent-validation playbook. It shows how SUMMIT's published
+> 20.0×/93% was found to be ~half survivorship + recency (a faithful
+> survivorship-clean rebuild gives ~9.8× and a ~50% in-sample beat-rate), why
+> SUMMIT was retired from the cron, and the standing conclusion that no durable
+> stock-selection edge over QQQ-DCA survives out-of-sample. External strategies
+> (e.g. CRT / Daily Stock Guide) are dissected in
+> [`research/STRATEGY_NOTES_external.md`](research/STRATEGY_NOTES_external.md).
+
 ---
 
 ## 0. TL;DR

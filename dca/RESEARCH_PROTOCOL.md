@@ -4,6 +4,12 @@ Goal: a biweekly DCA strategy buying 1–5 stocks per period that beats DCA
 into QQQ **and** SPY in (approximately) **every** window of the evaluation
 grid — not just in aggregate.
 
+> **Validation first:** before believing any scorecard from this harness, apply
+> [`research/VALIDATION_METHODOLOGY.md`](research/VALIDATION_METHODOLOGY.md) —
+> the survivorship-clean / out-of-sample / QQQ-benchmark / recency-cutoff tests
+> that this in-repo harness does *not* fully enforce. Several strategies that
+> scored ≥90% win-vs-QQQ here did not survive those tests.
+
 ## Infrastructure (all in `/home/user/bonds/dca`)
 
 ```python
