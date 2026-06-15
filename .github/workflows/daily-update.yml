@@ -59,7 +59,7 @@ jobs:
         sed -i 's|/home/user/bonds|.|g' scripts/generate_dashboard_data.py
         REPO_ROOT=. python scripts/generate_dashboard_data.py
 
-    - name: Refresh SUMMIT + ROTATOR factsheets
+    - name: Refresh WAVE + ROTATOR factsheets
       run: python dca/update_summit.py
       continue-on-error: true
       env:

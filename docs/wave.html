@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f5efe2">
+<title>WAVE — Biweekly / Monthly Leadership Rotation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --paper:#f5efe2; --card:#fffdf7; --card2:#ebe2cf; --border:#d8cdb6;
+  --rule:#bdb094; --t1:#0e0a07; --t2:#5b4f3f; --t3:#8d8270;
+  --accent:#0f5f73; --accent2:#0e7490; --green:#15803d; --red:#b3331f;
+  --gold:#a16207; --qqq:#c2410c; --spy:#a16207;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Bricolage Grotesque',Helvetica,Arial,sans-serif;background:var(--paper);color:var(--t1);line-height:1.55;padding-bottom:70px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+header{padding:34px 0 6px}
+h1{font-family:'Instrument Serif',serif;font-size:clamp(40px,8vw,70px);font-weight:400;letter-spacing:.5px;line-height:1}
+h1 .peak{color:var(--accent)}
+.sub{color:var(--t2);font-size:clamp(15px,2.4vw,17px);max-width:760px;margin-top:12px}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:5px 13px;color:var(--t2);margin-bottom:14px;white-space:nowrap}
+@media(max-width:430px){.badge{letter-spacing:.4px;font-size:9.5px;padding:5px 11px}}
+h2{font-family:'Instrument Serif',serif;font-size:clamp(24px,4.5vw,30px);font-weight:400;margin:42px 0 6px;border-bottom:1px solid var(--rule);padding-bottom:8px}
+.lead{color:var(--t2);font-size:15px;margin:8px 0 14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px;margin:18px 0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 16px;box-shadow:0 4px 12px -7px rgba(14,10,7,.14)}
+.card .v{font-family:'JetBrains Mono',monospace;font-size:clamp(21px,4vw,26px);font-weight:600}
+.card .l{color:var(--t3);font-size:11px;text-transform:uppercase;letter-spacing:.7px;margin-top:3px;line-height:1.3}
+.green{color:var(--green)} .red{color:var(--red)} .accent{color:var(--accent)}
+
+/* ---- action / buy panel ---- */
+.act{background:var(--card);border:1px solid var(--border);border-left:5px solid var(--accent);border-radius:14px;padding:20px 22px;margin:8px 0 6px;box-shadow:0 8px 24px -14px rgba(14,10,7,.3)}
+.act .k{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--t3)}
+.act .buy{display:flex;flex-wrap:wrap;align-items:baseline;gap:14px;margin:6px 0 4px}
+.act .tk{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:var(--accent);letter-spacing:1px}
+.act .reg{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t2);background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:3px 11px}
+.act .how{color:var(--t2);font-size:14.5px;margin-top:2px}
+.sched{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+@media(max-width:560px){.sched{grid-template-columns:1fr}}
+.sbox{background:var(--paper);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.sbox h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);margin-bottom:7px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:1px 10px}
+.sbox h4 span{color:var(--t3);font-weight:400;letter-spacing:0;font-size:10px}
+.sbox .d{font-family:'JetBrains Mono',monospace;font-size:13.5px;color:var(--t1);padding:2px 0}
+.sbox .d.next{font-weight:600;color:var(--accent)}
+.tiny{font-size:12px;color:var(--t3);margin-top:8px}
+
+/* ---- holdings ---- */
+.holds{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin:6px 0}
+.hrow{display:flex;align-items:center;gap:10px;margin:5px 0;font-family:'JetBrains Mono',monospace;font-size:13px}
+.hrow .ht{width:62px;font-weight:600}
+.hrow .hb{flex:1;height:14px;background:var(--card2);border-radius:4px;overflow:hidden}
+.hrow .hb i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px}
+.hrow .hp{width:52px;text-align:right;color:var(--t2)}
+.trimstats{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 2px}
+.chip{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 11px;color:var(--t2)}
+.chip b{color:var(--t1)} .chip.g b{color:var(--green)} .chip.r b{color:var(--red)}
+@media(max-width:480px){
+  td,th{padding:7px 6px;font-size:12px}
+  #postable td:first-child,#postable th:first-child{padding-left:10px}
+  #postable td:last-child,#postable th:last-child{padding-right:11px}
+}
+
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:14px;margin:12px 0}
+.tablescroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
+th{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--t2);background:var(--card2);text-align:right;padding:9px 11px;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td{padding:8px 11px;border-top:1px solid var(--border);text-align:right;font-family:'JetBrains Mono',monospace;font-size:13px;white-space:nowrap}
+td:first-child{font-family:'Bricolage Grotesque',sans-serif}
+tr.best td{background:rgba(15,95,115,.06)}
+.chartwrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 14px 6px;margin:12px 0}
+.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center}
+.controls .grp{display:flex;gap:4px;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:3px}
+.controls button{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;border:none;background:transparent;color:var(--t2);padding:5px 10px;border-radius:6px;cursor:pointer;transition:all .15s}
+.controls button.on{background:var(--accent);color:#fff}
+.controls .sp{flex:1}
+.chartbox{position:relative;height:340px}
+@media(max-width:640px){.chartbox{height:300px}}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--t2);padding:2px 4px 8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+p{margin:10px 0;color:var(--t2)} p strong{color:var(--t1)}
+ul{margin:8px 0 8px 20px;color:var(--t2)} li{margin:5px 0}
+.note{background:var(--card2);border-left:3px solid var(--gold);border-radius:6px;padding:12px 15px;font-size:13.5px;color:var(--t2);margin:16px 0}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px;margin:16px 0}
+.rule-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.rule-card h3{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
+.rule-card p{font-size:14px;margin:5px 0}
+a{color:var(--accent)}
+footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var(--rule);padding-top:16px}
+/* ---- centered / symmetric layout ---- */
+header{text-align:center}
+.sub{margin-left:auto;margin-right:auto}
+h2{text-align:center}
+.lead{text-align:center;max-width:720px;margin-left:auto;margin-right:auto}
+.card{text-align:center}
+.act{text-align:center;border-left:1px solid var(--border);border-top:4px solid var(--accent)}
+.act .k{letter-spacing:.8px}
+#a-asof{white-space:nowrap}
+.act .buy{justify-content:center}
+.sbox{text-align:center}
+.sbox h4{justify-content:center}
+.trimstats{justify-content:center}
+.tiny{text-align:center}
+.controls{justify-content:center}
+.controls .sp{display:none}
+.legend{justify-content:center}
+.rule-card{text-align:center}
+ul{list-style:none;padding:0;max-width:760px;margin:8px auto;text-align:center}
+.note{text-align:center;max-width:760px;margin-left:auto;margin-right:auto;border-left:1px solid var(--gold);border-top:3px solid var(--gold)}
+footer{text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="badge">Biweekly or monthly · large-cap leaders · rotates</div>
+  <h1>WA<span class="peak">VE</span></h1>
+  <div class="sub">A momentum-rotation plan for steady investors: every two weeks (or once a month), put your contribution into the <strong>three strongest large-cap leaders</strong> the model picks, hold each while it stays a leader, <strong>sell it when it fades</strong>, and step aside to cash when the market turns down. Below is exactly what to buy, what you'd be holding, and how it has done.</div>
+</header>
+
+<!-- ===== ACTION: what & when to buy ===== -->
+<h2>What to buy now</h2>
+<div class="act">
+  <div class="k">This period's pick · <span id="a-asof">—</span></div>
+  <div class="buy"><span class="tk" id="a-picks">— · —</span><span class="reg" id="a-reg">—</span></div>
+  <div class="how">Split your contribution <strong>equally</strong> across the names above and buy at the next market open. Each rebalance also sells any holding that has dropped out of the leaders.</div>
+  <div class="sched">
+    <div class="sbox">
+      <h4>If you invest monthly <span>1st of each month</span></h4>
+      <div id="sched-monthly"></div>
+    </div>
+    <div class="sbox">
+      <h4>If you invest biweekly <span>1st &amp; 15th</span></h4>
+      <div id="sched-biweekly"></div>
+    </div>
+  </div>
+  <div class="tiny">Dates are the calendar 1st/15th; if the market is closed that day, buy at the next open. The pick refreshes every trading day after the close — check back before each buy.</div>
+</div>
+
+<!-- ===== headline numbers ===== -->
+<div class="cards" id="cards">
+  <div class="card"><div class="v" id="c-itd">—</div><div class="l">grew to, per $1 invested since 2006</div></div>
+  <div class="card"><div class="v" id="c-irr">—</div><div class="l">return per year (IRR)</div></div>
+  <div class="card"><div class="v green" id="c-winq">—</div><div class="l">of all start dates beat QQQ</div></div>
+  <div class="card"><div class="v green" id="c-wins">—</div><div class="l">beat the S&amp;P 500 (SPY)</div></div>
+  <div class="card"><div class="v" id="c-med">—</div><div class="l">typical lead over QQQ</div></div>
+  <div class="card"><div class="v red" id="c-worst">—</div><div class="l">worst it ever lagged QQQ</div></div>
+</div>
+
+<!-- ===== holdings ===== -->
+<h2>What you'd be holding</h2>
+<div class="lead">WAVE holds the current leaders and sells names that fall out of the top tier, so the book stays concentrated in what is working now — <strong id="h-count">—</strong> names. Pick how long ago you'd have started:</div>
+<div class="controls"><div class="grp" id="holdtf"></div><div class="sp"></div><div class="grp" id="trimtoggle"></div></div>
+<div class="holds" id="holds"></div>
+<div class="trimstats" id="trimstats"></div>
+<div class="tiny" id="trim-note">Trim (optional, on the full history): sell just the slice of any holding above a cap once a year and redeploy it — caps single-name risk at little cost, and stays tax-light.</div>
+
+<!-- ===== open positions / P&L ===== -->
+<h2>Open positions &amp; profit / loss</h2>
+<div class="lead">The model's book — every name it currently holds, with each position's gain or loss. Pick how long ago you'd have started. <strong id="pnl-summary"></strong></div>
+<div class="controls"><div class="grp" id="postf"></div></div>
+<div class="tablescroll">
+<table id="postable">
+<thead><tr><th>stock</th><th>since</th><th>weight</th><th>value</th><th>return</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+<div class="tiny" id="pos-note"></div>
+
+<!-- ===== chart ===== -->
+<h2>How it has grown</h2>
+<div class="chartwrap">
+  <div class="controls">
+    <div class="grp" id="tf"></div>
+    <div class="sp"></div>
+    <div class="grp" id="mode">
+      <button data-mode="mult" class="on">× growth</button>
+      <button data-mode="value">$ value</button>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i style="background:#0f5f73"></i>WAVE</span>
+    <span><i style="background:#c2410c"></i>QQQ</span>
+    <span><i style="background:#a16207"></i>S&amp;P 500</span>
+    <span><i style="background:#8d8270"></i>What you put in</span>
+  </div>
+  <div class="chartbox"><canvas id="eq"></canvas></div>
+</div>
+<p style="font-size:12.5px;color:var(--t3)"><b>× growth</b> = how many times your money grew (every line starts at 1). <b>$ value</b> = dollars if you put in $1,000 each buy, log scale. All three lines use the same schedule and costs.</p>
+
+<!-- ===== returns table ===== -->
+<h2>Returns by start date</h2>
+<div class="lead">If you'd started this plan N years ago and run it until today: how many times your money grew, the yearly return (IRR), and the same for QQQ and the S&amp;P 500.</div>
+<div class="tablescroll">
+<table id="rettable">
+<thead><tr><th>if you started</th><th>WAVE ×</th><th>per year</th><th>QQQ ×</th><th>S&amp;P ×</th><th>WAVE lead vs QQQ</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- ===== calendar year ===== -->
+<h2>Year-by-year</h2>
+<div class="lead">How the portfolio grew each calendar year (after that year's new contributions), next to QQQ and the S&amp;P 500.</div>
+<div class="tablescroll">
+<table id="yeartable">
+<thead><tr><th>year</th><th>WAVE</th><th>QQQ</th><th>S&amp;P 500</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- ===== cadence ===== -->
+<h2>Biweekly or monthly?</h2>
+<div class="lead">You'll invest either every two weeks or once a month — and it barely matters. Both give almost the same result, so just pick whatever matches your paycheck. (We also tested weekly and daily; all four land in the same place.)</div>
+<div class="tablescroll">
+<table id="cadtable">
+<thead><tr><th>how often you buy</th><th>beat QQQ</th><th>typical lead vs QQQ</th><th>worst vs QQQ</th><th>grew to (since 2006)</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- ===== win rate ===== -->
+<h2>How reliable is it?</h2>
+<div class="lead">Across every possible start date, how often each holding length beat QQQ and the S&amp;P 500 — and the worst it ever did versus QQQ.</div>
+<div class="tablescroll">
+<table id="wintable">
+<thead><tr><th>if you held for</th><th>start dates</th><th>beat QQQ</th><th>beat S&amp;P</th><th>typical lead vs QQQ</th><th>worst vs QQQ</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- ===== regimes ===== -->
+<h2>Through every kind of market</h2>
+<div class="lead">How WAVE did across eight major market periods — crashes, recoveries, bulls and bears.</div>
+<div class="tablescroll">
+<table id="regtable">
+<thead><tr><th>market period</th><th>grew</th><th>vs QQQ</th><th>vs S&amp;P 500</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- ===== rules ===== -->
+<h2>The rules, in plain English</h2>
+<div class="rules">
+  <div class="rule-card"><h3>1 · Leadership score</h3>
+    <p>Each stock is scored by its 3- and 6-month return, multiplied by how steadily it rose (the share of up-weeks over six months). Strong <em>and</em> steady beats strong alone.</p></div>
+  <div class="rule-card"><h3>2 · Skip the lottery tickets</h3>
+    <p>Any name with an unusually large one-day pop in the last month (top 5% of the market) is skipped on buys — those spikes tend to fade.</p></div>
+  <div class="rule-card"><h3>3 · Hold the top 3, sell laggards</h3>
+    <p>Buy the three strongest leaders, equal weight. Keep a holding while it stays in the top 8; once it falls below, sell it at the next open and rotate into a current leader.</p></div>
+  <div class="rule-card"><h3>4 · Step aside in bears</h3>
+    <p>If the S&amp;P 500 closes below its 210-day average, go fully to cash; step back in at the first rebalance after it recovers. Biweekly or monthly buys, at the next open.</p></div>
+</div>
+
+<!-- ===== validation ===== -->
+<h2>Why you can trust the numbers</h2>
+<ul>
+  <li><strong>No hindsight.</strong> The model only ever uses data available before each trade, and we verified this by re-running with the future deleted — zero difference.</li>
+  <li><strong>No survivorship cheating.</strong> It uses the real point-in-time large-cap membership at each date, including companies that later failed or were dropped.</li>
+  <li><strong>Out-of-sample.</strong> The rules were fixed on pre-2018 history; the recent years are reported separately, not tuned on.</li>
+  <li><strong>Robust.</strong> Holds up across trading-cost assumptions, schedule starts, and whether you buy biweekly or monthly.</li>
+</ul>
+<div class="note"><strong>Caveats.</strong> Free price data is missing some companies delisted before ~2015, which can flatter older results a little — treat the long-run numbers as a touch optimistic. The book is concentrated in a few leaders, so it can swing hard, and because it rotates (sells laggards, steps to cash in bears) it creates turnover — in a taxable account that means taxes the backtest doesn't model. Past performance doesn't guarantee future results. This is not investment advice.</div>
+
+<footer>WAVE · buy biweekly or monthly · large-cap point-in-time · all figures refresh automatically each day after market close · research in <code>dca/</code></footer>
+</div>
+
+<script>
+const FMT = {
+  pct:v=> (v==null||isNaN(v))?'—':(v>=0?'+':'')+(v*100).toFixed(1)+'%',
+  pct0:v=> (v==null||isNaN(v))?'—':Math.round(v*100)+'%',
+  mult:v=> (v==null||isNaN(v))?'—':v.toFixed(2)+'×',
+  mult1:v=> (v==null||isNaN(v))?'—':v.toFixed(1)+'×',
+};
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function fmtDate(d){return DOW[d.getDay()]+' '+MONTHS[d.getMonth()]+' '+d.getDate();}
+
+function buildSchedule(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  // monthly: 1st of upcoming months
+  const monthly=[]; let m=new Date(today.getFullYear(),today.getMonth(),1);
+  while(monthly.length<5){ if(m>=today) monthly.push(new Date(m)); m=new Date(m.getFullYear(),m.getMonth()+1,1); }
+  // biweekly: 1st & 15th
+  const bi=[];
+  for(let i=0;i<6 && bi.length<5;i++){
+    const base=new Date(today.getFullYear(),today.getMonth()+i,1);
+    [1,15].forEach(day=>{const d=new Date(base.getFullYear(),base.getMonth(),day); if(d>=today && bi.length<5) bi.push(d);});
+  }
+  const render=(el,arr)=>{document.getElementById(el).innerHTML=arr.map((d,i)=>
+    `<div class="d${i===0?' next':''}">${i===0?'▸ ':'  '}${fmtDate(d)}${i===0?'  (next)':''}</div>`).join('');};
+  render('sched-monthly',monthly); render('sched-biweekly',bi);
+}
+
+let CURVES=null, MODE='mult', TF='ITD', chart=null;
+function buildChart(){
+  const c=CURVES.curves[TF], inv=c.invested;
+  const tf=MODE==='mult'?(a)=>a.map((v,i)=>inv[i]>0?v/inv[i]:null):(a)=>a;
+  const ds=[
+    {label:'WAVE',data:tf(c.summit),borderColor:'#0f5f73',backgroundColor:'rgba(15,95,115,.08)',borderWidth:2.6,fill:MODE==='mult'?'origin':false,pointRadius:0,tension:.12},
+    {label:'QQQ',data:tf(c.qqq),borderColor:'#c2410c',borderWidth:1.8,pointRadius:0,tension:.12},
+    {label:'S&P 500',data:tf(c.spy),borderColor:'#a16207',borderWidth:1.8,pointRadius:0,tension:.12},
+  ];
+  if(MODE==='value') ds.push({label:'What you put in',data:c.invested,borderColor:'#8d8270',borderDash:[5,4],borderWidth:1.3,pointRadius:0});
+  const y=MODE==='value'
+    ?{type:'logarithmic',ticks:{callback:v=>{const k=[1e4,3e4,1e5,3e5,1e6,3e6,1e7,3e7];return k.includes(v)?'$'+(v>=1e6?(v/1e6)+'M':(v/1e3)+'k'):null},font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{color:'rgba(189,176,148,.25)'}}
+    :{ticks:{callback:v=>v.toFixed(1)+'×',font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{color:'rgba(189,176,148,.25)'}};
+  if(chart)chart.destroy();
+  chart=new Chart(document.getElementById('eq'),{type:'line',data:{labels:c.dates,datasets:ds},
+    options:{animation:false,responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>x.dataset.label+': '+(MODE==='mult'?(x.parsed.y==null?'—':x.parsed.y.toFixed(2)+'×'):'$'+Math.round(x.parsed.y).toLocaleString())}}},
+      scales:{y,x:{ticks:{maxTicksLimit:8,font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{display:false}}}}});
+}
+
+const REGLABEL={GFC_2007_2009:'Financial crisis 2007–09',recovery_2009_2012:'Recovery 2009–12',bull_2013_2017:'Bull market 2013–17',sideways_2015_2016:'Flat 2015–16',vol_2018:'Volatile 2018–19',covid_2020:'COVID 2020–21',bear_2022:'Bear market 2022',ai_bull_2023_2026:'AI boom 2023–26'};
+const HLABEL={'3':'3 years','5':'5 years','10':'10 years','end':'until today'};
+const CADLABEL={biweekly:'Every 2 weeks',monthly:'Once a month',weekly:'Every week',daily:'Every day'};
+
+function renderReturns(R){
+  const tb=document.querySelector('#rettable tbody'); tb.innerHTML='';
+  const L={ITD:'in 2006','10y':'10 years ago','7y':'7 years ago','5y':'5 years ago','3y':'3 years ago','1y':'1 year ago'};
+  R.table.forEach(r=>{const ex=r.strat_mult/r.qqq_mult-1;
+    tb.insertAdjacentHTML('beforeend',`<tr><td>${L[r.horizon]||r.horizon}</td><td><b>${FMT.mult(r.strat_mult)}</b></td><td>${FMT.pct(r.strat_irr)}</td><td>${FMT.mult(r.qqq_mult)}</td><td>${FMT.mult(r.spy_mult)}</td><td class="${ex>=0?'green':'red'}">${FMT.pct(ex)}</td></tr>`);});
+  const yt=document.querySelector('#yeartable tbody'); yt.innerHTML='';
+  const cl=v=>(v==null||isNaN(v))?'':(v>=0?'green':'red');
+  R.years.slice().reverse().forEach(y=>tb&&yt.insertAdjacentHTML('beforeend',`<tr><td>${y.year}</td><td class="${cl(y.summit)}">${FMT.pct(y.summit)}</td><td class="${cl(y.qqq)}">${FMT.pct(y.qqq)}</td><td class="${cl(y.spy)}">${FMT.pct(y.spy)}</td></tr>`));
+  if(R.cadence){const ct=document.querySelector('#cadtable tbody'); ct.innerHTML='';
+    ['biweekly','monthly','weekly','daily'].forEach(c=>{const v=R.cadence[c]; if(!v)return;
+      const hl=(c==='biweekly'||c==='monthly')?' class="best"':'';
+      ct.insertAdjacentHTML('beforeend',`<tr${hl}><td>${CADLABEL[c]}</td><td>${FMT.pct0(v.win_qqq)}</td><td class="green">${FMT.pct(v.med_vs_qqq)}</td><td class="red">${FMT.pct(v.worst_vs_qqq)}</td><td>${FMT.mult1(v.full_mult)}</td></tr>`);});}
+  if(R.winrate){const wt=document.querySelector('#wintable tbody'); wt.innerHTML='';
+    ['3','5','10','end'].forEach(h=>{const v=R.winrate[h]; if(!v)return;
+      const b=(h==='10'||h==='end')?' class="best"':'';
+      wt.insertAdjacentHTML('beforeend',`<tr${b}><td>${HLABEL[h]}</td><td>${v.n}</td><td><b>${FMT.pct0(v.win_qqq)}</b></td><td>${FMT.pct0(v.win_spy)}</td><td class="green">${FMT.pct(v.med_vs_qqq)}</td><td class="${v.worst_vs_qqq>=0?'green':'red'}">${FMT.pct(v.worst_vs_qqq)}</td></tr>`);});}
+  if(R.regimes){const rt=document.querySelector('#regtable tbody'); rt.innerHTML='';
+    Object.keys(REGLABEL).forEach(k=>{const v=R.regimes[k]; if(!v)return;
+      rt.insertAdjacentHTML('beforeend',`<tr><td>${REGLABEL[k]}</td><td>${FMT.mult(v.mult)}</td><td class="${v.vs_qqq>=0?'green':'red'}">${FMT.pct(v.vs_qqq)}</td><td class="${v.vs_spy>=0?'green':'red'}">${FMT.pct(v.vs_spy)}</td></tr>`);});}
+}
+
+let TRIM=null, TRIMSEL='none', POS=null, POSTF='ITD', HOLDTF='ITD';
+const TFLABEL={ITD:'All','10y':'10Y','7y':'7Y','5y':'5Y','3y':'3Y','1y':'1Y'};
+function money(v){
+  if(v>=1e6) return '$'+(v/1e6).toFixed(2)+'M';
+  if(v>=1e3) return '$'+(v/1e3).toFixed(0)+'k';
+  return '$'+Math.round(v);
+}
+function yr(s){ return s? s.slice(0,4) : '—'; }
+
+function tfButtons(elId, sel, onpick){
+  const el=document.getElementById(elId); el.innerHTML='';
+  (POS?Object.keys(TFLABEL).filter(h=>POS[h]):['ITD']).forEach(h=>{
+    const b=document.createElement('button'); b.textContent=TFLABEL[h]; b.dataset.h=h;
+    if(h===sel()) b.classList.add('on');
+    b.onclick=()=>{onpick(h);[...el.children].forEach(x=>x.classList.toggle('on',x.dataset.h===h));};
+    el.appendChild(b);
+  });
+}
+
+function renderPositions(){
+  const pb=POS&&POS[POSTF]; if(!pb) return;
+  const p=pb.pnl, tot=p.total_value;
+  document.getElementById('pnl-summary').innerHTML=
+    `Put in ${money(p.total_invested)} → now worth <span class="green">${money(p.total_value)}</span> `+
+    `(<span class="green">${FMT.pct0(p.total_gain_pct)}</span>) across ${p.n} positions.`;
+  const tb=document.querySelector('#postable tbody'); tb.innerHTML='';
+  pb.positions.slice(0,25).forEach(x=>{
+    const w=x.value/tot, g=x.gain_pct, cls=g>=0?'green':'red';
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td><b>${x.ticker}</b></td><td>${yr(x.since)}</td><td>${(w*100).toFixed(1)}%</td>`+
+      `<td>${money(x.value)}</td><td class="${cls}">${FMT.pct0(g)}</td></tr>`);
+  });
+  const rest=pb.positions.slice(25), rv=rest.reduce((a,x)=>a+x.value,0);
+  document.getElementById('pos-note').textContent= rest.length
+    ? `+ ${rest.length} more smaller positions (${(rv/tot*100).toFixed(0)}% of the book). Dollar figures are the model's paper book — they scale with how long you run it; the gain/loss % is per position.`
+    : `Dollar figures are the model's paper book; the gain/loss % is per position.`;
+}
+
+function renderBars(items){
+  const top=items.slice(0,12), max=top[0].pct, el=document.getElementById('holds');
+  el.innerHTML=top.map(h=>`<div class="hrow"><span class="ht">${h.ticker}</span><span class="hb"><i style="width:${(h.pct/max*100).toFixed(1)}%"></i></span><span class="hp">${(h.pct*100).toFixed(1)}%</span></div>`).join('')
+    + (items.length>12?`<div class="tiny">+ ${items.length-12} smaller positions</div>`:'');
+}
+function renderHolds(){
+  const tg=document.getElementById('trimtoggle');
+  const note=document.getElementById('trim-note');
+  if(HOLDTF==='ITD' && TRIM){               // full history: trim what-if available
+    tg.style.display=''; note.style.display='';
+    const v=TRIM[TRIMSEL]; renderBars(v.holdings);
+    document.getElementById('h-count').textContent=v.n;
+    const capM=v.label.match(/(\d+)%/), capTxt=capM?`limited to ${capM[1]}%`:'no limit';
+    document.getElementById('trimstats').innerHTML=
+      `<span class="chip">biggest stock <b>${(v.top_weight*100).toFixed(0)}%</b> · ${capTxt}</span>`+
+      `<span class="chip g">beats QQQ <b>${FMT.pct0(v.win_qqq)}</b> of the time</span>`+
+      `<span class="chip g">typical lead <b>${FMT.pct(v.med_vs_qqq)}</b></span>`+
+      `<span class="chip r">worst <b>${FMT.pct(v.worst_vs_qqq)}</b></span>`+
+      `<span class="chip">grew to <b>${v.full_mult.toFixed(1)}×</b></span>`;
+  } else {                                   // shorter start: that book's holdings
+    tg.style.display='none'; note.style.display='none';
+    const pb=POS[HOLDTF], tot=pb.positions.reduce((a,x)=>a+x.value,0);
+    renderBars(pb.positions.map(x=>({ticker:x.ticker,pct:x.value/tot})));
+    document.getElementById('h-count').textContent=pb.pnl.n;
+    document.getElementById('trimstats').innerHTML=
+      `<span class="chip">biggest stock <b>${(pb.positions[0].value/tot*100).toFixed(0)}%</b></span>`+
+      `<span class="chip">grew to <b>${(pb.pnl.total_value/pb.pnl.total_invested).toFixed(1)}×</b></span>`+
+      `<span class="chip g">gain <b>${FMT.pct0(pb.pnl.total_gain_pct)}</b></span>`;
+  }
+}
+function setupTrim(variants,nPos){
+  TRIM={}; variants.forEach(v=>TRIM[v.id]=v);
+  const tg=document.getElementById('trimtoggle'); tg.innerHTML='';
+  variants.forEach(v=>{const b=document.createElement('button');b.textContent=v.label;b.dataset.id=v.id;
+    if(v.id===TRIMSEL)b.classList.add('on');
+    b.onclick=()=>{TRIMSEL=v.id;[...tg.children].forEach(x=>x.classList.toggle('on',x.dataset.id===v.id));renderHolds();};
+    tg.appendChild(b);});
+}
+
+Promise.all([
+  fetch('wave_data.json').then(r=>r.json()),
+  fetch('wave_returns.json').then(r=>r.json()).catch(()=>null),
+  fetch('wave_signal.json').then(r=>r.json()).catch(()=>null),
+]).then(([data,returns,signal])=>{
+  CURVES=data;
+  buildSchedule();
+  const tf=document.getElementById('tf');
+  data.horizons.forEach(h=>{const b=document.createElement('button');b.textContent=h==='ITD'?'All':h.toUpperCase();b.dataset.tf=h;if(h===TF)b.classList.add('on');b.onclick=()=>{TF=h;[...tf.children].forEach(x=>x.classList.toggle('on',x.dataset.tf===h));buildChart();};tf.appendChild(b);});
+  document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{MODE=b.dataset.mode;document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x===b));buildChart();});
+  if(data.headline){document.getElementById('c-itd').textContent=data.headline.itd_mult.toFixed(1)+'×';document.getElementById('c-irr').textContent=Math.round(data.headline.itd_irr*100)+'%/yr';}
+  if(returns&&returns.cadence){const bw=returns.cadence.biweekly;
+    document.getElementById('c-winq').textContent=FMT.pct0(bw.win_qqq);
+    document.getElementById('c-wins').textContent=FMT.pct0(bw.win_spy);
+    document.getElementById('c-med').textContent=FMT.pct(bw.med_vs_qqq);
+    document.getElementById('c-worst').textContent=FMT.pct(bw.worst_vs_qqq);}
+  if(signal){
+    document.getElementById('a-asof').textContent='as of '+signal.as_of;
+    document.getElementById('a-picks').textContent=signal.picks.join('  ·  ');
+    document.getElementById('a-reg').textContent=signal.regime;
+  }
+  if(signal&&signal.positions_by_horizon){
+    POS=signal.positions_by_horizon;
+    tfButtons('postf',()=>POSTF,h=>{POSTF=h;renderPositions();});
+    renderPositions();
+  }
+  if(returns&&returns.trim) setupTrim(returns.trim, signal?signal.n_positions:returns.trim[0].n);
+  tfButtons('holdtf',()=>HOLDTF,h=>{HOLDTF=h;renderHolds();});
+  renderHolds();
+  if(returns) renderReturns(returns);
+  buildChart();
+});
+</script>
+</body>
+</html>

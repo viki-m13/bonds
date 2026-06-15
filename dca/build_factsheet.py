@@ -146,6 +146,8 @@ def _extras(P, cfg, full_res):
     # optional concentration-trim variants (no-cap default + annual caps)
     wins, bench = protocol._bench_grid(10, 0, 1000.0, cfg["cost_bps"])
     Snp = scores.reindex(index=fd.index, columns=fd.columns).to_numpy(float)
+    sell_np = (sell.reindex(index=fd.index, columns=fd.columns)
+               .fillna(False).to_numpy(bool) if sell is not None else None)
 
     def variant(vid, label, cap, period):
         vq, vs, full = [], [], None
@@ -154,6 +156,7 @@ def _extras(P, cfg, full_res):
                 continue
             _, vals, inv = fast.run_fast(fd, Snp, k=cfg["k"], every=10,
                                          start=s, end=e, cost_bps=cfg["cost_bps"],
+                                         sell=sell_np,
                                          trim_cap=cap, trim_period=period)
             if inv[0] <= 0:
                 continue
@@ -165,6 +168,7 @@ def _extras(P, cfg, full_res):
         vq, vs = np.array(vq), np.array(vs)
         _, _, _, hold = fast.run_fast(fd, Snp, k=cfg["k"], every=10,
                                       start=ANCHOR, cost_bps=cfg["cost_bps"],
+                                      sell=sell_np,
                                       trim_cap=cap, trim_period=period,
                                       return_holdings=True)
         t2 = sum(x for x in hold.values() if x == x and x > 0)
@@ -319,13 +323,27 @@ def rotator_cfg():
                                  else "INVESTED (top-3 leaders)")}
 
 
+def wave_cfg():
+    """The WAVE strategy (the ROTATOR leadership-rotation engine) rendered
+    through the FULL extras pipeline, so docs/wave.html carries every section
+    the SUMMIT page has — win-rate, regimes, cadence, holdings, positions,
+    concentration trims — for the wave strategy."""
+    import strategy_rotator as R
+    return {"prefix": "wave", "k": 3, "cost_bps": 10, "extras": True,
+            "scores": R.build_scores, "sell": R.build_sell,
+            "next_label": "holding",
+            "regime": lambda P: ("CASH (SPY below 210dma)"
+                                 if bool(R._spy_bear(P["close"].index).iloc[-1])
+                                 else "INVESTED (top-3 leaders)")}
+
+
 # back-compat shim for update_summit.py
 def build_factsheet(P=None, write=True):
     return build(summit_cfg(), P=P, write=write)
 
 
 if __name__ == "__main__":
-    for cfg in (summit_cfg(), rotator_cfg()):
+    for cfg in (summit_cfg(), rotator_cfg(), wave_cfg()):
         d, r, s = build(cfg)
         print(f"[{cfg['prefix']}] {s['regime']} picks={s['picks']}")
         for row in r["table"]:
