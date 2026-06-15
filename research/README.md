@@ -41,6 +41,7 @@ capacity, tail risk, decay, and data-snooping/overfitting/survivorship/smoothing
 | [`09-event-driven-ml-intraday.md`](09-event-driven-ml-intraday.md) | **Phase 2 supplement** — event-driven micro-edges (index rebalance, PEAD, earnings premium, merger arb, SPAC arb) and ML limit-order-book intraday alpha; all decayed-to-0 or thin (~0.3–0.6), none reach 5 |
 | [`10-tailhedged-shortvol-crypto-basis.md`](10-tailhedged-shortvol-crypto-basis.md) | **Phase 2 supplement** — can risk-managed/tail-hedged short-vol or crypto basis "fix the tail" into a high Sharpe? No: tail hedges *lower* Sharpe (PUT 0.65→PPUT 0.33); honest nets ~0.8–1.0 and ~1.0–1.8 with correlated left tails |
 | [`11-niches-amateur-deep-dig.md`](11-niches-amateur-deep-dig.md) | **Phase 3** — deep dig into niches & amateur work: professional betting/prediction markets (where Sharpe>5 is genuinely REAL but tiny-capacity), accessible market-making (~2–4), fixed-income "infinite" paper arbitrages (~0.6 real), calendar/overnight anomalies, and code-level validation of amateur GitHub/Kaggle backtests (every clean-looking >3 had a bug) |
+| [`12-fintwit-screenshot-candidates.md`](12-fintwit-screenshot-candidates.md) | **Phase 3 supplement** — validation of specific X/Twitter-screenshot papers: Factor MAX (net ~0.3–0.6; the chart "2.2" is cumulative return, not Sharpe), X-Trend few-shot trend (gross ~2.7, "5×/10×" is a base-effect artifact, costs set to 0), insider-trading theory (no Sharpe), and the already-covered Zarattini intraday paper |
 
 ---
 
