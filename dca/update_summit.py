@@ -130,7 +130,8 @@ def main():
         print("recent refresh failed, using frozen panel:", e)
         P = frozen
     print("panel now through", P["close"].index[-1].date())
-    for cfg in (build_factsheet.summit_cfg(), build_factsheet.rotator_cfg()):
+    for cfg in (build_factsheet.summit_cfg(), build_factsheet.rotator_cfg(),
+                build_factsheet.wave_cfg()):
         _, r, s = build_factsheet.build(cfg, P=P, write=True)
         print(f"[{cfg['prefix']}] {s['regime']} picks={s['picks']} | "
               f"ITD {r['table'][0]['strat_mult']:.2f}x vs QQQ "
