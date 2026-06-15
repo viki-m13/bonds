@@ -1,0 +1,6 @@
+# In addition to the repo root requirements.txt (pandas, numpy, scipy, scikit-learn):
+# CPU torch — install first from the PyTorch index:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.2
+chronos-forecasting>=2.2
+pyarrow>=14
