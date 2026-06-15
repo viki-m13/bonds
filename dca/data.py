@@ -54,6 +54,18 @@ def build_panel(force: bool = False) -> dict:
     paths = {f: os.path.join(PIT_DIR, f"panel_{f}.parquet") for f in fields + ["member"]}
     if not force and all(os.path.exists(p) for p in paths.values()):
         return {f: pd.read_parquet(p) for f, p in paths.items()}
+    # Fallback: the per-field parquets and raw price CSVs are gitignored, but
+    # the committed frozen panel (summit_panel.parquet, a (field, ticker)
+    # MultiIndex with open/close/volume/member) is enough to run the harness in
+    # a fresh checkout. High/Low are unused downstream, so alias them to Close.
+    frozen = os.path.join(PIT_DIR, "summit_panel.parquet")
+    if not force and os.path.exists(frozen):
+        big = pd.read_parquet(frozen)
+        have = set(big.columns.get_level_values(0))
+        out = {f: (big[f].copy() if f in have else big["close"].copy())
+               for f in fields}
+        out["member"] = big["member"].astype(bool)
+        return out
 
     frames = {f: {} for f in fields}
     for fn in sorted(os.listdir(PRICE_DIR)):
