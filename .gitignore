@@ -23,3 +23,6 @@ data/crypto_1min/
 
 # fetched Coinbase hourly, reproducible via crypto_pulse/fetch (see intraday.py)
 data/crypto_hourly_cb/
+
+# recorded HL L2 (forward data, reproducible via crypto_pulse/record_l2.py)
+data/hl_l2/
