@@ -68,22 +68,16 @@ def main():
               f"win_spy={r['win_spy']:.0%} med_vs_qqq={r['med_qqq']:+.1%} "
               f"worst={r['worst_qqq']:+.1%}")
 
-    hdr = ("| signal | win vs QQQ | win vs SPY | median vs QQQ | worst vs QQQ |\n"
-           "|---|---|---|---|---|\n")
+    hdr = ("\n| signal | win vs QQQ | win vs SPY | median vs QQQ | "
+           "worst vs QQQ |\n|---|---|---|---|---|\n")
     body = "".join(
         f"| {lab} | {r['win_qqq']:.0%} | {r['win_spy']:.0%} | "
         f"{r['med_qqq']:+.1%} | {r['worst_qqq']:+.1%} |\n"
         for lab, r in rows)
     n = rows[0][1]["n"]
-    table = (f"Active-period DCA grid ({n} windows, quarterly starts "
-             f"{ACTIVE_START[:4]}+, horizons 3/5/10y + to-end, biweekly, "
-             f"5 bps/trade):\n\n" + hdr + body)
-
-    cnn_md = os.path.join(HERE, "CNN.md")
-    txt = open(cnn_md).read()
-    txt = txt.replace("<!-- RESULTS_TABLE -->", table)
-    open(cnn_md, "w").write(txt)
-    print("\nwrote results table into CNN.md")
+    print(f"\nActive-period DCA grid ({n} windows, quarterly starts "
+          f"{ACTIVE_START[:4]}+):" + hdr + body)
+    print("Paste into CNN.md (curated by hand) if the numbers have moved.")
 
 
 if __name__ == "__main__":
