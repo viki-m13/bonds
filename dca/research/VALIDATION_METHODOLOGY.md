@@ -208,6 +208,26 @@ catastrophe* (1999+ Calmar 0.20 vs 0.13, by dodging the −83% dot-com/GFC) and
 the Hurst-Ooi-Pedersen managed-futures result: trend-following is a
 crash-protector/diversifier, NOT a return-beater vs a bull equity index — same
 family as the Faber MA-gate and CSD: less drawdown, less return.
+**Overnight/intraday decomposition (Knuteson; Lou-Polk-Skouras):** pre-2018 the
+QQQ premium was *entirely overnight* (overnight-only 8.6%/−39% beat buy&hold
+6.8%/−83%; intraday-only −11%/yr) — but it **decayed OOS** (post-2018
+overnight-only 7.5% vs QQQ 20.9%); overnight-return momentum as a selector had
+*negative* IC. Real, creative, arbitraged away.
+**Cross-ASSET-CLASS dual-momentum switching (incl. BTC)** is the one rotation
+that DID beat DCA-QQQ on return (15.7× vs 3.6×, 2015+) — because asset classes
+have huge persistent divergent trends, unlike stocks/equity-ETFs. BUT it's
+riding crypto (−71% DD ≈ BTC risk), a hindsight universe, no real OOS (sample =
+the crypto bull), and it lost to buy&hold BTC. Verdict: trend-following works
+*across asset classes* (Antonacci/Hurst-Pedersen) as risk-managed
+diversification — but "beating QQQ" there = taking more risk via a higher-return
+asset class, not alpha. *This is the legitimate home of "which to hold / when to
+switch": asset-class allocation, not stock/ETF-equity selection.*
+**Forward path (the real one): orthogonal, non-price, FREE data** — selection
+edge is dead in price; the untested frontier is insider buying (SEC Form 4),
+short interest (FINRA), institutional flow (13F), attention (Google
+Trends/Wikipedia), and a FRED credit/curve macro-regime gate for timing. All
+free, all orthogonal to price; expected modest and likely small/mid-cap-tilted,
+but the first signals worth testing that aren't price in disguise.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
