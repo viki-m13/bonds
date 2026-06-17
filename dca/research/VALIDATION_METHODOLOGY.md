@@ -159,6 +159,20 @@ controls and strict OOS:
 > *risk/timing* (a Faber-style 200/210-dma cash gate cuts drawdowns), not
 > selection.
 
+Also tested and dead-OOS vs QQQ-DCA (so future agents don't re-run): **DCA
+mechanics** (value-averaging — *sells into uptrends, lags to 0.71×*; a never-
+sell asymmetric VA only *matches* DCA; buy-the-dip reserves wash out on cash
+drag — "time in market beats timing"); **sector-ETF momentum rotation** (beats
+QQQ in 0–30% of windows — QQQ already *is* the winning-sector bet);
+**rolling-correlation regime gates** (absorption ratio: de-risks but lags QQQ
+0–20%); and **ML on sector correlations** (GBM top-3 beats QQQ ~38% of months —
+worse than a coin flip; a 9-asset × ~300-month panel has nothing generalizable).
+Near-theorem behind all of it: for a fixed savings stream into a positive-drift
+asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
+scheme just *withholds or redirects exposure* to a rising asset, which costs
+more than the cleverness gains. Honest return levers reduce to: more exposure
+(leverage) or a different, less-efficient data universe.
+
 Things that could change this verdict (untested here, would need new data):
 analyst estimate-revision feeds, a paid PIT small/micro-cap dataset with
 delistings, insider-transaction (Form 4) data, or genuine alt-data. Based on
