@@ -191,7 +191,13 @@ hindsight: the same idea in **ARKK lost to QQQ (0.58×) with a −74% drawdown**
 It's "more of the winning beta" (a concentration/risk dial, leverage's cousin),
 not alpha. A **rule-based ETF momentum rotation does NOT beat QQQ** (8–50% of
 windows, median 0.78–1.03) — same as sector rotation, it leaves tech at the
-wrong times.
+wrong times. **Oversold / mean-reversion ETF rotation also fails** (RSI,
+drawdown, 1m-reversal, and "buy-the-dip-in-an-uptrend": 0–33% of windows beat
+QQQ, median 0.79–0.94) — it rotates *into laggards, away from the winner*.
+*Both directions of ETF rotation tested and dead:* momentum leaves the winner,
+mean-reversion fights it; any rotation basket holds less of QQQ's winning beta
+than 100%-QQQ. "A selector that knows which oversold ETF will bounce" = the
+forward-return prediction the IC studies measured at ~0 — it can't be built.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
