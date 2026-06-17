@@ -228,6 +228,23 @@ short interest (FINRA), institutional flow (13F), attention (Google
 Trends/Wikipedia), and a FRED credit/curve macro-regime gate for timing. All
 free, all orthogonal to price; expected modest and likely small/mid-cap-tilted,
 but the first signals worth testing that aren't price in disguise.
+**Free-data results (the forward path, partially executed):**
+- *FRED/credit-spread regime gate* (HYG/IEF, since price-FRED is proxy-capped to
+  3yr here): FAILED OOS — cut drawdown in only 12/27 assets, made QQQ's *worse*
+  (−51% vs −35%), beat plain on Calmar 2/27, −8pp CAGR. Credit leads equities at
+  big turns (GFC) but the daily signal whipsaws; the dumb 200-MA still beats it.
+- *Asset-class DIVERSIFICATION + dual-momentum* — THE constructive win. Without
+  crypto it's a drawdown-reducer (top3 −24% DD vs QQQ −45%, but lower return;
+  QQQ wins Sharpe). **WITH crypto (2016+), dual-momentum top-3 beats QQQ on every
+  metric** (CAGR 33% vs 21.5%, Sharpe 1.25 vs 1.14, Calmar 1.02 vs 0.66, same
+  −33% DD); even equal-weight-incl-BTC beats QQQ on Sharpe (1.33). The lever is
+  DIVERSIFICATION into uncorrelated high-return classes (the one real free
+  lunch), NOT selection/timing. HEAVY caveats: entire crypto sample is one bull
+  run (NO OOS), BTC is a hindsight universe pick, and top1/2 carry −45/−70% DD.
+  Robust part = drawdown control; the return edge leans on crypto repeating.
+- Short-interest free endpoint down (NASDAQ 503); insider Form-4 = feasible but a
+  heavy rate-limited EDGAR scrape (dedicated build, not yet done).
+
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
