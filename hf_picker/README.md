@@ -115,6 +115,18 @@ safest names. As of 2026-06-12 the top picks are low-volatility defensives
 (utilities WEC/ATO/NI/DTE/AEE/FE, insurers L/AFL, REIT REG) — exactly the
 profile the objective rewards.
 
+## Also tested: L2GMOM network momentum (negative result)
+
+A faithful implementation of the L2GMOM learnable-graph network-momentum model
+(Pu et al., arXiv:2308.12212), adapted to this objective and benchmarked on the
+same harness, is in `NETWORK_MOMENTUM.md` / `nm_*.py`. Short version: it has
+weak genuine skill (IC ≈ −0.05) but **does not beat the plain low-vol factor**,
+and the **learned graph makes it worse** than its own no-graph ablation — the
+graph collapses to a near-complete averaging operator (10.9% same-sector edges,
+~chance) and the model merely relearns "low-vol = safe". Network momentum is a
+cross-asset *return* technique; it does not transfer to single-asset-class
+downside avoidance. Kept as a documented negative control.
+
 ## Honest limitations
 
 - **"Never underwater" is mostly a horizon artifact.** Over 126–252d, ~90% of
