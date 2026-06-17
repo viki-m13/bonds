@@ -233,15 +233,21 @@ but the first signals worth testing that aren't price in disguise.
   3yr here): FAILED OOS — cut drawdown in only 12/27 assets, made QQQ's *worse*
   (−51% vs −35%), beat plain on Calmar 2/27, −8pp CAGR. Credit leads equities at
   big turns (GFC) but the daily signal whipsaws; the dumb 200-MA still beats it.
-- *Asset-class DIVERSIFICATION + dual-momentum* — THE constructive win. Without
-  crypto it's a drawdown-reducer (top3 −24% DD vs QQQ −45%, but lower return;
-  QQQ wins Sharpe). **WITH crypto (2016+), dual-momentum top-3 beats QQQ on every
-  metric** (CAGR 33% vs 21.5%, Sharpe 1.25 vs 1.14, Calmar 1.02 vs 0.66, same
-  −33% DD); even equal-weight-incl-BTC beats QQQ on Sharpe (1.33). The lever is
-  DIVERSIFICATION into uncorrelated high-return classes (the one real free
-  lunch), NOT selection/timing. HEAVY caveats: entire crypto sample is one bull
-  run (NO OOS), BTC is a hindsight universe pick, and top1/2 carry −45/−70% DD.
-  Robust part = drawdown control; the return edge leans on crypto repeating.
+- *Asset-class DIVERSIFICATION + dual-momentum.* **The "beats QQQ on return"
+  claim was UNIVERSE SELECTION BIAS — corrected.** It only beat QQQ when the
+  hand-picked universe included Bitcoin (the era's best asset); handing a
+  momentum rule the ex-post winner is circular, the same sin as cherry-picking
+  winning stocks. Proof: on the broad NON-crypto universe (which included losers
+  — EM, commodities, long bonds) dual-momentum did NOT beat QQQ on return (lower
+  CAGR & Sharpe), only lower drawdown. Bias-free residual: diversification
+  *reduces drawdown / modestly helps risk-adjusted* (a property of correlation
+  <1, robust across universes); it does NOT raise return without hindsight-
+  selecting the winning asset. *General rule: any backtest "beating QQQ" is
+  selection bias unless the universe, rule, AND benchmark were all fixed without
+  hindsight — beating it in-sample = overweighting what won = circular. Even
+  "QQQ as the benchmark" is a hindsight choice. The only bias-free evidence is
+  forward/out-of-sample, or robust mechanism-level claims (diversification lowers
+  drawdown; cost & savings-rate dominate).*
 - Short-interest free endpoint down (NASDAQ 503); insider Form-4 = feasible but a
   heavy rate-limited EDGAR scrape (dedicated build, not yet done).
 
