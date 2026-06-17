@@ -262,6 +262,18 @@ but the first signals worth testing that aren't price in disguise.
   orthogonal signal — worth a full small/mid-cap build + significance testing,
   the only lead that would justify more work.
 
+**Entry-timing within a fixed DCA cadence (exp23 — "when to buy QQQ each cycle,
+accepting QQQ"):** definitive — **buy immediately when the cash arrives; no
+achievable trigger helps.** Across 2002-18 and 2018-26, every wait-for-a-dip
+rule (down-day, below-cycle-start, 2% dip, sub-10d-MA, RSI<45) paid a HIGHER
+average entry price and ended with EQUAL-or-LOWER terminal wealth than buying
+on arrival. The "buy-the-dip beats immediate 73-82% of the time" is a
+statistical illusion (many small wins, rare large losses when price runs away
+and you're forced to deploy at cycle-end). Perfect-hindsight "buy the low each
+cycle" is only +2-4% total over decades — the ceiling on ALL entry timing is
+tiny. Shorter cadence + immediate deploy is best (monthly batching was worse
+than biweekly: more uptrend drift missed while waiting). Optimized entry rule =
+"the trigger is that the cash arrived" — buy biweekly on arrival.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
