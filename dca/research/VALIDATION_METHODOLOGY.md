@@ -248,8 +248,19 @@ but the first signals worth testing that aren't price in disguise.
   "QQQ as the benchmark" is a hindsight choice. The only bias-free evidence is
   forward/out-of-sample, or robust mechanism-level claims (diversification lowers
   drawdown; cost & savings-rate dominate).*
-- Short-interest free endpoint down (NASDAQ 503); insider Form-4 = feasible but a
-  heavy rate-limited EDGAR scrape (dedicated build, not yet done).
+- Short-interest free endpoint down (NASDAQ 503); insider Form-4 BUILT & tested
+  (exp22): scraped 2,749 Form-4s for an objective 22-name liquidity-spread
+  universe (mega->mid cap), parsed open-market purchases (code P) vs sales.
+  Result = the most promising orthogonal lead found: at the **12-month horizon,
+  insider-buy months beat no-buy months on forward return-vs-QQQ in BOTH OOS
+  halves** (+0.8pp 2015-20, +10.5pp 2020-26) — directionally consistent, unlike
+  every price signal (which sign-flipped). Matches Cohen-Malloy-Pomorski. BUT
+  NOT established: tiny n (57-92 buy-months), 3m horizon flips sign, magnitude
+  unstable (late +10.5pp likely a few beaten-down mid-caps), no significance
+  test, large-cap-tilted (insiders sold ~$27B vs bought ~$1B here; the real edge
+  is in small-caps we lack). Verdict: the one non-dead, theory-backed,
+  orthogonal signal — worth a full small/mid-cap build + significance testing,
+  the only lead that would justify more work.
 
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
