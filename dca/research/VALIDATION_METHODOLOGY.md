@@ -198,6 +198,16 @@ QQQ, median 0.79–0.94) — it rotates *into laggards, away from the winner*.
 mean-reversion fights it; any rotation basket holds less of QQQ's winning beta
 than 100%-QQQ. "A selector that knows which oversold ETF will bounce" = the
 forward-return prediction the IC studies measured at ~0 — it can't be built.
+**Active daily breakout/trend trading (Donchian/Darvas "buy the breakout, exit
+when momentum dies") on ETFs** (params chosen pre-2018, OOS-tested): does NOT
+beat buy&hold QQQ on return — it gives up half-to-two-thirds of CAGR (5–9% vs
+11–21%) to whipsaws and cash-time — while cutting drawdown hard (−17/−29% vs
+−35/−83%). Risk-adjusted it only edges buy&hold over a *full cycle containing a
+catastrophe* (1999+ Calmar 0.20 vs 0.13, by dodging the −83% dot-com/GFC) and
+*loses* even on Calmar in the bull-only test era (0.45–0.52 vs 0.59). This is
+the Hurst-Ooi-Pedersen managed-futures result: trend-following is a
+crash-protector/diversifier, NOT a return-beater vs a bull equity index — same
+family as the Faber MA-gate and CSD: less drawdown, less return.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
