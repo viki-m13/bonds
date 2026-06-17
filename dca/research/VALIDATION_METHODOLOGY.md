@@ -167,6 +167,18 @@ QQQ in 0–30% of windows — QQQ already *is* the winning-sector bet);
 **rolling-correlation regime gates** (absorption ratio: de-risks but lags QQQ
 0–20%); and **ML on sector correlations** (GBM top-3 beats QQQ ~38% of months —
 worse than a coin flip; a 9-asset × ~300-month panel has nothing generalizable).
+Physics-inspired selection (**Hurst exponent**, **permutation entropy**) is also
+~0 / sign-unstable OOS — a transform of price data can't add information that
+isn't there. **The one cross-disciplinary idea that DID pay off is on the
+*risk* side, not selection: a Critical-Slowing-Down gate** (go to cash when the
+lag-1 autocorrelation *and* variance of QQQ returns both rise — the
+tipping-point signature from Scheffer/Dakos early-warning-signal theory). As a
+crash gate it **dominates the classic 200-day-MA gate**: across thresholds it
+kept ~55–100% more terminal wealth (4.3–5.5k× vs the MA gate's 2.8k×, plain
+5.3k×) while still cutting QQQ-DCA's −75% drawdown to −53/−63%. The MA gate
+whipsaws and sacrifices ~half the terminal wealth for its lower DD; CSD
+de-risks far more surgically. (Needs OOS threshold-hardening before deployment;
+the single threshold that beat plain on *both* return and DD is path-mined.)
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
