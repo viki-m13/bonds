@@ -183,6 +183,15 @@ and it doesn't transfer across assets. *Lesson: this one fooled me in-sample
 on one asset/path until the generalization test killed it — hold your own ideas
 to the SUMMIT/ZENITH bar.* The blunt 200-MA is the more *reliable* (if
 return-costly) drawdown reducer; no gate improved risk-adjusted return OOS.
+**"Just DCA into a tech ETF / rotate across ETFs" (common idea):** static
+concentration in tech/semis (XLK 1.3×, SMH 2.8× vs QQQ) *did* out-return QQQ —
+but only in the 2018+ AI/semis regime (beat QQQ in just 27–33% of *pre-2018* 5y
+windows), with deeper drawdowns (SMH −34/−38% vs QQQ −24%), and it's pure
+hindsight: the same idea in **ARKK lost to QQQ (0.58×) with a −74% drawdown**.
+It's "more of the winning beta" (a concentration/risk dial, leverage's cousin),
+not alpha. A **rule-based ETF momentum rotation does NOT beat QQQ** (8–50% of
+windows, median 0.78–1.03) — same as sector rotation, it leaves tech at the
+wrong times.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
