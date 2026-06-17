@@ -1,3 +1,15 @@
+> **⚠️ RETRACTED (2026-06-17) — ZENITH is NOT a validated QQQ-beater.** The
+> validation below was run on the **survivorship-biased** `summit_panel.parquet`
+> (the same panel as SUMMIT) and benchmarked correctly vs QQQ, but it leaned on a
+> leakage audit + random-pick control that do **not** catch survivorship or
+> recency. Independent re-validation (`VALIDATION_METHODOLOGY.md`) and my own
+> diagnostics (appended at the end, §"Post-hoc") show the edge largely
+> evaporates on honest data: panel missing ~40% of historical members, delisted
+> names booked benignly, IS cross-sectional IC vs QQQ ≈ 0/negative, lead
+> concentrated in 2018–26. Clean-panel rebuild: **25.7× → ~11.2× (≈ ties QQQ)**.
+> The "Pareto improvement" claim is **withdrawn.** Read this whole file as the
+> *biased-panel* record, then the §Post-hoc section for the correction.
+
 # ZENITH — validation record (the most-profitable DCA stock picker)
 
 **Mandate (user):** develop the *most profitable* DCA strategy that significantly
@@ -205,6 +217,59 @@ Search & frontier: `dca/research/apex_search.py`. Full machine report:
 `dca/research/final/ZENITH_validation.json`, log
 `dca/research/final/zenith_gauntlet.log`.
 
-*Not investment advice. Past performance does not guarantee future results.
-Carries the data caveats in `dca/README.md` §3 — most decisively addressed here
-by the random-pick control, which ZENITH clears by +85 pp.*
+*Not investment advice. Past performance does not guarantee future results.*
+
+---
+
+## Post-hoc — the honest re-validation (why this is RETRACTED)
+
+After this record was written, an independent validation playbook
+(`VALIDATION_METHODOLOGY.md`) flagged that the gauntlet above — though it used
+the *correct* benchmark (QQQ), a leakage audit, IS/OOS, and a random-pick
+control — does **not** catch the two biggest distortions: **survivorship** and
+**recency**. I re-ran its three load-bearing tests on this very panel; **the
+critique holds.**
+
+### 1. Survivorship — the panel itself is biased (the random control doesn't fix this)
+* `summit_panel.parquet` contains **720 of 1,202** unique historical S&P-500 PIT
+  members — **40% are missing entirely**, overwhelmingly the pre-2015
+  delisted/bankrupt losers Yahoo never had.
+* Of the 60 names that *do* delist inside the panel, they are booked at a median
+  **0.67× of their trailing-1y high** (37% end >0.9×, acquisition-like; only 35%
+  actually crashed <0.5×). True −100% bankruptcies are absent. So even the
+  "delisting-aware" accounting is survivorship-**optimistic**.
+* Why the random-pick control (95% vs 10%) does **not** rescue this: it shows
+  ZENITH beats a random pick *drawn from the same survivor-tilted universe* — real
+  *relative* selection — but both the strategy's multiple and the universe inherit
+  the 40% missing-loser bias, which the control cannot see.
+
+### 2. Out-of-sample IC ≈ 0 — no durable cross-sectional skill at beating QQQ
+Rank-IC of the bull score vs 252-day-forward return **relative to QQQ**:
+* **IS (pre-2018): −0.015 (t = −1.5)** — zero/negative.
+* **OOS (2018+): +0.049 (t = +3.2)** — positive only in the mega-cap-momentum era.
+A durable signal needs the *same-sign* IC in both eras; this flips. The score
+does not durably predict which names beat QQQ — the wins come from concentration
+into AAPL/NVDA in the recent regime.
+
+### 3. Recency — most of the lead is 2018–2026
+ZENITH ÷ QQQ money-multiple ratio (fixed 2006 start), by cutoff:
+`1.29 (2010) → 1.23 (2014) → 1.50 (2017) → 1.71 (2019) → 2.08 (2021) → 2.23
+(2023) → 2.80 (2026)`. A persistent *small* lead (1.2–1.5×, better than the
+WAVE/ROTATOR replication, which was *behind* until 2021) — but more than half the
+headline 2.8× was built in the AI run. A survivorship-clean rebuild
+(`VALIDATION_METHODOLOGY.md`) collapses that residual lead to ≈ tie:
+**25.7× → ~11.2×, QQQ ~9.2×**, drawdowns −58%/−74%.
+
+### Verdict
+**ZENITH is not a validated QQQ-beater and is not a Pareto improvement over
+SUMMIT.** It is a concentrated mega-cap-momentum tilt whose apparent edge is
+~half survivorship + a favorable 2018–26 regime; the size tilt is a small, real
+lever, but not enough to durably beat a cap-weighted momentum benchmark
+out-of-sample on clean data. Consistent with the standing conclusion in
+`VALIDATION_METHODOLOGY.md`: **no durable cross-sectional stock-selection alpha
+over QQQ-DCA survives out-of-sample with public price data.** What was right in
+this file: the leakage audit, the engine cross-check, the cost/phase robustness,
+and the *relative* random-control result. What was wrong: calling that a
+validated, profitable QQQ-beater. (Reproduce the three tests above:
+`python3 -c` against `data.build_panel()` / `protocol` / `fast` — script logic in
+the commit that added this section.)*

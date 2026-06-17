@@ -1,10 +1,27 @@
 # ZENITH — Maximal-Conviction DCA Stock-Selection Strategy
 
-*The most-profitable point on the SUMMIT architecture's frontier.*
-*Research session 2026-06-15. Code: `dca/strategy_zenith.py` (signal =
-`strategy_dca.build_scores`, run at k=1). Full validation record:
-`dca/research/results_zenith.md`; machine report:
-`dca/research/final/ZENITH_validation.json`.*
+> **⚠️ RETRACTED as a "validated QQQ-beater" (2026-06-17).** The headline below
+> (25.7×, 95% win, "Pareto improvement over SUMMIT") was validated on the same
+> **survivorship-biased** panel as SUMMIT and does **not** survive honest
+> re-testing. Independent re-validation
+> ([`research/VALIDATION_METHODOLOGY.md`](research/VALIDATION_METHODOLOGY.md)) and
+> my own diagnostics (recorded in `research/results_zenith.md` §"Post-hoc")
+> found: the panel is missing **~40% of historical S&P 500 members** (the
+> delisted losers), delisted names present are booked benignly (median 0.67× of
+> their recent high, not −100%), the bull score has **~0 / negative
+> cross-sectional IC vs beating QQQ in-sample** (IS t=−1.5; only +OOS in the
+> 2018+ mega-cap regime), and most of the lead is **2018–2026 recency**. A
+> survivorship-clean rebuild collapses ZENITH **25.7× → ~11.2×** (≈ ties QQQ),
+> with −58%/−74% drawdowns — **not** a Pareto improvement and **not** a durable
+> QQQ-beater. The leakage audit it passed does not exonerate it (leakage-clean ≠
+> survivorship/recency-clean). Treat the numbers below as the *biased-panel*
+> backtest, retained for the record only.
+
+*The most-profitable point on the SUMMIT architecture's frontier — on a
+survivorship-biased panel. Research session 2026-06-15; retracted 2026-06-17.
+Code: `dca/strategy_zenith.py` (signal = `strategy_dca.build_scores`, run at k=1).
+Honest re-validation: `dca/research/results_zenith.md` (§Post-hoc) and
+`research/VALIDATION_METHODOLOGY.md`.*
 
 ---
 

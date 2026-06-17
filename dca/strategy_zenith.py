@@ -1,5 +1,14 @@
 """ZENITH — maximal-conviction DCA stock accumulation (the profitability frontier).
 
+RETRACTED (2026-06-17) as a validated QQQ-beater: the headline numbers in this
+docstring were produced on a survivorship-biased panel (~40% of historical S&P
+members missing; delisted names booked benignly) and are dominated by 2018-26
+recency; the bull score has ~0/negative cross-sectional IC vs QQQ in-sample. A
+survivorship-clean rebuild collapses ZENITH 25.7x -> ~11.2x (ties QQQ). It is NOT
+a Pareto improvement over SUMMIT. See research/results_zenith.md (Post-hoc) and
+research/VALIDATION_METHODOLOGY.md. Code retained for the record; the claims below
+describe the biased-panel backtest only.
+
 ZENITH is SUMMIT's regime-conditional mega-cap-momentum signal run at **maximal
 conviction: k=1**. Every contribution buys the single highest-scoring name (the
 current #1 leader in risk-on regimes, the #1 discounted-quality rebounder in
