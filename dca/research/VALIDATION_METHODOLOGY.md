@@ -80,9 +80,13 @@ volume). A real signal has stable IC with the same sign in both eras.
   rel-strength, sharpe-mom) have **IC ≈ 0 (|t|<1)** vs beating QQQ at 1y, OOS.
   Fundamentals (gross profitability, earnings growth, ROE, issuance) look
   **strong in-sample (gross-profit t=6.5) but collapse / flip sign OOS**. PEAD
-  / earnings-surprise is **sign-unstable and ~0 at 1y**. Reason: **QQQ already
-  embeds the price-momentum factor**, so momentum can't out-predict it; and
-  the large-cap pond is too efficient for fundamental signals to survive.
+  / earnings-surprise is **sign-unstable and ~0 at 1y**. **Network / spillover
+  momentum** (neighbors' momentum predicting a stock, the testable kernel of
+  Pu-Zohren "network momentum") is also **IC ≈ 0, |t|<0.8, sign-flipping
+  train→test** in the large-cap pond. Reason: **QQQ already embeds the
+  price-momentum factor**, so momentum (own *or* networked) can't out-predict
+  it; and the large-cap pond is too efficient for fundamental signals to
+  survive.
 
 ### 7. Survivorship-robust controls (random-pick & equal-weight)
 If the strategy can't beat **equal-weight of the same (equally-biased)
