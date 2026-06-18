@@ -299,6 +299,17 @@ via leverage (lever the 8%-vol/0.84-Sharpe book up — Sharpe is leverage-
 invariant). With leverage off the table, chasing Sharpe ≠ chasing return. Any
 ETF backtest showing Sharpe ~3 is in-sample/lookahead — verify with the IS-vs-OOS
 gap and the random/equal-weight control.
+**Ernie Chan Kalman-filter PAIRS trading (exp27 — adaptive stat-arb):** faithful
+implementation (dynamic hedge ratio via Kalman, trade forecast-error band), bug
+caught (entry-day P&L mis-booking → lag positions), tested OOS net of cost.
+Verdict: decayed. Most pairs that looked good IS flipped negative OOS (XLK/VGT
+0.79→−0.81, IYR/VNQ 0.78→−0.31); only EWA/EWC survived (OOS Sharpe 0.66, still <
+QQQ's 0.79, market-neutral ~1.7% CAGR, needs shorting); equal-weight book of all
+pairs LOST OOS (−2.2% CAGR). Matches literature (pairs profits competed away
+post-2003, Do-Faff). KEY LESSON: the Kalman filter is genuinely
+dynamic/adaptive and works as designed — but adaptiveness CANNOT manufacture an
+edge the market has arbitraged flat; it tracks a relationship faithfully, it
+doesn't create alpha. Also requires shorting (margin) → off-limits anyway.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
