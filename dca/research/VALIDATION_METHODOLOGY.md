@@ -327,6 +327,15 @@ orthogonal sources confirmed: FINRA short-vol, Wikipedia pageviews, EDGAR
 full-text (Lazy-Prices text-change) + Form4/13F, SEC XBRL frames, VIX term
 structure. The pipeline works; the frontier is a multi-signal COMPOSITE of weak
 orthogonal sources, not any single one.
+**ReCAP / regime-adaptive continual learning (exp29, arXiv 2606.00143):** built
+the faithful essence (KMeans regime detect → per-regime max-Sharpe allocation
+learned on train → apply OOS by current regime, walk-forward). FAILS: regime-
+adaptive Sharpe 0.79 = NO better than RANDOM-REGIME control 0.86 (regimes carry
+no persistent allocation info), and both crushed by static QQQ (1.14) and 60/40
+(1.03). Regime-switching now 0-for-5 (Faber, CSD, absorption-ratio, correlation-
+regime, ReCAP). Fancier ML/RL = more overfit surface, not less; paper's
+"outperforms" is in-sample/cost-free/universe bias. The random-label control is
+the decisive test for any regime/ML scheme.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
