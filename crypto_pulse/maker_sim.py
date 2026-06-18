@@ -43,11 +43,15 @@ def load(path):
     return rows
 
 
-def sim_coin(events, maker_bps, imb_thr=None, imb_levels=5):
-    """events: time-ordered list of (recv_ts, channel, data) for ONE coin.
-    If imb_thr is set, suppress the bid when top-of-book imbalance is strongly
-    negative (sellers, price about to drop) and the ask when strongly positive —
-    the adverse-selection filter. Returns fills + mid path."""
+def sim_coin(events, maker_bps, imb_thr=None, imb_levels=5, alpha_lb=None,
+             alpha_thr=2.0):
+    """events: time-ordered (recv_ts, channel, data) for ONE coin.
+    imb_thr: static order-book-imbalance adverse-selection filter.
+    alpha_lb (seconds): ALPHA-INFORMED quoting — compute a short-horizon reversal
+    signal from the recent mid move and quote ONLY the side the reversal favors
+    (after a dip, quote the bid to buy into the expected bounce; after a pop,
+    quote the ask). This turns adverse selection into favorable selection.
+    alpha_thr is the move size (in bps) that triggers one-sided quoting."""
     best_bid = best_ask = None
     bid_qsz = ask_qsz = None
     my_bid_px = my_ahead_b = None
@@ -60,6 +64,13 @@ def sim_coin(events, maker_bps, imb_thr=None, imb_levels=5):
     def mid():
         return (best_bid + best_ask) / 2 if best_bid and best_ask else None
 
+    def mid_ago(now, lb):
+        # scan back from end of mid_path for the sample ~lb seconds before now
+        for k in range(len(mid_path) - 1, -1, -1):
+            if mid_path[k][0] <= now - lb:
+                return mid_path[k][1]
+        return None
+
     for ts, ch, d in events:
         if ch == "l2Book":
             lv = d["levels"]
@@ -70,30 +81,36 @@ def sim_coin(events, maker_bps, imb_thr=None, imb_levels=5):
             bvol = sum(float(x["sz"]) for x in lv[0][:imb_levels])
             avol = sum(float(x["sz"]) for x in lv[1][:imb_levels])
             imb = (bvol - avol) / (bvol + avol) if (bvol + avol) > 0 else 0.0
+            m = (nb + na) / 2
             if mid():
-                mid_path.append((ts, (nb + na) / 2))
-            # (re)place bid
+                mid_path.append((ts, m))
             if my_bid_px != nb:
-                my_bid_px = nb
-                my_ahead_b = nbsz
+                my_bid_px = nb; my_ahead_b = nbsz
             else:
                 my_ahead_b = min(my_ahead_b, nbsz)
             if my_ask_px != na:
-                my_ask_px = na
-                my_ahead_a = nasz
+                my_ask_px = na; my_ahead_a = nasz
             else:
                 my_ahead_a = min(my_ahead_a, nasz)
-            # inventory cap
             if inv * nb >= INV_CAP_USD:
                 my_bid_px = None
             if inv * nb <= -INV_CAP_USD:
                 my_ask_px = None
-            # adverse-selection filter: pull the side the book leans against
             if imb_thr is not None:
                 if imb < -imb_thr:
-                    my_bid_px = None        # sellers dominate -> don't buy
+                    my_bid_px = None
                 if imb > imb_thr:
-                    my_ask_px = None        # buyers dominate -> don't sell
+                    my_ask_px = None
+            if alpha_lb is not None:
+                past = mid_ago(ts, alpha_lb)
+                if past:
+                    ret_bps = (m / past - 1) * 1e4
+                    # reversal: after a POP (ret>thr) expect down -> quote ask only;
+                    # after a DIP (ret<-thr) expect up -> quote bid only.
+                    if ret_bps > alpha_thr:
+                        my_bid_px = None
+                    elif ret_bps < -alpha_thr:
+                        my_ask_px = None
             best_bid, best_ask, bid_qsz, ask_qsz = nb, na, nbsz, nasz
 
         else:  # trades (list)
