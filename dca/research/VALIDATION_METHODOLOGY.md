@@ -310,6 +310,23 @@ post-2003, Do-Faff). KEY LESSON: the Kalman filter is genuinely
 dynamic/adaptive and works as designed — but adaptiveness CANNOT manufacture an
 edge the market has arbitraged flat; it tracks a relationship faithfully, it
 doesn't create alpha. Also requires shorting (margin) → off-limits anyway.
+**NOVEL FREE DATA — FINRA short-volume (exp28/28b):** consolidated FINRA's raw
+daily short-volume files into a proprietary short-pressure panel (516 names,
+2018-2026) — exactly the "free data nobody sells pre-packaged" frontier.
+Hypothesis (Boehmer-Jones-Zhang: heavily-shorted underperform). Raw SVR looked
+great in full-test (low-minus-high +1.46%/mo fwd-3m, t+3.4, clean RANDOM
+control) — BUT sub-period decomposition killed it: the edge is ~entirely one
+window (2024-26 +2.61%/mo), sign FLIPPED in 2018-20 (−1.23%), ~nothing 2022-24;
+and ABNORMAL SVR (per-stock-normalized = the theoretically-correct informed
+measure) is NULL (t+0.2 recent). Verdict: closest thing to a real orthogonal
+signal found (right sign 3 of 4 post-2020 windows, unlike sign-random price
+signals) but weak/regime-unstable/recency-concentrated/null-when-cleaned → not
+deployable. LESSON: a "t=3.4 OOS" can be one lucky 2-yr window — always
+decompose by sub-period (this is how the headline died). Reachable free
+orthogonal sources confirmed: FINRA short-vol, Wikipedia pageviews, EDGAR
+full-text (Lazy-Prices text-change) + Form4/13F, SEC XBRL frames, VIX term
+structure. The pipeline works; the frontier is a multi-signal COMPOSITE of weak
+orthogonal sources, not any single one.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
