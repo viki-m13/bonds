@@ -29,3 +29,6 @@ data/hl_l2/
 
 # fetched order-flow klines, thin-venue (binance.us), reproducible
 data/crypto_of/
+
+# forward-recorded order flow
+data/hl_orderflow/
