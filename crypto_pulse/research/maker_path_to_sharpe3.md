@@ -53,3 +53,27 @@ per-fill economics on the right coins — but it is an infrastructure/rebate gam
 that needs forward data and pro execution to confirm, not a backtestable taker
 strategy. The naive and reversal-alpha makers are net-negative; the deployable
 TAKER book stays the 3-sleeve trend+carry+order-flow ~1.1-1.4.
+
+## UPDATE — forward validation on wider-spread coins (28 min, 626 fills): FALSIFIED
+
+Recorded the wider-spread liquid HL universe (XPL/XLM/LIT/FARTCOIN/kPEPE/ENA/ASTER/
+NEAR/WLD/VVV/ONDO/SPX + XRP/SUI controls) and re-ran the selective fast maker (2s
+exit, imbalance-filter, rebate -0.3) with a proper sample:
+
+  ALL 14 coins, 626 fills: **NET -4.33 bps/fill, t = -11.1** (decisively negative)
+  worst: XLM -10.9, ONDO -8.2, LIT -4.8, SUI -3.6, VVV -3.2
+  only ASTER (+2.2) / ENA (+0.3) positive -- 22-24 fills each = noise.
+
+**The wider-spread hypothesis is FALSIFIED.** Wide spread is NOT free money -- it is
+compensation for TOXICITY. On these smaller/newer/meme coins the spread captured
+(+1 to +2.5 bps) is dwarfed by adverse selection (-2 to -12 bps): informed, bursty
+flow. The earlier "DOGE/XRP/LTC positive" read was small-sample noise (12-21 fills
+on a 25-min major-coin tape). Adverse selection scales WITH spread, so there is no
+retail-accessible free lunch anywhere on the maker side.
+
+**Final verdict on the maker path:** passive market-making on HL is net-negative for
+a retail-accessible maker at the rebate tier -- naive, imbalance-filtered, reversal-
+alpha-informed, tight-spread, AND wider-spread. Sharpe 3 via MM is real only for pro
+firms with liquidation-backstop flow + funding + low-latency infra + exchange-share
+rebate tiers (HLP ~2.9), not as a backtestable/recordable retail edge. The deployable
+book stays the 3-sleeve trend+carry+order-flow (~1.1-1.4 net, taker, executor-ready).
