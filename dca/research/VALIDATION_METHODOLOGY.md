@@ -286,6 +286,19 @@ both beat QQQ by MORE than the ML model, which even underperformed random. The
 vs cap-weighted QQQ, NOT the model. *Always run the random/equal-weight control
 to expose this.* The library is fine; the alpha isn't there for US-large-cap-vs-
 QQQ, and a long-short IC (if any) doesn't translate to a long-only index beat.
+**Tactical ETF Sharpe ceiling (exp26):** a sustained Sharpe >3 OOS on ETFs is
+arithmetically impossible — Fundamental Law IR≈IC×√breadth; ~10 ETFs × monthly =
+√120≈11, and ETF-timing IC≈0, so even IC=0.05 caps IR≈0.55. Measured OOS ceiling
+of legit tactical ETF books (diversification + inverse-vol/risk-parity + trend +
+no-leverage vol-target) ≈ 0.8–0.85 Sharpe (best: inverse-vol 0.84, maxDD −18–23%
+vs QQQ 0.79/−53%) — but they CUT CAGR to ~6–7% (from QQQ's 16%). Even perfect
+monthly max-Sharpe MVO re-optimization gets only 1.06 OOS (1.35 in-sample — the
+gap IS the overfit). Key insight for a NO-LEVERAGE investor: maximizing Sharpe
+just buys a smoother, LOWER-return ride; high Sharpe only converts to high return
+via leverage (lever the 8%-vol/0.84-Sharpe book up — Sharpe is leverage-
+invariant). With leverage off the table, chasing Sharpe ≠ chasing return. Any
+ETF backtest showing Sharpe ~3 is in-sample/lookahead — verify with the IS-vs-OOS
+gap and the random/equal-weight control.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
