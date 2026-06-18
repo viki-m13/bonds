@@ -38,7 +38,10 @@ def stats(p):
                 calmar=(p.mean() * ANN) / abs(dd) if dd < 0 else np.nan)
 
 
-def sleeves(C, V, H, L, F):
+def sleeve_weights(C, V, H, L, F):
+    """Per-coin gross-1 daily weights for each sleeve (causal: info through close
+    of day d, traded next day after the .shift(1) in pnl). Shared by the backtest
+    and the live signal so deployment is backtest-identical."""
     R = C.pct_change(); R[R.abs() > 2] = np.nan
     dv = (C * V).rolling(30).mean(); elig = C.notna() & (dv > 3e6)
     sd = R.rolling(30).std()
@@ -60,12 +63,38 @@ def sleeves(C, V, H, L, F):
     # hold 5d to keep turnover (and cost) down
     reb = pd.Series(np.arange(len(wo)) % 5 == 0, index=wo.index)
     wo = wo.where(reb, axis=0).ffill(limit=4)
+    return {"TREND": wt, "CARRY": wc, "ORDERFLOW": wo}, R
+
+
+def sleeves(C, V, H, L, F):
+    W, R = sleeve_weights(C, V, H, L, F)
 
     def pnl(w):
         wl = w.shift(1)
         return ((wl * R).sum(axis=1) - (wl - wl.shift(1)).abs().sum(axis=1) * TAKER / 1e4
                 - (wl * F).sum(axis=1))
-    return {"TREND": pnl(wt), "CARRY": pnl(wc), "ORDERFLOW": pnl(wo)}
+    return {nm: pnl(w) for nm, w in W.items()}
+
+
+def book_weights(C, V, H, L, F, vol_target=0.12, lookback_cut=None):
+    """Combined risk-weighted, vol-targeted per-coin TARGET WEIGHTS for the
+    deployable 3-sleeve book. Returns (W_target, scale, risk_weights):
+      * inverse-vol risk weights across sleeves (estimated on history < lookback_cut,
+        or full history if None — for live use the last available estimate);
+      * combined gross weight per day = sum_s rw_s * w_sleeve_s;
+      * vol-target scale on the combined book's realized PnL (causal, shifted).
+    Target position weight on day d = scale[d] * W_target.loc[d]; trade next day."""
+    W, R = sleeve_weights(C, V, H, L, F)
+    pnls = sleeves(C, V, H, L, F)
+    P = pd.DataFrame(pnls).dropna()
+    base = P if lookback_cut is None else P[P.index < lookback_cut]
+    isv = base.std()
+    rw = (1 / isv) / (1 / isv).sum()
+    W_target = sum(rw[nm] * W[nm].fillna(0.0) for nm in W)        # gross weight/day
+    combined_pnl = (P * rw).sum(axis=1).reindex(C.index)
+    scale = (vol_target / (combined_pnl.rolling(45).std() * np.sqrt(ANN))
+             ).shift(1).clip(0, 3)
+    return W_target, scale, rw
 
 
 def vt(p, target=0.12):

@@ -7,7 +7,7 @@ place, runs every risk gate, and prints them. Only the --live path imports the
 SDK and signs orders. Review + paper-trade (see BOT_DEPLOYMENT.md) before --live.
 
 Pipeline each run (intended: once per UTC day after the daily close):
-  1. targets  <- live_signal.current_targets()  (PULSE daily; LONG_ONLY toggle)
+  1. targets  <- live_signal.current_targets()  (3-sleeve TREND+CARRY+ORDERFLOW)
   2. state    <- HL clearinghouseState (positions, account value) + allMids + meta
   3. reconcile-> per-coin delta notional = target - current
   4. risk gate-> gross-leverage cap, per-coin cap, drawdown kill-switch,
@@ -140,23 +140,23 @@ def main():
     if not address:
         print("Set HL_ACCOUNT (public address) to read live state. Showing "
               "target weights only (signal-only mode):\n")
-        asof, notional, gross = ls.current_targets()
-        print(f"PULSE targets {asof.date()} | gross {gross:.2f}x | "
-              f"{'LONG-ONLY' if ls.LONG_ONLY else 'L/S'}")
+        asof, notional, gross, rw = ls.current_targets()
+        print(f"3-sleeve targets {asof.date()} | gross {gross:.2f}x | "
+              + ", ".join(f"{k} {rw[k]:.0%}" for k in rw.index))
         for c, n in notional.items():
             print(f"  {c:6s} {'LONG' if n>0 else 'SHORT':5s} ${n:,.0f}")
         return
 
     equity, current_pos, _ = get_state(address)
     mids, info, funding = get_market()
-    asof, notional, gross = ls.current_targets()
+    asof, notional, gross, rw = ls.current_targets()
     targets_usd = {c: float(n) / ls.ACCOUNT_EQUITY_USD * equity
                    for c, n in notional.items()}   # rescale to live equity
     orders, blocks = reconcile(targets_usd, equity, current_pos, mids, info,
                                funding, high_water=args.high_water)
 
-    print(f"PULSE-HL executor | asof {asof.date()} | equity ${equity:,.0f} | "
-          f"{'LONG-ONLY' if ls.LONG_ONLY else 'L/S'} | {len(orders)} orders | "
+    print(f"3-SLEEVE executor | asof {asof.date()} | equity ${equity:,.0f} | "
+          f"gross {gross:.2f}x | {len(orders)} orders | "
           f"{'LIVE' if args.live else 'DRY-RUN'}")
     for b in blocks:
         print("  [risk]", b)
