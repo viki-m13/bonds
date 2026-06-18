@@ -336,6 +336,16 @@ no persistent allocation info), and both crushed by static QQQ (1.14) and 60/40
 regime, ReCAP). Fancier ML/RL = more overfit surface, not less; paper's
 "outperforms" is in-sample/cost-free/universe bias. The random-label control is
 the decisive test for any regime/ML scheme.
+**Composite check (exp30 — insider + short-vol, 18-name overlap):** the
+"informed composite" idea resolves to ONE carrier — insider buying does the
+work; short-vol adds nothing and DILUTES it (composite +4.0%/3m < insider-only
++4.6%; low-short-only is negative). Insider buying now shows a positive sign a
+THIRD time (exp22 train +0.8pp / test +10.5pp; here +4.6%/3m, +8%/6m rel-QQQ) —
+the ONLY signal across 30 experiments that keeps pointing the right way (theory:
+Cohen-Malloy-Pomorski). Caveat: every read is small-sample (here n=44 buy-months
+/ 18 names, likely a few rebounding mid-caps) — could shrink at scale. VERDICT:
+drop the composite/short-vol; the single worth-the-resources lead is INSIDER
+BUYING (Form-4) scraped for a broad universe + strict sub-period validation.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
