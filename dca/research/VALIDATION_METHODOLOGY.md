@@ -346,6 +346,22 @@ Cohen-Malloy-Pomorski). Caveat: every read is small-sample (here n=44 buy-months
 / 18 names, likely a few rebounding mid-caps) — could shrink at scale. VERDICT:
 drop the composite/short-vol; the single worth-the-resources lead is INSIDER
 BUYING (Form-4) scraped for a broad universe + strict sub-period validation.
+**Invented volume/vol features (exp31):** tested documented + 4 INVENTED OHLCV
+features (accum/Chaikin, volume-vol divergence, signed-vol momentum, vol-weighted
+return premium) for cross-sectional alpha, sub-period sign-stability + random
+control. All 4 invented ones FAILED (sign-flip/~0 = random) — clever OHLCV
+transforms don't create information. Low-vol/beta/MAX just showed "high-beta won
+in the 2010-25 bull" (regime beta, not alpha). The ONE survivor: **Amihud
+illiquidity** (+0.069/t6.6 and +0.042/t3.4, same sign both halves, >> random) —
+the FIRST cross-sectional feature in 31 experiments to pass the full bar. BUT
+it's compensation-for-illiquidity (lives in less-liquid small/mids → realistic
+trading costs eat the IC; pulls away from QQQ; won't beat QQQ on raw return; and
+overlapping-63d-return t-stats are mildly inflated). DEEP PATTERN: the two real
+residual premia found (illiquidity, insider buying) BOTH live in less-liquid/
+smaller-cap corners where frictions/capacity eat them — they survive precisely
+BECAUSE they're costly to harvest. That is the structure of persistent
+inefficiency: not invent-able from liquid OHLCV, only earnable by bearing real
+frictions.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
