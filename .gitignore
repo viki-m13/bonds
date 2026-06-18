@@ -26,3 +26,6 @@ data/crypto_hourly_cb/
 
 # recorded HL L2 (forward data, reproducible via crypto_pulse/record_l2.py)
 data/hl_l2/
+
+# fetched order-flow klines, thin-venue (binance.us), reproducible
+data/crypto_of/
