@@ -274,6 +274,18 @@ cycle" is only +2-4% total over decades — the ceiling on ALL entry timing is
 tiny. Shorter cadence + immediate deploy is best (monthly batching was worse
 than biweekly: more uptrend drift missed while waiting). Optimized entry rule =
 "the trigger is that the cash arrived" — buy biweekly on arrival.
+**Qlib / multi-factor-ML (exp24 — Microsoft Qlib's flagship Alpha158-style
+factors + LightGBM, walk-forward, NDX universe):** the ML approach from the
+crypto multi-factor/order-flow papers, adapted to equities, FAILS. Cross-
+sectional rank IC = +0.0018 (ICIR 0.013) — zero skill (Qlib gets ~0.03-0.05 on
+retail-heavy CN markets; on US large-caps vs QQQ it's nothing). The apparent
+"top-decile beats QQQ 23% vs 21%" was a BIAS MIRAGE: a RANDOM decile from the
+same current-NDX names returned 25.7% and equal-weighting all of them 26.2% —
+both beat QQQ by MORE than the ML model, which even underperformed random. The
+"edge" is 100% survivorship (today's NDX = ex-post winners) + equal-weight tilt
+vs cap-weighted QQQ, NOT the model. *Always run the random/equal-weight control
+to expose this.* The library is fine; the alpha isn't there for US-large-cap-vs-
+QQQ, and a long-short IC (if any) doesn't translate to a long-only index beat.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
