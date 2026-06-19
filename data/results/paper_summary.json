@@ -6,11 +6,11 @@
   },
   "as_of": "2026-06-18",
   "start_date": "2026-04-13",
-  "current_nav": 12152.58,
+  "current_nav": 12152.81,
   "total_return_pct": 21.53,
-  "spy_total_return_pct": 10.39,
+  "spy_total_return_pct": 10.67,
   "n_trade_days": 48,
-  "ann_return_pct": 107.53,
+  "ann_return_pct": 107.54,
   "ann_vol_pct": 26.78,
   "sharpe": 4.015,
   "mdd_pct": -8.42,
@@ -656,8 +656,8 @@
     },
     {
       "d": "2026-06-18",
-      "v": 12152.58,
-      "ret": 0.004954,
+      "v": 12152.81,
+      "ret": 0.004974,
       "turnover": 0.0063,
       "tc": 3e-06
     }
@@ -853,7 +853,7 @@
     },
     {
       "d": "2026-06-18",
-      "v": 11038.51
+      "v": 11066.95
     }
   ]
 }
