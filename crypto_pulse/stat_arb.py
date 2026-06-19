@@ -65,6 +65,8 @@ def sscore_signals(R, elig, win=60, K=3, hold=2):
         if t % hold != 0:
             continue
         m = elv[t] & np.isfinite(Rv[t - win:t]).all(axis=0)
+        # drop near-constant (zero-variance / halted) names that break PCA
+        m = m & (np.nan_to_num(Rv[t - win:t]).std(axis=0) > 1e-6)
         if m.sum() < 12:
             continue
         sub = Rv[t - win:t][:, m]                       # window x n
@@ -73,6 +75,8 @@ def sscore_signals(R, elig, win=60, K=3, hold=2):
         Z = sub / sd                                    # standardized returns
         # PCA factors from correlation matrix
         cov = np.corrcoef(Z, rowvar=False)
+        if not np.isfinite(cov).all():
+            continue
         try:
             evals, evecs = np.linalg.eigh(cov)
         except np.linalg.LinAlgError:
@@ -90,8 +94,16 @@ def sscore_signals(R, elig, win=60, K=3, hold=2):
         for j in range(m.sum()):
             x = Xc[:, j]
             x0, x1 = x[:-1], x[1:]
-            b = np.polyfit(x0, x1, 1)                    # x1 = a + b x0
-            a, bb = b[1], b[0]
+            if not (np.isfinite(x0).all() and np.isfinite(x1).all()
+                    and x0.std() > 1e-9):
+                s[j] = 0.0
+                continue
+            try:
+                vv = np.vstack([x0, np.ones_like(x0)]).T
+                bb, a = np.linalg.lstsq(vv, x1, rcond=None)[0]
+            except np.linalg.LinAlgError:
+                s[j] = 0.0
+                continue
             if bb <= 0 or bb >= 1:
                 s[j] = 0.0
                 continue
