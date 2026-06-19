@@ -416,6 +416,25 @@ only (small-cap effect stronger but needs PIT prices). VERDICT: the genuine
 find — a real, stable, control-passing, orthogonal (non-price) signal — modest-
 to-moderate and survivorship-aided in level, but real. Deployable as a tilt;
 clean confirmation needs PIT/delisting-inclusive small-cap prices.
+**Insider REFINEMENT (exp35 — cluster/officer/CEO-CFO):** signal is ROBUST
+across variants — base net-buyer (22.7%/Sh1.04), officer-buy (20.5%/Sh1.05/
+DD−31%), CEO-CFO-buy (20.8%/Sh1.05/DD−31%) all beat random in BOTH sub-periods.
+Refinement to officer/CEO-CFO improves RISK profile (Sharpe 1.05, DD−31% vs
+base −35%) at slightly lower CAGR — cleaner ~35-name signal — but does NOT
+strengthen raw edge or beat QQQ risk-adjusted (all Sh~1.05 < QQQ 1.12). Cluster
+buys INCONCLUSIVE (matched random portfolios too small ~25-46 names → noisy
+control, e.g. spurious "random 31%"). On clean confirmation (#1): fully
+delisting-inclusive prices not free-accessible in-sandbox (QC clean data is
+cloud-only; Sharadar paid). BUT survivorship-SHARING controls (random/EW) +
+the EVENT-STUDY (same surviving stocks: post-buy months beat non-buy months
++0.73pp/qtr both halves — timing diff, not survivorship) give high confidence
+it's a REAL modest timing signal; only the absolute level (~20-23% CAGR) is
+survivorship-inflated. NET CONCLUSION of the 35-experiment arc: exactly ONE
+real, orthogonal, survivorship-robust signal found — insider buying — modest
+(~3%/yr gross over market, event-study +0.73pp/qtr), stable, deployable as a
+TILT, ~QQQ-equivalent risk-adjusted (not superior). Everything price-based and
+every fancy method failed; the edge required orthogonal non-price data and even
+then is small. Clean absolute confirmation needs paid PIT data.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
