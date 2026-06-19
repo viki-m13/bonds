@@ -435,6 +435,19 @@ real, orthogonal, survivorship-robust signal found — insider buying — modest
 TILT, ~QQQ-equivalent risk-adjusted (not superior). Everything price-based and
 every fancy method failed; the edge required orthogonal non-price data and even
 then is small. Clean absolute confirmation needs paid PIT data.
+**DEPLOYABLE blend (exp36 — QQQ + insider-officer-buy tilt):** THE payoff. QQQ
+core + insider-officer-buy sleeve, monthly rebal net 20bps: 70/30 -> CAGR 20.0%/
+Sharpe 1.17/maxDD −28% vs 100% QQQ 19.4%/1.12/−33%. First thing in 35 experiments
+to improve QQQ risk-adjusted without being a pure mirage. ROBUST part = the
+Sharpe/DD gain (diversification — decorrelated mid-cap insider names vs mega-cap
+tech; a correlation effect, survivorship-robust). CAVEATED part = the CAGR uplift
+(sleeve is survivorship-aided mid-cap; clean PIT trims it). Benefit is MODEST
+(Sharpe +0.05, DD −5pp), concentrated 2010-17, needs monthly ~35-name rebalance.
+DEPLOYMENT for biweekly QQQ-DCA: keep QQQ core, optionally route ~15-30% into
+current officer-insider-buy names (rebalanced) for a modestly smoother ride —
+not a return windfall. This is the honest terminus of the whole arc: one real
+orthogonal signal, deployable as a small diversifying tilt; clean CAGR
+confirmation still needs paid PIT data.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
