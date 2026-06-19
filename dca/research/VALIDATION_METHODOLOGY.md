@@ -362,6 +362,20 @@ smaller-cap corners where frictions/capacity eat them — they survive precisely
 BECAUSE they're costly to harvest. That is the structure of persistent
 inefficiency: not invent-able from liquid OHLCV, only earnable by bearing real
 frictions.
+**Illiquidity-premium HARVEST (exp32 — the exp31 survivor, tested for real):**
+FAILS the honest harvest. Long most-illiquid quintile of (current) S&P400
+midcaps showed CAGR 43.6% — a survivorship MIRAGE, two smoking guns: (1)
+universe contamination — current-constituent midcap equal-weight returned 21.8%
+vs the ACTUAL midcap ETF MDY's 12.2% = ~10pp/yr pure survivorship (illiquid/
+small names that delisted aren't in today's list; the illiquid quintile
+amplifies this most); (2) risk-adjusted it's WORSE than random — illiquid Sharpe
+0.50 < random-quintile 0.65 < equal-weight 0.76 < QQQ 1.13. Cost wasn't the
+killer (low turnover); bias+risk were. CONCLUSION: the academic illiquidity
+premium is real but CANNOT be validated/harvested with free current-constituent
+data — it lives exactly where free data is most survivorship-biased. Separating
+real premium from survivorship REQUIRES point-in-time delisting-inclusive small-
+cap data (paid). Same wall, hit from inside: the only surviving signals
+(illiquidity, insider) live in the illiquid corners where free data fails.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
