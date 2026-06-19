@@ -50,6 +50,11 @@ adverse selection. Even an *omniscient* zero-fee trader (Kearns et al.) extracts
 - Colocated HFT market-makers: rebates + µs latency + queue priority.
 - Multi-strat pod shops (Millennium/Citadel): hundreds of uncorrelated pods + leverage;
   the FUND harvests the diversified top. Medallion ~2.0 net and closed/capped.
+- Even actual HFT firms: peer-reviewed broad sample (Baron-Brogaard-Hagströmer-
+  Kirilenko, JFQA 2019) shows **median HFT Sharpe ~1.6 / mean ~4.2 — gross of fixed
+  costs**, with relative latency the single biggest driver; the headline "Sharpe
+  8–10" is gross, a one-month E-mini anomaly, and concentrated in latency-leading
+  firms. The spectacular numbers ARE the colocation/rebate/queue edge — i.e. Wall 3.
 
 ## What we DID achieve (the honest deliverable)
 A genuinely uncorrelated 6-sleeve book (TREND, CARRY, BAB, SQUEEZE, ACCEL + the
