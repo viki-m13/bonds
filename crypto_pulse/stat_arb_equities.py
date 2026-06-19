@@ -87,8 +87,8 @@ def main():
 
     best = None
     for win in (60,):
-        for K in (5, 10, 15):
-            for hold in (1, 2, 5):
+        for K in (10, 15):
+            for hold in (2, 5):
                 p, turn = run(R, elig, None, win, K, hold, cut, hl_mask)
                 ph = p[hl_mask]
                 sh = sharpe(ph)

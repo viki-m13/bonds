@@ -88,29 +88,20 @@ def sscore_signals(R, elig, win=60, K=3, hold=2):
         FtF = F.T @ F + 1e-6 * np.eye(K)
         beta = np.linalg.solve(FtF, F.T @ Z)            # K x n
         resid = Z - F @ beta                             # window x n
-        # cumulative residual -> OU s-score (Avellaneda-Lee discrete fit)
-        Xc = np.cumsum(resid, axis=0)
-        s = np.zeros(m.sum())
-        for j in range(m.sum()):
-            x = Xc[:, j]
-            x0, x1 = x[:-1], x[1:]
-            if not (np.isfinite(x0).all() and np.isfinite(x1).all()
-                    and x0.std() > 1e-9):
-                s[j] = 0.0
-                continue
-            try:
-                vv = np.vstack([x0, np.ones_like(x0)]).T
-                bb, a = np.linalg.lstsq(vv, x1, rcond=None)[0]
-            except np.linalg.LinAlgError:
-                s[j] = 0.0
-                continue
-            if bb <= 0 or bb >= 1:
-                s[j] = 0.0
-                continue
-            mean = a / (1 - bb)
-            var_eq = np.var(x1 - (a + bb * x0)) / (1 - bb**2)
-            sig_eq = np.sqrt(max(var_eq, 1e-12))
-            s[j] = -(x[-1] - mean) / sig_eq             # high resid -> negative score
+        # cumulative residual -> OU s-score, VECTORIZED AR(1) fit across all names
+        Xc = np.cumsum(resid, axis=0)                    # window x n
+        x0, x1 = Xc[:-1], Xc[1:]                          # (L-1) x n each
+        m0, m1 = x0.mean(0), x1.mean(0)
+        x0c, x1c = x0 - m0, x1 - m1
+        var0 = (x0c * x0c).mean(0) + 1e-18
+        bb = (x0c * x1c).mean(0) / var0                  # AR(1) slope per name
+        a = m1 - bb * m0
+        e = x1 - (a + bb * x0)
+        var_eq = e.var(0) / np.clip(1 - bb**2, 1e-9, None)
+        sig_eq = np.sqrt(np.clip(var_eq, 1e-12, None))
+        mean_eq = a / np.clip(1 - bb, 1e-9, None)
+        s = -(Xc[-1] - mean_eq) / sig_eq                 # high resid -> short
+        s = np.where((bb > 0) & (bb < 1) & np.isfinite(s), s, 0.0)
         # trade reversion: long cheap (s>0 after the sign flip above), short rich
         w = np.zeros(len(cols))
         full = np.zeros(m.sum())
