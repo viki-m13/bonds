@@ -112,3 +112,4 @@ Date,ticker,side,weight_before,weight_after,weight_delta,delta_pct
 2026-06-15,QLD,SELL,0.2316,0.2189,-0.0127,-1.27
 2026-06-16,TQQQ,BUY,0.0,0.0255,0.0255,2.55
 2026-06-16,UCO,SELL,0.0825,0.0577,-0.0248,-2.48
+2026-06-18,BIL,SELL,0.464,0.4587,-0.0052,-0.52

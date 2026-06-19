@@ -4,22 +4,22 @@
     "tc_bps_per_side": 5.0,
     "trade_threshold_pct": 0.5
   },
-  "as_of": "2026-06-17",
+  "as_of": "2026-06-18",
   "start_date": "2026-04-13",
-  "current_nav": 12092.7,
-  "total_return_pct": 20.93,
-  "spy_total_return_pct": 10.91,
-  "n_trade_days": 47,
-  "ann_return_pct": 107.16,
-  "ann_vol_pct": 27.07,
-  "sharpe": 3.958,
+  "current_nav": 12152.58,
+  "total_return_pct": 21.53,
+  "spy_total_return_pct": 10.39,
+  "n_trade_days": 48,
+  "ann_return_pct": 107.53,
+  "ann_vol_pct": 26.78,
+  "sharpe": 4.015,
   "mdd_pct": -8.42,
   "tracking_error_vs_backtest": {
-    "n_days": 47,
-    "mean_diff_bps": 24.57,
-    "stdev_diff_bps": 162.68,
+    "n_days": 48,
+    "mean_diff_bps": 23.97,
+    "stdev_diff_bps": 161.43,
     "max_abs_diff_bps": 492.77,
-    "ann_tracking_error_bps": 2582.4,
+    "ann_tracking_error_bps": 2562.6,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
@@ -39,8 +39,8 @@
       "Ticker": "TQQQ",
       "Side": "BUY",
       "Weight_Delta": 0.0255,
-      "Fill_Price": 81.65,
-      "Shares": 3.7752,
+      "Fill_Price": 81.67,
+      "Shares": 3.7742,
       "Notional_USD": 308.24
     },
     {
@@ -653,6 +653,13 @@
       "ret": -0.011308,
       "turnover": 0.0587,
       "tc": 2.9e-05
+    },
+    {
+      "d": "2026-06-18",
+      "v": 12152.58,
+      "ret": 0.004954,
+      "turnover": 0.0063,
+      "tc": 3e-06
     }
   ],
   "spy_series": [
@@ -843,6 +850,10 @@
     {
       "d": "2026-06-17",
       "v": 11090.62
+    },
+    {
+      "d": "2026-06-18",
+      "v": 11038.51
     }
   ]
 }
