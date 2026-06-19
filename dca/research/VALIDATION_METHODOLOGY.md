@@ -397,6 +397,25 @@ Insider TSV (Form-4, 2006+), FINRA short (cdn.finra.org), SRAF 10-X corpus
 FinBERT; validation = Novy-Marx/Velikov net-of-cost protocol; benchmark
 skeptics = Hou-Xue-Zhang global-q, JKP. Backtesters (vectorbt/bt/zipline) do NOT
 fix survivorship — data does.
+**INSIDER BUYING — clean build & the one signal that PASSED (exp34):** built a
+clean point-in-time monthly insider panel from SEC Form-345 bulk TSVs (296,855
+ticker-months, 14,261 tickers, 2010-2025, no scraping; keyed on FILING_DATE +
+ISSUERTRADINGSYMBOL). Tested on priceable S&P400+500+NDX (~900 names; mid/large,
+understates small-cap effect). RESULT — the FIRST signal in 34 experiments to
+pass BOTH disciplines: binary "net insider buyer" (net P-buys > S-sells, trailing
+3m) long-only portfolio beat a RANDOM same-universe same-size portfolio by +6.5pp
+(2010-17) and +8pp (2018-25) — same sign BOTH halves; event-study net-buyer vs
+rest +0.72/+0.75pp per 3m (stable). Random control shares the survivorship, so
+the gap is SIGNAL not bias. Net-20bps CAGR 22.7% vs SPY 14.4%, QQQ 19.4%.
+HONEST CAVEATS: (1) absolute 22.7% is partly universe-survivorship-inflated
+(current-constituent EW=20% vs SPY 14.4%); clean signal contribution is the
+control gap (~+3-7pp), not the full level; (2) risk-adjusted it does NOT beat
+QQQ (Sharpe 1.04 vs 1.12, −35% DD); wins return, loses smoothness; (3) only the
+BINARY presence works — $ magnitude IC was negative (fragile); (4) mid/large-cap
+only (small-cap effect stronger but needs PIT prices). VERDICT: the genuine
+find — a real, stable, control-passing, orthogonal (non-price) signal — modest-
+to-moderate and survivorship-aided in level, but real. Deployable as a tilt;
+clean confirmation needs PIT/delisting-inclusive small-cap prices.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
