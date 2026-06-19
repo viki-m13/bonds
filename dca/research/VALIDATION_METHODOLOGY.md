@@ -376,6 +376,27 @@ data — it lives exactly where free data is most survivorship-biased. Separatin
 real premium from survivorship REQUIRES point-in-time delisting-inclusive small-
 cap data (paid). Same wall, hit from inside: the only surviving signals
 (illiquidity, insider) live in the illiquid corners where free data fails.
+**DEFINITIVE SBF test via OpenSourceAP (exp33, Chen-Zimmermann, peer-reviewed,
+CRSP-based, release-lags applied — `pip install openassetpricing`, FREE):** the
+GitHub research found the one resource that breaks the survivorship wall, and
+using it SETTLES the premia question. Long-short premia by era (t-stat):
+Illiquidity/Amihud pre-2004 t+3.0 -> 2017-24 t−0.5 (DEAD); Size +3.5->−1.0
+(DEAD); BidAskSpread/std_turn/Value all DEAD post-2004; Momentum weakened
+(t+1.7); SURVIVORS = VolumeTrend (t+2.6, the one volume signal that persists)
+and Gross Profitability/quality (t+2.2). **Of 208 anomalies, only 14% are still
+same-sign |t|>2 since 2016; 31% FLIPPED sign.** This proves: (1) exp32's 43.6%
+illiquidity result was 100% survivorship — the REAL premium is dead 20yrs; (2)
+~86% of published anomalies are dead/insignificant recently — publication decay
+(McLean-Pontiff, Chen) is WHY every experiment here failed; it's the base rate,
+not us; (3) survivors are GROSS long-short Sharpe 0.3-0.6 -> net-of-cost &
+long-only-vs-QQQ they mostly vanish. FREE-DATA CATALOG for future work:
+survivorship-free = OpenSourceAP (signals+portfolios, no WRDS) + QuantConnect/
+LEAN (cloud daily, delisting-inclusive from 1998); orthogonal alt-data = SEC
+Insider TSV (Form-4, 2006+), FINRA short (cdn.finra.org), SRAF 10-X corpus
+(Lazy-Prices), edgartools (13F/insider parsing), Wikipedia pageviews, GDELT+
+FinBERT; validation = Novy-Marx/Velikov net-of-cost protocol; benchmark
+skeptics = Hou-Xue-Zhang global-q, JKP. Backtesters (vectorbt/bt/zipline) do NOT
+fix survivorship — data does.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
