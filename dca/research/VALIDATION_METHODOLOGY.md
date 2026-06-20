@@ -752,6 +752,22 @@ factor tilt is corr -0.06 to QQQ -> diversification lifts Sharpe vs QQQ 1.13 wit
 leverage: 50QQQ/50LOfac + 0.5x net alpha = 20.5%/Sharpe 1.70. Factor-timing
 (weight by trailing 12m) lifts net L/S 0.99->1.08. (Scripts exp73-75; _ls.pkl.)
 
+**ML MARKET-NEUTRAL L/S — strongest alpha in the program (exp76).** Walk-forward
+HistGBM (trained only on past, predicting cross-sectional terciles) combined all 36
+signals nonlinearly into a dollar-neutral decile L/S: **GROSS ann 46.4%, Sharpe
+2.00, corr-to-QQQ -0.01; NET of 6%/yr borrow Sharpe 1.74.** Beats the linear factor
+L/S (net 0.99) because GBT captures interactions; corr(ML,linear)=0.76 so blending
+adds little. Portable: QQQ+1x ML-alpha(net) = 59%/Sharpe 2.01. More regime-robust
+than linear (sub-period net Sharpe 1.89/0.66/2.57 across 2015-18/19-21/22-25 — never
+negative). HONEST CAVEATS: Sharpe 2.0 is gross of COMMISSIONS/slippage/market-impact
+(decile L/S ~100%+/mo turnover on ~200 small/mid-cap names); requires shorting
+hard-to-borrow small-caps + leverage for the overlay; pure L/S maxDD ~-40%; some
+feature-set selection used full-sample judgment (though training is genuinely OOS).
+Realistic net after all frictions is materially below 1.74 but the alpha is REAL and
+the strongest found. SPECTRUM of deliverables: retail no-leverage = 50%QQQ/50%
+long-only-factor-tilt (Sharpe 1.42); can-short fund = ML/factor market-neutral book
+(net Sharpe ~1.5-1.7) or QQQ+alpha overlay (Sharpe ~2.0). (Scripts exp76.)
+
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
