@@ -621,6 +621,42 @@ buys ~5-6pp less drawdown and ~+0.03-0.04 Sharpe for ~2-3pp less CAGR. Insider,
 momentum, reversal, value, quality, 3-way bond mixes all fail to improve it.
 (Scripts: dca/research/exp52..exp57.)
 
+**Moonshot reverse-engineering (exp58-60, vs the stocksonstocks repo).** Goal:
+reverse-engineer what qualifies the rare >100% multi-baggers (NVDA/VRT/APP-class)
+into an ensemble, then validate on PIT data. Analyzed the SOS "Moonshot" engine
+in detail: it layers a selector on ~40 technical+fundamental+news signals
+(signals.ts computeSignalAt) → Elite STRICTEST tier → MOON tiers (STRICTEST ∩
+imminent-breakout ∩ theme-sourced gap-up), held for YEARS with a staged
+confirm/cull ladder (30d≥+10% / 90d≥+10% / 180d≥+30%). Their key reframe: P(>100%
+in 180d)=3% (impossible) vs P(>100% hold-to-today)=20% — moonshots are a
+multi-year HOLD phenomenon. Realized matured-2023-24: +50% CAGR vs SPY +10%,
+maxDD -37%. HONEST PROBLEMS: validated only 2023-25 (the AI/semi boom), themes
+hindsight-curated in 2026, Yahoo data = survivorship-biased (delisted zeros
+invisible), ~22 fat-tailed trades/yr.
+  exp58 (case studies): moonshots are BIMODAL — breakout-from-strength
+(AVGO/LLY/WDC/MSFT near 52w-high, +mom) AND deep-recovery (META/VRT/NFLX -70%
+mom, 28% of high). Systematic top-2%-fwd12m signature = HIGH vol6 (rank 0.74) +
+LOW %-of-12m-high (0.35) + LOW price (0.35) = the classic LOTTERY profile.
+  exp59 (raw archetypes on PIT, monthly): LOTTERY (hi-vol/cheap/beaten) top20 =
+CAGR 24.7% but Sharpe 0.67, maxDD -86% — it DOES catch moonshots but rides a sea
+of wipeouts. The whole SOS engine is a RISK-CONTROL WRAPPER around lottery-hunting
+(guards+regime+staged cull) trying to keep NVDA upside while cutting the -86% tail.
+  exp60 (DEFINITIVE — faithful price/vol replication of the SOS technical stack
+on the 2000-2024 PIT delisting-inclusive panel, 6137 liquid names): the technical
+"moonshot structure" (bull stack + near-52w-hi + breakout/imminent + extension
+guards) has ~ZERO edge OOS — mean fwd-12m 9.5% vs BASE liquid universe 9.6%, and
+2x rate 2.0% vs 3.2% (the guards REMOVE multi-baggers). By era it's pure regime
+beta: 2000-09 +4.0%, 2010-19 +10.9%, 2020-24 +11.5%, ~2% 2x throughout. VERDICT:
+the price/volume signature is NOT the moonshot qualifier — it's trend-beta
+scaffolding. The 2023-24 alpha lived in theme-selection + fundamental
+acceleration + multi-year hold during the AI capex boom — the layers most
+exposed to hindsight and the ones price-only PIT data can't adjudicate. Caveats:
+close-based (no intraday H/L), monthly cadence, theme/news/fundamental gates not
+replicated (no data). To find a DURABLE qualifier one must test the fundamentals
+layer (SEC-EDGAR revenue-acceleration is free) and/or the Form-4 insider overlay
+(our one validated edge = their unbuilt 'Deep-Doc' layer). (Scripts exp58-60;
+SOS repo read-only via PAT, not committed here.)
+
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
