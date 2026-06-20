@@ -548,6 +548,19 @@ without a random-null/multiple-testing control 'finds' winners that are beta or
 luck; with the control, no NEW tradeable price alpha emerges vs QQQ. Confirms
 the whole program: the only real signals are orthogonal (insider) or
 mean-reversion, not any price transform.
+**CLEAN insider test on Tiingo delisting-inclusive data (exp49) — THE
+verification:** ran the insider-officer-buy signal on Tiingo prices INCLUDING
+855 delisted insider-buy names (the survivorship fix yfinance lacks). With
+winsorized returns + price>=$3 + equal-weight portfolio: insider-buy minus rest
+= **+0.68%/3m (t=3.7) WITH delisted names included** vs +0.66% survivors-only.
+**Survivorship inflation is negligible — the insider edge is REAL, not an
+artifact.** First signal in 49 experiments to pass a genuine survivorship-clean
+test. Modest (~2.7%/yr long-short) but verified. CRITICAL methodology note:
+naive means on delisting-inclusive small-cap data are corrupted by penny/dead-
+stock outliers (a spurious '+227%' until winsorized) — ALWAYS winsorize +
+price-filter + equal-weight when using survivorship-clean small-cap data.
+Caveats: preliminary (855/1831 delisted names; rest downloading), Tiingo misses
+OTC-Q bankruptcy final wipeouts (but adding the 855 barely moved it -> robust).
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
