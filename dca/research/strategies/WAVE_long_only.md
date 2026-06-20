@@ -23,9 +23,22 @@ fundamental+technical+insider features), gated to names that are **already movin
 | Config | CAGR | Sharpe | maxDD |
 |---|--:|--:|--:|
 | QQQ | 18.5% | 1.03 | −33% |
-| **ML N12 + runner-gate (best Sharpe)** | 19.6% | **1.36** | **−19%** |
-| ML N12 equal-rebalance (best CAGR) | 21.3% | 1.34 | −22% |
-| ML N8 (more concentrated) | 19.2% | 1.16 | −25% |
+| **ML N12 + runner-gate + SIGNAL-ACCELERATION (CHAMPION)** | **21.5%** | **1.41** | **−17.8%** |
+| ML N12 + runner-gate (prior) | 19.6% | 1.36 | −19% |
+| ML N12 equal-rebalance | 21.3% | 1.34 | −22% |
+
+**CHAMPION = ML rank + runner-gate (mom3>0) + signal-acceleration gate
+(ML score rising: prob_t > prob_{t-2}).** Sub-period: 2015-18 Sharpe 1.64 (QQQ
+0.82), 2019-21 1.85 (=QQQ), 2022-25 **1.11 (QQQ 0.66)** — beats/matches QQQ every
+era. Script: `exp83_creative.py`.
+
+### Signal-acceleration — the creative edge (exp83)
+Buying names whose **ML conviction is *rising*** (not just high) lifted Sharpe
+1.24→1.41 and CAGR to 21.5%. Improving stocks outrun already-strong ones (a
+2nd-derivative / "fundamental+technical momentum" effect). What did NOT help:
+conviction-weighting (neutral), vol-calibrated stops (slightly worse), and
+**blending insider/13F into the score (hurt — 0.91; the ML is already the optimal
+combiner, don't dilute its rank — use extra signals as GATES, not score blends).**
 
 \*2015–2025 because the ML picker needs prior history to train. On 2012–2025 the
 non-ML long-only multi-sleeve blend (moonshot + composite) did 22% / Sharpe 1.28
