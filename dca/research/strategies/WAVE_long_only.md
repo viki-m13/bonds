@@ -46,8 +46,19 @@ Sub-period (best blend variant): 2015-18 Sharpe 1.40 (QQQ 0.82), 2019-21 1.75
 - ML beats the hand-built factor composite for *selection*; concentration to
   ~12 names is the sweet spot (N=8 too noisy, N=20 dilutes).
 
-## Roadmap
-1. Earnings-drift & post-event runner entries; news/8-K catalyst gate.
-2. 13F institutional accumulation as a selection feature.
-3. Volatility-scaled position sizing; regime exposure throttle.
-4. Extend ML history pre-2015 (needs earlier fundamentals coverage).
+## Tested overlays that DID NOT help (exp80) — don't relearn
+On the base ML N12 runner-gate (Sharpe 1.36), three standard enhancements were
+tested and ALL hurt:
+- **PEAD boost** (tilt to fresh revenue-surprise names): Sharpe 1.36 -> 0.83. The
+  ML picker already ingests revenue-accel features; an extra boost distorts the rank.
+- **Vol-scaled sizing** (1/vol weighting): 1.36 -> 1.33 (neutral/slightly worse;
+  the runner-gate already controls vol).
+- **Market-regime throttle** (cash when QQQ<10mo-MA): 1.36 -> 1.16 (50%) / 1.06
+  (0%). Whipsaw + missed V-recoveries in a strong-uptrend decade.
+- All combined: 0.60. => Base WAVE is already well-tuned; leave these off.
+
+## Roadmap (still open)
+1. 13F institutional accumulation as a selection feature (in progress, exp81).
+2. News/8-K hard-catalyst gate (needs 8-K event fetch).
+3. Extend ML history pre-2015 (needs earlier fundamentals coverage).
+4. Sector/industry context features.
