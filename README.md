@@ -2,6 +2,30 @@
 
 Bond trading model using historical bond market data.
 
+## Strategies
+
+This repo hosts several systematic strategies with live, self-updating
+factsheets at https://viki-m13.github.io/bonds/ :
+
+- **SUMMIT** — a concentrated biweekly/monthly **DCA stock-selection** strategy
+  on point-in-time S&P 500 data (beats QQQ-DCA in 93% of rolling windows). Full
+  project record, research log, and reproduction steps in [`dca/README.md`](dca/README.md);
+  live page `docs/summit.html`.
+- **PULSE** — a vol-targeted daily-crypto **trend + Donchian breakout** strategy
+  (Sharpe ≈ 1.2 net, −16% maxDD) and an honest investigation of why a
+  price-action **Sharpe > 3 is not attainable** on the available OHLCV data (the
+  bigger numbers are bid-ask-bounce artifacts). See
+  [`crypto_pulse/README.md`](crypto_pulse/README.md).
+- **ROTATOR** — an external leadership-rotation strategy, independently
+  replicated and compared on the identical harness (`docs/rotator.html`).
+- **PHOENIX / APEX** and other leveraged-ETF strategies — see `alt/`, `apex/`,
+  and `docs/`.
+- **IGNITION** — a price-action/volume strategy that tries to buy stocks
+  **before they go parabolic** (+50% / 6 months). Grounded in an extensive
+  academic + FinTwit + retail research sweep, validated with an honest IS/OOS
+  event study and a survivorship-matched random control. Full record in
+  [`parabolic/README.md`](parabolic/README.md).
+
 ## Data Sources
 
 ### 1. Bond ETFs (via Yahoo Finance)

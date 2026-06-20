@@ -1,27 +1,27 @@
 series_id,description,downloaded
-DGS1MO,Treasury Yield 1-Month,False
-DGS3MO,Treasury Yield 3-Month,False
-DGS6MO,Treasury Yield 6-Month,False
-DGS1,Treasury Yield 1-Year,False
-DGS2,Treasury Yield 2-Year,False
-DGS5,Treasury Yield 5-Year,False
-DGS7,Treasury Yield 7-Year,False
-DGS10,Treasury Yield 10-Year,False
-DGS20,Treasury Yield 20-Year,False
-DGS30,Treasury Yield 30-Year,False
-T10Y2Y,10-Year minus 2-Year Treasury Spread,False
-T10Y3M,10-Year minus 3-Month Treasury Spread,False
-T10YFF,10-Year minus Fed Funds Rate,False
+DGS1MO,Treasury Yield 1-Month,True
+DGS3MO,Treasury Yield 3-Month,True
+DGS6MO,Treasury Yield 6-Month,True
+DGS1,Treasury Yield 1-Year,True
+DGS2,Treasury Yield 2-Year,True
+DGS5,Treasury Yield 5-Year,True
+DGS7,Treasury Yield 7-Year,True
+DGS10,Treasury Yield 10-Year,True
+DGS20,Treasury Yield 20-Year,True
+DGS30,Treasury Yield 30-Year,True
+T10Y2Y,10-Year minus 2-Year Treasury Spread,True
+T10Y3M,10-Year minus 3-Month Treasury Spread,True
+T10YFF,10-Year minus Fed Funds Rate,True
 BAMLC0A0CM,ICE BofA US Corporate Index OAS,True
 BAMLH0A0HYM2,ICE BofA US High Yield Index OAS,True
 BAMLC0A4CBBB,ICE BofA BBB US Corporate Index OAS,True
 BAMLC0A1CAAA,ICE BofA AAA US Corporate Index OAS,True
 FEDFUNDS,Federal Funds Effective Rate,True
-DFEDTARU,Fed Funds Target Rate Upper,False
-DFEDTARL,Fed Funds Target Rate Lower,False
-T5YIE,5-Year Breakeven Inflation Rate,False
-T10YIE,10-Year Breakeven Inflation Rate,False
+DFEDTARU,Fed Funds Target Rate Upper,True
+DFEDTARL,Fed Funds Target Rate Lower,True
+T5YIE,5-Year Breakeven Inflation Rate,True
+T10YIE,10-Year Breakeven Inflation Rate,True
 CPIAUCSL,CPI All Urban Consumers,True
 UNRATE,Unemployment Rate,True
-VIXCLS,CBOE Volatility Index (VIX),False
-DTWEXBGS,Trade Weighted US Dollar Index,False
+VIXCLS,CBOE Volatility Index (VIX),True
+DTWEXBGS,Trade Weighted US Dollar Index,True

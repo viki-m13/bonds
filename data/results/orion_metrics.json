@@ -3,51 +3,51 @@
   "IS_cagr": 0.1209242674062434,
   "IS_vol": 0.19461103275059013,
   "IS_mdd": -0.3165844729517806,
-  "OOS_sharpe": 1.15938248343068,
-  "OOS_cagr": 0.3513406437729558,
-  "OOS_vol": 0.29837658792896354,
+  "OOS_sharpe": 1.1405621357653242,
+  "OOS_cagr": 0.3450610999918582,
+  "OOS_vol": 0.29951297896591283,
   "OOS_mdd": -0.24345492868657848,
-  "Full_sharpe": 0.9307746795922838,
-  "Full_cagr": 0.2208764979271467,
-  "Full_vol": 0.24753783740677762,
+  "Full_sharpe": 0.921086609970855,
+  "Full_cagr": 0.21857569730608417,
+  "Full_vol": 0.24829896155827635,
   "Full_mdd": -0.3165844729517806,
-  "avg_turnover_annualised": 13.600636630754165,
-  "sharpe_gap_IS_OOS": 0.47490842978803616,
+  "avg_turnover_annualised": 13.598192476795312,
+  "sharpe_gap_IS_OOS": 0.45608808212268026,
   "per_signal_sharpe": {
-    "S1_momentum": 0.8440463208339494,
-    "S2_trend": 0.8542045725938452,
-    "S3_lowvol_safe": 0.36570763936702755,
-    "S4_regime": 0.487778844337225
+    "S1_momentum": 0.8349704891029698,
+    "S2_trend": 0.8473883243580018,
+    "S3_lowvol_safe": 0.3699794513550834,
+    "S4_regime": 0.4843633161877272
   },
   "signal_return_corr": {
     "S1_momentum": {
       "S1_momentum": 1.0,
-      "S2_trend": 0.715,
-      "S3_lowvol_safe": -0.138,
-      "S4_regime": 0.551
+      "S2_trend": 0.716,
+      "S3_lowvol_safe": -0.136,
+      "S4_regime": 0.552
     },
     "S2_trend": {
-      "S1_momentum": 0.715,
+      "S1_momentum": 0.716,
       "S2_trend": 1.0,
       "S3_lowvol_safe": 0.076,
-      "S4_regime": 0.667
+      "S4_regime": 0.668
     },
     "S3_lowvol_safe": {
-      "S1_momentum": -0.138,
+      "S1_momentum": -0.136,
       "S2_trend": 0.076,
       "S3_lowvol_safe": 1.0,
       "S4_regime": 0.023
     },
     "S4_regime": {
-      "S1_momentum": 0.551,
-      "S2_trend": 0.667,
+      "S1_momentum": 0.552,
+      "S2_trend": 0.668,
       "S3_lowvol_safe": 0.023,
       "S4_regime": 1.0
     }
   },
   "sleeve_sharpe": {
-    "RISK_sleeve": 0.7980859982682904,
-    "SAFE_sleeve": 0.43408743263193295
+    "RISK_sleeve": 0.7875737391254556,
+    "SAFE_sleeve": 0.4335566914060596
   },
   "sleeve_corr": {
     "RISK": {

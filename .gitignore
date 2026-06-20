@@ -7,3 +7,31 @@ build/
 .venv/
 venv/
 node_modules/
+data/pit/prices/
+data/pit/panel_*.parquet
+data/pit/prices_broad/
+data/pit/prices_n100/
+
+# fetched, reproducible via crypto_pulse/fetch_hourly.py
+data/crypto_hourly/
+
+# fetched HL funding, reproducible via crypto_pulse fetch
+data/hl_funding/
+
+# fetched 1-min crypto (Coinbase), reproducible via crypto_pulse/fetch_1min.py
+data/crypto_1min/
+
+# fetched Coinbase hourly, reproducible via crypto_pulse/fetch (see intraday.py)
+data/crypto_hourly_cb/
+
+# recorded HL L2 (forward data, reproducible via crypto_pulse/record_l2.py)
+data/hl_l2/
+
+# fetched order-flow klines, thin-venue (binance.us), reproducible
+data/crypto_of/
+
+# forward-recorded order flow
+data/hl_orderflow/
+
+# recorded HL HIP-3 mark/oracle/funding (forward, reproducible via record_hip3.py)
+data/hl_hip3/
