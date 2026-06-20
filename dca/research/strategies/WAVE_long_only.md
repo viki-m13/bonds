@@ -120,3 +120,15 @@ LESSON: "predict the future banger" overfits to extension; shorter-horizon,
 fundamental-anchored targets win. WAVE champion (single ML + runner + signal-accel)
 stays the risk-adjusted best. The banger model is a high-CAGR/high-risk variant
 only (saved _mlprob_banger.pkl) for anyone who wants max CAGR and can stomach -43% DD.
+
+## CLEAN isolated test: +14 technical/volume features on the WINNING target (exp92)
+To separate "bad target" from "bad features", kept the proven fwd-3m-tercile
+single model and ONLY added the 14 volume/technical features (36→50). Result:
+IC 0.163→**0.137** (lower); champion 21.4%/1.34/-18% → **10.9%/0.81/-25%** (much
+worse). DEFINITIVE: the daily volume/TA features (accumulation, OBV, squeeze,
+days-since-high, vol-surge, etc.) add NOISE, not signal — the ML is already at its
+information frontier with fundamentals + basic price-trend features. More technical
+analysis degrades the picker. The "ensemble + TA + proprietary features → better
+banger ID" hypothesis is rigorously REJECTED (exp86 ensemble, exp90-91 banger,
+exp92 clean feature-add — all worse). WAVE champion (36-feat single ML + runner +
+signal-accel) remains the long-only frontier.
