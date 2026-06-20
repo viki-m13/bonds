@@ -597,6 +597,30 @@ a lower-Sharpe asset. Honest verdict: the insider signal is real but its
 PRACTICAL value for a retail DCA plan is marginal; the risk-adjusted improver in
 this program was the mean-reversion sleeve, not insider.
 
+**Broadening beyond insider (exp55/exp56/exp57, clean Tiingo) — the LOW-VOL
+overlay is the one honest, retail-tradeable improver.** Per "keep improving, not
+necessarily insider", ran a cross-sectional factor scan on the clean monthly
+panel (top-decile long-only, price>=$5, eq-wt, delisting-incl): momentum 12-1
+CAGR 12.8%/Sh 0.69, mom6 12.7%/0.65, 1-mo reversal -2.8%/0.03 (DEAD on small-caps
++ high cost), but **low-vol (lowest 6-mo return-vol decile) CAGR 10.6%, Sharpe
+1.35, maxDD -15%, corr-to-QQQ only +0.34**. Momentum/reversal too correlated
+(+0.70) to help a QQQ core; low-vol's low correlation makes it a real
+diversifier. BUT the 1.35 was idealized (costless monthly rebal of ~378 names).
+Validating on the ACTUAL tradeable products (fetched USMV/SPLV/MTUM/VLUE/QUAL/
+EFAV/TLT/IEF from Tiingo, 2012-2025): USMV (real low-vol ETF) CAGR 11.5%, Sharpe
+1.03, maxDD -19%, corr 0.72 (large-cap low-vol = more market-like than the synth
+sleeve). Real overlay benefit is MODEST but genuine + sub-period-stable: QQQ+USMV
+70/30 = CAGR 17.4%, **Sharpe 1.18 (vs QQQ 1.15), maxDD -28% (vs -33%)**; 60/40 =
+Sharpe 1.19. Beats QQQ Sharpe in 3 of 4 sub-periods (2012-15 1.58>1.48, 2016-19
+1.37>1.24, 2023-25 1.97>1.92; ties 2020-22 0.44~0.45). Adding TLT (3-way) does
+NOT help (TLT Sharpe 0.09, killed by 2022). HONEST VERDICT of the whole
+"beat/improve QQQ-DCA" program: no long-only no-leverage strategy beats QQQ-DCA
+on RETURN in the 2012-2025 mega-cap regime; the only durable, retail-tradeable
+*risk-adjusted* improvement is a 20-40% low-vol (USMV) sleeve on a QQQ core —
+buys ~5-6pp less drawdown and ~+0.03-0.04 Sharpe for ~2-3pp less CAGR. Insider,
+momentum, reversal, value, quality, 3-way bond mixes all fail to improve it.
+(Scripts: dca/research/exp52..exp57.)
+
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
