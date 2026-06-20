@@ -132,3 +132,12 @@ analysis degrades the picker. The "ensemble + TA + proprietary features → bett
 banger ID" hypothesis is rigorously REJECTED (exp86 ensemble, exp90-91 banger,
 exp92 clean feature-add — all worse). WAVE champion (36-feat single ML + runner +
 signal-accel) remains the long-only frontier.
+
+## 8-K catalyst intensity (exp93) — no signal (new-info angle)
+Fetched all SEC 8-K filings 2012-2025 (563k filings, 5,451 tickers; counts in
+data/sec/_8k_counts.pkl). As a cross-sectional signal: 8K-surge-vs-baseline IC
+-0.005 / L/S Sharpe -0.83 (mildly NEGATIVE); count-level IC -0.010; count-change
+~0. 8-K FREQUENCY conflates good catalysts (earnings beats, contracts) with bad
+(restructuring, exec departures, dilution, litigation), so the count proxy is
+noise. Real signal would need per-filing ITEM-type parsing (2.02/1.01/5.02 etc.)
+— a much heavier per-document fetch. New-info-via-8K-count: rejected.
