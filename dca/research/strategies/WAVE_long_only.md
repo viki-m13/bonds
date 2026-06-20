@@ -141,3 +141,14 @@ data/sec/_8k_counts.pkl). As a cross-sectional signal: 8K-surge-vs-baseline IC
 (restructuring, exec departures, dilution, litigation), so the count proxy is
 noise. Real signal would need per-filing ITEM-type parsing (2.02/1.01/5.02 etc.)
 — a much heavier per-document fetch. New-info-via-8K-count: rejected.
+
+## Multi-algorithm ensemble on FULL features (exp97) — GBT-alone wins
+Tested GBT vs ExtraTrees vs Logistic on the full 36 features, and rank-averaged
+ensembles. IC: GBT 0.163, ET 0.089, LR 0.055. Champion Sharpe: GBT 1.34;
+ENS gbt+et+lr 1.10, gbt+et 1.14, gbt+lr 1.17, gbt-weighted 1.05 — ALL below
+GBT-alone. The weaker learners dilute the GBT. DEFINITIVE: the single tuned GBT
+on the full feature set is the optimal nonlinear multi-factor composite (trees
+already capture the factor interactions; ensembling other algos just adds noise).
+Quant-optimization battery now exhausted: hyperparameter variants, feature
+selection (exp96, hurts), mixed-target ensemble (exp86), bagging (exp91),
+multi-algo (exp97) — none beat the single GBT champion (21%/1.34).
