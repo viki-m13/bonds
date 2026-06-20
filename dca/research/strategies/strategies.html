@@ -1,191 +1,172 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>WAVE & SUMMIT — Strategy Brief</title>
 <style>
-  :root{
-    --bg:#ffffff; --txt:#111418; --mut:#6b7280; --line:#e5e7eb; --card:#fafafa;
-    --good:#15803d; --bad:#b91c1c;            /* color ONLY where it carries meaning */
-  }
-  *{box-sizing:border-box;-webkit-text-size-adjust:100%}
-  body{margin:0;background:var(--bg);color:var(--txt);
-    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    padding:0 0 56px}
-  .wrap{max-width:660px;margin:0 auto;padding:0 16px}
-  header{padding:28px 16px 14px;text-align:center;border-bottom:1px solid var(--line)}
-  header h1{font-size:25px;margin:0 0 4px;letter-spacing:.5px;font-weight:800}
-  header p{color:var(--mut);font-size:13px;margin:0}
-  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.95);
-    backdrop-filter:blur(6px);border-bottom:1px solid var(--line);
-    display:flex;gap:8px;padding:10px 16px}
-  nav a{flex:1;text-align:center;text-decoration:none;color:var(--txt);
-    padding:11px 6px;border-radius:10px;font-weight:700;font-size:15px;
-    background:#fff;border:1.5px solid var(--txt)}
-  nav a:active{background:var(--txt);color:#fff}
-  section{padding-top:18px}
-  .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.7px;
-    padding:4px 10px;border-radius:999px;text-transform:uppercase;
-    border:1.5px solid var(--txt);color:var(--txt)}
-  h2{font-size:23px;margin:10px 0 2px;font-weight:800;letter-spacing:.5px}
-  .sub{color:var(--mut);font-size:13.5px;margin:0 0 14px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
-    padding:16px;margin:0 0 14px}
-  .card h3{margin:0 0 11px;font-size:13px;color:var(--mut);font-weight:700;
-    text-transform:uppercase;letter-spacing:.6px}
-  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-  .m{background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px 8px;text-align:center}
-  .m .v{font-size:21px;font-weight:800;line-height:1.1}
-  .m .l{font-size:11px;color:var(--mut);margin-top:3px}
-  .m .q{font-size:10.5px;color:var(--mut);margin-top:2px}
-  .good{color:var(--good)} .bad{color:var(--bad)}
-  ul{margin:6px 0 0;padding-left:18px} li{margin:5px 0;font-size:14.5px}
-  ul.tight li{margin:3px 0}
-  b{font-weight:700}
-  .row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;
-    border-bottom:1px solid var(--line);font-size:14px}
-  .row:last-child{border-bottom:none}
-  .row .k{color:var(--mut);white-space:nowrap} .row .val{font-weight:600;text-align:right}
-  .pill{font-size:12px;color:var(--mut);background:#fff;
-    border:1px solid var(--line);border-radius:8px;padding:3px 9px;display:inline-block;margin:3px 4px 0 0}
-  .note{font-size:13px;color:var(--txt);background:#f3f4f6;
-    border-left:3px solid var(--txt);border-radius:6px;padding:10px 12px;margin-top:4px}
-  footer{color:var(--mut);font-size:12px;text-align:center;padding:22px 16px 0;line-height:1.7;
-    border-top:1px solid var(--line);margin-top:26px}
-  .hr{height:0;margin:26px 0}
-</style>
-</head>
-<body>
-<header>
-  <h1>WAVE &amp; SUMMIT</h1>
-  <p>Equity strategy brief · survivorship-clean point-in-time backtest · 2015–2025</p>
-</header>
-<nav class="wrap">
-  <a href="#wave">WAVE</a>
-  <a href="#summit">SUMMIT</a>
-</nav>
-
+:root{--bg:#fff;--txt:#111418;--mut:#6b7280;--line:#e5e7eb;--card:#fafafa;--good:#15803d;--bad:#b91c1c}
+*{box-sizing:border-box;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:0 0 56px}
+.wrap{max-width:660px;margin:0 auto;padding:0 16px}
+header{padding:26px 16px 12px;text-align:center;border-bottom:1px solid var(--line)}
+header h1{font-size:25px;margin:0 0 4px;letter-spacing:.5px;font-weight:800}
+header p{color:var(--mut);font-size:13px;margin:0}
+nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);display:flex;gap:8px;padding:10px 16px}
+nav button{flex:1;text-align:center;color:var(--txt);padding:11px 6px;border-radius:10px;font-weight:700;font-size:15px;background:#fff;border:1.5px solid var(--txt);cursor:pointer}
+nav button.on{background:var(--txt);color:#fff}
+section{padding-top:16px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.6px;padding:4px 10px;border-radius:999px;text-transform:uppercase;border:1.5px solid var(--txt)}
+h2{font-size:23px;margin:9px 0 2px;font-weight:800;letter-spacing:.5px}
+.sub{color:var(--mut);font-size:13.5px;margin:0 0 12px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px}
+.chips button{font-size:12.5px;font-weight:600;color:var(--txt);background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chips button.on{background:var(--txt);color:#fff;border-color:var(--txt)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 14px}
+.card h3{margin:0 0 11px;font-size:13px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.m{background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px 8px;text-align:center}
+.m .v{font-size:21px;font-weight:800;line-height:1.1}
+.m .l{font-size:11px;color:var(--mut);margin-top:3px}
+.m .q{font-size:10.5px;color:var(--mut);margin-top:2px}
+.good{color:var(--good)}.bad{color:var(--bad)}
+svg{width:100%;height:auto;display:block}
+.leg{display:flex;gap:16px;justify-content:center;font-size:12px;color:var(--mut);margin-top:8px}
+.leg i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:8px 6px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;user-select:none}
+th.s::after{content:" ▾";opacity:.6}th.s.asc::after{content:" ▴"}
+ul{margin:6px 0 0;padding-left:18px}li{margin:5px 0;font-size:14.5px}ul.tight li{margin:3px 0}
+.row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.row:last-child{border-bottom:none}.row .k{color:var(--mut);white-space:nowrap}.row .val{font-weight:600;text-align:right}
+.pill{font-size:12px;color:var(--mut);background:#fff;border:1px solid var(--line);border-radius:8px;padding:3px 9px;display:inline-block;margin:3px 4px 0 0}
+.note{font-size:13px;background:#f3f4f6;border-left:3px solid var(--txt);border-radius:6px;padding:10px 12px;margin-top:4px}
+footer{color:var(--mut);font-size:12px;text-align:center;padding:20px 16px 0;line-height:1.7;border-top:1px solid var(--line);margin-top:24px}
+.hide{display:none}
+</style></head><body>
+<header><h1>WAVE &amp; SUMMIT</h1><p>Equity strategy brief · survivorship-clean point-in-time · interactive</p></header>
+<nav class="wrap"><button id="tab-wave" class="on" onclick="setStrat('wave')">WAVE</button><button id="tab-summit" onclick="setStrat('summit')">SUMMIT</button></nav>
 <div class="wrap">
+  <span class="badge" id="badge"></span>
+  <h2 id="title"></h2>
+  <p class="sub" id="subtitle"></p>
 
-<!-- ============ WAVE ============ -->
-<section id="wave">
-  <span class="badge">Deploy now · long-only · no margin</span>
-  <h2>WAVE</h2>
-  <p class="sub">ML stock-picker — ride winners, cut losers. ~12 names, monthly.</p>
+  <div class="chips" id="chips"></div>
 
-  <div class="card">
-    <h3>Performance vs QQQ (2015–25)</h3>
-    <div class="metrics">
-      <div class="m"><div class="v good">21.4%</div><div class="l">CAGR</div><div class="q">QQQ 18.5%</div></div>
-      <div class="m"><div class="v good">1.41</div><div class="l">Sharpe</div><div class="q">QQQ 1.03</div></div>
-      <div class="m"><div class="v good">−18%</div><div class="l">max drawdown</div><div class="q">QQQ −33%</div></div>
-    </div>
-    <p class="note">Beats QQQ on all three — return, risk-adjusted return, and drawdown. Survivorship-clean; delisted names included.</p>
+  <div class="card"><h3 id="methdr"></h3><div class="metrics" id="metrics"></div><p class="note" id="metnote"></p></div>
+
+  <div class="card"><h3>Growth of $1 — <span id="charthdr"></span></h3>
+    <div id="chart"></div>
+    <div class="leg"><span><i style="background:#111418"></i><b id="lgS">Strategy</b></span><span><i style="background:#9ca3af"></i>QQQ</span></div>
   </div>
 
-  <div class="card">
-    <h3>The edge — why it works</h3>
-    <ul class="tight">
-      <li>Win rate just <b>53%</b> — the edge is <b>not</b> hit-rate.</li>
-      <li>Avg <span class="good">win +45%</span> vs avg <span class="bad">loss −8%</span> (≈ 6 : 1).</li>
-      <li>Winners held <b>15.7 months</b>, losers cut in <b>3.1 months</b>.</li>
-      <li>Top 5% of trades drive <b>42%</b> of all profit (fat-tailed).</li>
-    </ul>
+  <div class="card"><h3>Annual returns <span style="text-transform:none;font-weight:400">(tap a header to sort)</span></h3>
+    <table id="annual"><thead><tr>
+      <th data-k="year" class="s asc">Year</th><th data-k="strat" id="thS">Strat</th><th data-k="qqq">QQQ</th><th data-k="exc">Excess</th>
+    </tr></thead><tbody></tbody></table>
   </div>
 
-  <div class="card">
-    <h3>The rules</h3>
-    <div class="row"><span class="k">Universe</span><span class="val">US stocks ≥ $3,<br>above 10-month MA</span></div>
-    <div class="row"><span class="k">Select</span><span class="val">Top ~12 by ML score<br>+ momentum &gt; 0 (runner-gate)<br>+ ML score rising (acceleration)</span></div>
-    <div class="row"><span class="k">Size</span><span class="val">Equal at entry, then ride</span></div>
-    <div class="row"><span class="k">Cut losers</span><span class="val">−30% trailing stop, or<br>close below 10-month MA</span></div>
-    <div class="row"><span class="k">Rebalance</span><span class="val">Monthly; refill to ~12</span></div>
+  <div class="card" id="factorCard"><h3>Factor long/short sleeves <span style="text-transform:none;font-weight:400">(tap to sort)</span></h3>
+    <table id="factors"><thead><tr>
+      <th data-k="name">Factor</th><th data-k="sharpe" class="s">Sharpe</th><th data-k="ann">Ann %</th>
+    </tr></thead><tbody></tbody></table>
+    <p style="font-size:12px;color:var(--mut);margin:10px 0 0">Gross dollar-neutral L/S Sharpe per signal. Value (B/M) leads; combined book reaches the headline above.</p>
   </div>
 
-  <div class="card">
-    <h3>Consistency by era — Sharpe</h3>
-    <div class="metrics">
-      <div class="m"><div class="v">1.64</div><div class="l">2015–18</div><div class="q">QQQ 0.82</div></div>
-      <div class="m"><div class="v">1.85</div><div class="l">2019–21</div><div class="q">QQQ 1.85</div></div>
-      <div class="m"><div class="v">1.11</div><div class="l">2022–25</div><div class="q">QQQ 0.66</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Tested — did <span class="bad">not</span> help</h3>
-    <p style="font-size:13.5px;color:var(--mut);margin:0 0 8px">The picker is at its frontier; these were neutral or worse (don’t re-add):</p>
-    <span class="pill">multi-algo ensembles</span><span class="pill">feature selection</span>
-    <span class="pill">extra gates</span><span class="pill">vol-sizing</span>
-    <span class="pill">regime timing</span><span class="pill">volume / TA features</span>
-    <span class="pill">“banger” target</span><span class="pill">turnaround sleeve</span>
-    <span class="pill">blending signals into the score</span>
-  </div>
-
-  <div class="card">
-    <h3>Honest caveats</h3>
-    <ul class="tight">
-      <li>Small / mid-cap tilt → capacity-limited.</li>
-      <li>~Monthly turnover (trading costs apply).</li>
-      <li>Close-based prices; ML needs history (2015+).</li>
-      <li>A diversified blend did <b>not</b> beat WAVE alone — the long-only sleeves are too correlated (~0.55).</li>
-    </ul>
-  </div>
-</section>
-
-<div class="hr"></div>
-
-<!-- ============ SUMMIT ============ -->
-<section id="summit">
-  <span class="badge">Archived · needs shorting + leverage</span>
-  <h2>SUMMIT</h2>
-  <p class="sub">Market-neutral long/short — pure alpha, ~0 correlation to the market.</p>
-
-  <div class="card">
-    <h3>Deployable config (net of costs)</h3>
-    <div class="metrics">
-      <div class="m"><div class="v good">~43%</div><div class="l">annual return</div><div class="q">net</div></div>
-      <div class="m"><div class="v good">1.80</div><div class="l">Sharpe</div><div class="q">@20bps + borrow</div></div>
-      <div class="m"><div class="v">−0.01</div><div class="l">corr to QQQ</div><div class="q">market-neutral</div></div>
-    </div>
-    <p class="note">Quarterly rebalance + rank-buffer decile long/short → 58% turnover, cost-robust 0–30bps. Gross Sharpe 2.0.</p>
-  </div>
-
-  <div class="card">
-    <h3>The two engines</h3>
-    <div class="row"><span class="k">Linear factor L/S</span><span class="val">value, gross-profitability,<br>Piotroski, momentum, quality</span></div>
-    <div class="row"><span class="k">ML L/S</span><span class="val">36-feature gradient boosting,<br>gross Sharpe 2.0</span></div>
-    <div class="row"><span class="k">Best single factor</span><span class="val">Value (B/M) — L/S Sharpe 1.38</span></div>
-    <div class="row"><span class="k">Construction</span><span class="val">Dollar-neutral; long top decile,<br>short bottom decile</span></div>
-  </div>
-
-  <div class="card">
-    <h3>Portable alpha — overlay on QQQ</h3>
-    <div class="metrics">
-      <div class="m"><div class="v">1.66</div><div class="l">QQQ + 1× α</div><div class="q">30% CAGR</div></div>
-      <div class="m"><div class="v">1.80</div><div class="l">½QQQ + ½ + α</div><div class="q">29% CAGR</div></div>
-      <div class="m"><div class="v">1.83</div><div class="l">QQQ + 2× α</div><div class="q">41% CAGR</div></div>
-    </div>
-    <p style="font-size:12.5px;color:var(--mut);margin:10px 0 0">Alpha is ~0-correlated, so layering it on a QQQ core lifts Sharpe above either alone.</p>
-  </div>
-
-  <div class="card">
-    <h3>Honest caveats</h3>
-    <ul class="tight">
-      <li>Requires <b>shorting</b> hard-to-borrow small/mid-caps (borrow cost, squeeze risk).</li>
-      <li>Requires <b>leverage / margin</b> for the overlay.</li>
-      <li>Pure L/S max drawdown ≈ −40%.</li>
-      <li>Sharpe 2.0 is gross of commissions / slippage.</li>
-      <li><b>Outside the current long-only mandate</b> — parked until shorting is allowed.</li>
-    </ul>
-  </div>
-</section>
-
-<footer>
-  WAVE = deploy now (long-only). SUMMIT = the bigger alpha, when you can short.<br>
-  Backtests are survivorship-clean &amp; point-in-time; null-gauntlet validated.<br>
-  Research, not investment advice.
-</footer>
+  <div id="info"></div>
+  <footer>WAVE = deploy now (long-only). SUMMIT = bigger alpha, when you can short.<br>Survivorship-clean &amp; point-in-time; null-gauntlet validated. Research, not advice.</footer>
 </div>
-</body>
-</html>
+<script>
+const D={"dates":["2015-01","2015-02","2015-03","2015-04","2015-05","2015-06","2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03","2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11","2016-12","2017-01","2017-02","2017-03","2017-04","2017-05","2017-06","2017-07","2017-08","2017-09","2017-10","2017-11","2017-12","2018-01","2018-02","2018-03","2018-04","2018-05","2018-06","2018-07","2018-08","2018-09","2018-10","2018-11","2018-12","2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03","2020-04","2020-05","2020-06","2020-07","2020-08","2020-09","2020-10","2020-11","2020-12","2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09","2021-10","2021-11","2021-12","2022-01","2022-02","2022-03","2022-04","2022-05","2022-06","2022-07","2022-08","2022-09","2022-10","2022-11","2022-12","2023-01","2023-02","2023-03","2023-04","2023-05","2023-06","2023-07","2023-08","2023-09","2023-10","2023-11","2023-12","2024-01","2024-02","2024-03","2024-04","2024-05","2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12"],"wave":[0.0,0.0,0.0,-0.02138,0.03091,0.01045,0.03624,-0.04786,-0.00112,0.0397,0.02005,-0.00063,-0.00758,-0.00841,0.03312,0.01297,0.02434,0.04283,0.00981,0.01767,-0.00325,0.01941,0.0901,0.0508,-0.00245,0.02303,0.00737,0.02354,-0.04054,0.02463,0.02679,-0.01306,0.0661,0.0135,0.03284,-0.00239,0.04758,-0.00626,0.02189,0.00928,0.03652,0.00474,-0.00548,0.02629,-0.01127,-0.04136,0.02848,-0.03123,0.05281,0.05561,0.00818,0.03641,-0.01714,0.08259,-0.01537,0.01892,0.01088,-0.00516,0.0199,0.00508,0.0173,-0.07523,-0.08025,0.08429,0.07914,0.0144,0.02614,-0.00155,-0.02866,-0.0224,0.13176,0.08255,-0.01228,0.04954,-0.05758,0.06436,-0.01007,0.07553,0.06802,0.09791,-0.0508,0.08588,0.01148,0.02546,-0.13024,-0.00109,0.00917,-0.06703,0.02956,-0.02846,0.05156,-0.00608,-0.04498,0.1541,0.05848,-0.04732,0.02604,0.04658,0.05935,-0.02937,0.01421,0.06098,0.03339,-0.0218,-0.02759,0.01223,0.10915,0.03662,-0.04326,0.06087,0.06253,0.00492,0.07799,-0.03066,0.05063,0.00161,0.02344,0.01713,0.12117,-0.02161,0.011,-0.03015,-0.05349,-0.02333,0.11916,0.03017,0.02805,0.09403,0.01915,-0.01971,0.02013,0.04513],"qqq":[-0.02082,0.07221,-0.0236,0.01922,0.02248,-0.02483,0.04558,-0.06824,-0.02223,0.11392,0.00609,-0.01589,-0.0691,-0.01565,0.06852,-0.03187,0.0437,-0.02275,0.07151,0.0105,0.02214,-0.01457,0.00436,0.01133,0.0514,0.04375,0.02027,0.02727,0.03897,-0.02316,0.04061,0.02074,-0.00295,0.04606,0.01972,0.00602,0.08757,-0.01293,-0.04076,0.00506,0.05673,0.01145,0.02796,0.05781,-0.00282,-0.08596,-0.00265,-0.08654,0.09011,0.02991,0.03924,0.05499,-0.08225,0.0759,0.02335,-0.019,0.00918,0.0438,0.04069,0.03886,0.03038,-0.06057,-0.07286,0.14974,0.06601,0.06285,0.07347,0.10945,-0.05642,-0.03045,0.11226,0.04903,0.00261,-0.00134,0.01714,0.0591,-0.01201,0.06261,0.02861,0.04219,-0.05681,0.07864,0.01997,0.01154,-0.08747,-0.04476,0.04668,-0.13596,-0.01587,-0.08912,0.12552,-0.05132,-0.10537,0.04,0.05544,-0.0901,0.10643,-0.0036,0.09492,0.00508,0.07884,0.06304,0.0386,-0.01483,-0.05079,-0.02065,0.10819,0.05586,0.01819,0.05283,0.01274,-0.04374,0.06152,0.06472,-0.01678,0.01104,0.02621,-0.00865,0.05351,0.00452,0.02163,-0.02703,-0.07589,0.01397,0.09178,0.06385,0.02424,0.00954,0.05376,0.0478,-0.01561,-0.00671],"summit":[-0.06381,0.06226,-0.06894,0.03197,0.02737,0.12072,0.01008,0.09137,0.00102,-0.00322,0.05866,0.11063,0.02853,0.0073,-0.0928,0.10103,0.05717,-0.00243,0.0158,-0.03103,0.09764,0.01266,0.08231,-0.02719,0.02345,0.04306,0.08384,0.07291,-0.04861,0.03878,-0.01516,-0.02493,0.05696,0.02123,-0.01204,0.00983,0.06958,0.02703,-0.004,-0.01411,0.00966,0.08051,0.025,0.02448,0.10949,0.07277,0.08213,-0.06724,0.0123,0.01902,0.04753,0.06783,0.05375,0.09244,0.07022,0.08784,0.07192,0.00388,-0.06295,0.00296,0.03245,0.07365,-0.1848,-0.05221,-0.13408,0.02064,0.02138,0.04791,0.04837,-0.08856,-0.01592,-0.22206,0.06944,0.08723,0.07813,0.04493,-0.06257,0.08357,-0.00942,-0.00207,0.04273,0.01984,0.08543,-0.03774,0.05201,-0.06046,0.18316,0.0945,0.02611,0.01106,-0.05081,0.12803,0.12273,0.11424,0.11352,-0.23357,0.12201,0.15415,0.04646,0.02573,0.10095,0.00581,0.04754,0.04696,0.05394,0.03328,0.11076,-0.00152,0.0079,0.06473,0.10227,0.04244,0.11682,0.13667,0.15924,0.05281,-0.00099,0.09823,-0.03923,0.09596,0.18189,0.15912,-0.00578,0.04166,0.06246,-0.00747,null,null,null,null,null,null],"factors":[{"name":"BM","sharpe":1.38,"ann":21.0},{"name":"GP_A","sharpe":1.02,"ann":12.6},{"name":"sales_to_assets","sharpe":1.01,"ann":9.4},{"name":"piotroski","sharpe":0.92,"ann":8.5},{"name":"ROE","sharpe":0.86,"ann":10.9},{"name":"revaccel","sharpe":0.86,"ann":15.0},{"name":"mom12","sharpe":0.83,"ann":12.8},{"name":"ROA","sharpe":0.77,"ann":13.3},{"name":"buyback","sharpe":0.69,"ann":8.1},{"name":"insider","sharpe":0.6,"ann":11.3},{"name":"near52high","sharpe":0.47,"ann":9.7},{"name":"EP","sharpe":0.4,"ann":5.4},{"name":"lowvol","sharpe":0.36,"ann":7.6},{"name":"accruals_neg","sharpe":0.08,"ann":0.5},{"name":"assetgrowth_neg","sharpe":-0.1,"ann":-0.9},{"name":"opleverage","sharpe":-0.4,"ann":-2.4},{"name":"leverage_neg","sharpe":-0.66,"ann":-16.3}]};
+const CFG={
+ wave:{name:"WAVE",badge:"Deploy now · long-only · no margin",sub:"ML stock-picker — ride winners, cut losers. ~12 names, monthly.",factors:false,
+  info:`<div class="card"><h3>The edge — why it works</h3><ul class="tight">
+   <li>Win rate just <b>53%</b> — the edge is <b>not</b> hit-rate.</li>
+   <li>Avg <span class="good">win +45%</span> vs avg <span class="bad">loss −8%</span> (≈ 6 : 1).</li>
+   <li>Winners held <b>15.7 months</b>, losers cut in <b>3.1 months</b>.</li>
+   <li>Top 5% of trades drive <b>42%</b> of all profit (fat-tailed).</li></ul></div>
+   <div class="card"><h3>The rules</h3>
+   <div class="row"><span class="k">Universe</span><span class="val">US stocks ≥ $3, above 10-mo MA</span></div>
+   <div class="row"><span class="k">Select</span><span class="val">Top ~12 by ML score<br>+ momentum &gt; 0 (runner-gate)<br>+ ML score rising (acceleration)</span></div>
+   <div class="row"><span class="k">Size</span><span class="val">Equal at entry, then ride</span></div>
+   <div class="row"><span class="k">Cut losers</span><span class="val">−30% trailing stop, or<br>close below 10-mo MA</span></div>
+   <div class="row"><span class="k">Rebalance</span><span class="val">Monthly; refill to ~12</span></div></div>
+   <div class="card"><h3>Tested — did <span class="bad">not</span> help</h3>
+   <span class="pill">ensembles</span><span class="pill">feature selection</span><span class="pill">extra gates</span><span class="pill">vol-sizing</span><span class="pill">regime timing</span><span class="pill">volume/TA features</span><span class="pill">“banger” target</span><span class="pill">turnaround sleeve</span><span class="pill">score-blending</span></div>
+   <div class="card"><h3>Honest caveats</h3><ul class="tight">
+   <li>Small/mid-cap tilt → capacity-limited.</li><li>~Monthly turnover (costs apply).</li>
+   <li>Close-based prices; ML needs history (2015+).</li>
+   <li>A diversified blend did <b>not</b> beat WAVE alone (sleeves ~0.55 correlated).</li></ul></div>`},
+ summit:{name:"SUMMIT",badge:"Archived · needs shorting + leverage",sub:"Market-neutral long/short — pure alpha, ~0 correlation to the market.",factors:true,
+  info:`<div class="card"><h3>The two engines</h3>
+   <div class="row"><span class="k">Linear factor L/S</span><span class="val">value, gross-profitability,<br>Piotroski, momentum, quality</span></div>
+   <div class="row"><span class="k">ML L/S</span><span class="val">36-feature gradient boosting</span></div>
+   <div class="row"><span class="k">Best single factor</span><span class="val">Value (B/M) — Sharpe 1.38</span></div>
+   <div class="row"><span class="k">Construction</span><span class="val">Dollar-neutral; long top decile,<br>short bottom decile</span></div></div>
+   <div class="card"><h3>Portable alpha — overlay on QQQ</h3><div class="metrics">
+   <div class="m"><div class="v">1.66</div><div class="l">QQQ + 1× α</div><div class="q">30% CAGR</div></div>
+   <div class="m"><div class="v">1.80</div><div class="l">½QQQ+½+α</div><div class="q">29% CAGR</div></div>
+   <div class="m"><div class="v">1.83</div><div class="l">QQQ + 2× α</div><div class="q">41% CAGR</div></div></div>
+   <p style="font-size:12.5px;color:var(--mut);margin:10px 0 0">~0-correlated alpha lifts a QQQ core above either alone.</p></div>
+   <div class="card"><h3>Honest caveats</h3><ul class="tight">
+   <li>Requires <b>shorting</b> hard-to-borrow small/mid-caps.</li><li>Requires <b>leverage/margin</b> for the overlay.</li>
+   <li>Pure L/S max drawdown ≈ −46%.</li><li>Headline Sharpe is gross of commissions/slippage.</li>
+   <li><b>Outside the long-only mandate</b> — parked until shorting is allowed.</li></ul></div>`}
+};
+const PERIODS=[["All","2015-01","2025-12"],["2015–18","2015-01","2018-12"],["2019–21","2019-01","2021-12"],["2022–25","2022-01","2025-12"],["2023–25","2023-01","2025-12"]];
+let S="wave",P=0,sortA={k:"year",asc:true},sortF={k:"sharpe",asc:false};
+const $=id=>document.getElementById(id);
+function rng(){const[_,a,b]=PERIODS[P];const i0=D.dates.indexOf(a),i1=D.dates.indexOf(b);return[i0,i1<0?D.dates.length-1:i1];}
+function slice(key){const[i0,i1]=rng();let xs=[],r=[];for(let i=i0;i<=i1;i++){const v=D[key][i],q=D.qqq[i];if(v==null)continue;xs.push(D.dates[i]);r.push(v);}return{xs,r};}
+function pair(){const[i0,i1]=rng();let xs=[],s=[],q=[];for(let i=i0;i<=i1;i++){if(D[S][i]==null||D.qqq[i]==null)continue;xs.push(D.dates[i]);s.push(D[S][i]);q.push(D.qqq[i]);}return{xs,s,q};}
+function met(r){if(r.length<3)return{c:NaN,sh:NaN,dd:NaN};let g=1,eq=[],pk=-1e9,dd=0,m=0;for(const x of r){g*=1+x;eq.push(g);}m=r.reduce((a,b)=>a+b,0)/r.length;let sd=Math.sqrt(r.reduce((a,b)=>a+(b-m)**2,0)/(r.length-1));pk=-1e9;for(const e of eq){if(e>pk)pk=e;dd=Math.min(dd,e/pk-1);}return{c:Math.pow(g,12/r.length)-1,sh:sd?m/sd*Math.sqrt(12):NaN,dd};}
+function pct(x){return(x>=0?"+":"")+(x*100).toFixed(1)+"%";}
+function f2(x){return x.toFixed(2);}
+function renderMetrics(){const{s,q}=pair();const a=met(s),b=met(q);
+ $("methdr").textContent=CFG[S].name+" vs QQQ — "+PERIODS[P][0];
+ const cls=(x,y)=>x>=y?"good":"bad";const ddcls=(x,y)=>x>=y?"good":"bad";
+ $("metrics").innerHTML=
+  `<div class="m"><div class="v ${cls(a.c,b.c)}">${pct(a.c)}</div><div class="l">CAGR</div><div class="q">QQQ ${pct(b.c)}</div></div>
+   <div class="m"><div class="v ${cls(a.sh,b.sh)}">${f2(a.sh)}</div><div class="l">Sharpe</div><div class="q">QQQ ${f2(b.sh)}</div></div>
+   <div class="m"><div class="v ${ddcls(a.dd,b.dd)}">${pct(a.dd)}</div><div class="l">max drawdown</div><div class="q">QQQ ${pct(b.dd)}</div></div>`;
+ $("metnote").textContent = S=="wave"
+   ? "Survivorship-clean; delisted names included. Metrics recompute for the selected period."
+   : "Market-neutral net of ~6%/yr borrow. Gross/overlay Sharpe higher (see below).";
+}
+function chart(){const{xs,s,q}=pair();if(s.length<2){$("chart").innerHTML="";return;}
+ let es=[1],eq=[1];for(let i=0;i<s.length;i++){es.push(es[es.length-1]*(1+s[i]));eq.push(eq[eq.length-1]*(1+q[i]));}
+ es=es.slice(1);eq=eq.slice(1);
+ const W=360,H=190,pad=6,bot=16;const all=es.concat(eq);let lo=Math.min(...all),hi=Math.max(...all);
+ const ly=v=>{const t=(Math.log(v)-Math.log(lo))/(Math.log(hi)-Math.log(lo)||1);return pad+(H-pad-bot)*(1-t);};
+ const lx=i=>pad+(W-2*pad)*(i/(es.length-1||1));
+ const path=a=>a.map((v,i)=>(i?"L":"M")+lx(i).toFixed(1)+" "+ly(v).toFixed(1)).join(" ");
+ const yr=xs.map(d=>d.slice(0,4));const ticks=[];let last="";xs.forEach((d,i)=>{const y=d.slice(0,4);if(y!=last){ticks.push([i,y]);last=y;}});
+ let g="";ticks.forEach(([i,y])=>{const x=lx(i).toFixed(1);g+=`<line x1="${x}" y1="${pad}" x2="${x}" y2="${H-bot}" stroke="#eee"/><text x="${x}" y="${H-4}" font-size="9" fill="#9ca3af" text-anchor="middle">'${y.slice(2)}</text>`;});
+ $("charthdr").textContent=PERIODS[P][0]+" ("+xs[0]+" → "+xs[xs.length-1]+")";
+ $("chart").innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:200px">${g}
+   <path d="${path(eq)}" fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+   <path d="${path(es)}" fill="none" stroke="#111418" stroke-width="2.4"/>
+   <text x="${(W-pad)}" y="${ly(es[es.length-1])-4}" font-size="10" font-weight="700" fill="#111418" text-anchor="end">${es[es.length-1].toFixed(2)}×</text>
+   <text x="${(W-pad)}" y="${ly(eq[eq.length-1])+11}" font-size="10" fill="#6b7280" text-anchor="end">${eq[eq.length-1].toFixed(2)}×</text></svg>`;
+}
+function annualRows(){const yrs={};for(let i=0;i<D.dates.length;i++){const y=D.dates[i].slice(0,4);const sv=D[S][i],qv=D.qqq[i];if(!yrs[y])yrs[y]={s:1,q:1,hs:false,hq:false};if(sv!=null){yrs[y].s*=1+sv;yrs[y].hs=true;}if(qv!=null){yrs[y].q*=1+qv;yrs[y].hq=true;}}
+ let rows=[];for(const y in yrs){if(!yrs[y].hs)continue;const sr=yrs[y].s-1,qr=yrs[y].q-1;rows.push({year:y,strat:sr,qqq:qr,exc:sr-qr});}return rows;}
+function renderAnnual(){let rows=annualRows();const k=sortA.k;rows.sort((a,b)=>{let x=a[k],y=b[k];if(k=="year"){x=+x;y=+y;}return sortA.asc?x-y:y-x;});
+ $("thS").textContent=CFG[S].name;
+ document.querySelectorAll("#annual th").forEach(th=>{th.classList.toggle("s",th.dataset.k==k);th.classList.toggle("asc",th.dataset.k==k&&sortA.asc);});
+ const tb=$("annual").querySelector("tbody");tb.innerHTML=rows.map(r=>`<tr><td>${r.year}</td><td class="${r.strat>=0?'good':'bad'}">${pct(r.strat)}</td><td>${pct(r.qqq)}</td><td class="${r.exc>=0?'good':'bad'}">${pct(r.exc)}</td></tr>`).join("");}
+function renderFactors(){const card=$("factorCard");if(!CFG[S].factors){card.classList.add("hide");return;}card.classList.remove("hide");
+ let rows=D.factors.slice();const k=sortF.k;rows.sort((a,b)=>{let x=a[k],y=b[k];if(k=="name")return sortF.asc?(x<y?-1:1):(x>y?-1:1);return sortF.asc?x-y:y-x;});
+ document.querySelectorAll("#factors th").forEach(th=>{th.classList.toggle("s",th.dataset.k==k);th.classList.toggle("asc",th.dataset.k==k&&sortF.asc);});
+ const tb=$("factors").querySelector("tbody");tb.innerHTML=rows.map(r=>`<tr><td>${r.name}</td><td class="${r.sharpe>=0?'good':'bad'}">${f2(r.sharpe)}</td><td class="${r.ann>=0?'good':'bad'}">${(r.ann>=0?'+':'')+r.ann.toFixed(1)}</td></tr>`).join("");}
+function render(){const c=CFG[S];$("badge").textContent=c.badge;$("title").textContent=c.name;$("subtitle").textContent=c.sub;$("lgS").textContent=c.name;$("info").innerHTML=c.info;
+ $("tab-wave").classList.toggle("on",S=="wave");$("tab-summit").classList.toggle("on",S=="summit");
+ renderMetrics();chart();renderAnnual();renderFactors();}
+function setStrat(s){S=s;render();}
+function setP(i){P=i;document.querySelectorAll("#chips button").forEach((b,j)=>b.classList.toggle("on",j==i));renderMetrics();chart();}
+$("chips").innerHTML=PERIODS.map((p,i)=>`<button class="${i==0?'on':''}" onclick="setP(${i})">${p[0]}</button>`).join("");
+document.querySelectorAll("#annual th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortA.k==k)sortA.asc=!sortA.asc;else{sortA.k=k;sortA.asc=k=="year";}renderAnnual();});
+document.querySelectorAll("#factors th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortF.k==k)sortF.asc=!sortF.asc;else{sortF.k=k;sortF.asc=false;}renderFactors();});
+render();
+</script></body></html>
