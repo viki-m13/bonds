@@ -35,3 +35,4 @@ data/hl_orderflow/
 
 # recorded HL HIP-3 mark/oracle/funding (forward, reproducible via record_hip3.py)
 data/hl_hip3/
+research/timesfm_fc.parquet

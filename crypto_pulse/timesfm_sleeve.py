@@ -26,7 +26,7 @@ HL_START = pd.Timestamp("2023-05-12")
 HERE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "research")
 CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "research", "timesfm_fc.parquet")
 H = 5            # forecast horizon (days)
-CTX = 384       # context length
+CTX = 256       # context length
 STEP = 7        # weekly rebalance
 
 
@@ -47,20 +47,30 @@ def vt(p, t=0.12):
     return p * (t / (p.rolling(45).std() * np.sqrt(ANN))).shift(1).clip(0, 3)
 
 
-def build_forecasts(C, elig):
-    """Expected forward-H return per coin at each weekly rebalance (TimesFM), cached."""
+def build_forecasts(C, elig, complete_only=False):
+    """Expected forward-H return per coin at each weekly rebalance (TimesFM).
+    Incremental + resumable cache. If complete_only and cache is partial, returns None."""
+    idx = C.index
+    hl_locs = [i for i in range(CTX, len(idx)) if idx[i] >= HL_START and i % STEP == 0]
+    out = pd.DataFrame(index=idx, columns=C.columns, dtype=float)
+    colpos = {c: out.columns.get_loc(c) for c in out.columns}
+    done = set()
     if os.path.exists(CACHE):
-        return pd.read_parquet(CACHE)
+        cached = pd.read_parquet(CACHE)
+        out.loc[cached.index, cached.columns] = cached
+        done = {i for i in hl_locs if out.iloc[i].notna().any()}
+    if len(done) >= len(hl_locs):
+        return out
+    if complete_only:
+        return None
     from timesfm.timesfm_2p5 import timesfm_2p5_torch as T
     from timesfm import ForecastConfig
     m = T.TimesFM_2p5_200M_torch.from_pretrained('google/timesfm-2.5-200m-pytorch')
     m.compile(ForecastConfig(max_context=CTX, max_horizon=H, normalize_inputs=True,
                              use_continuous_quantile_head=True))
     logC = np.log(C)
-    idx = C.index
-    hl_locs = [i for i in range(CTX, len(idx)) if idx[i] >= HL_START and i % STEP == 0]
-    out = pd.DataFrame(index=idx, columns=C.columns, dtype=float)
-    for k, i in enumerate(hl_locs):
+    todo = [i for i in hl_locs if i not in done]
+    for k, i in enumerate(todo):
         names, ctxs = [], []
         for c in C.columns:
             if not elig.iloc[i][c]:
@@ -73,10 +83,11 @@ def build_forecasts(C, elig):
         pf, _ = m.forecast(horizon=H, inputs=ctxs)
         pf = np.array(pf)
         for j, c in enumerate(names):
-            out.iloc[i][c] = np.exp(pf[j][-1] - ctxs[j][-1]) - 1.0   # exp fwd return
-        if k % 20 == 0:
-            print(f"  forecast {k}/{len(hl_locs)} ({idx[i].date()})", flush=True)
-    out.to_parquet(CACHE)
+            out.iat[i, colpos[c]] = float(np.exp(pf[j][-1] - ctxs[j][-1]) - 1.0)
+        if k % 10 == 0:
+            out.dropna(how="all").to_parquet(CACHE)      # incremental save
+            print(f"  forecast {k}/{len(todo)} ({idx[i].date()})", flush=True)
+    out.dropna(how="all").to_parquet(CACHE)
     return out
 
 
