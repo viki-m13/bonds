@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WAVE & SUMMIT — Strategy Brief</title>
+<style>
+  :root{
+    --bg:#0f1216; --card:#171c22; --card2:#1d242c; --line:#2a333d;
+    --txt:#e8edf2; --mut:#94a3b2; --wave:#3b82f6; --summit:#a855f7;
+    --good:#22c55e; --bad:#ef4444; --warn:#f59e0b;
+  }
+  *{box-sizing:border-box;-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:0 0 56px}
+  .wrap{max-width:640px;margin:0 auto;padding:0 16px}
+  header{padding:26px 16px 14px;text-align:center}
+  header h1{font-size:25px;margin:0 0 4px;letter-spacing:.3px}
+  header p{color:var(--mut);font-size:13px;margin:0}
+  /* sticky tabs */
+  nav{position:sticky;top:0;z-index:10;background:rgba(15,18,22,.92);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+    display:flex;gap:8px;padding:10px 16px}
+  nav a{flex:1;text-align:center;text-decoration:none;color:var(--txt);
+    padding:11px 6px;border-radius:11px;font-weight:600;font-size:15px;
+    background:var(--card);border:1px solid var(--line)}
+  nav a.w{border-color:var(--wave)} nav a.s{border-color:var(--summit)}
+  section{padding-top:18px}
+  .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.6px;
+    padding:4px 10px;border-radius:999px;text-transform:uppercase}
+  .b-wave{background:rgba(59,130,246,.15);color:#7eb0ff;border:1px solid var(--wave)}
+  .b-summit{background:rgba(168,85,247,.15);color:#cda0ff;border:1px solid var(--summit)}
+  h2{font-size:22px;margin:10px 0 2px}
+  .sub{color:var(--mut);font-size:13.5px;margin:0 0 14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:16px;margin:0 0 14px}
+  .card h3{margin:0 0 10px;font-size:15px;color:var(--mut);font-weight:700;
+    text-transform:uppercase;letter-spacing:.5px}
+  /* metric grid */
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .m{background:var(--card2);border-radius:12px;padding:12px 8px;text-align:center}
+  .m .v{font-size:21px;font-weight:800;line-height:1.1}
+  .m .l{font-size:11px;color:var(--mut);margin-top:3px}
+  .m .q{font-size:10.5px;color:var(--mut);margin-top:2px;opacity:.8}
+  .good{color:var(--good)} .bad{color:var(--bad)} .warn{color:var(--warn)}
+  .wv{color:#7eb0ff} .sv{color:#cda0ff}
+  ul{margin:6px 0 0;padding-left:18px} li{margin:5px 0;font-size:14.5px}
+  ul.tight li{margin:3px 0}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;
+    border-bottom:1px solid var(--line);font-size:14px}
+  .row:last-child{border-bottom:none}
+  .row .k{color:var(--mut)} .row .val{font-weight:700;text-align:right}
+  .pill{font-size:12px;color:var(--mut);background:var(--card2);
+    border:1px solid var(--line);border-radius:8px;padding:2px 8px;display:inline-block;margin:3px 4px 0 0}
+  .note{font-size:13px;color:var(--mut);background:rgba(245,158,11,.07);
+    border-left:3px solid var(--warn);border-radius:6px;padding:10px 12px;margin-top:4px}
+  .win{color:var(--good);font-weight:700} .lose{color:var(--bad)}
+  footer{color:var(--mut);font-size:12px;text-align:center;padding:22px 16px 0;line-height:1.7}
+  .hr{height:1px;background:var(--line);margin:26px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>WAVE &amp; SUMMIT</h1>
+  <p>Equity strategy brief · survivorship-clean PIT backtest · 2015–2025</p>
+</header>
+<nav class="wrap" style="max-width:640px">
+  <a class="w" href="#wave">▲ WAVE</a>
+  <a class="s" href="#summit">◆ SUMMIT</a>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ WAVE ============ -->
+<section id="wave">
+  <span class="badge b-wave">Deploy now · long-only · no margin</span>
+  <h2>WAVE</h2>
+  <p class="sub">ML stock-picker — ride winners, cut losers. ~12 names, monthly.</p>
+
+  <div class="card">
+    <h3>Performance vs QQQ (2015–25)</h3>
+    <div class="metrics">
+      <div class="m"><div class="v good">21.4%</div><div class="l">CAGR</div><div class="q">QQQ 18.5%</div></div>
+      <div class="m"><div class="v good">1.41</div><div class="l">Sharpe</div><div class="q">QQQ 1.03</div></div>
+      <div class="m"><div class="v good">−18%</div><div class="l">max DD</div><div class="q">QQQ −33%</div></div>
+    </div>
+    <p class="note">Beats QQQ on all three — return, risk-adjusted, and drawdown. Survivorship-clean, delisted names included.</p>
+  </div>
+
+  <div class="card">
+    <h3>The edge (why it works)</h3>
+    <ul class="tight">
+      <li>Win rate just <b>53%</b> — the edge is <b>not</b> hit-rate.</li>
+      <li>Avg <span class="win">win +45%</span> vs avg <span class="lose">loss −8%</span> (≈6:1).</li>
+      <li>Winners held <b>15.7 mo</b>, losers cut in <b>3.1 mo</b>.</li>
+      <li>Top 5% of trades = <b>42%</b> of all profit (fat-tailed).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>The rules</h3>
+    <div class="row"><span class="k">Universe</span><span class="val">US stocks ≥ $3, above 10-mo MA</span></div>
+    <div class="row"><span class="k">Select</span><span class="val">Top ~12 by ML score<br>+ momentum &gt; 0 (runner-gate)<br>+ ML score rising (acceleration)</span></div>
+    <div class="row"><span class="k">Size</span><span class="val">Equal at entry, then ride</span></div>
+    <div class="row"><span class="k">Cut losers</span><span class="val">−30% trailing stop, or<br>close below 10-mo MA</span></div>
+    <div class="row"><span class="k">Rebalance</span><span class="val">Monthly; refill to ~12</span></div>
+  </div>
+
+  <div class="card">
+    <h3>Consistency by era (Sharpe)</h3>
+    <div class="metrics">
+      <div class="m"><div class="v wv">1.64</div><div class="l">2015–18</div><div class="q">QQQ 0.82</div></div>
+      <div class="m"><div class="v wv">1.85</div><div class="l">2019–21</div><div class="q">QQQ 1.85</div></div>
+      <div class="m"><div class="v wv">1.11</div><div class="l">2022–25</div><div class="q">QQQ 0.66</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>What we tested that did <span class="bad">not</span> help</h3>
+    <p style="font-size:13.5px;color:var(--mut);margin:0 0 8px">The picker is at its frontier — these all hurt or were neutral (don't re-add):</p>
+    <span class="pill">multi-algo ensembles</span><span class="pill">feature selection</span>
+    <span class="pill">extra gates</span><span class="pill">vol-sizing</span>
+    <span class="pill">regime timing</span><span class="pill">volume/TA features</span>
+    <span class="pill">"banger" target</span><span class="pill">turnaround sleeve</span>
+    <span class="pill">blending signals into the score</span>
+  </div>
+
+  <div class="card">
+    <h3>Honest caveats</h3>
+    <ul class="tight">
+      <li>Small/mid-cap tilt → capacity-limited.</li>
+      <li>~Monthly turnover (trading costs apply).</li>
+      <li>Close-based prices; ML needs history (2015+).</li>
+      <li>A diversified blend did <b>not</b> beat WAVE alone — the long-only sleeves are too correlated (~0.55).</li>
+    </ul>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<!-- ============ SUMMIT ============ -->
+<section id="summit">
+  <span class="badge b-summit">Archived · needs shorting + leverage</span>
+  <h2>SUMMIT</h2>
+  <p class="sub">Market-neutral long/short — pure alpha, ~0 correlation to the market.</p>
+
+  <div class="card">
+    <h3>Deployable config (net of costs)</h3>
+    <div class="metrics">
+      <div class="m"><div class="v sv">~43%</div><div class="l">ann return</div><div class="q">net</div></div>
+      <div class="m"><div class="v sv">1.80</div><div class="l">Sharpe</div><div class="q">@20bps+borrow</div></div>
+      <div class="m"><div class="v sv">−0.01</div><div class="l">corr to QQQ</div><div class="q">market-neutral</div></div>
+    </div>
+    <p class="note">Quarterly rebalance + rank-buffer decile L/S → 58% turnover, cost-robust 0–30bps. Gross Sharpe 2.0.</p>
+  </div>
+
+  <div class="card">
+    <h3>The two engines</h3>
+    <div class="row"><span class="k">Linear factor L/S</span><span class="val">value, gross-profitability,<br>Piotroski, momentum, quality</span></div>
+    <div class="row"><span class="k">ML L/S</span><span class="val">36-feature GBT,<br>gross Sharpe 2.0</span></div>
+    <div class="row"><span class="k">Best single factor</span><span class="val">Value (B/M) — L/S Sharpe 1.38</span></div>
+    <div class="row"><span class="k">Construction</span><span class="val">Dollar-neutral, long top decile /<br>short bottom decile</span></div>
+  </div>
+
+  <div class="card">
+    <h3>Portable alpha (overlay on QQQ)</h3>
+    <div class="metrics">
+      <div class="m"><div class="v sv">1.66</div><div class="l">QQQ + 1× α</div><div class="q">30% CAGR</div></div>
+      <div class="m"><div class="v sv">1.80</div><div class="l">½QQQ+½comp+α</div><div class="q">29% CAGR</div></div>
+      <div class="m"><div class="v sv">1.83</div><div class="l">QQQ + 2× α</div><div class="q">41% CAGR</div></div>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin:10px 0 0">Because alpha is ~0-correlated, layering it on a QQQ core lifts Sharpe well above either alone.</p>
+  </div>
+
+  <div class="card">
+    <h3>Honest caveats</h3>
+    <ul class="tight">
+      <li>Requires <b>shorting</b> hard-to-borrow small/mid-caps (borrow cost, squeeze risk).</li>
+      <li>Requires <b>leverage / margin</b> for the overlay.</li>
+      <li>Pure L/S max drawdown ≈ −40%.</li>
+      <li>Sharpe 2.0 is gross of commissions/slippage.</li>
+      <li><b>Outside the current long-only mandate</b> — parked until shorting is allowed.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  WAVE = deploy now (long-only). SUMMIT = the bigger alpha, when you can short.<br>
+  Backtests are survivorship-clean &amp; point-in-time; null-gauntlet validated.<br>
+  Research, not investment advice.
+</footer>
+</div>
+</body>
+</html>
