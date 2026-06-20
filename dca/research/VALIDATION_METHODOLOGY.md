@@ -448,6 +448,24 @@ current officer-insider-buy names (rebalanced) for a modestly smoother ride —
 not a return windfall. This is the honest terminus of the whole arc: one real
 orthogonal signal, deployable as a small diversifying tilt; clean CAGR
 confirmation still needs paid PIT data.
+**High-Sharpe reproductions + combination (exp37-39):** reproduced the
+specific public strategies exactly. (37) Quantitativo IBS mean-reversion on
+QQQ/SPY: the claimed "~2.1 Sharpe" is the IN-MARKET Sharpe (1.87, stable to 1.96
+OOS) — real edge — but only ~20% exposure so FULL-portfolio Sharpe 0.79 (vs
+buy&hold 0.52), CAGR 12% ~= buy&hold, maxDD −25% (vs −75%). Genuine low-exposure
+sleeve. (38) NDX rotational momentum (gate NDX>200dMA, top-K by 250d ROC): top-10
+momentum Sharpe 1.40 == RANDOM-K control 1.41 -> the momentum RANK adds nothing;
+the edge is the trend GATE (avoids crashes, 0.93->~1.4) + SURVIVORSHIP (top-5
+49% CAGR = concentration into current-NDX winners, not replicable). (39) THE
+PAYOFF — combine the real OOS survivors (QQQ beta + IBS mean-reversion + insider
+tilt; MeanRev corr to QQQ only 0.18, to Insider 0.03): portfolio Sharpe 1.12 ->
+1.34-1.42, maxDD −33% -> −18%, STABLE both sub-periods, cost ~3-4pp CAGR. This
+is the honest 'combine low-correlation sleeves' result: achievable Sharpe ~1.3-
+1.4 (clean, ~1.3 dropping survivorship-aided insider), NOT 3. Matches the user's
+own awesome-systematic-trading list (self-reports most strategies 0.3-0.8
+Sharpe) and OSAP (14% of anomalies survive, gross Sh 0.3-0.6). Sharpe 3+ is not
+in any reproducible public source. DEPLOYABLE: QQQ core + mean-reversion sleeve
+(+ optional insider tilt), ~60/20/20 -> Sharpe ~1.3, DD ~−25% vs QQQ −33%.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
