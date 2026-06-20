@@ -119,10 +119,16 @@ def main():
         zoo.append(dict(base, objective="binary:logistic", seed=seed, max_depth=3))
     print(f"{len(zoo)} models in the zoo", flush=True)
 
-    # ---- walk-forward predict over HL era ----
+    # ---- walk-forward predict over HL era (cached: the expensive part) ----
+    PCACHE = os.path.join(HERE, "xgb_pred.parquet")
     pred = pd.DataFrame(np.nan, index=idx, columns=C.columns)
     hl_di = [di for di in np.unique(dd) if idx[di] >= HL_START]
     retrain_pts = hl_di[::RETRAIN]
+    if os.path.exists(PCACHE):
+        cp = pd.read_parquet(PCACHE)
+        pred.loc[cp.index, cp.columns] = cp
+        print(f"loaded cached predictions ({cp.shape})", flush=True)
+        retrain_pts = []
     for ri, rdi in enumerate(retrain_pts):
         train_mask = dd < (rdi - EMBARGO)
         if train_mask.sum() < 2000:
@@ -153,6 +159,8 @@ def main():
             pred.iat[dw[r], cw[r]] = ens[r]
         if ri % 5 == 0:
             print(f"  walk-forward {ri}/{len(retrain_pts)} ({idx[rdi].date()})", flush=True)
+    if retrain_pts:
+        pred.dropna(how="all").to_parquet(PCACHE)
 
     # ---- ML sleeve: cross-sectional, market-neutral, weekly hold ----
     sd = R.rolling(30).std()
@@ -177,6 +185,7 @@ def main():
                       - (wv.shift(1) - wv.shift(2)).abs().sum(axis=1) * 4.5 / 1e4
                       - (wv.shift(1) * F).sum(axis=1))
     P = pd.DataFrame({k: vt(p) for k, p in sl.items()}).dropna()
+    ml = ml.reindex(P.index)
     hl = P.index >= HL_START
     Phl = P[hl]; cut = Phl.index[int(len(Phl) * 0.6)]
     book = Phl.mean(axis=1)
@@ -216,8 +225,8 @@ def main():
     lines.append("\n")
 
     fig, ax = plt.subplots(figsize=(11, 5))
-    (1 + s6[hl].fillna(0)).cumprod().plot(ax=ax, color="#888", lw=1.6, label=f"STRATA (OOS {o6:.2f})")
-    (1 + s7[hl].fillna(0)).cumprod().plot(ax=ax, color="#c0392b", lw=2.2, label=f"+ XGB ensemble (OOS {o7:.2f})")
+    (1 + s6.fillna(0)).cumprod().plot(ax=ax, color="#888", lw=1.6, label=f"STRATA (OOS {o6:.2f})")
+    (1 + s7.fillna(0)).cumprod().plot(ax=ax, color="#c0392b", lw=2.2, label=f"+ XGB ensemble (OOS {o7:.2f})")
     (1 + ml[hl].fillna(0)).cumprod().plot(ax=ax, color="#2980b9", lw=1.0, ls="--", label=f"XGB sleeve ({sh(ml[hl]):.2f})")
     ax.axvline(cut, color="gray", ls=":", lw=1); ax.legend(fontsize=9)
     ax.set_title("XGBoost ensemble + STRATA (HL era, net, walk-forward)")
