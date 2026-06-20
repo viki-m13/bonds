@@ -51,3 +51,20 @@ The edge is structural (asymmetric holding + fat-tail runner capture), not
 refinable by more entry filters, score blends, sleeves, ensembles, or tighter
 exits — all tested, all neutral-or-worse. Further alpha needs NEW data
 (8-K catalysts, options, intraday), not recombination of existing signals.
+
+## Winner-vs-loser feature study (exp94) — what actually separates bangers
+Profiled every feature's cross-sectional percentile for fwd-6m TOP-decile (bangers)
+vs BOTTOM-decile (losers), 2011-2024. Spread = winner_rank − loser_rank:
+
+STRONG discriminators (|spread|≥0.06): ROA +0.13, op-margin +0.12, net-margin
++0.11, dist-52w-high +0.11, vol6 −0.10, mom12 +0.09, R&D-intensity −0.09 (low
+R&D better — less cash burn), share-change −0.09 (buybacks), **log-mcap −0.09
+(smaller=more banger upside)**, rule40 +0.08, ROE +0.08, price-accel −0.08 (avoid
+recent vertical spikes — steady momentum wins), trend +0.07, mom3/mom6 +0.06-0.09.
+
+PURE NOISE (spread≈0): ALL insider features, rev-accel, rev-yoy, gross-margin,
+op-leverage, ni-inflect, vol-contraction, and the hand-engineered interactions
+(triple_confirm, quiet_compounder, ins×rev, ins×margin). They cannot distinguish
+the extreme winners — confirming feature pruning should sharpen the picker.
+=> profitability + margins + near-high momentum + low-vol + small-cap + buybacks
++ low-R&D are the banger signature. (Tested in exp95/96.)
