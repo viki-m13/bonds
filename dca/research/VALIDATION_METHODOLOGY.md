@@ -483,6 +483,24 @@ short-term mean-reversion sleeve + insider tilt (~60/20/20) -> Sharpe ~1.3, DD
 ~−25% (vs QQQ 1.12/−33%). Higher needs uncorrelated streams that require
 shorting/leverage (managed futures done right) or different data — outside the
 stated constraints. Sharpe 3 remains a mirage in every reproducible source.
+**Market-neutral StatArb + the Sharpe-3 roadmap (exp41-42):** built the proper
+Avellaneda-Lee PCA-residual reversal (the core of the "Attention StatArb net 2.3"
+roadmap) on 488 S&P names. KEY: GROSS Sharpe 0.58, remarkably STABLE every
+sub-period (0.56/0.64/0.61), market-neutral (0.13 corr to QQQ), −19% DD — a real
+edge. BUT cost-killed: net Sharpe 0.34 @2bps/side, 0.22 @3bps, ~0 @5bps, −0.64
+@10bps (~80%/wk turnover; ~4%/yr gross alpha < retail TC). THIS is why StatArb is
+institutional — survives only at sub-bp execution + leverage. As an ensemble
+sleeve (@2bps) it IS the uncorrelated stream exp40 lacked: adding it lifts
+4-sleeve inverse-vol Sharpe 1.26->1.38, maxDD −25%->−14% — but overweights
+low-return sleeves (CAGR->10%) and needs shorting. ROADMAP VERDICT: Sharpe 3 is
+real but INSTITUTIONAL — requires (1) sub-bp execution (proven binding: gross
+0.58->dead at 5bps), (2) leverage to scale low-vol market-neutral books, (3)
+joint TC-optimization (the Attention paper's net-2.3 depends on TC-in-objective +
+shorting + DL infra, a 24yr BACKTEST not live), (4) PIT survivorship-free data,
+(5) 5-10 uncorrelated alphas. Retail (no leverage/shorting infra, 2-5bps, free
+data) ceiling stays ~1.3-1.4. Kalman pairs decayed (exp27); production multi-
+alpha/futures-ensemble = institutional diversification (~1.0-1.5). Net 2.3+ is
+not retail-reproducible.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
