@@ -81,6 +81,14 @@ tested and ALL hurt:
   (0%). Whipsaw + missed V-recoveries in a strong-uptrend decade.
 - All combined: 0.60. => Base WAVE is already well-tuned; leave these off.
 
+## ML ensemble (exp86) — higher CAGR, lower Sharpe (not a clean win)
+A 5-member ensemble (seeds × depths × tercile/decile targets, averaged) gave
+champion CAGR 25.8% but Sharpe 1.17 (vs single 21.4%/1.34) and LOWER IC (0.114 vs
+0.163) — mixing targets/depths diluted the tuned single model (ran hot 2020-21,
+noisier elsewhere). Keep the SINGLE model as the risk-adjusted champion; the
+ensemble is a higher-octane/lower-Sharpe variant if max-CAGR is wanted.
+Saved `_mlprob_ens.pkl`.
+
 ## 13F institutional accumulation (exp81-82) — modest add
 Downloaded 16 quarters of SEC 13F holdings (78k CUSIPs, mapped 2,800 → ticker via
 OpenFIGI; data in `data/sec/_13f_cusip.pkl` + `_13f_cusipmap.pkl`). Tested as a
