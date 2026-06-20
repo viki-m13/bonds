@@ -63,3 +63,21 @@ margin, asset-turnover, rev-growth) × {level, slope, accel(2nd-deriv), persiste
 Confirms the research-lead prior: most trajectory marginals die; persistence
 survives weakly; the genuine novelty is in INTERACTIONS (the handoff-gap, a
 4-way conjunction, gave the best entry-alpha +14.4% of anything tested).
+
+## Interaction generator (exp103) — Tier-1 #2, the seam confirmed
+Searched 231 conjunctions (11 base signals: handoff parts + value/quality/low-vol/
+buyback/small-cap/persistence; singles + all 2-way + all 3-way), ranked by entry-
+alpha (fwd-12m mean vs universe +8.7%):
+- BEST 3-way: hi_value+buyback+small_cap +18.2% (hit 63%, 76/mo);
+  stable_ROIC+low_vol+small_cap +17.3% (hit 67%); low_vol+buyback+hi_quality
+  +15.9% (hit 72%); stable_ROIC+low_vol+buyback +16.2% (hit 72%).
+- Conjunctions BEAT marginals AND the handoff 4-way (+14.4%). 3-way > 2-way > single.
+- Recurring ingredients in the top-18: BUYBACK (almost all), SMALL-CAP, VALUE,
+  QUALITY/stable-ROIC, LOW-VOL. Economically coherent (not random feature salad)
+  => the deflation defense vs 231 trials: signal clusters around the durable
+  survivors combined, not lone flukes.
+CAVEATS: entry-alpha only (single as-of cross-sectional test, not full portfolio
+w/ exit); small-cap-heavy (capacity-limited; absolute portfolio CAGR capped by
+small-cap beta ~12% like handoff). The ENTRY edge is strong; concentration +
+hold-through-drawdown + durability-exit convert it (per exp100). Confirms the
+research-lead prediction: the survivors are INTERACTIONS, and exit>entry.
