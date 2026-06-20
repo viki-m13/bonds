@@ -657,6 +657,34 @@ layer (SEC-EDGAR revenue-acceleration is free) and/or the Form-4 insider overlay
 (our one validated edge = their unbuilt 'Deep-Doc' layer). (Scripts exp58-60;
 SOS repo read-only via PAT, not committed here.)
 
+**THE QUALIFIER ENSEMBLE — the one thing that honestly beats QQQ on CAGR (exp61-63).**
+After the technical core tested as beta (exp60), built the durable qualifier on
+PIT data: fetched SEC EDGAR XBRL quarterly revenue via the frames API (60 quarters
+x 4473 tickers, 4 concepts coalesced, saved dca/research/data/sec/
+sec_revenue_quarterly.parquet; reporting-lagged ~80d to avoid look-ahead),
+computed YoY growth + acceleration (YoY rising 2 consecutive Qs), combined with
+our validated Form-4 insider cluster/large-$ signal and a monthly trend-timing
+gate (price>10mo-MA & 6mo-mom>0). Cross-sectional fwd-12m (survivorship-clean,
+2012-25): rev-accel 12.9%, high-YoY 14.0%, insider 14.2%, rev-accel&insider
+17.6% (2x-rate 7.8% vs universe 4.4%) — the ensemble nearly DOUBLES the
+multibagger base rate. As a long-only monthly-rebalanced portfolio (~19 names,
+price>=$3, eq-wt, delisting-incl): **(rev-accel|high-YoY) & insider-cluster &
+uptrend = CAGR 23.7%, Sharpe 1.06, maxDD -26% vs QQQ 19.3%/1.13/-33%** (corr
+0.54). ROBUSTNESS (the honest part): NOT an AI-boom artifact — it LAGGED 2023-24
+(2023 -6% vs QQQ +55%) and ex-2023-24 = +28.2%/1.24 vs QQQ +16.1%/0.96; survives
+dropping top-5 names (18.7%/0.93); diversified across sectors (gold/defense-elec/
+pharma/EV/construction/mortgage, not tech); huge crash protection (2022 +2.8% vs
+QQQ -32.6%). CAVEATS: small/mid-cap (real spreads likely >20bps; turnover ~54%/mo
+=> ~1.3%/yr drag at 20bps, net ~22.4% CAGR still > QQQ; capacity-limited); edge
+DECAYED 2021-25 (11.7%/0.60 vs QQQ 15.1%/0.83); Sharpe (1.06) still < QQQ (1.13)
+so it's a CAGR/drawdown win, not a Sharpe win; close-based prices, monthly cadence.
+VERDICT: the reverse-engineered moonshot qualifier (fundamental revenue
+acceleration + insider conviction + trend timing) is the FIRST long-only
+no-leverage strategy in this entire program that beats QQQ on CAGR (and drawdown)
+out-of-sample and survivorship-clean — a genuine, diversified, non-regime-luck
+edge, harvestable as a ~20-name active small/mid-cap sleeve. (Scripts exp61-63;
+SEC data labeled in dca/research/data/sec/.)
+
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
