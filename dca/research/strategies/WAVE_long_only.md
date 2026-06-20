@@ -59,6 +59,17 @@ Sub-period (best blend variant): 2015-18 Sharpe 1.40 (QQQ 0.82), 2019-21 1.75
 - ML beats the hand-built factor composite for *selection*; concentration to
   ~12 names is the sweet spot (N=8 too noisy, N=20 dilutes).
 
+## More creative attempts that DID NOT help (exp84-85) — don't relearn
+On the champion (ML + runner + signal-accel, ~Sharpe 1.34-1.41):
+- **Extra gates all over-restrict**: fresh-6mo-high (1.23), quality floor ROA>med
+  (1.05), market-relative strength (1.14), double-accel (1.05) — all worse. The
+  champion is already at the filtering sweet spot; more gates remove winners.
+- **Turnaround/recovery sleeve FAILS** (deep-drawdown names reclaiming trend):
+  standalone CAGR 1.6%/Sharpe 0.20/maxDD −54% — dominated by value traps/falling
+  knives; the rare big recoveries (META/VRT) are swamped. Blending it in hurt
+  (70/30 → 0.96). Only the MOMENTUM/breakout moonshot archetype is systematically
+  harvestable long-only; the "recovery" archetype is a value trap. (Confirms exp59.)
+
 ## Tested overlays that DID NOT help (exp80) — don't relearn
 On the base ML N12 runner-gate (Sharpe 1.36), three standard enhancements were
 tested and ALL hurt:
