@@ -145,17 +145,29 @@ def main():
                  "is still ~1.9 (sensitivity table). Net: the blend is a genuine "
                  "improvement on both Sharpe and drawdown — the strongest case yet.\n")
 
-    # plot: short and long blends (face value) vs each leg
-    fig, ax = plt.subplots(1, 2, figsize=(13, 5))
-    (1 + sB["ours"].fillna(0)).cumprod().plot(ax=ax[0], color="#8e44ad", lw=1.3, label=f"ours ({sharpe(sB['ours']):.2f})")
-    (1 + sB["vol"].fillna(0)).cumprod().plot(ax=ax[0], color="#16a085", lw=1.3, label=f"vol ({sharpe(sB['vol']):.2f})")
-    (1 + short_blend.fillna(0)).cumprod().plot(ax=ax[0], color="#c0392b", lw=2.2, label=f"50/50 ({stats(short_blend)['sharpe']:.2f})")
-    ax[0].set_title("SHORT — HL era"); ax[0].legend(fontsize=8); ax[0].grid(alpha=0.3); ax[0].set_ylabel("growth of $1")
-    (1 + lB["ours"].fillna(0)).cumprod().plot(ax=ax[1], color="#8e44ad", lw=1.3, logy=True, label=f"ours ({sharpe(lB['ours']):.2f})")
-    (1 + lB["vol"].fillna(0)).cumprod().plot(ax=ax[1], color="#16a085", lw=1.3, logy=True, label=f"vol ({sharpe(lB['vol']):.2f})")
-    (1 + long_blend.fillna(0)).cumprod().plot(ax=ax[1], color="#c0392b", lw=2.2, logy=True, label=f"50/50 ({stats(long_blend)['sharpe']:.2f})")
-    ax[1].set_title("LONG 2018-2026 (log)"); ax[1].legend(fontsize=8); ax[1].grid(alpha=0.3, which="both"); ax[1].set_ylabel("growth of $1 (log)")
-    fig.tight_layout(); fig.savefig(os.path.join(HERE, "vol_blend.png"), dpi=110)
+    # plot: ours / theirs / blended, short & long
+    OUR, VOL, BL = "#8e44ad", "#16a085", "#c0392b"
+    fig, ax = plt.subplots(1, 2, figsize=(14, 5.5))
+
+    def panel(a, d, blend, title, logy):
+        for col, color, lw, nm in [("ours", OUR, 1.6, "OURS"),
+                                    ("vol", VOL, 1.6, "VOL (theirs)")]:
+            s = stats(d[col])
+            (1 + d[col].fillna(0)).cumprod().plot(ax=a, color=color, lw=lw, logy=logy,
+                label=f"{nm}: Sharpe {s['sharpe']:.2f}, DD {s['maxdd']:.0%}")
+        sb = stats(blend)
+        (1 + blend.fillna(0)).cumprod().plot(ax=a, color=BL, lw=2.6, logy=logy,
+            label=f"50/50 BLEND: Sharpe {sb['sharpe']:.2f}, DD {sb['maxdd']:.0%}")
+        a.set_title(title, fontsize=11)
+        a.legend(fontsize=9, loc="upper left")
+        a.grid(alpha=0.3, which="both")
+        a.set_ylabel("growth of $1" + (" (log)" if logy else ""))
+
+    panel(ax[0], sB, short_blend, "SHORT — HL era (2023-2026)", False)
+    panel(ax[1], lB, long_blend, "LONG — 2018-2026 (log scale)", True)
+    fig.suptitle("Vol strategy + Our strategy: ours, theirs, and 50/50 blend "
+                 "(net, vol-targeted to 12%)", fontsize=12)
+    fig.tight_layout(); fig.savefig(os.path.join(HERE, "vol_blend.png"), dpi=120)
 
     out = "\n".join(lines)
     with open(os.path.join(HERE, "vol_blend.md"), "w") as fh:
