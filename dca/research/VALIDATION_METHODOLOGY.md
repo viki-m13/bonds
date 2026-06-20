@@ -522,6 +522,20 @@ cost-surviving sleeve is 1.46, honest OOS ~1.3-1.4. Sharpe 2+ requires
 institutional execution (sub-bp costs), leverage, and shorting (StatArb
 gross 0.58 -> dead at 5bps proves cost is binding). This is a hard ceiling, not
 a failure of search: 46 experiments, every creative angle, same wall.
+**Top-1 picker loop, iter1 (exp47):** "buy the single best stock each month,
+accumulate, beat QQQ." On the survivorship-biased current-constituent universe,
+momentum-top-1 (1.6x full / 1.12x OOS vs QQQ) and insider-top-1 (1.44x/1.30x)
+beat QQQ AND random-top-1 (0.78-0.87x, below QQQ). BUT momentum-top-1 IS the
+ZENITH trap already proven to collapse on clean PIT data — top-1 momentum can
+only pick survivor-winners (look-ahead concentration), not skill. Random-top-1
+< QQQ shows equal-weight single picks lose to cap-weighted QQQ even with
+survivorship. Only suggestive thread: insider-conviction top-1 beats
+random-among-insider OOS (1.30x vs 0.95x) — a partly-survivorship-neutral
+within-insider selection effect — but top-1 is extreme variance (~95 picks,
+few dominate) and "largest officer-buy $" proxies size. VERDICT: top-1 cannot be
+honestly validated as a QQQ-beat without clean PIT (delisting-inclusive) prices;
+the momentum version is the known survivorship illusion. Insider-top-1 is the
+one thread worth a clean-data test.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
