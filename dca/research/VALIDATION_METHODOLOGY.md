@@ -685,6 +685,21 @@ out-of-sample and survivorship-clean — a genuine, diversified, non-regime-luck
 edge, harvestable as a ~20-name active small/mid-cap sleeve. (Scripts exp61-63;
 SEC data labeled in dca/research/data/sec/.)
 
+**Pushing the qualifier harder (exp64-67): concentration + staged hold + loss-cutting
+beat QQQ on ALL THREE metrics.** (a) Decay diagnosis: the 2021-25 lag is the POND
+not the signal — the ensemble's cross-sectional edge over its own universe is
+actually strongest recently (+6.7% vs universe's +2.2%), but small-caps as a class
+trailed QQQ. (b) Event-driven staged-hold sim (let winners run, trend-exit): cap-25
+positions = CAGR 26.8%/Sharpe 1.13/maxDD -28% (vs monthly-rebal 23.5%/1.05).
+(c) LOSS-CUTTING lab (user idea, SOS-style): best = hard-stop -25% + trailing-stop
+-35% + staged confirm-or-cull ladder (cut names not +10% by 3m / +30% by 6m) =>
+**CAGR 26.2%, Sharpe 1.18, maxDD -27%, win-rate 48%** — beats QQQ (19.3/1.13/-33)
+on return, risk-adjusted AND drawdown. Removing the trend-exit wrecks it
+(14.6%/0.76) — trend exit is load-bearing. Net: the staged + loss-cut qualifier is
+a genuine all-around QQQ-beater on survivorship-clean PIT data (caveats unchanged:
+small/mid-cap capacity, ~50% turnover, close-based). (Scripts exp64-67; masks
+cached _qual_masks.pkl.)
+
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
