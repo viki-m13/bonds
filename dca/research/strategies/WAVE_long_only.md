@@ -105,3 +105,18 @@ into the ML feature set when more history is available; don't over-weight.
 2. News/8-K hard-catalyst gate (needs 8-K event fetch).
 3. Extend ML history pre-2015 (needs earlier fundamentals coverage).
 4. Sector/industry context features.
+
+## Ensemble + technical/volume features + "banger" target (exp90-91) — higher CAGR, worse risk
+Added 14 daily volume/pre-breakout features (vol-dryup, accumulation, OBV slope,
+Bollinger squeeze, range-compression, days-since-52w-high, vol-surge, etc.) and
+retrained a PROPER bagged ensemble (6 bootstrap models, SAME target) predicting
+the "banger" = top-decile fwd-6m winners. RESULT: OOS IC = **-0.118 (negative!)**
+vs the original single model's +0.204; champion sim 28.6% CAGR but Sharpe 0.84 /
+maxDD -42.7% (vs 21.4%/1.34/-18.3%). Diagnosis: the near-high/momentum technical
+features + "future big winner" target make the model CHASE EXTENDED names that
+then revert — great in the 2020-21 boom (+58%), brutal otherwise. The original
+fwd-3m-tercile, fundamental-heavy single model generalizes far better.
+LESSON: "predict the future banger" overfits to extension; shorter-horizon,
+fundamental-anchored targets win. WAVE champion (single ML + runner + signal-accel)
+stays the risk-adjusted best. The banger model is a high-CAGR/high-risk variant
+only (saved _mlprob_banger.pkl) for anyone who wants max CAGR and can stomach -43% DD.
