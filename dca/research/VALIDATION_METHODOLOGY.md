@@ -700,6 +700,29 @@ a genuine all-around QQQ-beater on survivorship-clean PIT data (caveats unchange
 small/mid-cap capacity, ~50% turnover, close-based). (Scripts exp64-67; masks
 cached _qual_masks.pkl.)
 
+**Feature discovery + ML reverse-engineering + sleeve blending (exp68-72).** Built a
+36-feature monthly panel (fundamentals from SEC frames: ROA/ROE/margins/R&D/
+shares/balance-sheet; insider; technical; novel interactions) cached _featmat.pkl.
+UNIVARIATE rank-IC vs fwd-12m (survivorship-clean): the strongest+most-robust+
+STRENGTHENING predictors are NOT the original ensemble's features — vol6 -0.147
+(low-vol), ROA +0.141, distHigh +0.130 (near-52w-high), share_chg -0.108
+(buybacks), ROE +0.106, momentum +0.07; rev-accel only 0.025 and insider 0.03.
+In 2021-24 these are 2x stronger (distHigh 0.267, vol6 -0.263, ROA 0.230). My
+hand-built interaction features (quiet_compounder, triple_confirm) were WEAK
+(<0.01) — plain strong factors dominate. WALK-FORWARD ML (HistGBM, no-look-ahead,
+trained only on past): top-25 picks = **CAGR 31.6% vs QQQ 18.7% (2015-25)**,
+Sharpe 1.09, DD -43% — confirms the feature ensemble has real OOS predictive
+power (return-max but DD-uncontrolled). NEW COMPOSITE sleeve (quality+low-vol+
+momentum+buybacks, the discovered factors): 17.9% CAGR / Sharpe 1.19 / maxDD -21%
+— high-Sharpe steady compounder, complements the high-CAGR moonshot sleeve.
+**SLEEVE BLEND = the finale**: moonshot(26.2/1.18) + composite(17.9/1.19) are
+~0.70 correlated; blends beat QQQ on ALL THREE metrics AND in ALL THREE sub-eras
+(fixing the decay): 50/50 moon/comp = CAGR 22.4%/Sharpe 1.28/maxDD -18%; 60/40 =
+23.2%/1.27/-19%; 33/33/33 moon/comp/QQQ = 21.5%/**Sharpe 1.32**/-22% (2021-25
+0.92 vs QQQ 0.83). Net: a diversified proprietary multi-sleeve strategy reaches
+Sharpe ~1.3 / CAGR ~22-23% / half QQQ's drawdown, survivorship-clean. (Scripts
+exp68-72; _featmat.pkl, sec_fundamentals.pkl.)
+
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
