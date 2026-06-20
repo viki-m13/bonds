@@ -86,14 +86,18 @@ def main():
                  "blended 50/50. LONG = 2018-2026 vs our price book; SHORT = HL era vs "
                  "our full grand stack.\n")
 
-    # ---- SHORT blend: our grand stack + vol, HL era ----
-    sB = pd.concat({"ours": vt(our_grand), "vol": vt(vol)}, axis=1).dropna()
+    # NOTE: our_grand / our_price are ALREADY vol-targeted (12%); only the vol leg
+    # needs vol-targeting. (Earlier double-vt was the source of the discrepancy.)
+    # SHORT (HL era) uses the FULL grand stack (funding sleeves); LONG (2018-26) uses
+    # the PRICE-ONLY book (funding data doesn't exist pre-2023) — labeled accordingly.
+    # ---- SHORT blend: full grand stack + vol, HL era ----
+    sB = pd.concat({"ours": our_grand, "vol": vt(vol)}, axis=1).dropna()
     sB = sB[sB.index >= HL_START]
     rho_s = sB["ours"].corr(sB["vol"])
     short_blend = 0.5 * sB["ours"] + 0.5 * sB["vol"]
 
-    # ---- LONG blend: our price book + vol, 2018-2026 ----
-    lB = pd.concat({"ours": vt(our_price), "vol": vt(vol)}, axis=1).dropna()
+    # ---- LONG blend: price-only book + vol, 2018-2026 ----
+    lB = pd.concat({"ours": our_price, "vol": vt(vol)}, axis=1).dropna()
     rho_l = lB["ours"].corr(lB["vol"])
     long_blend = 0.5 * lB["ours"] + 0.5 * lB["vol"]
 
@@ -145,13 +149,13 @@ def main():
                  "is still ~1.9 (sensitivity table). Net: the blend is a genuine "
                  "improvement on both Sharpe and drawdown — the strongest case yet.\n")
 
-    # plot: ours / theirs / blended, short & long
-    OUR, VOL, BL = "#8e44ad", "#16a085", "#c0392b"
+    # plot: STRATA (ours) / VOL (theirs) / blended, short & long
+    OUR, VOLC, BL = "#8e44ad", "#16a085", "#c0392b"
     fig, ax = plt.subplots(1, 2, figsize=(14, 5.5))
 
-    def panel(a, d, blend, title, logy):
-        for col, color, lw, nm in [("ours", OUR, 1.6, "OURS"),
-                                    ("vol", VOL, 1.6, "VOL (theirs)")]:
+    def panel(a, d, blend, ours_label, title, logy):
+        for col, color, lw, nm in [("ours", OUR, 1.6, ours_label),
+                                    ("vol", VOLC, 1.6, "VOL (theirs)")]:
             s = stats(d[col])
             (1 + d[col].fillna(0)).cumprod().plot(ax=a, color=color, lw=lw, logy=logy,
                 label=f"{nm}: Sharpe {s['sharpe']:.2f}, DD {s['maxdd']:.0%}")
@@ -163,10 +167,12 @@ def main():
         a.grid(alpha=0.3, which="both")
         a.set_ylabel("growth of $1" + (" (log)" if logy else ""))
 
-    panel(ax[0], sB, short_blend, "SHORT — HL era (2023-2026)", False)
-    panel(ax[1], lB, long_blend, "LONG — 2018-2026 (log scale)", True)
-    fig.suptitle("Vol strategy + Our strategy: ours, theirs, and 50/50 blend "
-                 "(net, vol-targeted to 12%)", fontsize=12)
+    panel(ax[0], sB, short_blend, "STRATA (full book)",
+          "RECENT — HL era 2023-2026 (STRATA = full 6-sleeve book)", False)
+    panel(ax[1], lB, long_blend, "STRATA (price-only)",
+          "LONG — 2018-2026, log (STRATA = price sleeves; funding data <2023 absent)", True)
+    fig.suptitle("STRATA (ours) vs VOL (theirs) vs 50/50 BLEND — net, vol-targeted to 12%",
+                 fontsize=12)
     fig.tight_layout(); fig.savefig(os.path.join(HERE, "vol_blend.png"), dpi=120)
 
     out = "\n".join(lines)
