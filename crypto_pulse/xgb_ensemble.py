@@ -81,21 +81,22 @@ def main():
     fwd = (C.shift(-HORIZON) / C - 1)
     target = fwd.sub(fwd.mean(axis=1), axis=0)        # cross-sectional fwd return
 
-    # ---- stack to long (date, coin) ----
+    # ---- stack to long (date, coin) — VECTORIZED ----
     idx = C.index
-    Xrows, yrows, drows, crows = [], [], [], []
-    el = elig.values
-    Fv = {f: feats[f].values for f in fnames}
-    tv = target.values
-    for di in range(120, len(idx) - HORIZON):
-        m = el[di] & np.isfinite(tv[di]) & np.all([np.isfinite(Fv[f][di]) for f in fnames], axis=0)
-        if m.sum() < 10:
-            continue
-        cols = np.where(m)[0]
-        Xrows.append(np.column_stack([Fv[f][di][cols] for f in fnames]))
-        yrows.append(tv[di][cols]); drows.append(np.full(cols.size, di)); crows.append(cols)
-    X = np.vstack(Xrows); y = np.concatenate(yrows)
-    dd = np.concatenate(drows); cc = np.concatenate(crows)
+    di_map = pd.Series(np.arange(len(idx)), index=idx)
+    cpos = {c: i for i, c in enumerate(C.columns)}
+    parts = {f: feats[f].stack(dropna=False) for f in fnames}
+    df = pd.DataFrame(parts)
+    df["y"] = target.stack(dropna=False)
+    df["el"] = elig.stack(dropna=False)
+    df = df[df["el"].fillna(False).astype(bool)].drop(columns="el")
+    df = df.dropna()
+    lvl = df.index.get_level_values
+    df["di"] = di_map.reindex(lvl(0)).values
+    df["ci"] = [cpos[c] for c in lvl(1)]
+    df = df[(df["di"] >= 120) & (df["di"] < len(idx) - HORIZON)]
+    X = df[fnames].values.astype(np.float32); y = df["y"].values.astype(np.float32)
+    dd = df["di"].values; cc = df["ci"].values
 
     # ---- model zoo ----
     base = dict(max_depth=3, eta=0.05, subsample=0.7, colsample_bytree=0.7,
@@ -104,7 +105,7 @@ def main():
     for obj in ["reg:squarederror", "reg:pseudohubererror", "reg:absoluteerror",
                 "reg:quantileerror"]:
         for depth in (2, 4):
-            for seed in (0, 1):
+            for seed in (0,):
                 p = dict(base, objective=obj, max_depth=depth, seed=seed)
                 if obj == "reg:quantileerror":
                     for q in (0.3, 0.5, 0.7):
@@ -112,7 +113,7 @@ def main():
                 else:
                     zoo.append(p)
     # plus logistic on sign
-    for seed in (0, 1):
+    for seed in (0,):
         zoo.append(dict(base, objective="binary:logistic", seed=seed, max_depth=3))
     print(f"{len(zoo)} models in the zoo", flush=True)
 
@@ -130,7 +131,7 @@ def main():
         boosters = []
         for p in zoo:
             d = dtr_bin if p["objective"] == "binary:logistic" else dtr
-            boosters.append(xgb.train(p, d, num_boost_round=120))
+            boosters.append(xgb.train(p, d, num_boost_round=60))
         # predict the window [rdi, next)
         nxt = retrain_pts[ri + 1] if ri + 1 < len(retrain_pts) else len(idx)
         win = (dd >= rdi) & (dd < nxt)
