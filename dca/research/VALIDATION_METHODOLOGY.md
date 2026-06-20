@@ -466,6 +466,23 @@ own awesome-systematic-trading list (self-reports most strategies 0.3-0.8
 Sharpe) and OSAP (14% of anomalies survive, gross Sh 0.3-0.6). Sharpe 3+ is not
 in any reproducible public source. DEPLOYABLE: QQQ core + mean-reversion sleeve
 (+ optional insider tilt), ~60/20/20 -> Sharpe ~1.3, DD ~−25% vs QQQ −33%.
+**Extended ensemble (exp40 — add trend-following + XS-reversal sleeves):**
+adding more sleeves did NOT improve risk-adjusted return. Correlations: MeanRev
+is the ONLY genuine diversifier (0.18 to QQQ, 0.03 to others); multi-asset TREND
+is 0.67 corr to QQQ (long-or-cash trend = long equity in the 2010-25 bull, no
+diversification) with low 6.9% return; XS-reversal is 0.44-0.55 corr, weak 0.57
+Sharpe, survivorship-aided. Result: 3-sleeve (QQQ+MR+Insider) Sharpe 1.26 stays
+best; 5-sleeve inverse-vol only 1.29 (and CAGR crashes to 13% by overweighting
+low-return defensives); 5-sleeve equal-weight WORSE (1.03). LESSON (correct
+IC×√N): diversification helps only when the added stream is BOTH low-correlation
+AND positive-Sharpe; most strategies (the 30 repos, trend, reversal) are
+equity-flavored (0.4-0.7 corr) so stacking them piles correlated risk and √N
+does nothing. Retail long-only no-leverage runs out of genuinely-uncorrelated
+streams after ~2-3 -> ensemble Sharpe CEILING ~1.3. FINAL DEPLOYABLE: QQQ core +
+short-term mean-reversion sleeve + insider tilt (~60/20/20) -> Sharpe ~1.3, DD
+~−25% (vs QQQ 1.12/−33%). Higher needs uncorrelated streams that require
+shorting/leverage (managed futures done right) or different data — outside the
+stated constraints. Sharpe 3 remains a mirage in every reproducible source.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
