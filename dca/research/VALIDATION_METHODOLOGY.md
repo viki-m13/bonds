@@ -723,6 +723,28 @@ momentum+buybacks, the discovered factors): 17.9% CAGR / Sharpe 1.19 / maxDD -21
 Sharpe ~1.3 / CAGR ~22-23% / half QQQ's drawdown, survivorship-clean. (Scripts
 exp68-72; _featmat.pkl, sec_fundamentals.pkl.)
 
+**THE ALPHA ENGINE — market-neutral long/short factor book (exp73-75).** Thinking
+like a prop-shop quant: the real alpha is MARKET-NEUTRAL (strip beta). Built a
+factor zoo (value B/M & E/P, Novy-Marx gross-profitability GP/A, sales/assets,
+Piotroski, ROA/ROE, momentum 12-1, 52w-high, buyback, rev-accel, insider) and
+ran dollar-neutral decile L/S on the survivorship-clean PIT universe.
+SINGLE-FACTOR L/S Sharpe (corr-to-QQQ): **value B/M 1.38 (-0.15)**, GP/A 1.02,
+sales/assets 1.01, Piotroski 0.92, ROE 0.86, rev-accel 0.86, mom12 0.83, ROA
+0.77 — all ~0 or negative market correlation = genuine alpha. (asset-growth,
+accruals, leverage were weak/negative in small-caps.) COMBINED 11-factor L/S
+(avg pairwise corr 0.27): **Sharpe 1.55, corr-to-QQQ -0.09, maxDD -18%, ann 12%.**
+PORTABLE ALPHA (overlay the mkt-neutral book on beta, gross>100% => uses
+shorting+leverage): QQQ+1x alpha = 30%/Sharpe 1.66; 50QQQ/50comp+1x = 29%/1.80;
+QQQ+2x = 41%/1.83. REALITY CHECK (exp75): net of 6%/yr small-cap borrow + shorting
+only price>=$5, and a DEPLOYABLE long-only version (no shorting/leverage) — see
+exp75 results. HONEST CAVEAT: the headline Sharpe 1.55-1.83 REQUIRES shorting
+small/mid-caps (borrow cost, hard-to-borrow, squeeze risk) and leverage/margin —
+contrary to the original no-leverage/no-margin mandate; the long-only-implementable
+slice is the realistic retail deliverable. Net: a true market-neutral alpha source
+exists in the data (Sharpe ~1.5 gross), best harvested by a fund that can short;
+for a long-only investor it manifests as the factor-tilt sleeves above.
+(Scripts exp73-75; _ls.pkl.)
+
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
