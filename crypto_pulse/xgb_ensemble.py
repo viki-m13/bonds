@@ -85,18 +85,20 @@ def main():
     idx = C.index
     di_map = pd.Series(np.arange(len(idx)), index=idx)
     cpos = {c: i for i, c in enumerate(C.columns)}
-    parts = {f: feats[f].stack(dropna=False) for f in fnames}
+    parts = {f: feats[f].stack() for f in fnames}
     df = pd.DataFrame(parts)
-    df["y"] = target.stack(dropna=False)
-    df["el"] = elig.stack(dropna=False)
+    df["y"] = target.stack()
+    df["el"] = elig.stack()
     df = df[df["el"].fillna(False).astype(bool)].drop(columns="el")
     df = df.dropna()
     lvl = df.index.get_level_values
     df["di"] = di_map.reindex(lvl(0)).values
     df["ci"] = [cpos[c] for c in lvl(1)]
     df = df[(df["di"] >= 120) & (df["di"] < len(idx) - HORIZON)]
-    X = df[fnames].values.astype(np.float32); y = df["y"].values.astype(np.float32)
-    dd = df["di"].values; cc = df["ci"].values
+    df = df.replace([np.inf, -np.inf], np.nan).dropna()
+    X = np.ascontiguousarray(df[fnames].values, dtype=np.float32)
+    y = np.ascontiguousarray(df["y"].values, dtype=np.float32)
+    dd = df["di"].values.astype(np.int64); cc = df["ci"].values.astype(np.int64)
 
     # ---- model zoo ----
     base = dict(max_depth=3, eta=0.05, subsample=0.7, colsample_bytree=0.7,

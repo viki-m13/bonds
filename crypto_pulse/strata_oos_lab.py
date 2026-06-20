@@ -112,7 +112,7 @@ def main():
     # HURST/variance-ratio regime tilt
     vr = (mkt.rolling(10).mean().abs() * np.sqrt(10)) / (mkt.rolling(10).std() + 1e-9)
     vr = vr.reindex(Phl.index)
-    trend_reg = (vr > vr.rolling(120, min_periods=30).median()).shift(1).fillna(False)
+    trend_reg = (vr > vr.rolling(120, min_periods=30).median()).shift(1).fillna(False).astype(bool)
     trend_sleeves = ["TREND", "ACCEL", "SQUEEZE", "VOLSHOCK"]
     rev_sleeves = ["CARRY", "FUNDFADE", "BAB"]
     wh = wf.copy()
@@ -134,7 +134,7 @@ def main():
     lines.append("|---|---|---|---|---|")
     bestoos = ("BASELINE (fixed shrunk-MV)", io(base_c)[1])
     for nm, p in variants.items():
-        s = stats(p[hl]); i, o = io(p)
+        s = stats(p); i, o = io(p)
         lines.append(f"| {nm} | **{s['sharpe']:+.2f}** | {i:+.2f} | {o:+.2f} | {s['maxdd']:+.0%} |")
         if nm != "BASELINE (fixed shrunk-MV)" and o > bestoos[1]:
             bestoos = (nm, o)
@@ -150,10 +150,10 @@ def main():
                  "specific indicator instead, name it and I'll slot it in here.\n")
 
     fig, ax = plt.subplots(figsize=(11, 5))
-    (1 + base_c[hl].fillna(0)).cumprod().plot(ax=ax, color="#888", lw=1.6,
+    (1 + base_c.fillna(0)).cumprod().plot(ax=ax, color="#888", lw=1.6,
         label=f"baseline (OOS {b_oos:.2f})")
     best_series = variants[bestoos[0]]
-    (1 + best_series[hl].fillna(0)).cumprod().plot(ax=ax, color="#c0392b", lw=2.2,
+    (1 + best_series.fillna(0)).cumprod().plot(ax=ax, color="#c0392b", lw=2.2,
         label=f"{bestoos[0]} (OOS {bestoos[1]:.2f})")
     ax.axvline(cut, color="gray", ls=":", lw=1); ax.legend(fontsize=9)
     ax.set_title("STRATA OOS-robustness: best technique vs baseline (HL era, net)")
