@@ -536,6 +536,18 @@ few dominate) and "largest officer-buy $" proxies size. VERDICT: top-1 cannot be
 honestly validated as a QQQ-beat without clean PIT (delisting-inclusive) prices;
 the momentum version is the known survivorship illusion. Insider-top-1 is the
 one thread worth a clean-data test.
+**"100 ideas" loop, iter1 — systematic FACTOR ZOO (exp48):** the disciplined
+way to test many ideas: 20 distinct price-signal families x 2 horizons (38
+tests) + 6 random-null features, scored on same-sign |t|>1.5 in BOTH 2010-17 and
+2018-25 halves. Result: 4 survivors, ALL the same redundant cluster
+(lowvol6/12, maxmo with NEGATIVE IC = high-vol/high-beta stocks won the bull) =
+regime BETA, not alpha (opposite of the academic low-vol/MAX factors -> proof
+it's recent-regime; reverses in value/bear regimes). 0/12 random-null survivors
+(calibrates that the bar isn't passed by chance). LESSON: mining 100 ideas
+without a random-null/multiple-testing control 'finds' winners that are beta or
+luck; with the control, no NEW tradeable price alpha emerges vs QQQ. Confirms
+the whole program: the only real signals are orthogonal (insider) or
+mean-reversion, not any price transform.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
