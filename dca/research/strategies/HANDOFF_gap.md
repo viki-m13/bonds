@@ -50,3 +50,16 @@ lower drawdown. Winners rode a MEDIAN −42% drawdown. "Everyone has the exit ba
   severe ROIC/margin deterioration. This is the highest-value next build.
 - Next: concentrate + let-winners-ride (WAVE mechanics) on handoff entries; refine
   durability exit; add the 13F breadth ownership-rotation signal explicitly.
+
+## Trajectory-shape search (exp102) — Tier-1 #1, mostly null (as predicted)
+Tested per-firm trajectory transforms of 5 fundamentals (ROIC, op-margin, gross-
+margin, asset-turnover, rev-growth) × {level, slope, accel(2nd-deriv), persistence}:
+- LEVELS strong but known (ROIC IC 0.110, op-margin 0.097 = quality factor).
+- SLOPE & ACCELERATION ≈ DEAD: ROIC-slope +0.001, accel +0.011, rev-growth-slope
+  −0.003 — all |IC|<0.03 (noise after 20-trial deflation). The per-firm derivative
+  of fundamentals adds ~nothing cross-sectionally.
+- PERSISTENCE (consecutive rising quarters) = modest survivor: IC 0.02-0.03 but
+  L/S Sharpe ~0.8 consistently across all 5 fundamentals — a real weak signal.
+Confirms the research-lead prior: most trajectory marginals die; persistence
+survives weakly; the genuine novelty is in INTERACTIONS (the handoff-gap, a
+4-way conjunction, gave the best entry-alpha +14.4% of anything tested).
