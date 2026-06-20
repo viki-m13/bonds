@@ -561,6 +561,21 @@ stock outliers (a spurious '+227%' until winsorized) — ALWAYS winsorize +
 price-filter + equal-weight when using survivorship-clean small-cap data.
 Caveats: preliminary (855/1831 delisted names; rest downloading), Tiingo misses
 OTC-Q bankruptcy final wipeouts (but adding the 855 barely moved it -> robust).
+**DEFINITIVE clean small/mid-cap insider test (exp51, Tiingo 19.3k tickers incl
+2,391 delisted insider names = 99% coverage):** the payoff of the clean data. On
+the full survivorship-clean small/mid-cap universe (8,599 insider names priced
+incl delisted), insider-buy-minus-rest fwd-3m (winsorized / price>=$3 / eq-wt):
+**large-$ buy +0.60% (t2.7), cluster>=2 +0.55% (t3.4), net-buyer +0.52% (t3.5),
+cluster>=3 +0.52% (t2.8)** all SIGNIFICANT; officer-buy +0.27% (t1.6) and CEO/CFO
++0.13% (t0.8) WEAK on the broad universe (officer was strong on S&P large-caps;
+on small/mid the winners are CLUSTER + NET + LARGE-$). Survivorship check:
+officer-buy +0.27% incl-delisted vs +0.33% survivors-only → survivorship adds
+only ~0.06pp; the edge is REAL, not an artifact. NET: a verified,
+survivorship-clean, small/mid-cap insider edge ~+0.5-0.6%/3m (~2-2.4%/yr
+long-short, t~3), best harvested via CLUSTER buys (≥2 insiders) or LARGE-$
+purchases. The one real, clean-data-verified signal of the whole program.
+(Tiingo PIT data: dca/research/data/tiingo/.)
+
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
