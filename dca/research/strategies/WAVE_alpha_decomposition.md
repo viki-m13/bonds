@@ -36,7 +36,18 @@ similar (no clean vol edge at entry).
 Winners enter with **stronger momentum, higher quality (ROA), slightly lower
 vol** — already partly captured by the runner+accel gates.
 
-## Implication (tested in exp89)
-Because the edge is fat-tailed and holding-asymmetric, the lever is NOT better
-entry filters (they cut runners) but **better exit asymmetry**: cut losers fast,
-let proven winners run even longer (two-stage trailing stop).
+## Implication (tested in exp89) — gentle exit is LOAD-BEARING
+Hypothesis: cut losers faster, let proven winners run longer (two-stage trailing
+stop). RESULT: it BACKFIRED — every two-stage variant (tight early stop −15/−20%
++ loose proven trail −35/−50%) scored Sharpe 0.63–0.76 vs the champion's 1.34.
+Reason: future runners often DIP early before taking off; a tight early stop
+amputates them. The champion's single gentle trailing-30%-from-peak + trend exit
+is already optimal — it gives nascent runners room. **Do not tighten the exit.**
+
+## Bottom line
+WAVE champion (single ML + runner-gate + signal-accel, N12, gentle trail−30%+trend)
+≈ CAGR 21%/Sharpe 1.41/maxDD −18% is the validated long-only frontier on this data.
+The edge is structural (asymmetric holding + fat-tail runner capture), not
+refinable by more entry filters, score blends, sleeves, ensembles, or tighter
+exits — all tested, all neutral-or-worse. Further alpha needs NEW data
+(8-K catalysts, options, intraday), not recombination of existing signals.
