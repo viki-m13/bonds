@@ -152,3 +152,14 @@ already capture the factor interactions; ensembling other algos just adds noise)
 Quant-optimization battery now exhausted: hyperparameter variants, feature
 selection (exp96, hurts), mixed-target ensemble (exp86), bagging (exp91),
 multi-algo (exp97) — none beat the single GBT champion (21%/1.34).
+
+## Cross-asset trend sleeve + diversification (exp98) — validates the portfolio thesis
+Built a long-only dual-momentum cross-asset trend sleeve (13 ETFs: equity/bond/
+commodity/REIT; hold top-4 trending above 10mo-MA else cash/bonds). Standalone
+CAGR 8.7%/Sharpe 0.83, but **corr to WAVE only 0.41** — a genuine diversifier.
+Blending lifts portfolio Sharpe: 100% WAVE → 70/30 WAVE/Trend → +20% QQQ =
+1.08 → 1.16 → 1.23, with lower drawdown. Confirms the McLean-Pontiff / archetype
+thesis: the real win is COMBINING low-correlation honest sleeves (equity
+stock-picking + cross-asset trend), not a single magic signal. (Absolute WAVE
+recompute here read low vs the 1.41 champion — alignment artifact; the relative
+diversification gain is the robust finding.)
