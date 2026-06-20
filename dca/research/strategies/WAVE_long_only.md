@@ -57,8 +57,19 @@ tested and ALL hurt:
   (0%). Whipsaw + missed V-recoveries in a strong-uptrend decade.
 - All combined: 0.60. => Base WAVE is already well-tuned; leave these off.
 
+## 13F institutional accumulation (exp81-82) — modest add
+Downloaded 16 quarters of SEC 13F holdings (78k CUSIPs, mapped 2,800 → ticker via
+OpenFIGI; data in `data/sec/_13f_cusip.pkl` + `_13f_cusipmap.pkl`). Tested as a
+cross-sectional signal (2023-2025, 1,933 names):
+- inst. **value growth** IC(fwd3m) +0.063, L/S Sharpe 1.98 — BUT inflated: value =
+  shares×price, so it's partly momentum (price-contaminated).
+- inst. **breadth change** (Δ #managers, the clean measure) IC +0.037, L/S Sharpe
+  0.65 — modest, on par with insider/rev-accel.
+Verdict: real but modest; only 33 months of dense data. Fold the breadth-change
+into the ML feature set when more history is available; don't over-weight.
+
 ## Roadmap (still open)
-1. 13F institutional accumulation as a selection feature (in progress, exp81).
+1. Extend 13F history (datasets go back to 2013) + add breadth-change to ML features.
 2. News/8-K hard-catalyst gate (needs 8-K event fetch).
 3. Extend ML history pre-2015 (needs earlier fundamentals coverage).
 4. Sector/industry context features.

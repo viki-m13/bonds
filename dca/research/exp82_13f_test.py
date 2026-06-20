@@ -14,10 +14,15 @@ V=to_ticker(val); Nm=to_ticker(nmgr)
 # period label -> filing-available month (window end + ~45d)
 def lab_date(l):
     import re
-    m=re.search(r'-(\d{2})([a-z]{3})(\d{4})',l);
     mo={'jan':1,'feb':2,'mar':3,'apr':4,'may':5,'jun':6,'jul':7,'aug':8,'sep':9,'oct':10,'nov':11,'dec':12}
-    d,mm,yy=int(m.group(1)),mo[m.group(2)],int(m.group(3))
-    return (pd.Timestamp(yy,mm,d)+pd.DateOffset(days=45)).to_period("M").to_timestamp()
+    m=re.search(r'-(\d{2})([a-z]{3})(\d{4})',l)
+    if m:
+        d,mm,yy=int(m.group(1)),mo[m.group(2)],int(m.group(3))
+        end=pd.Timestamp(yy,mm,d)
+    else:
+        m=re.search(r'(\d{4})q([1-4])',l); yy=int(m.group(1)); q=int(m.group(2))
+        end=pd.Timestamp(yy,q*3,1)+pd.offsets.MonthEnd(0)
+    return (end+pd.DateOffset(days=45)).to_period("M").to_timestamp()
 dates={l:lab_date(l) for l in labs}
 V.columns=[dates[c] for c in V.columns]; Nm.columns=[dates[c] for c in Nm.columns]
 V=V.sort_index(axis=1); Nm=Nm.sort_index(axis=1)
