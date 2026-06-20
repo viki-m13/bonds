@@ -508,6 +508,20 @@ forcing 100% exposure turned it into long equity BETA (corr to QQQ 0.75), Sharpe
 SELECTIVITY + being in cash ~80% (that's what decorrelates it); breadth/full-
 exposure converts it to correlated beta and kills the high in-market Sharpe.
 Confirms there's no free Sharpe from 'run the good sleeve harder'.
+**Sharpe-2 loop, iters 2-3 (definitive ceiling):** (iter2) multi-asset IBS
+mean-reversion (QQQ+TLT+GLD+EEM+IWM+EFA+XLE+XLP) = Sharpe 0.54 < QQQ-only IBS
+0.75, corr rose to 0.56 (non-QQQ assets have weaker MR + are mostly equities).
+(iter3 DECISIVE) max-Sharpe optimal weighting of ALL 4 real sleeves (QQQ +
+IBS-MR + insider + StatArb): even with PERFECT-HINDSIGHT weights the ceiling is
+Sharpe 1.46 (overfit upper bound); train-fit weights applied OOS give only 0.97
+(optimization OVERFITS — naive inverse-vol 1.38 / fixed 60-20-20 1.26 beat it
+OOS, the DeMiguel '1/N beats Markowitz' result). CONCLUSION (after 46 exps): a
+net-of-cost OOS Sharpe of 2 is NOT achievable with retail-accessible
+tools/data/constraints — the perfect-hindsight upper bound from every real
+cost-surviving sleeve is 1.46, honest OOS ~1.3-1.4. Sharpe 2+ requires
+institutional execution (sub-bp costs), leverage, and shorting (StatArb
+gross 0.58 -> dead at 5bps proves cost is binding). This is a hard ceiling, not
+a failure of search: 46 experiments, every creative angle, same wall.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
