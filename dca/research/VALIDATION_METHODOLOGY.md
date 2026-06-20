@@ -743,7 +743,14 @@ contrary to the original no-leverage/no-margin mandate; the long-only-implementa
 slice is the realistic retail deliverable. Net: a true market-neutral alpha source
 exists in the data (Sharpe ~1.5 gross), best harvested by a fund that can short;
 for a long-only investor it manifests as the factor-tilt sleeves above.
-(Scripts exp73-75; _ls.pkl.)
+exp75 REALISTIC numbers: gross L/S Sharpe 1.75 -> NET of 6%/yr borrow + $5 short
+filter = Sharpe 0.99 (borrow ~halves it); regime-dependent (net Sharpe -0.13 in
+2017-20, +2.18 in 2021-25). DEPLOYABLE no-leverage/no-shorting winner: **50% QQQ
+/ 50% long-only factor-tilt = CAGR 16.6%, Sharpe 1.42, maxDD -22%** (long-only
+factor tilt is corr -0.06 to QQQ -> diversification lifts Sharpe vs QQQ 1.13 with
+1/3 less DD; it's a Sharpe/DD win, CAGR slightly below QQQ). With modest
+leverage: 50QQQ/50LOfac + 0.5x net alpha = 20.5%/Sharpe 1.70. Factor-timing
+(weight by trailing 12m) lifts net L/S 0.99->1.08. (Scripts exp73-75; _ls.pkl.)
 
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
