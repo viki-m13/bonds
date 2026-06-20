@@ -576,6 +576,27 @@ long-short, t~3), best harvested via CLUSTER buys (≥2 insiders) or LARGE-$
 purchases. The one real, clean-data-verified signal of the whole program.
 (Tiingo PIT data: dca/research/data/tiingo/.)
 
+**Signal vs strategy — the equity-curve reality check (exp52/exp53, clean Tiingo
+2011-2025):** plotting the insider edge as a *standalone long-only strategy*
+exposed the gap between a cross-sectional signal and a tradeable strategy.
+Pure equal-weight long-only of ALL ~529 cluster/large-$ insider names:
+CAGR 7.8%, Sharpe 0.50, maxDD -41% -> **loses badly to QQQ** (CAGR 18.7%,
+Sharpe 1.10, maxDD -33%; $1k/mo DCA: insider $274k vs QQQ $861k). Reason: the
+insider tilt lives in the SMALL/MID-CAP pond (IWM 9.4% CAGR, Sharpe 0.57), which
+structurally lagged QQQ in the 2011-2025 mega-cap-tech regime. A positive
+cross-sectional spread (+0.5%/3m vs small-cap peers) still nets an absolute
+loser vs QQQ. CONCENTRATION DOESN'T RESCUE IT: top-10/20/30/50 by a conviction
+score (cluster size + $ size + officer/CEO) = 12.0/8.6/7.4/6.2% CAGR (Sh
+0.60/0.54/0.47/0.42) — all < QQQ, top-10's 12% is small-sample noise. CRITICAL:
+the L/S "top-20%-conviction vs rest-of-buyers" spread = **-1.4% CAGR, Sharpe
+-0.28** -> the conviction GRADIENT within buyers is flat/negative; the real edge
+is binary ("recent insider cluster/large buy present" vs absent), NOT a
+concentratable alpha. So insider = a weak broad small-cap tilt, not a standalone
+QQQ-beater and not a high-Sharpe sleeve. As a QQQ overlay it only dilutes toward
+a lower-Sharpe asset. Honest verdict: the insider signal is real but its
+PRACTICAL value for a retail DCA plan is marginal; the risk-adjusted improver in
+this program was the mean-reversion sleeve, not insider.
+
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
