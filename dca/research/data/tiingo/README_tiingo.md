@@ -1,6 +1,16 @@
 # Tiingo PIT (point-in-time / delisting-inclusive) data — SOURCE: Tiingo
 
-Downloaded via the Tiingo API (free tier) on 2026-06-20. Labeled `tiingo_*`.
+Downloaded via the Tiingo API on 2026-06-20. Labeled `tiingo_*`.
+
+## STATUS: COMPLETE
+**~24,287 US tickers WITH price data** (entire Tiingo US stock+ETF universe),
+including **6,956 / 7,006 delisted stocks (99.3%)** and 1,812/1,831 delisted
+insider-buy names. Full daily total-return history 1990→today + volume, in
+`prices/ac_*.parquet` (adjClose) + `prices/vol_*.parquet` (~464 MB). To load:
+concat all non-empty `ac_*.parquet`, resample to taste. The ~50 missing delisted
+are OTC-Q bankruptcies Tiingo lacks (negligible). VERIFIED USABLE — the clean
+insider test (exp51) ran on this and confirmed the insider cluster/large-$ edge
+is real and survivorship-robust.
 
 ## Files
 - **`tiingo_universe_pit.parquet`** — the survivorship-key: every US ticker
