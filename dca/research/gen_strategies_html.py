@@ -1,6 +1,7 @@
 import json
 D=json.load(open("/home/user/_wsdata.json"))
 DATA=json.dumps(D,separators=(",",":"))
+PICKS=json.dumps(json.load(open("/home/user/_picks.json")),separators=(",",":"))
 html=r"""<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8">
@@ -64,6 +65,15 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px 16px 0;lin
     <div class="leg"><span><i style="background:#111418"></i><b id="lgS">Strategy</b></span><span><i style="background:#9ca3af"></i>QQQ</span></div>
   </div>
 
+  <div class="card" id="curCard"><h3 id="curHdr"></h3><div id="curBody"></div>
+    <p style="font-size:12px;color:var(--mut);margin:10px 0 0" id="curNote"></p></div>
+
+  <div class="card" id="histCard"><h3>Notable historical winners <span style="text-transform:none;font-weight:400">(tap to sort)</span></h3>
+    <table id="hist"><thead><tr>
+      <th data-k="t">Ticker</th><th data-k="entry">Entry</th><th data-k="held">Mo held</th><th data-k="ret" class="s">Return</th>
+    </tr></thead><tbody></tbody></table>
+    <p style="font-size:12px;color:var(--mut);margin:10px 0 0">Actual backtest trades (2015–25), ranked by realized return. The fat tail that drives the strategy.</p></div>
+
   <div class="card"><h3>Annual returns <span style="text-transform:none;font-weight:400">(tap a header to sort)</span></h3>
     <table id="annual"><thead><tr>
       <th data-k="year" class="s asc">Year</th><th data-k="strat" id="thS">Strat</th><th data-k="qqq">QQQ</th><th data-k="exc">Excess</th>
@@ -81,7 +91,7 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px 16px 0;lin
   <footer>WAVE = deploy now (long-only). SUMMIT = bigger alpha, when you can short.<br>Survivorship-clean &amp; point-in-time; null-gauntlet validated. Research, not advice.</footer>
 </div>
 <script>
-const D=__DATA__;
+const D=__DATA__;const PK=__PICKS__;
 const CFG={
  wave:{name:"WAVE",badge:"Deploy now · long-only · no margin",sub:"ML stock-picker — ride winners, cut losers. ~12 names, monthly.",factors:false,
   info:`<div class="card"><h3>The edge — why it works</h3><ul class="tight">
@@ -118,7 +128,7 @@ const CFG={
    <li><b>Outside the long-only mandate</b> — parked until shorting is allowed.</li></ul></div>`}
 };
 const PERIODS=[["All","2015-01","2025-12"],["2015–18","2015-01","2018-12"],["2019–21","2019-01","2021-12"],["2022–25","2022-01","2025-12"],["2023–25","2023-01","2025-12"]];
-let S="wave",P=0,sortA={k:"year",asc:true},sortF={k:"sharpe",asc:false};
+let S="wave",P=0,sortA={k:"year",asc:true},sortF={k:"sharpe",asc:false},sortH={k:"ret",asc:false};
 const $=id=>document.getElementById(id);
 function rng(){const[_,a,b]=PERIODS[P];const i0=D.dates.indexOf(a),i1=D.dates.indexOf(b);return[i0,i1<0?D.dates.length-1:i1];}
 function slice(key){const[i0,i1]=rng();let xs=[],r=[];for(let i=i0;i<=i1;i++){const v=D[key][i],q=D.qqq[i];if(v==null)continue;xs.push(D.dates[i]);r.push(v);}return{xs,r};}
@@ -163,17 +173,36 @@ function renderFactors(){const card=$("factorCard");if(!CFG[S].factors){card.cla
  let rows=D.factors.slice();const k=sortF.k;rows.sort((a,b)=>{let x=a[k],y=b[k];if(k=="name")return sortF.asc?(x<y?-1:1):(x>y?-1:1);return sortF.asc?x-y:y-x;});
  document.querySelectorAll("#factors th").forEach(th=>{th.classList.toggle("s",th.dataset.k==k);th.classList.toggle("asc",th.dataset.k==k&&sortF.asc);});
  const tb=$("factors").querySelector("tbody");tb.innerHTML=rows.map(r=>`<tr><td>${r.name}</td><td class="${r.sharpe>=0?'good':'bad'}">${f2(r.sharpe)}</td><td class="${r.ann>=0?'good':'bad'}">${(r.ann>=0?'+':'')+r.ann.toFixed(1)}</td></tr>`).join("");}
+function renderPicks(){
+ if(S=="wave"){
+  $("curHdr").textContent="Current picks — as of "+PK.asof;
+  let rows=PK.wave_now.map(x=>`<tr><td>${x.t}</td><td>${x.score}</td><td>${x.mom6>=0?'+':''}${x.mom6}%</td><td>$${x.px}</td></tr>`).join("");
+  $("curBody").innerHTML=`<table><thead><tr><th>Ticker</th><th>ML %ile</th><th>6-mo mom</th><th>Price</th></tr></thead><tbody>${rows}</tbody></table>`;
+  $("curNote").textContent="Model output as of the latest data month — fundamentals lag, not investment advice. ~12 equal-weight names.";
+  $("histCard").classList.remove("hide");
+ }else{
+  $("curHdr").textContent="Current book — as of "+PK.asof;
+  const tag=a=>a.map(t=>`<span class="pill">${t}</span>`).join("");
+  $("curBody").innerHTML=`<div style="font-size:12px;color:var(--mut);font-weight:700;margin:0 0 6px">LONG (top decile)</div>${tag(PK.summit_long)}
+   <div style="font-size:12px;color:var(--mut);font-weight:700;margin:12px 0 6px">SHORT (bottom decile)</div>${tag(PK.summit_short)}`;
+  $("curNote").textContent="Representative top/bottom names of a broad ~decile market-neutral book, as of the latest data month. Not advice.";
+  $("histCard").classList.add("hide");
+ }}
+function renderHist(){let rows=PK.wave_hist.slice();const k=sortH.k;rows.sort((a,b)=>{let x=a[k],y=b[k];if(k=="t"||k=="entry")return sortH.asc?(x<y?-1:1):(x>y?-1:1);return sortH.asc?x-y:y-x;});
+ document.querySelectorAll("#hist th").forEach(th=>{th.classList.toggle("s",th.dataset.k==k);th.classList.toggle("asc",th.dataset.k==k&&sortH.asc);});
+ $("hist").querySelector("tbody").innerHTML=rows.map(r=>`<tr><td>${r.t}</td><td>${r.entry}</td><td>${r.held}</td><td class="good">+${r.ret}%</td></tr>`).join("");}
 function render(){const c=CFG[S];$("badge").textContent=c.badge;$("title").textContent=c.name;$("subtitle").textContent=c.sub;$("lgS").textContent=c.name;$("info").innerHTML=c.info;
  $("tab-wave").classList.toggle("on",S=="wave");$("tab-summit").classList.toggle("on",S=="summit");
- renderMetrics();chart();renderAnnual();renderFactors();}
+ renderMetrics();chart();renderPicks();renderHist();renderAnnual();renderFactors();}
 function setStrat(s){S=s;render();}
 function setP(i){P=i;document.querySelectorAll("#chips button").forEach((b,j)=>b.classList.toggle("on",j==i));renderMetrics();chart();}
 $("chips").innerHTML=PERIODS.map((p,i)=>`<button class="${i==0?'on':''}" onclick="setP(${i})">${p[0]}</button>`).join("");
 document.querySelectorAll("#annual th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortA.k==k)sortA.asc=!sortA.asc;else{sortA.k=k;sortA.asc=k=="year";}renderAnnual();});
 document.querySelectorAll("#factors th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortF.k==k)sortF.asc=!sortF.asc;else{sortF.k=k;sortF.asc=false;}renderFactors();});
+document.querySelectorAll("#hist th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortH.k==k)sortH.asc=!sortH.asc;else{sortH.k=k;sortH.asc=(k=="t"||k=="entry");}renderHist();});
 render();
 </script></body></html>"""
-html=html.replace("__DATA__",DATA)
+html=html.replace("__DATA__",DATA).replace("__PICKS__",PICKS)
 open("/home/user/bonds/docs/wave-summit.html","w").write(html)
 open("/home/user/bonds/dca/research/strategies/strategies.html","w").write(html)
 print("written",len(html),"bytes")
