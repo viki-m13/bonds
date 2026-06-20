@@ -501,6 +501,13 @@ shorting + DL infra, a 24yr BACKTEST not live), (4) PIT survivorship-free data,
 data) ceiling stays ~1.3-1.4. Kalman pairs decayed (exp27); production multi-
 alpha/futures-ensemble = institutional diversification (~1.0-1.5). Net 2.3+ is
 not retail-reproducible.
+**Sharpe-2 loop, iter1 (exp44):** diversified always-on RSI-2 mean-reversion
+book (Connors, 20 oversold-in-uptrend S&P names) -> FAILED as a diversifier:
+forcing 100% exposure turned it into long equity BETA (corr to QQQ 0.75), Sharpe
+0.89 train -> 0.56 OOS. Lesson: the IBS mean-reversion edge comes from
+SELECTIVITY + being in cash ~80% (that's what decorrelates it); breadth/full-
+exposure converts it to correlated beta and kills the high in-market Sharpe.
+Confirms there's no free Sharpe from 'run the good sleeve harder'.
 Near-theorem behind all of it: for a fixed savings stream into a positive-drift
 asset, "invest immediately" (DCA) is near-optimal; every selection/timing/VA
 scheme just *withholds or redirects exposure* to a rising asset, which costs
