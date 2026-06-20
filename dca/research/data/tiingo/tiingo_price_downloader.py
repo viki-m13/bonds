@@ -25,6 +25,8 @@ for tk in prio:
         u=f"https://api.tiingo.com/tiingo/daily/{tk}/prices?startDate=2000-01-01&token={K}&format=csv&resampleFreq=daily"
         d=urllib.request.urlopen(urllib.request.Request(u),timeout=40,context=ctx).read().decode()
         df=pd.read_csv(io.StringIO(d))
+        if "hourly request allocation" in d:
+            print("HOURLY CAP reached; stopping to preserve quota (resume next hour)",flush=True); break
         if len(df) and "adjClose" in df.columns:
             df["date"]=pd.to_datetime(df.date); df=df.set_index("date")
             ac[tk]=df["adjClose"].astype("float32"); vol[tk]=df["adjVolume"].astype("float32"); got+=1
