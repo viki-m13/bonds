@@ -163,3 +163,18 @@ thesis: the real win is COMBINING low-correlation honest sleeves (equity
 stock-picking + cross-asset trend), not a single magic signal. (Absolute WAVE
 recompute here read low vs the 1.41 champion — alignment artifact; the relative
 diversification gain is the robust finding.)
+
+## Explicit durable-factor composite + sector-neutralization (exp99)
+Built the McLean-Pontiff/HXZ durable survivors as an explicit z-score composite
+(momentum 12-1, value B/M+E/P, quality ROA+GP/A+ROE, low-vol, buyback, low-accruals),
+fetched SIC sectors (5,079 tickers) for neutralization:
+- raw composite: IC 0.085, long-decile 12.2%/0.82, L/S 0.83, corr-QQQ -0.38
+- SECTOR-NEUTRAL: IC 0.068, long-decile 12.9%/0.81, **L/S 0.93** (up), corr -0.34
+Sector-neutralization helps the L/S (0.83->0.93, as expected). BUT the explicit
+linear composite (long 0.81) is much weaker than the GBT/WAVE champion (1.34-1.41)
+— confirming the GKX thesis: the GBT is a *better nonlinear combiner* of the SAME
+factors, and WAVE's runner-gate/ride/cut mechanics add the rest. The explicit
+composite's value is (a) transparency, (b) the market-neutral sector-neutral L/S
+(~0.9-1.5 gross) as a DIVERSIFYING sleeve. GAPS still unbuilt (need paid data):
+proper PEAD (earnings SUE) and ANALYST ESTIMATE REVISIONS — the one durable factor
+I lack, weighted heavily by quant shops.
