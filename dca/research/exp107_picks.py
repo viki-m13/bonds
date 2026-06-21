@@ -69,7 +69,8 @@ sc=PB.loc[last].where(elig); waveN=sc.sort_values(ascending=False).head(12)
 wave_now=[{"t":nameof(t),"score":int(round(PB.loc[last].rank(pct=True)[t]*100)),"mom6":round(float(mom6.loc[last].get(t,np.nan))*100,0),"px":round(float(me.loc[last].get(t,np.nan)),0)} for t in waveN.index]
 # SUMMIT current longs/shorts (decile by score among liquid REAL companies)
 sl=PB.loc[last].where(liq.loc[last]&realco); r=sl.rank(pct=True)
-longs=sl[r>=0.9].sort_values(ascending=False).head(10); shorts=sl[r<=0.1].sort_values().head(10)
+ss=PB.loc[last].where(liq.loc[last]&realco&(me.loc[last]>=10.0)); rs=ss.rank(pct=True)  # borrow-aware shorts >=$10 mcap
+longs=sl[r>=0.9].sort_values(ascending=False).head(10); shorts=ss[rs<=0.1].sort_values().head(10)
 sum_long=[nameof(t) for t in longs.index]; sum_short=[nameof(t) for t in shorts.index]
 p(f"current picks: {last.date()}  wave {len(wave_now)} | longs {len(sum_long)} shorts {len(sum_short)} t={time.time()-t0:.0f}s")
 PICKS={"asof":last.strftime("%Y-%m"),"hist_asof":didx[endk].strftime("%Y-%m"),

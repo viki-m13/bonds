@@ -116,15 +116,21 @@ const CFG={
    <div class="row"><span class="k">Linear factor L/S</span><span class="val">value, gross-profitability,<br>Piotroski, momentum, quality</span></div>
    <div class="row"><span class="k">ML L/S</span><span class="val">36-feature gradient boosting</span></div>
    <div class="row"><span class="k">Best single factor</span><span class="val">Value (B/M) — Sharpe 1.38</span></div>
-   <div class="row"><span class="k">Construction</span><span class="val">Dollar-neutral; long top decile,<br>short bottom decile</span></div></div>
+   <div class="row"><span class="k">Construction</span><span class="val">Dollar-neutral; long top decile,<br>short bottom decile (≥$10 mcap)</span></div></div>
+   <div class="card"><h3>v2 — borrow-aware shorts</h3>
+   <p style="font-size:12.5px;color:var(--mut);margin:0 0 8px">Restricting shorts to <b>≥$10 mcap</b> names (the only ones reliably borrowable at ~6%/yr) is both more deployable <i>and</i> higher-performing — micro-cap shorts added squeeze risk, not edge.</p>
+   <div class="metrics">
+   <div class="m"><div class="v">1.59→2.16</div><div class="l">net Sharpe</div><div class="q">v1 → v2</div></div>
+   <div class="m"><div class="v">−46%→−34%</div><div class="l">max drawdown</div><div class="q">v1 → v2</div></div></div></div>
    <div class="card"><h3>Portable alpha — overlay on QQQ</h3><div class="metrics">
-   <div class="m"><div class="v">1.66</div><div class="l">QQQ + 1× α</div><div class="q">30% CAGR</div></div>
-   <div class="m"><div class="v">1.80</div><div class="l">½QQQ+½+α</div><div class="q">29% CAGR</div></div>
-   <div class="m"><div class="v">1.83</div><div class="l">QQQ + 2× α</div><div class="q">41% CAGR</div></div></div>
-   <p style="font-size:12.5px;color:var(--mut);margin:10px 0 0">~0-correlated alpha lifts a QQQ core above either alone.</p></div>
+   <div class="m"><div class="v">2.74</div><div class="l">QQQ + 1× α</div><div class="q">DD −20%</div></div>
+   <div class="m"><div class="v">2.74</div><div class="l">½QQQ+½+α</div><div class="q">DD −10%</div></div>
+   <div class="m"><div class="v">2.64</div><div class="l">QQQ + 2× α</div><div class="q">DD −39%</div></div></div>
+   <p style="font-size:12.5px;color:var(--mut);margin:10px 0 0">~0-correlated alpha lifts a QQQ core above either alone. Backtest, gross of slippage.</p></div>
    <div class="card"><h3>Honest caveats</h3><ul class="tight">
-   <li>Requires <b>shorting</b> hard-to-borrow small/mid-caps.</li><li>Requires <b>leverage/margin</b> for the overlay.</li>
-   <li>Pure L/S max drawdown ≈ −46%.</li><li>Headline Sharpe is gross of commissions/slippage.</li>
+   <li>Requires <b>shorting</b> (now ≥$10 mcap, borrowable) and <b>leverage/margin</b> for the overlay.</li>
+   <li>Pure L/S max drawdown ≈ −34%.</li><li>Headline Sharpe is gross of commissions/slippage.</li>
+   <li>Optional <b>vol-target 12%</b> overlay cuts DD to ≈ −27% (Sharpe ~2.0).</li>
    <li><b>Outside the long-only mandate</b> — parked until shorting is allowed.</li></ul></div>`}
 };
 const PERIODS=[["All","2015-01","2025-12"],["2015–18","2015-01","2018-12"],["2019–21","2019-01","2021-12"],["2022–25","2022-01","2025-12"],["2023–25","2023-01","2025-12"]];
