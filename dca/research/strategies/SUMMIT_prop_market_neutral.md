@@ -97,12 +97,57 @@ on v2 cuts maxDD to −27% for a modest Sharpe give-back (2.16→2.02); the book
 native vol is ~24%/yr. Use it if drawdown, not raw return, is the binding
 constraint — you can re-lever a vol-targeted book to restore return.
 
+## v3 — beta-neutralization: the bigger win (exp111–113)
+Second batch of levers on the v2 book (eq-weight, short ≥$10, quarterly+buffer2×):
+
+| Lever | net CAGR | net Sharpe | maxDD | dev Sh | holdout Sh | corr QQQ |
+|---|--:|--:|--:|--:|--:|--:|
+| v2 base (dollar-neutral) | 53% | 2.17 | −34% | 1.91 | 2.89 | −0.28 |
+| **v3 — beta-neutral** | 40% | **2.44** | **−16%** | 2.07 | 3.57 | **0.01** |
+| **v3 + tiered borrow (DEPLOY)** | 42% | **2.58** | **−15%** | 2.23 | 3.65 | 0.02 |
+| conviction-weight | 40% | 2.45 | −16% | 2.08 | 3.58 | 0.01 |
+| inverse-vol weight | 33% | 2.35 | −18% | 1.93 | 3.64 | 0.01 |
+| alt ML models (50feat/ens/…) | — | ≤1.80 | — | — | — | — |
+| + short stop-loss | 44% | ≤2.43 | −19/−25% | — | — | 0.00 |
+
+**Leg decomposition (the key diagnostic).** Splitting the L/S: the *long* leg earns
+17%/Sharpe 1.08 (corr +0.69 to QQQ); the *short* leg earns **35%/Sharpe 1.14
+net of 6% borrow** (corr −0.57). The short book is the bigger engine, and the
+legs' opposite market exposures are what manufacture the high combined Sharpe.
+
+**What worked — beta-neutralization.** Scaling the short leg to zero *net beta*
+(trailing-12m β to QQQ, PIT) instead of merely dollar-neutral lifts Sharpe
+**2.17 → 2.44**, halves maxDD **−34% → −16%**, and drives corr to QQQ to
+**0.01** — genuinely market-neutral. The gain appears in *dev* too (1.91→2.07),
+so it is not holdout-fitting; it removes an unintended residual short-beta that
+was adding variance in rallies. Every sub-period positive: 2015–18 Sharpe 2.69,
+the squeeze-era 2019–21 **1.47** (was the weak regime), 2022–25 3.29.
+
+**What worked — realistic tiered borrow.** The flat 6%/yr was conservative for
+borrowable ≥$10 names; large/mid-caps borrow at ~1–2%. Tiering (6% / 2% top-20%
+mcap / 1% top-5%) lifts net Sharpe to **2.58**, maxDD −15%.
+
+**What did NOT help (recorded, not adopted):** alternative ML models (50-feature,
+ensemble, "banger") all underperform the base on the L/S; conviction-weighting is
+a rounding-error better (2.45) and inverse-vol trades 0.1 Sharpe for ~2pts less DD;
+short stop-losses *hurt* (lock in squeezes, force re-entry) — every threshold
+lowered Sharpe and raised DD, including in the 2019–21 regime they targeted.
+
+**Deployable v3:** beta-neutral ML decile L/S, short ≥$10 mcap, quarterly +
+2× buffer, tiered borrow. Full-sample compounded **CAGR 51% / Sharpe 2.51 /
+maxDD −15% / corr −0.00**; native vol ~16%/yr (lever to dial return — Sharpe
+holds ~2.2 up to 24% vol). *Caveat:* the holdout was evaluated across several
+improvement rounds, so treat the exact Sharpe as an optimistic point estimate.
+
 ## Roadmap (remaining)
 1. ~~Turnover/cost-aware construction~~ — DONE (quarterly + buffer2×).
 2. ~~Sector neutralization~~ — TESTED, rejected for the ML book (hurts).
-3. ~~Borrow-aware shorting~~ — DONE, adopted as v2 (the main win).
-4. ~~Vol-targeting~~ — TESTED, available as optional DD-control overlay.
-5. **New alpha data** — 13F institutional flows, short-interest/FTD, options
-   skew, **analyst estimate-revisions** (the one durable factor SUMMIT lacks;
-   needs paid data) — the remaining high-EV, un-built lever.
-6. **Ensemble** ML + linear — TESTED, dilutes (corr 0.76); not adopted.
+3. ~~Borrow-aware shorting~~ — DONE, adopted as v2.
+4. ~~Vol-targeting~~ — TESTED, optional DD-control overlay.
+5. ~~Beta-neutralization~~ — DONE, adopted as v3 (the bigger win: DD halved,
+   corr→0). ~~Tiered borrow~~, ~~leg decomposition~~, ~~alt models~~,
+   ~~weighting schemes~~, ~~short stop-loss~~ — all TESTED.
+6. **New alpha data** — 13F flows, short-interest/FTD, options skew,
+   **analyst estimate-revisions** (the one durable factor SUMMIT lacks; needs
+   paid data) — the remaining high-EV, un-built lever.
+7. **Ensemble** ML + linear — TESTED, dilutes (corr 0.76); not adopted.
