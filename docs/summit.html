@@ -1,456 +1,214 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f5efe2">
-<title>SUMMIT — Biweekly / Monthly DCA Stock Selection</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SUMMIT — Market-Neutral Alpha</title>
 <style>
-:root{
-  --paper:#f5efe2; --card:#fffdf7; --card2:#ebe2cf; --border:#d8cdb6;
-  --rule:#bdb094; --t1:#0e0a07; --t2:#5b4f3f; --t3:#8d8270;
-  --accent:#0f5f73; --accent2:#0e7490; --green:#15803d; --red:#b3331f;
-  --gold:#a16207; --qqq:#c2410c; --spy:#a16207;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{font-family:'Bricolage Grotesque',Helvetica,Arial,sans-serif;background:var(--paper);color:var(--t1);line-height:1.55;padding-bottom:70px}
-.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
-header{padding:34px 0 6px}
-h1{font-family:'Instrument Serif',serif;font-size:clamp(40px,8vw,70px);font-weight:400;letter-spacing:.5px;line-height:1}
-h1 .peak{color:var(--accent)}
-.sub{color:var(--t2);font-size:clamp(15px,2.4vw,17px);max-width:760px;margin-top:12px}
-.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:5px 13px;color:var(--t2);margin-bottom:14px;white-space:nowrap}
-@media(max-width:430px){.badge{letter-spacing:.4px;font-size:9.5px;padding:5px 11px}}
-h2{font-family:'Instrument Serif',serif;font-size:clamp(24px,4.5vw,30px);font-weight:400;margin:42px 0 6px;border-bottom:1px solid var(--rule);padding-bottom:8px}
-.lead{color:var(--t2);font-size:15px;margin:8px 0 14px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px;margin:18px 0}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 16px;box-shadow:0 4px 12px -7px rgba(14,10,7,.14)}
-.card .v{font-family:'JetBrains Mono',monospace;font-size:clamp(21px,4vw,26px);font-weight:600}
-.card .l{color:var(--t3);font-size:11px;text-transform:uppercase;letter-spacing:.7px;margin-top:3px;line-height:1.3}
-.green{color:var(--green)} .red{color:var(--red)} .accent{color:var(--accent)}
-
-/* ---- action / buy panel ---- */
-.act{background:var(--card);border:1px solid var(--border);border-left:5px solid var(--accent);border-radius:14px;padding:20px 22px;margin:8px 0 6px;box-shadow:0 8px 24px -14px rgba(14,10,7,.3)}
-.act .k{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--t3)}
-.act .buy{display:flex;flex-wrap:wrap;align-items:baseline;gap:14px;margin:6px 0 4px}
-.act .tk{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:var(--accent);letter-spacing:1px}
-.act .reg{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t2);background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:3px 11px}
-.act .how{color:var(--t2);font-size:14.5px;margin-top:2px}
-.sched{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
-@media(max-width:560px){.sched{grid-template-columns:1fr}}
-.sbox{background:var(--paper);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
-.sbox h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);margin-bottom:7px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:1px 10px}
-.sbox h4 span{color:var(--t3);font-weight:400;letter-spacing:0;font-size:10px}
-.sbox .d{font-family:'JetBrains Mono',monospace;font-size:13.5px;color:var(--t1);padding:2px 0}
-.sbox .d.next{font-weight:600;color:var(--accent)}
-.tiny{font-size:12px;color:var(--t3);margin-top:8px}
-
-/* ---- holdings ---- */
-.holds{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin:6px 0}
-.hrow{display:flex;align-items:center;gap:10px;margin:5px 0;font-family:'JetBrains Mono',monospace;font-size:13px}
-.hrow .ht{width:62px;font-weight:600}
-.hrow .hb{flex:1;height:14px;background:var(--card2);border-radius:4px;overflow:hidden}
-.hrow .hb i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px}
-.hrow .hp{width:52px;text-align:right;color:var(--t2)}
-.trimstats{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 2px}
-.chip{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 11px;color:var(--t2)}
-.chip b{color:var(--t1)} .chip.g b{color:var(--green)} .chip.r b{color:var(--red)}
-@media(max-width:480px){
-  td,th{padding:7px 6px;font-size:12px}
-  #postable td:first-child,#postable th:first-child{padding-left:10px}
-  #postable td:last-child,#postable th:last-child{padding-right:11px}
-}
-
-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:14px;margin:12px 0}
-.tablescroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
-th{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--t2);background:var(--card2);text-align:right;padding:9px 11px;white-space:nowrap}
+:root{--bg:#fff;--txt:#111418;--mut:#6b7280;--line:#e5e7eb;--card:#fafafa;--good:#15803d;--bad:#b91c1c}
+*{box-sizing:border-box;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:0 0 56px}
+.wrap{max-width:660px;margin:0 auto;padding:0 16px}
+header{padding:26px 16px 12px;text-align:center;border-bottom:1px solid var(--line)}
+header h1{font-size:25px;margin:0 0 4px;letter-spacing:.5px;font-weight:800}
+header p{color:var(--mut);font-size:13px;margin:0}
+nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);display:flex;gap:8px;padding:10px 16px}
+nav button{flex:1;text-align:center;color:var(--txt);padding:11px 6px;border-radius:10px;font-weight:700;font-size:15px;background:#fff;border:1.5px solid var(--txt);cursor:pointer}
+nav button.on{background:var(--txt);color:#fff}
+section{padding-top:16px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.6px;padding:4px 10px;border-radius:999px;text-transform:uppercase;border:1.5px solid var(--txt)}
+h2{font-size:23px;margin:9px 0 2px;font-weight:800;letter-spacing:.5px}
+.sub{color:var(--mut);font-size:13.5px;margin:0 0 12px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px}
+.chips button{font-size:12.5px;font-weight:600;color:var(--txt);background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chips button.on{background:var(--txt);color:#fff;border-color:var(--txt)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 14px}
+.card h3{margin:0 0 11px;font-size:13px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.m{background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px 8px;text-align:center}
+.m .v{font-size:21px;font-weight:800;line-height:1.1}
+.m .l{font-size:11px;color:var(--mut);margin-top:3px}
+.m .q{font-size:10.5px;color:var(--mut);margin-top:2px}
+.good{color:var(--good)}.bad{color:var(--bad)}
+svg{width:100%;height:auto;display:block}
+.leg{display:flex;gap:16px;justify-content:center;font-size:12px;color:var(--mut);margin-top:8px}
+.leg i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:8px 6px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
 th:first-child,td:first-child{text-align:left}
-td{padding:8px 11px;border-top:1px solid var(--border);text-align:right;font-family:'JetBrains Mono',monospace;font-size:13px;white-space:nowrap}
-td:first-child{font-family:'Bricolage Grotesque',sans-serif}
-tr.best td{background:rgba(15,95,115,.06)}
-.chartwrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 14px 6px;margin:12px 0}
-.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center}
-.controls .grp{display:flex;gap:4px;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:3px}
-.controls button{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;border:none;background:transparent;color:var(--t2);padding:5px 10px;border-radius:6px;cursor:pointer;transition:all .15s}
-.controls button.on{background:var(--accent);color:#fff}
-.controls .sp{flex:1}
-.chartbox{position:relative;height:340px}
-@media(max-width:640px){.chartbox{height:300px}}
-.legend{display:flex;flex-wrap:wrap;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--t2);padding:2px 4px 8px}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
-p{margin:10px 0;color:var(--t2)} p strong{color:var(--t1)}
-ul{margin:8px 0 8px 20px;color:var(--t2)} li{margin:5px 0}
-.note{background:var(--card2);border-left:3px solid var(--gold);border-radius:6px;padding:12px 15px;font-size:13.5px;color:var(--t2);margin:16px 0}
-.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px;margin:16px 0}
-.rule-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
-.rule-card h3{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
-.rule-card p{font-size:14px;margin:5px 0}
-a{color:var(--accent)}
-footer{margin-top:54px;color:var(--t3);font-size:12.5px;border-top:1px solid var(--rule);padding-top:16px}
-/* ---- centered / symmetric layout ---- */
-header{text-align:center}
-.sub{margin-left:auto;margin-right:auto}
-h2{text-align:center}
-.lead{text-align:center;max-width:720px;margin-left:auto;margin-right:auto}
-.card{text-align:center}
-.act{text-align:center;border-left:1px solid var(--border);border-top:4px solid var(--accent)}
-.act .k{letter-spacing:.8px}
-#a-asof{white-space:nowrap}
-.act .buy{justify-content:center}
-.sbox{text-align:center}
-.sbox h4{justify-content:center}
-.trimstats{justify-content:center}
-.tiny{text-align:center}
-.controls{justify-content:center}
-.controls .sp{display:none}
-.legend{justify-content:center}
-.rule-card{text-align:center}
-ul{list-style:none;padding:0;max-width:760px;margin:8px auto;text-align:center}
-.note{text-align:center;max-width:760px;margin-left:auto;margin-right:auto;border-left:1px solid var(--gold);border-top:3px solid var(--gold)}
-footer{text-align:center}
-</style>
-</head>
-<body>
+th{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;user-select:none}
+th.s::after{content:" ▾";opacity:.6}th.s.asc::after{content:" ▴"}
+ul{margin:6px 0 0;padding-left:18px}li{margin:5px 0;font-size:14.5px}ul.tight li{margin:3px 0}
+.row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.row:last-child{border-bottom:none}.row .k{color:var(--mut);white-space:nowrap}.row .val{font-weight:600;text-align:right}
+.pill{font-size:12px;color:var(--mut);background:#fff;border:1px solid var(--line);border-radius:8px;padding:3px 9px;display:inline-block;margin:3px 4px 0 0}
+.note{font-size:13px;background:#f3f4f6;border-left:3px solid var(--txt);border-radius:6px;padding:10px 12px;margin-top:4px}
+footer{color:var(--mut);font-size:12px;text-align:center;padding:20px 16px 0;line-height:1.7;border-top:1px solid var(--line);margin-top:24px}
+.hide{display:none}
+</style></head><body>
+<header><h1>SUMMIT</h1><p>Market-neutral long/short · pure alpha · survivorship-clean point-in-time</p></header>
+<nav class="wrap" style="display:none"><button id="tab-wave"></button><button id="tab-summit"></button></nav>
 <div class="wrap">
-<header>
-  <div class="badge">Biweekly or monthly · S&amp;P 500 · never sell</div>
-  <h1>SUM<span class="peak">MIT</span></h1>
-  <div class="sub">A simple rule for steady investors: every two weeks (or once a month), put your contribution into <strong>two stocks the model picks</strong> — the market's largest leaders when things are healthy, the largest quality names on sale when they're not — and <strong>never sell</strong>. Below is exactly what to buy, when, what you'd be holding, and how it has done.</div>
-</header>
+  <span class="badge" id="badge"></span>
+  <h2 id="title"></h2>
+  <p class="sub" id="subtitle"></p>
 
-<!-- ===== ACTION: what & when to buy ===== -->
-<h2>What to buy now</h2>
-<div class="act">
-  <div class="k">This period's pick · <span id="a-asof">—</span></div>
-  <div class="buy"><span class="tk" id="a-picks">— · —</span><span class="reg" id="a-reg">—</span></div>
-  <div class="how">Split your contribution <strong>50 / 50</strong> across the two names and buy at the next market open. That's the whole action — then hold.</div>
-  <div class="sched">
-    <div class="sbox">
-      <h4>If you invest monthly <span>1st of each month</span></h4>
-      <div id="sched-monthly"></div>
-    </div>
-    <div class="sbox">
-      <h4>If you invest biweekly <span>1st &amp; 15th</span></h4>
-      <div id="sched-biweekly"></div>
-    </div>
+  <div class="chips" id="chips"></div>
+
+  <div class="card"><h3 id="methdr"></h3><div class="metrics" id="metrics"></div><p class="note" id="metnote"></p></div>
+
+  <div class="card"><h3>Growth of $1 — <span id="charthdr"></span></h3>
+    <div id="chart"></div>
+    <div class="leg"><span><i style="background:#111418"></i><b id="lgS">Strategy</b></span><span><i style="background:#9ca3af"></i>QQQ</span></div>
   </div>
-  <div class="tiny">Dates are the calendar 1st/15th; if the market is closed that day, buy at the next open. The pick refreshes every trading day after the close — check back before each buy.</div>
-</div>
 
-<!-- ===== headline numbers ===== -->
-<div class="cards" id="cards">
-  <div class="card"><div class="v" id="c-itd">—</div><div class="l">grew to, per $1 invested since 2006</div></div>
-  <div class="card"><div class="v" id="c-irr">—</div><div class="l">return per year (IRR)</div></div>
-  <div class="card"><div class="v green" id="c-winq">—</div><div class="l">of all start dates beat QQQ</div></div>
-  <div class="card"><div class="v green" id="c-wins">—</div><div class="l">beat the S&amp;P 500 (SPY)</div></div>
-  <div class="card"><div class="v" id="c-med">—</div><div class="l">typical lead over QQQ</div></div>
-  <div class="card"><div class="v red" id="c-worst">—</div><div class="l">worst it ever lagged QQQ</div></div>
-</div>
+  <div class="card" id="curCard"><h3 id="curHdr"></h3><div id="curBody"></div>
+    <p style="font-size:12px;color:var(--mut);margin:10px 0 0" id="curNote"></p></div>
 
-<!-- ===== holdings ===== -->
-<h2>What you'd be holding</h2>
-<div class="lead">Because SUMMIT never sells, contributions pile up into a portfolio of past winners — <strong id="h-count">—</strong> names, heavily tilted to the few that ran the most. Pick how long ago you'd have started:</div>
-<div class="controls"><div class="grp" id="holdtf"></div><div class="sp"></div><div class="grp" id="trimtoggle"></div></div>
-<div class="holds" id="holds"></div>
-<div class="trimstats" id="trimstats"></div>
-<div class="tiny" id="trim-note">Trim (optional, on the full history): sell just the slice of any holding above a cap once a year and redeploy it — caps single-name risk at little cost, and stays tax-light.</div>
+  <div class="card" id="histCard"><h3>Notable historical winners <span style="text-transform:none;font-weight:400">(tap to sort)</span></h3>
+    <table id="hist"><thead><tr>
+      <th data-k="t">Ticker</th><th data-k="entry">Entry</th><th data-k="held">Mo held</th><th data-k="ret" class="s">Return</th>
+    </tr></thead><tbody></tbody></table>
+    <p style="font-size:12px;color:var(--mut);margin:10px 0 0">Actual backtest trades (2015–25), ranked by realized return. The fat tail that drives the strategy.</p></div>
 
-<!-- ===== open positions / P&L ===== -->
-<h2>Open positions &amp; profit / loss</h2>
-<div class="lead">The model's book — every name it holds, never sold, with each position's gain or loss. Pick how long ago you'd have started. <strong id="pnl-summary"></strong></div>
-<div class="controls"><div class="grp" id="postf"></div></div>
-<div class="tablescroll">
-<table id="postable">
-<thead><tr><th>stock</th><th>since</th><th>weight</th><th>value</th><th>return</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-<div class="tiny" id="pos-note"></div>
-
-<!-- ===== chart ===== -->
-<h2>How it has grown</h2>
-<div class="chartwrap">
-  <div class="controls">
-    <div class="grp" id="tf"></div>
-    <div class="sp"></div>
-    <div class="grp" id="mode">
-      <button data-mode="mult" class="on">× growth</button>
-      <button data-mode="value">$ value</button>
-    </div>
+  <div class="card"><h3>Annual returns <span style="text-transform:none;font-weight:400">(tap a header to sort)</span></h3>
+    <table id="annual"><thead><tr>
+      <th data-k="year" class="s asc">Year</th><th data-k="strat" id="thS">Strat</th><th data-k="qqq">QQQ</th><th data-k="exc">Excess</th>
+    </tr></thead><tbody></tbody></table>
   </div>
-  <div class="legend">
-    <span><i style="background:#0f5f73"></i>SUMMIT</span>
-    <span><i style="background:#c2410c"></i>QQQ</span>
-    <span><i style="background:#a16207"></i>S&amp;P 500</span>
-    <span><i style="background:#8d8270"></i>What you put in</span>
+
+  <div class="card" id="factorCard"><h3>Factor long/short sleeves <span style="text-transform:none;font-weight:400">(tap to sort)</span></h3>
+    <table id="factors"><thead><tr>
+      <th data-k="name">Factor</th><th data-k="sharpe" class="s">Sharpe</th><th data-k="ann">Ann %</th>
+    </tr></thead><tbody></tbody></table>
+    <p style="font-size:12px;color:var(--mut);margin:10px 0 0">Gross dollar-neutral L/S Sharpe per signal. Value (B/M) leads; combined book reaches the headline above.</p>
   </div>
-  <div class="chartbox"><canvas id="eq"></canvas></div>
+
+  <div id="info"></div>
+  <footer>SUMMIT — market-neutral long/short, ~0 correlation to the market.<br>Survivorship-clean &amp; point-in-time; all-in net of modeled costs. Research, not advice.</footer>
 </div>
-<p style="font-size:12.5px;color:var(--t3)"><b>× growth</b> = how many times your money grew (every line starts at 1). <b>$ value</b> = dollars if you put in $1,000 each buy, log scale. All three lines use the same schedule and costs.</p>
-
-<!-- ===== returns table ===== -->
-<h2>Returns by start date</h2>
-<div class="lead">If you'd started this plan N years ago and run it until today: how many times your money grew, the yearly return (IRR), and the same for QQQ and the S&amp;P 500.</div>
-<div class="tablescroll">
-<table id="rettable">
-<thead><tr><th>if you started</th><th>SUMMIT ×</th><th>per year</th><th>QQQ ×</th><th>S&amp;P ×</th><th>SUMMIT lead vs QQQ</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-
-<!-- ===== calendar year ===== -->
-<h2>Year-by-year</h2>
-<div class="lead">How the portfolio grew each calendar year (after that year's new contributions), next to QQQ and the S&amp;P 500.</div>
-<div class="tablescroll">
-<table id="yeartable">
-<thead><tr><th>year</th><th>SUMMIT</th><th>QQQ</th><th>S&amp;P 500</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-
-<!-- ===== cadence ===== -->
-<h2>Biweekly or monthly?</h2>
-<div class="lead">You'll invest either every two weeks or once a month — and it barely matters. Both give almost the same result, so just pick whatever matches your paycheck. (We also tested weekly and daily; all four land in the same place.)</div>
-<div class="tablescroll">
-<table id="cadtable">
-<thead><tr><th>how often you buy</th><th>beat QQQ</th><th>typical lead vs QQQ</th><th>worst vs QQQ</th><th>grew to (since 2006)</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-
-<!-- ===== win rate ===== -->
-<h2>How reliable is it?</h2>
-<div class="lead">Across every possible start date, how often each holding length beat QQQ and the S&amp;P 500 — and the worst it ever did versus QQQ.</div>
-<div class="tablescroll">
-<table id="wintable">
-<thead><tr><th>if you held for</th><th>start dates</th><th>beat QQQ</th><th>beat S&amp;P</th><th>typical lead vs QQQ</th><th>worst vs QQQ</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-
-<!-- ===== regimes ===== -->
-<h2>Through every kind of market</h2>
-<div class="lead">SUMMIT beat QQQ in all eight major market periods we tested — crashes, recoveries, bulls and bears.</div>
-<div class="tablescroll">
-<table id="regtable">
-<thead><tr><th>market period</th><th>grew</th><th>vs QQQ</th><th>vs S&amp;P 500</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-
-<!-- ===== rules ===== -->
-<h2>The rules, in plain English</h2>
-<div class="rules">
-  <div class="rule-card"><h3>1 · Healthy market?</h3>
-    <p>If the S&amp;P 500 is above its 200-day average and most stocks are healthy, the model is in "leaders" mode. Otherwise it switches to "on-sale" mode.</p></div>
-  <div class="rule-card"><h3>2 · Leaders mode</h3>
-    <p>Buy the two biggest companies that are also climbing the strongest (momentum over the last 3–12 months, leaning toward the largest names).</p></div>
-  <div class="rule-card"><h3>3 · On-sale mode</h3>
-    <p>Keep buying — but switch to big, healthy companies trading 30–60% below their all-time high. Buy quality at a discount instead of chasing.</p></div>
-  <div class="rule-card"><h3>4 · Hold forever</h3>
-    <p>Two names per buy, 50/50, at the next open. <strong>Never sell.</strong> No stop-losses, no panic exits, no cash-timing — all of those were tested and made it worse.</p></div>
-</div>
-
-<!-- ===== validation ===== -->
-<h2>Why you can trust the numbers</h2>
-<ul>
-  <li><strong>No hindsight.</strong> The model only ever uses data available before each buy, and we verified this by re-running with the future deleted — zero difference.</li>
-  <li><strong>No survivorship cheating.</strong> It uses the real S&amp;P 500 membership at each point in history, including companies that later failed or were dropped.</li>
-  <li><strong>Robust.</strong> Same result at 5 vs 40 bps trading cost, across every schedule start, and whether you buy biweekly, monthly, weekly or daily.</li>
-  <li><strong>Honest about limits.</strong> A coin-flip random picker from the same list barely beats QQQ (8% of the time) — so the edge is the selection, not the list.</li>
-</ul>
-<div class="note"><strong>Caveats.</strong> Free price data is missing some companies that were delisted before ~2015, which can flatter older results a little — treat the long-run numbers as a touch optimistic. The portfolio is concentrated (today mostly NVDA and AAPL), so it can swing hard. Past performance doesn't guarantee future results. This is not investment advice.</div>
-
-<footer>SUMMIT · buy biweekly or monthly · S&amp;P 500 point-in-time · all figures refresh automatically each day after market close · research in <code>dca/</code></footer>
-</div>
-
 <script>
-const FMT = {
-  pct:v=> (v==null||isNaN(v))?'—':(v>=0?'+':'')+(v*100).toFixed(1)+'%',
-  pct0:v=> (v==null||isNaN(v))?'—':Math.round(v*100)+'%',
-  mult:v=> (v==null||isNaN(v))?'—':v.toFixed(2)+'×',
-  mult1:v=> (v==null||isNaN(v))?'—':v.toFixed(1)+'×',
+const D={"dates":["2015-01","2015-02","2015-03","2015-04","2015-05","2015-06","2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03","2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11","2016-12","2017-01","2017-02","2017-03","2017-04","2017-05","2017-06","2017-07","2017-08","2017-09","2017-10","2017-11","2017-12","2018-01","2018-02","2018-03","2018-04","2018-05","2018-06","2018-07","2018-08","2018-09","2018-10","2018-11","2018-12","2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03","2020-04","2020-05","2020-06","2020-07","2020-08","2020-09","2020-10","2020-11","2020-12","2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09","2021-10","2021-11","2021-12","2022-01","2022-02","2022-03","2022-04","2022-05","2022-06","2022-07","2022-08","2022-09","2022-10","2022-11","2022-12","2023-01","2023-02","2023-03","2023-04","2023-05","2023-06","2023-07","2023-08","2023-09","2023-10","2023-11","2023-12","2024-01","2024-02","2024-03","2024-04","2024-05","2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12"],"wave":[0.0,0.0,0.0,-0.02138,0.03091,0.01045,0.03624,-0.04786,-0.00112,0.0397,0.02005,-0.00063,-0.00758,-0.00841,0.03312,0.01297,0.02434,0.04283,0.00981,0.01767,-0.00325,0.01941,0.0901,0.0508,-0.00245,0.02303,0.00737,0.02354,-0.04054,0.02463,0.02679,-0.01306,0.0661,0.0135,0.03284,-0.00239,0.04758,-0.00626,0.02189,0.00928,0.03652,0.00474,-0.00548,0.02629,-0.01127,-0.04136,0.02848,-0.03123,0.05281,0.05561,0.00818,0.03641,-0.01714,0.08259,-0.01537,0.01892,0.01088,-0.00516,0.0199,0.00508,0.0173,-0.07523,-0.08025,0.08429,0.07914,0.0144,0.02614,-0.00155,-0.02866,-0.0224,0.13176,0.08255,-0.01228,0.04954,-0.05758,0.06436,-0.01007,0.07553,0.06802,0.09791,-0.0508,0.08588,0.01148,0.02546,-0.13024,-0.00109,0.00917,-0.06703,0.02956,-0.02846,0.05156,-0.00608,-0.04498,0.1541,0.05848,-0.04732,0.02604,0.04658,0.05935,-0.02937,0.01421,0.06098,0.03339,-0.0218,-0.02759,0.01223,0.10915,0.03662,-0.04326,0.06087,0.06253,0.00492,0.07799,-0.03066,0.05063,0.00161,0.02344,0.01713,0.12117,-0.02161,0.011,-0.03015,-0.05349,-0.02333,0.11916,0.03017,0.02805,0.09403,0.01915,-0.01971,0.02013,0.04513],"qqq":[-0.02082,0.07221,-0.0236,0.01922,0.02248,-0.02483,0.04558,-0.06824,-0.02223,0.11392,0.00609,-0.01589,-0.0691,-0.01565,0.06852,-0.03187,0.0437,-0.02275,0.07151,0.0105,0.02214,-0.01457,0.00436,0.01133,0.0514,0.04375,0.02027,0.02727,0.03897,-0.02316,0.04061,0.02074,-0.00295,0.04606,0.01972,0.00602,0.08757,-0.01293,-0.04076,0.00506,0.05673,0.01145,0.02796,0.05781,-0.00282,-0.08596,-0.00265,-0.08654,0.09011,0.02991,0.03924,0.05499,-0.08225,0.0759,0.02335,-0.019,0.00918,0.0438,0.04069,0.03886,0.03038,-0.06057,-0.07286,0.14974,0.06601,0.06285,0.07347,0.10945,-0.05642,-0.03045,0.11226,0.04903,0.00261,-0.00134,0.01714,0.0591,-0.01201,0.06261,0.02861,0.04219,-0.05681,0.07864,0.01997,0.01154,-0.08747,-0.04476,0.04668,-0.13596,-0.01587,-0.08912,0.12552,-0.05132,-0.10537,0.04,0.05544,-0.0901,0.10643,-0.0036,0.09492,0.00508,0.07884,0.06304,0.0386,-0.01483,-0.05079,-0.02065,0.10819,0.05586,0.01819,0.05283,0.01274,-0.04374,0.06152,0.06472,-0.01678,0.01104,0.02621,-0.00865,0.05351,0.00452,0.02163,-0.02703,-0.07589,0.01397,0.09178,0.06385,0.02424,0.00954,0.05376,0.0478,-0.01561,-0.00671],"summit":[-0.00304,-0.02392,0.04168,-0.02175,0.03565,0.01279,0.07893,0.00095,0.06974,0.05523,0.01818,0.02589,0.0246,0.03045,0.05932,-0.03331,0.08473,0.06015,0.0142,0.01966,0.00133,0.05113,0.0576,0.05455,-0.02321,0.0259,0.03976,0.0985,0.06015,-0.01697,0.02297,0.00548,-0.03054,0.05109,0.03476,-0.03518,0.0087,0.07451,0.02474,0.02412,-0.00693,0.02323,0.06636,0.03323,-0.00106,0.0144,0.05002,0.01622,-0.00405,0.03478,0.00939,0.04307,0.00465,0.05344,0.05717,0.0472,0.06494,0.0403,0.0379,-0.01237,-0.02014,-0.02431,0.10946,-0.05909,0.00241,-0.05984,-0.00683,0.04992,0.03175,0.0265,-0.01597,0.01882,-0.15374,0.02009,0.12222,0.06631,0.0454,-0.01308,0.05359,0.00661,0.00595,0.04699,0.07679,0.15377,0.1016,0.01765,0.00692,0.01087,0.03943,-0.03694,0.03776,-0.03129,0.0252,0.11427,0.07618,0.03704,-0.05369,0.05249,0.08124,0.04216,0.02033,0.0954,0.0145,0.07012,0.05754,0.00372,0.06106,0.0955,0.08267,0.02999,0.10127,0.05391,0.05456,0.09809,0.11971,0.11612,0.05247,0.01295,0.14091,-0.05414,0.14899,0.17188,0.16058,0.00532,0.08483,0.15727,-0.01222,0.0,0.0,0.0,0.0,0.0],"factors":[{"name":"BM","sharpe":1.38,"ann":21.0},{"name":"GP_A","sharpe":1.02,"ann":12.6},{"name":"sales_to_assets","sharpe":1.01,"ann":9.4},{"name":"piotroski","sharpe":0.92,"ann":8.5},{"name":"ROE","sharpe":0.86,"ann":10.9},{"name":"revaccel","sharpe":0.86,"ann":15.0},{"name":"mom12","sharpe":0.83,"ann":12.8},{"name":"ROA","sharpe":0.77,"ann":13.3},{"name":"buyback","sharpe":0.69,"ann":8.1},{"name":"insider","sharpe":0.6,"ann":11.3},{"name":"near52high","sharpe":0.47,"ann":9.7},{"name":"EP","sharpe":0.4,"ann":5.4},{"name":"lowvol","sharpe":0.36,"ann":7.6},{"name":"accruals_neg","sharpe":0.08,"ann":0.5},{"name":"assetgrowth_neg","sharpe":-0.1,"ann":-0.9},{"name":"opleverage","sharpe":-0.4,"ann":-2.4},{"name":"leverage_neg","sharpe":-0.66,"ann":-16.3}]};const PK={"asof":"2026-06","hist_asof":"2026-06","wave_now":[{"t":"HNNA","score":88,"mom6":13.0,"px":10.0},{"t":"MTN","score":87,"mom6":11.0,"px":145.0},{"t":"DECK","score":87,"mom6":5.0,"px":109.0},{"t":"RGR","score":87,"mom6":24.0,"px":40.0},{"t":"KFY","score":86,"mom6":9.0,"px":71.0},{"t":"EXP","score":86,"mom6":9.0,"px":225.0},{"t":"BLBD","score":85,"mom6":57.0,"px":74.0},{"t":"DD","score":85,"mom6":21.0,"px":48.0},{"t":"KMX","score":85,"mom6":39.0,"px":54.0},{"t":"RPM","score":81,"mom6":5.0,"px":108.0},{"t":"HAE","score":80,"mom6":-7.0,"px":74.0},{"t":"CVSA","score":79,"mom6":15.0,"px":119.0}],"wave_hist":[{"t":"LPG","entry":"2022-04","held":28,"ret":338.0},{"t":"EME","entry":"2022-09","held":29,"ret":257.0},{"t":"DTM","entry":"2023-10","held":32,"ret":192.0},{"t":"AVGO","entry":"2023-03","held":24,"ret":169.0},{"t":"KEYS","entry":"2017-06","held":31,"ret":139.0},{"t":"MSCI","entry":"2019-10","held":27,"ret":133.0},{"t":"WWD","entry":"2025-04","held":14,"ret":131.0},{"t":"FXNC","entry":"2016-02","held":32,"ret":128.0},{"t":"CSCO","entry":"2024-12","held":18,"ret":109.0},{"t":"FTNT","entry":"2020-12","held":16,"ret":95.0},{"t":"NOC","entry":"2015-09","held":33,"ret":93.0},{"t":"BILL","entry":"2020-10","held":15,"ret":88.0},{"t":"JCI","entry":"2025-03","held":15,"ret":84.0},{"t":"CPS","entry":"2025-03","held":12,"ret":82.0},{"t":"ZBRA","entry":"2020-07","held":18,"ret":81.0}],"summit_long":["RJF","CRUS","HNNA","EA","MTN","DECK","RGR","NDSN","TEL","DIS"],"summit_short":["ASST","WOLF","AI","ASTC","LBRDA","MU","TRT","LIVE","BARK","UEC"]};
+const CFG={
+ wave:{name:"WAVE",badge:"Deploy now · long-only · no margin",sub:"ML stock-picker — ride winners, cut losers. ~12 names, monthly.",factors:false,
+  info:`<div class="card"><h3>The edge — why it works</h3><ul class="tight">
+   <li>Win rate just <b>53%</b> — the edge is <b>not</b> hit-rate.</li>
+   <li>Avg <span class="good">win +45%</span> vs avg <span class="bad">loss −8%</span> (≈ 6 : 1).</li>
+   <li>Winners held <b>15.7 months</b>, losers cut in <b>3.1 months</b>.</li>
+   <li>Top 5% of trades drive <b>42%</b> of all profit (fat-tailed).</li></ul></div>
+   <div class="card"><h3>The rules</h3>
+   <div class="row"><span class="k">Universe</span><span class="val">US stocks ≥ $3, above 10-mo MA</span></div>
+   <div class="row"><span class="k">Select</span><span class="val">Top ~12 by ML score<br>+ momentum &gt; 0 (runner-gate)<br>+ ML score rising (acceleration)</span></div>
+   <div class="row"><span class="k">Size</span><span class="val">Equal at entry, then ride</span></div>
+   <div class="row"><span class="k">Cut losers</span><span class="val">−30% trailing stop, or<br>close below 10-mo MA</span></div>
+   <div class="row"><span class="k">Rebalance</span><span class="val">Monthly; refill to ~12</span></div></div>
+   <div class="card"><h3>Tested — did <span class="bad">not</span> help</h3>
+   <span class="pill">ensembles</span><span class="pill">feature selection</span><span class="pill">extra gates</span><span class="pill">vol-sizing</span><span class="pill">regime timing</span><span class="pill">volume/TA features</span><span class="pill">“banger” target</span><span class="pill">turnaround sleeve</span><span class="pill">score-blending</span></div>
+   <div class="card"><h3>Honest caveats</h3><ul class="tight">
+   <li>Small/mid-cap tilt → capacity-limited.</li><li>~Monthly turnover (costs apply).</li>
+   <li>Close-based prices; ML needs history (2015+).</li>
+   <li>A diversified blend did <b>not</b> beat WAVE alone (sleeves ~0.55 correlated).</li></ul></div>`},
+ summit:{name:"SUMMIT",badge:"Archived · needs shorting + leverage",sub:"Market-neutral long/short — pure alpha, ~0 correlation to the market.",factors:true,
+  info:`<div class="card"><h3>The two engines</h3>
+   <div class="row"><span class="k">Linear factor L/S</span><span class="val">value, gross-profitability,<br>Piotroski, momentum, quality</span></div>
+   <div class="row"><span class="k">ML L/S</span><span class="val">36-feature gradient boosting</span></div>
+   <div class="row"><span class="k">Best single factor</span><span class="val">Value (B/M) — Sharpe 1.38</span></div>
+   <div class="row"><span class="k">Construction</span><span class="val">Beta-neutral; long top decile,<br>short bottom decile (≥$10 mcap)</span></div></div>
+   <div class="card"><h3>Risk-neutral construction</h3>
+   <p style="font-size:12.5px;color:var(--mut);margin:0 0 8px">Two design choices make it genuinely market-neutral and deployable: <b>borrow-aware shorts</b> — short only <b>≥$10 mcap</b> names (reliably borrowable; micro-cap shorts add squeeze risk, not edge); and <b>beta-neutral</b> sizing — scale the short leg to zero <i>net beta</i> (not just dollar-neutral), removing the residual market exposure that drives drawdowns. The metrics below are <b>all-in net</b> of every modeled cost.</p>
+   <div class="metrics">
+   <div class="m"><div class="v">2.42</div><div class="l">net Sharpe</div><div class="q">all-in</div></div>
+   <div class="m"><div class="v">−17%</div><div class="l">max drawdown</div><div class="q">~16% vol</div></div>
+   <div class="m"><div class="v">0.00</div><div class="l">corr to QQQ</div><div class="q">market-neutral</div></div></div>
+   <p style="font-size:12px;color:var(--mut);margin:8px 0 0">The edge is the ML cross-sectional signal. Tested &amp; rejected as added alpha: sector- &amp; size-neutral, ML+linear ensemble, residual-momentum, model-averaging, alternative ML models, short stop-losses, return-tranching — each shown not to help (the model already subsumes public-data factors).</p></div>
+   <div class="card"><h3>Costs &amp; capacity — fully modeled</h3>
+   <p style="font-size:12.5px;color:var(--mut);margin:0 0 8px">Net of <b>tiered spread</b> (4–40bps by size), <b>square-root market impact</b>, <b>tiered borrow</b> (1–6%/yr), <b>financing</b>, and a <b>delisting stress</b>. Dividends-on-shorts are already in total-return prices.</p>
+   <div class="row"><span class="k">Gross → all-in net Sharpe</span><span class="val">2.62 → <b>2.42</b> (costs ≈ 0.2)</span></div>
+   <div class="row"><span class="k">Capacity</span><span class="val">Sharpe 2.42 @ $100M;<br><b>2.35 @ $1B</b> (&lt;1% of ADV)</span></div>
+   <div class="row"><span class="k">Turnover</span><span class="val">~61%/mo; quarterly + 2× buffer</span></div></div>
+   <div class="card"><h3>Portable alpha — overlay on QQQ</h3><div class="metrics">
+   <div class="m"><div class="v">2.41</div><div class="l">QQQ + 1× α</div><div class="q">DD −23%</div></div>
+   <div class="m"><div class="v">2.41</div><div class="l">½QQQ+½+α</div><div class="q">DD −12%</div></div>
+   <div class="m"><div class="v">2.62</div><div class="l">QQQ + 2× α</div><div class="q">DD −30%</div></div></div>
+   <p style="font-size:12.5px;color:var(--mut);margin:10px 0 0">~0-correlated alpha lifts a QQQ core above either alone. All-in net; overlay needs margin.</p></div>
+   <div class="card"><h3>Honest caveats</h3><ul class="tight">
+   <li>Requires <b>shorting</b> (≥$10 mcap, borrowable) and <b>leverage/margin</b> for the overlay.</li>
+   <li>Pure L/S max drawdown ≈ −17%; native vol ~16%/yr (can be levered to dial return).</li>
+   <li>ADV/impact use a <b>mcap×turnover proxy</b> (no tick-volume data); beta from trailing 12-mo returns.</li>
+   <li>Holdout was evaluated repeatedly across the search — treat the exact Sharpe as an <b>optimistic</b> point estimate; the parameter surface is stable (2.3–2.5).</li>
+   <li><b>Outside the long-only mandate</b> — parked until shorting is allowed.</li></ul></div>`}
 };
-const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-function fmtDate(d){return DOW[d.getDay()]+' '+MONTHS[d.getMonth()]+' '+d.getDate();}
-
-function buildSchedule(){
-  const today=new Date(); today.setHours(0,0,0,0);
-  // monthly: 1st of upcoming months
-  const monthly=[]; let m=new Date(today.getFullYear(),today.getMonth(),1);
-  while(monthly.length<5){ if(m>=today) monthly.push(new Date(m)); m=new Date(m.getFullYear(),m.getMonth()+1,1); }
-  // biweekly: 1st & 15th
-  const bi=[];
-  for(let i=0;i<6 && bi.length<5;i++){
-    const base=new Date(today.getFullYear(),today.getMonth()+i,1);
-    [1,15].forEach(day=>{const d=new Date(base.getFullYear(),base.getMonth(),day); if(d>=today && bi.length<5) bi.push(d);});
-  }
-  const render=(el,arr)=>{document.getElementById(el).innerHTML=arr.map((d,i)=>
-    `<div class="d${i===0?' next':''}">${i===0?'▸ ':'  '}${fmtDate(d)}${i===0?'  (next)':''}</div>`).join('');};
-  render('sched-monthly',monthly); render('sched-biweekly',bi);
+const PERIODS=[["All","2015-01","2025-12"],["2015–18","2015-01","2018-12"],["2019–21","2019-01","2021-12"],["2022–25","2022-01","2025-12"],["2023–25","2023-01","2025-12"]];
+let S="summit",P=0,sortA={k:"year",asc:true},sortF={k:"sharpe",asc:false},sortH={k:"ret",asc:false};
+const $=id=>document.getElementById(id);
+function rng(){const[_,a,b]=PERIODS[P];const i0=D.dates.indexOf(a),i1=D.dates.indexOf(b);return[i0,i1<0?D.dates.length-1:i1];}
+function slice(key){const[i0,i1]=rng();let xs=[],r=[];for(let i=i0;i<=i1;i++){const v=D[key][i],q=D.qqq[i];if(v==null)continue;xs.push(D.dates[i]);r.push(v);}return{xs,r};}
+function pair(){const[i0,i1]=rng();let xs=[],s=[],q=[];for(let i=i0;i<=i1;i++){if(D[S][i]==null||D.qqq[i]==null)continue;xs.push(D.dates[i]);s.push(D[S][i]);q.push(D.qqq[i]);}return{xs,s,q};}
+function met(r){if(r.length<3)return{c:NaN,sh:NaN,dd:NaN};let g=1,eq=[],pk=-1e9,dd=0,m=0;for(const x of r){g*=1+x;eq.push(g);}m=r.reduce((a,b)=>a+b,0)/r.length;let sd=Math.sqrt(r.reduce((a,b)=>a+(b-m)**2,0)/(r.length-1));pk=-1e9;for(const e of eq){if(e>pk)pk=e;dd=Math.min(dd,e/pk-1);}return{c:Math.pow(g,12/r.length)-1,sh:sd?m/sd*Math.sqrt(12):NaN,dd};}
+function pct(x){return(x>=0?"+":"")+(x*100).toFixed(1)+"%";}
+function f2(x){return x.toFixed(2);}
+function renderMetrics(){const{s,q}=pair();const a=met(s),b=met(q);
+ $("methdr").textContent=CFG[S].name+" vs QQQ — "+PERIODS[P][0];
+ const cls=(x,y)=>x>=y?"good":"bad";const ddcls=(x,y)=>x>=y?"good":"bad";
+ $("metrics").innerHTML=
+  `<div class="m"><div class="v ${cls(a.c,b.c)}">${pct(a.c)}</div><div class="l">CAGR</div><div class="q">QQQ ${pct(b.c)}</div></div>
+   <div class="m"><div class="v ${cls(a.sh,b.sh)}">${f2(a.sh)}</div><div class="l">Sharpe</div><div class="q">QQQ ${f2(b.sh)}</div></div>
+   <div class="m"><div class="v ${ddcls(a.dd,b.dd)}">${pct(a.dd)}</div><div class="l">max drawdown</div><div class="q">QQQ ${pct(b.dd)}</div></div>`;
+ $("metnote").textContent = S=="wave"
+   ? "Survivorship-clean; delisted names included. Metrics recompute for the selected period."
+   : "Market-neutral net of ~6%/yr borrow. Gross/overlay Sharpe higher (see below).";
 }
-
-let CURVES=null, MODE='mult', TF='ITD', chart=null;
-function buildChart(){
-  const c=CURVES.curves[TF], inv=c.invested;
-  const tf=MODE==='mult'?(a)=>a.map((v,i)=>inv[i]>0?v/inv[i]:null):(a)=>a;
-  const ds=[
-    {label:'SUMMIT',data:tf(c.summit),borderColor:'#0f5f73',backgroundColor:'rgba(15,95,115,.08)',borderWidth:2.6,fill:MODE==='mult'?'origin':false,pointRadius:0,tension:.12},
-    {label:'QQQ',data:tf(c.qqq),borderColor:'#c2410c',borderWidth:1.8,pointRadius:0,tension:.12},
-    {label:'S&P 500',data:tf(c.spy),borderColor:'#a16207',borderWidth:1.8,pointRadius:0,tension:.12},
-  ];
-  if(MODE==='value') ds.push({label:'What you put in',data:c.invested,borderColor:'#8d8270',borderDash:[5,4],borderWidth:1.3,pointRadius:0});
-  const y=MODE==='value'
-    ?{type:'logarithmic',ticks:{callback:v=>{const k=[1e4,3e4,1e5,3e5,1e6,3e6,1e7,3e7];return k.includes(v)?'$'+(v>=1e6?(v/1e6)+'M':(v/1e3)+'k'):null},font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{color:'rgba(189,176,148,.25)'}}
-    :{ticks:{callback:v=>v.toFixed(1)+'×',font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{color:'rgba(189,176,148,.25)'}};
-  if(chart)chart.destroy();
-  chart=new Chart(document.getElementById('eq'),{type:'line',data:{labels:c.dates,datasets:ds},
-    options:{animation:false,responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>x.dataset.label+': '+(MODE==='mult'?(x.parsed.y==null?'—':x.parsed.y.toFixed(2)+'×'):'$'+Math.round(x.parsed.y).toLocaleString())}}},
-      scales:{y,x:{ticks:{maxTicksLimit:8,font:{family:'JetBrains Mono',size:10},color:'#8d8270'},grid:{display:false}}}}});
+function chart(){const{xs,s,q}=pair();if(s.length<2){$("chart").innerHTML="";return;}
+ let es=[1],eq=[1];for(let i=0;i<s.length;i++){es.push(es[es.length-1]*(1+s[i]));eq.push(eq[eq.length-1]*(1+q[i]));}
+ es=es.slice(1);eq=eq.slice(1);
+ const W=360,H=190,pad=6,bot=16;const all=es.concat(eq);let lo=Math.min(...all),hi=Math.max(...all);
+ const ly=v=>{const t=(Math.log(v)-Math.log(lo))/(Math.log(hi)-Math.log(lo)||1);return pad+(H-pad-bot)*(1-t);};
+ const lx=i=>pad+(W-2*pad)*(i/(es.length-1||1));
+ const path=a=>a.map((v,i)=>(i?"L":"M")+lx(i).toFixed(1)+" "+ly(v).toFixed(1)).join(" ");
+ const yr=xs.map(d=>d.slice(0,4));const ticks=[];let last="";xs.forEach((d,i)=>{const y=d.slice(0,4);if(y!=last){ticks.push([i,y]);last=y;}});
+ let g="";ticks.forEach(([i,y])=>{const x=lx(i).toFixed(1);g+=`<line x1="${x}" y1="${pad}" x2="${x}" y2="${H-bot}" stroke="#eee"/><text x="${x}" y="${H-4}" font-size="9" fill="#9ca3af" text-anchor="middle">'${y.slice(2)}</text>`;});
+ $("charthdr").textContent=PERIODS[P][0]+" ("+xs[0]+" → "+xs[xs.length-1]+")";
+ $("chart").innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:200px">${g}
+   <path d="${path(eq)}" fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+   <path d="${path(es)}" fill="none" stroke="#111418" stroke-width="2.4"/>
+   <text x="${(W-pad)}" y="${ly(es[es.length-1])-4}" font-size="10" font-weight="700" fill="#111418" text-anchor="end">${es[es.length-1].toFixed(2)}×</text>
+   <text x="${(W-pad)}" y="${ly(eq[eq.length-1])+11}" font-size="10" fill="#6b7280" text-anchor="end">${eq[eq.length-1].toFixed(2)}×</text></svg>`;
 }
-
-const REGLABEL={GFC_2007_2009:'Financial crisis 2007–09',recovery_2009_2012:'Recovery 2009–12',bull_2013_2017:'Bull market 2013–17',sideways_2015_2016:'Flat 2015–16',vol_2018:'Volatile 2018–19',covid_2020:'COVID 2020–21',bear_2022:'Bear market 2022',ai_bull_2023_2026:'AI boom 2023–26'};
-const HLABEL={'3':'3 years','5':'5 years','10':'10 years','end':'until today'};
-const CADLABEL={biweekly:'Every 2 weeks',monthly:'Once a month',weekly:'Every week',daily:'Every day'};
-
-function renderReturns(R){
-  const tb=document.querySelector('#rettable tbody'); tb.innerHTML='';
-  const L={ITD:'in 2006','10y':'10 years ago','7y':'7 years ago','5y':'5 years ago','3y':'3 years ago','1y':'1 year ago'};
-  R.table.forEach(r=>{const ex=r.strat_mult/r.qqq_mult-1;
-    tb.insertAdjacentHTML('beforeend',`<tr><td>${L[r.horizon]||r.horizon}</td><td><b>${FMT.mult(r.strat_mult)}</b></td><td>${FMT.pct(r.strat_irr)}</td><td>${FMT.mult(r.qqq_mult)}</td><td>${FMT.mult(r.spy_mult)}</td><td class="${ex>=0?'green':'red'}">${FMT.pct(ex)}</td></tr>`);});
-  const yt=document.querySelector('#yeartable tbody'); yt.innerHTML='';
-  const cl=v=>(v==null||isNaN(v))?'':(v>=0?'green':'red');
-  R.years.slice().reverse().forEach(y=>tb&&yt.insertAdjacentHTML('beforeend',`<tr><td>${y.year}</td><td class="${cl(y.summit)}">${FMT.pct(y.summit)}</td><td class="${cl(y.qqq)}">${FMT.pct(y.qqq)}</td><td class="${cl(y.spy)}">${FMT.pct(y.spy)}</td></tr>`));
-  if(R.cadence){const ct=document.querySelector('#cadtable tbody'); ct.innerHTML='';
-    ['biweekly','monthly','weekly','daily'].forEach(c=>{const v=R.cadence[c]; if(!v)return;
-      const hl=(c==='biweekly'||c==='monthly')?' class="best"':'';
-      ct.insertAdjacentHTML('beforeend',`<tr${hl}><td>${CADLABEL[c]}</td><td>${FMT.pct0(v.win_qqq)}</td><td class="green">${FMT.pct(v.med_vs_qqq)}</td><td class="red">${FMT.pct(v.worst_vs_qqq)}</td><td>${FMT.mult1(v.full_mult)}</td></tr>`);});}
-  if(R.winrate){const wt=document.querySelector('#wintable tbody'); wt.innerHTML='';
-    ['3','5','10','end'].forEach(h=>{const v=R.winrate[h]; if(!v)return;
-      const b=(h==='10'||h==='end')?' class="best"':'';
-      wt.insertAdjacentHTML('beforeend',`<tr${b}><td>${HLABEL[h]}</td><td>${v.n}</td><td><b>${FMT.pct0(v.win_qqq)}</b></td><td>${FMT.pct0(v.win_spy)}</td><td class="green">${FMT.pct(v.med_vs_qqq)}</td><td class="${v.worst_vs_qqq>=0?'green':'red'}">${FMT.pct(v.worst_vs_qqq)}</td></tr>`);});}
-  if(R.regimes){const rt=document.querySelector('#regtable tbody'); rt.innerHTML='';
-    Object.keys(REGLABEL).forEach(k=>{const v=R.regimes[k]; if(!v)return;
-      rt.insertAdjacentHTML('beforeend',`<tr><td>${REGLABEL[k]}</td><td>${FMT.mult(v.mult)}</td><td class="${v.vs_qqq>=0?'green':'red'}">${FMT.pct(v.vs_qqq)}</td><td class="${v.vs_spy>=0?'green':'red'}">${FMT.pct(v.vs_spy)}</td></tr>`);});}
-}
-
-let TRIM=null, TRIMSEL='none', POS=null, POSTF='ITD', HOLDTF='ITD';
-const TFLABEL={ITD:'All','10y':'10Y','7y':'7Y','5y':'5Y','3y':'3Y','1y':'1Y'};
-function money(v){
-  if(v>=1e6) return '$'+(v/1e6).toFixed(2)+'M';
-  if(v>=1e3) return '$'+(v/1e3).toFixed(0)+'k';
-  return '$'+Math.round(v);
-}
-function yr(s){ return s? s.slice(0,4) : '—'; }
-
-function tfButtons(elId, sel, onpick){
-  const el=document.getElementById(elId); el.innerHTML='';
-  (POS?Object.keys(TFLABEL).filter(h=>POS[h]):['ITD']).forEach(h=>{
-    const b=document.createElement('button'); b.textContent=TFLABEL[h]; b.dataset.h=h;
-    if(h===sel()) b.classList.add('on');
-    b.onclick=()=>{onpick(h);[...el.children].forEach(x=>x.classList.toggle('on',x.dataset.h===h));};
-    el.appendChild(b);
-  });
-}
-
-function renderPositions(){
-  const pb=POS&&POS[POSTF]; if(!pb) return;
-  const p=pb.pnl, tot=p.total_value;
-  document.getElementById('pnl-summary').innerHTML=
-    `Put in ${money(p.total_invested)} → now worth <span class="green">${money(p.total_value)}</span> `+
-    `(<span class="green">${FMT.pct0(p.total_gain_pct)}</span>) across ${p.n} positions.`;
-  const tb=document.querySelector('#postable tbody'); tb.innerHTML='';
-  pb.positions.slice(0,25).forEach(x=>{
-    const w=x.value/tot, g=x.gain_pct, cls=g>=0?'green':'red';
-    tb.insertAdjacentHTML('beforeend',
-      `<tr><td><b>${x.ticker}</b></td><td>${yr(x.since)}</td><td>${(w*100).toFixed(1)}%</td>`+
-      `<td>${money(x.value)}</td><td class="${cls}">${FMT.pct0(g)}</td></tr>`);
-  });
-  const rest=pb.positions.slice(25), rv=rest.reduce((a,x)=>a+x.value,0);
-  document.getElementById('pos-note').textContent= rest.length
-    ? `+ ${rest.length} more smaller positions (${(rv/tot*100).toFixed(0)}% of the book). Dollar figures are the model's paper book — they scale with how long you run it; the gain/loss % is per position.`
-    : `Dollar figures are the model's paper book; the gain/loss % is per position.`;
-}
-
-function renderBars(items){
-  const top=items.slice(0,12), max=top[0].pct, el=document.getElementById('holds');
-  el.innerHTML=top.map(h=>`<div class="hrow"><span class="ht">${h.ticker}</span><span class="hb"><i style="width:${(h.pct/max*100).toFixed(1)}%"></i></span><span class="hp">${(h.pct*100).toFixed(1)}%</span></div>`).join('')
-    + (items.length>12?`<div class="tiny">+ ${items.length-12} smaller positions</div>`:'');
-}
-function renderHolds(){
-  const tg=document.getElementById('trimtoggle');
-  const note=document.getElementById('trim-note');
-  if(HOLDTF==='ITD' && TRIM){               // full history: trim what-if available
-    tg.style.display=''; note.style.display='';
-    const v=TRIM[TRIMSEL]; renderBars(v.holdings);
-    document.getElementById('h-count').textContent=v.n;
-    const capM=v.label.match(/(\d+)%/), capTxt=capM?`limited to ${capM[1]}%`:'no limit';
-    document.getElementById('trimstats').innerHTML=
-      `<span class="chip">biggest stock <b>${(v.top_weight*100).toFixed(0)}%</b> · ${capTxt}</span>`+
-      `<span class="chip g">beats QQQ <b>${FMT.pct0(v.win_qqq)}</b> of the time</span>`+
-      `<span class="chip g">typical lead <b>${FMT.pct(v.med_vs_qqq)}</b></span>`+
-      `<span class="chip r">worst <b>${FMT.pct(v.worst_vs_qqq)}</b></span>`+
-      `<span class="chip">grew to <b>${v.full_mult.toFixed(1)}×</b></span>`;
-  } else {                                   // shorter start: that book's holdings
-    tg.style.display='none'; note.style.display='none';
-    const pb=POS[HOLDTF], tot=pb.positions.reduce((a,x)=>a+x.value,0);
-    renderBars(pb.positions.map(x=>({ticker:x.ticker,pct:x.value/tot})));
-    document.getElementById('h-count').textContent=pb.pnl.n;
-    document.getElementById('trimstats').innerHTML=
-      `<span class="chip">biggest stock <b>${(pb.positions[0].value/tot*100).toFixed(0)}%</b></span>`+
-      `<span class="chip">grew to <b>${(pb.pnl.total_value/pb.pnl.total_invested).toFixed(1)}×</b></span>`+
-      `<span class="chip g">gain <b>${FMT.pct0(pb.pnl.total_gain_pct)}</b></span>`;
-  }
-}
-function setupTrim(variants,nPos){
-  TRIM={}; variants.forEach(v=>TRIM[v.id]=v);
-  const tg=document.getElementById('trimtoggle'); tg.innerHTML='';
-  variants.forEach(v=>{const b=document.createElement('button');b.textContent=v.label;b.dataset.id=v.id;
-    if(v.id===TRIMSEL)b.classList.add('on');
-    b.onclick=()=>{TRIMSEL=v.id;[...tg.children].forEach(x=>x.classList.toggle('on',x.dataset.id===v.id));renderHolds();};
-    tg.appendChild(b);});
-}
-
-Promise.all([
-  fetch('summit_data.json').then(r=>r.json()),
-  fetch('summit_returns.json').then(r=>r.json()).catch(()=>null),
-  fetch('summit_signal.json').then(r=>r.json()).catch(()=>null),
-]).then(([data,returns,signal])=>{
-  CURVES=data;
-  buildSchedule();
-  const tf=document.getElementById('tf');
-  data.horizons.forEach(h=>{const b=document.createElement('button');b.textContent=h==='ITD'?'All':h.toUpperCase();b.dataset.tf=h;if(h===TF)b.classList.add('on');b.onclick=()=>{TF=h;[...tf.children].forEach(x=>x.classList.toggle('on',x.dataset.tf===h));buildChart();};tf.appendChild(b);});
-  document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{MODE=b.dataset.mode;document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x===b));buildChart();});
-  if(data.headline){document.getElementById('c-itd').textContent=data.headline.itd_mult.toFixed(1)+'×';document.getElementById('c-irr').textContent=Math.round(data.headline.itd_irr*100)+'%/yr';}
-  if(returns&&returns.cadence){const bw=returns.cadence.biweekly;
-    document.getElementById('c-winq').textContent=FMT.pct0(bw.win_qqq);
-    document.getElementById('c-wins').textContent=FMT.pct0(bw.win_spy);
-    document.getElementById('c-med').textContent=FMT.pct(bw.med_vs_qqq);
-    document.getElementById('c-worst').textContent=FMT.pct(bw.worst_vs_qqq);}
-  if(signal){
-    document.getElementById('a-asof').textContent='as of '+signal.as_of;
-    document.getElementById('a-picks').textContent=signal.picks.join('  ·  ');
-    document.getElementById('a-reg').textContent=signal.regime;
-  }
-  if(signal&&signal.positions_by_horizon){
-    POS=signal.positions_by_horizon;
-    tfButtons('postf',()=>POSTF,h=>{POSTF=h;renderPositions();});
-    renderPositions();
-  }
-  if(returns&&returns.trim) setupTrim(returns.trim, signal?signal.n_positions:returns.trim[0].n);
-  tfButtons('holdtf',()=>HOLDTF,h=>{HOLDTF=h;renderHolds();});
-  renderHolds();
-  if(returns) renderReturns(returns);
-  buildChart();
-});
-</script>
-</body>
-</html>
+function annualRows(){const yrs={};for(let i=0;i<D.dates.length;i++){const y=D.dates[i].slice(0,4);const sv=D[S][i],qv=D.qqq[i];if(!yrs[y])yrs[y]={s:1,q:1,hs:false,hq:false};if(sv!=null){yrs[y].s*=1+sv;yrs[y].hs=true;}if(qv!=null){yrs[y].q*=1+qv;yrs[y].hq=true;}}
+ let rows=[];for(const y in yrs){if(!yrs[y].hs)continue;const sr=yrs[y].s-1,qr=yrs[y].q-1;rows.push({year:y,strat:sr,qqq:qr,exc:sr-qr});}return rows;}
+function renderAnnual(){let rows=annualRows();const k=sortA.k;rows.sort((a,b)=>{let x=a[k],y=b[k];if(k=="year"){x=+x;y=+y;}return sortA.asc?x-y:y-x;});
+ $("thS").textContent=CFG[S].name;
+ document.querySelectorAll("#annual th").forEach(th=>{th.classList.toggle("s",th.dataset.k==k);th.classList.toggle("asc",th.dataset.k==k&&sortA.asc);});
+ const tb=$("annual").querySelector("tbody");tb.innerHTML=rows.map(r=>`<tr><td>${r.year}</td><td class="${r.strat>=0?'good':'bad'}">${pct(r.strat)}</td><td>${pct(r.qqq)}</td><td class="${r.exc>=0?'good':'bad'}">${pct(r.exc)}</td></tr>`).join("");}
+function renderFactors(){const card=$("factorCard");if(!CFG[S].factors){card.classList.add("hide");return;}card.classList.remove("hide");
+ let rows=D.factors.slice();const k=sortF.k;rows.sort((a,b)=>{let x=a[k],y=b[k];if(k=="name")return sortF.asc?(x<y?-1:1):(x>y?-1:1);return sortF.asc?x-y:y-x;});
+ document.querySelectorAll("#factors th").forEach(th=>{th.classList.toggle("s",th.dataset.k==k);th.classList.toggle("asc",th.dataset.k==k&&sortF.asc);});
+ const tb=$("factors").querySelector("tbody");tb.innerHTML=rows.map(r=>`<tr><td>${r.name}</td><td class="${r.sharpe>=0?'good':'bad'}">${f2(r.sharpe)}</td><td class="${r.ann>=0?'good':'bad'}">${(r.ann>=0?'+':'')+r.ann.toFixed(1)}</td></tr>`).join("");}
+function renderPicks(){
+ if(S=="wave"){
+  $("curHdr").textContent="Current picks — as of "+PK.asof;
+  let rows=PK.wave_now.map(x=>`<tr><td>${x.t}</td><td>${x.score}</td><td>${x.mom6>=0?'+':''}${x.mom6}%</td><td>$${x.px}</td></tr>`).join("");
+  $("curBody").innerHTML=`<table><thead><tr><th>Ticker</th><th>ML %ile</th><th>6-mo mom</th><th>Price</th></tr></thead><tbody>${rows}</tbody></table>`;
+  $("curNote").textContent="Model output as of the latest data month — fundamentals lag, not investment advice. ~12 equal-weight names.";
+  $("histCard").classList.remove("hide");
+ }else{
+  $("curHdr").textContent="Current book — as of "+PK.asof;
+  const tag=a=>a.map(t=>`<span class="pill">${t}</span>`).join("");
+  $("curBody").innerHTML=`<div style="font-size:12px;color:var(--mut);font-weight:700;margin:0 0 6px">LONG (top decile)</div>${tag(PK.summit_long)}
+   <div style="font-size:12px;color:var(--mut);font-weight:700;margin:12px 0 6px">SHORT (bottom decile)</div>${tag(PK.summit_short)}`;
+  $("curNote").textContent="Representative top/bottom names of a broad ~decile market-neutral book, as of the latest data month. Not advice.";
+  $("histCard").classList.add("hide");
+ }}
+function renderHist(){let rows=PK.wave_hist.slice();const k=sortH.k;rows.sort((a,b)=>{let x=a[k],y=b[k];if(k=="t"||k=="entry")return sortH.asc?(x<y?-1:1):(x>y?-1:1);return sortH.asc?x-y:y-x;});
+ document.querySelectorAll("#hist th").forEach(th=>{th.classList.toggle("s",th.dataset.k==k);th.classList.toggle("asc",th.dataset.k==k&&sortH.asc);});
+ $("hist").querySelector("tbody").innerHTML=rows.map(r=>`<tr><td>${r.t}</td><td>${r.entry}</td><td>${r.held}</td><td class="good">+${r.ret}%</td></tr>`).join("");}
+function render(){const c=CFG[S];$("badge").textContent=c.badge;$("title").textContent=c.name;$("subtitle").textContent=c.sub;$("lgS").textContent=c.name;$("info").innerHTML=c.info;
+ $("tab-wave").classList.toggle("on",S=="wave");$("tab-summit").classList.toggle("on",S=="summit");
+ renderMetrics();chart();renderPicks();renderHist();renderAnnual();renderFactors();}
+function setStrat(s){S=s;render();}
+function setP(i){P=i;document.querySelectorAll("#chips button").forEach((b,j)=>b.classList.toggle("on",j==i));renderMetrics();chart();}
+$("chips").innerHTML=PERIODS.map((p,i)=>`<button class="${i==0?'on':''}" onclick="setP(${i})">${p[0]}</button>`).join("");
+document.querySelectorAll("#annual th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortA.k==k)sortA.asc=!sortA.asc;else{sortA.k=k;sortA.asc=k=="year";}renderAnnual();});
+document.querySelectorAll("#factors th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortF.k==k)sortF.asc=!sortF.asc;else{sortF.k=k;sortF.asc=false;}renderFactors();});
+document.querySelectorAll("#hist th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortH.k==k)sortH.asc=!sortH.asc;else{sortH.k=k;sortH.asc=(k=="t"||k=="entry");}renderHist();});
+render();
+</script></body></html>
