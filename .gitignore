@@ -27,6 +27,10 @@ data/crypto_hourly_cb/
 # recorded HL L2 (forward data, reproducible via crypto_pulse/record_l2.py)
 data/hl_l2/
 
+# recorded/pulled HL per-account trade tape (forward via record_trades_l4.py,
+# historical via fetch_hl_l4.py); reproducible, can be large
+data/hl_trades_l4/
+
 # fetched order-flow klines, thin-venue (binance.us), reproducible
 data/crypto_of/
 
@@ -35,3 +39,5 @@ data/hl_orderflow/
 
 # recorded HL HIP-3 mark/oracle/funding (forward, reproducible via record_hip3.py)
 data/hl_hip3/
+crypto_pulse/research/timesfm_fc.parquet
+crypto_pulse/research/xgb_pred.parquet
