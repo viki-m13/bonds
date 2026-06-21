@@ -117,23 +117,28 @@ const CFG={
    <div class="row"><span class="k">ML L/S</span><span class="val">36-feature gradient boosting</span></div>
    <div class="row"><span class="k">Best single factor</span><span class="val">Value (B/M) — Sharpe 1.38</span></div>
    <div class="row"><span class="k">Construction</span><span class="val">Beta-neutral; long top decile,<br>short bottom decile (≥$10 mcap)</span></div></div>
-   <div class="card"><h3>How it got better (v1→v3)</h3>
-   <p style="font-size:12.5px;color:var(--mut);margin:0 0 8px"><b>v2 — borrow-aware shorts:</b> restrict shorts to <b>≥$10 mcap</b> (the only names reliably borrowable) — more deployable <i>and</i> higher-performing; micro-cap shorts added squeeze risk, not edge.<br><b>v3 — beta-neutral:</b> scale the short leg to zero <i>net beta</i> (not just dollar-neutral). Removes the residual market exposure that drove the drawdowns → genuinely market-neutral.</p>
+   <div class="card"><h3>Risk-neutral construction</h3>
+   <p style="font-size:12.5px;color:var(--mut);margin:0 0 8px">Two design choices make it genuinely market-neutral and deployable: <b>borrow-aware shorts</b> — short only <b>≥$10 mcap</b> names (reliably borrowable; micro-cap shorts add squeeze risk, not edge); and <b>beta-neutral</b> sizing — scale the short leg to zero <i>net beta</i> (not just dollar-neutral), removing the residual market exposure that drives drawdowns. The metrics below are <b>all-in net</b> of every modeled cost.</p>
    <div class="metrics">
-   <div class="m"><div class="v">1.59→2.51</div><div class="l">net Sharpe</div><div class="q">v1 → v3</div></div>
-   <div class="m"><div class="v">−46%→−15%</div><div class="l">max drawdown</div><div class="q">v1 → v3</div></div>
-   <div class="m"><div class="v">−0.28→0.00</div><div class="l">corr to QQQ</div><div class="q">v2 → v3</div></div></div>
-   <p style="font-size:12px;color:var(--mut);margin:8px 0 0">Tested &amp; rejected: sector-neutral (hurts the ML book), ML+linear ensemble (dilutes), short stop-losses (worse). Each shown to not help — recorded, not adopted.</p></div>
+   <div class="m"><div class="v">2.42</div><div class="l">net Sharpe</div><div class="q">all-in</div></div>
+   <div class="m"><div class="v">−17%</div><div class="l">max drawdown</div><div class="q">~16% vol</div></div>
+   <div class="m"><div class="v">0.00</div><div class="l">corr to QQQ</div><div class="q">market-neutral</div></div></div>
+   <p style="font-size:12px;color:var(--mut);margin:8px 0 0">The edge is the ML cross-sectional signal. Tested &amp; rejected as added alpha: sector- &amp; size-neutral, ML+linear ensemble, residual-momentum, model-averaging, alternative ML models, short stop-losses, return-tranching — each shown not to help (the model already subsumes public-data factors).</p></div>
+   <div class="card"><h3>Costs &amp; capacity — fully modeled</h3>
+   <p style="font-size:12.5px;color:var(--mut);margin:0 0 8px">Net of <b>tiered spread</b> (4–40bps by size), <b>square-root market impact</b>, <b>tiered borrow</b> (1–6%/yr), <b>financing</b>, and a <b>delisting stress</b>. Dividends-on-shorts are already in total-return prices.</p>
+   <div class="row"><span class="k">Gross → all-in net Sharpe</span><span class="val">2.62 → <b>2.42</b> (costs ≈ 0.2)</span></div>
+   <div class="row"><span class="k">Capacity</span><span class="val">Sharpe 2.42 @ $100M;<br><b>2.35 @ $1B</b> (&lt;1% of ADV)</span></div>
+   <div class="row"><span class="k">Turnover</span><span class="val">~61%/mo; quarterly + 2× buffer</span></div></div>
    <div class="card"><h3>Portable alpha — overlay on QQQ</h3><div class="metrics">
-   <div class="m"><div class="v">2.47</div><div class="l">QQQ + 1× α</div><div class="q">DD −23%</div></div>
-   <div class="m"><div class="v">2.47</div><div class="l">½QQQ+½+α</div><div class="q">DD −11%</div></div>
-   <div class="m"><div class="v">2.70</div><div class="l">QQQ + 2× α</div><div class="q">DD −30%</div></div></div>
-   <p style="font-size:12.5px;color:var(--mut);margin:10px 0 0">~0-correlated alpha lifts a QQQ core above either alone. Backtest, gross of slippage.</p></div>
+   <div class="m"><div class="v">2.41</div><div class="l">QQQ + 1× α</div><div class="q">DD −23%</div></div>
+   <div class="m"><div class="v">2.41</div><div class="l">½QQQ+½+α</div><div class="q">DD −12%</div></div>
+   <div class="m"><div class="v">2.62</div><div class="l">QQQ + 2× α</div><div class="q">DD −30%</div></div></div>
+   <p style="font-size:12.5px;color:var(--mut);margin:10px 0 0">~0-correlated alpha lifts a QQQ core above either alone. All-in net; overlay needs margin.</p></div>
    <div class="card"><h3>Honest caveats</h3><ul class="tight">
    <li>Requires <b>shorting</b> (≥$10 mcap, borrowable) and <b>leverage/margin</b> for the overlay.</li>
-   <li>Pure L/S max drawdown ≈ −15%; native vol ~16%/yr (can be levered to dial return).</li>
-   <li>Headline Sharpe is gross of commissions/slippage; beta estimated from trailing 12-mo returns.</li>
-   <li>Holdout was evaluated several times across the improvement search — treat the exact Sharpe as optimistic.</li>
+   <li>Pure L/S max drawdown ≈ −17%; native vol ~16%/yr (can be levered to dial return).</li>
+   <li>ADV/impact use a <b>mcap×turnover proxy</b> (no tick-volume data); beta from trailing 12-mo returns.</li>
+   <li>Holdout was evaluated repeatedly across the search — treat the exact Sharpe as an <b>optimistic</b> point estimate; the parameter surface is stable (2.3–2.5).</li>
    <li><b>Outside the long-only mandate</b> — parked until shorting is allowed.</li></ul></div>`}
 };
 const PERIODS=[["All","2015-01","2025-12"],["2015–18","2015-01","2018-12"],["2019–21","2019-01","2021-12"],["2022–25","2022-01","2025-12"],["2023–25","2023-01","2025-12"]];
@@ -213,5 +218,16 @@ render();
 </script></body></html>"""
 html=html.replace("__DATA__",DATA).replace("__PICKS__",PICKS)
 open("/home/user/bonds/docs/wave-summit.html","w").write(html)
+# --- independent SUMMIT-only page ---
+solo=(html
+  .replace("<title>WAVE & SUMMIT — Strategy Brief</title>","<title>SUMMIT — Market-Neutral Alpha</title>")
+  .replace('<header><h1>WAVE &amp; SUMMIT</h1><p>Equity strategy brief · survivorship-clean point-in-time · interactive</p></header>',
+           '<header><h1>SUMMIT</h1><p>Market-neutral long/short · pure alpha · survivorship-clean point-in-time</p></header>')
+  .replace('<nav class="wrap"><button id="tab-wave" class="on" onclick="setStrat(\'wave\')">WAVE</button><button id="tab-summit" onclick="setStrat(\'summit\')">SUMMIT</button></nav>',
+           '<nav class="wrap" style="display:none"><button id="tab-wave"></button><button id="tab-summit"></button></nav>')
+  .replace('let S="wave",P=0','let S="summit",P=0')
+  .replace('<footer>WAVE = deploy now (long-only). SUMMIT = bigger alpha, when you can short.<br>Survivorship-clean &amp; point-in-time; null-gauntlet validated. Research, not advice.</footer>',
+           '<footer>SUMMIT — market-neutral long/short, ~0 correlation to the market.<br>Survivorship-clean &amp; point-in-time; all-in net of modeled costs. Research, not advice.</footer>'))
+open("/home/user/bonds/docs/summit.html","w").write(solo)
 open("/home/user/bonds/dca/research/strategies/strategies.html","w").write(html)
 print("written",len(html),"bytes")

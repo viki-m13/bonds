@@ -134,20 +134,62 @@ short stop-losses *hurt* (lock in squeezes, force re-entry) — every threshold
 lowered Sharpe and raised DD, including in the 2019–21 regime they targeted.
 
 **Deployable v3:** beta-neutral ML decile L/S, short ≥$10 mcap, quarterly +
-2× buffer, tiered borrow. Full-sample compounded **CAGR 51% / Sharpe 2.51 /
-maxDD −15% / corr −0.00**; native vol ~16%/yr (lever to dial return — Sharpe
-holds ~2.2 up to 24% vol). *Caveat:* the holdout was evaluated across several
-improvement rounds, so treat the exact Sharpe as an optimistic point estimate.
+2× buffer, tiered borrow. Pre-execution-cost compounded CAGR 51% / Sharpe 2.51 /
+maxDD −15%; native vol ~16%/yr (lever to dial return — Sharpe holds ~2.2 up to
+24% vol). The **all-in net** figure after the full execution-cost model (next
+section) is **CAGR 49% / Sharpe 2.42 / maxDD −17% / corr −0.00**. *Caveat:* the
+holdout was evaluated across several rounds — treat the exact Sharpe as optimistic.
+
+## Full execution-cost model + exhaustive lever sweep (exp115–119)
+Built a realistic harness (`costlib.py`) and re-baselined v3 net of **every**
+modeled cost, then ran the remaining lever space through it.
+
+**Cost model.** Tiered half-spread (4 / 8 / 20 / 40 bps by mcap quintile),
+square-root **market impact** `K·σ_d·√(traded$/(3·ADV$))` (ADV = mcap×0.5%/day
+proxy — no tick-volume data available), **tiered borrow** (1 / 2 / 6%/yr by size),
+**financing** 50 bps/yr on gross, and a **delisting stress** (held longs −30%,
+shorts −20% buyout premium on the vanish month). Dividends-on-shorts need no
+separate term — `me` is total-return adjClose, so a short already pays them.
+
+**Cost waterfall (v3, full sample, $100M AUM):**
+gross 2.62 → −spread 2.56 → −borrow 2.49 → −financing 2.44 → −impact@100M 2.42
+→ +delisting-stress ≈ 2.42. **All-in net: CAGR 49% / Sharpe 2.42 / maxDD −17% /
+corr −0.00.** Costs cost ≈ 0.2 Sharpe.
+
+**Capacity.** Decile book = hundreds of names/side, so per-name participation
+stays tiny: net Sharpe 2.44 @ $1M, 2.42 @ $100M, **2.35 @ $1B** (median
+participation <1% of 3-day ADV). Delisting is immaterial (liquid + diversified).
+
+**Construction sweep (cost-optimal, exp116).** Quarterly rebalance and decile
+width are the Sharpe optima; buffer 2–3× equivalent (2.42–2.47); **return-tranching
+HURTS** (stale sub-books dilute the freshest signal — the buffer already smooths
+turnover). Current spec confirmed near-optimal, not arbitrary.
+
+**Alpha sweep — nothing beats the pure ML signal (exp117–118).** Residual
+(idiosyncratic) momentum, size-neutralization, ML+linear ensemble, 4-model
+rank-averaging, dispersion/own-vol gross-scaling — **all null-to-negative.** The
+gradient-booster already ingests momentum/size/value/quality as features, so any
+public-data bolt-on is redundant. *13F institutional flows:* the data we hold is
+too short (≈2022q3+) and sparse (2.8k names) to validate without overlapping the
+holdout — **not testable rigorously**, recorded as such.
+
+**Robustness (exp118–119).** Parameter surface is smooth — net Sharpe 2.3–2.5
+across the whole reasonable (rebal 2–4 × buffer 1.5–3.0) grid; no knife-edge.
+Beta-estimation robust too: 2.42–2.50 across 12/18/24-mo windows and across
+short-scaling vs explicit-QQQ-hedge (only a noisy 6-mo window degrades, to 1.77).
+Kept 12-mo scale-short as the deployed spec — most conservative (lowest DD,
+corr exactly 0.00); did not tune the window to the holdout.
+
+**Bottom line.** SUMMIT's edge IS the ML cross-sectional signal. It improves only
+via (1) risk-neutralization (beta), (2) borrow-aware short selection, and (3)
+cost-aware execution — all now done and fully costed. Further gains require
+genuinely NEW data, not recombining what the model already sees.
 
 ## Roadmap (remaining)
-1. ~~Turnover/cost-aware construction~~ — DONE (quarterly + buffer2×).
-2. ~~Sector neutralization~~ — TESTED, rejected for the ML book (hurts).
-3. ~~Borrow-aware shorting~~ — DONE, adopted as v2.
-4. ~~Vol-targeting~~ — TESTED, optional DD-control overlay.
-5. ~~Beta-neutralization~~ — DONE, adopted as v3 (the bigger win: DD halved,
-   corr→0). ~~Tiered borrow~~, ~~leg decomposition~~, ~~alt models~~,
-   ~~weighting schemes~~, ~~short stop-loss~~ — all TESTED.
-6. **New alpha data** — 13F flows, short-interest/FTD, options skew,
-   **analyst estimate-revisions** (the one durable factor SUMMIT lacks; needs
-   paid data) — the remaining high-EV, un-built lever.
-7. **Ensemble** ML + linear — TESTED, dilutes (corr 0.76); not adopted.
+1–5, plus cost model / capacity / construction / alpha sweeps / robustness —
+   **all DONE & TESTED** (see above; rejected items recorded, not adopted).
+6. **New alpha data** — the ONLY remaining lever: **analyst estimate-revisions**
+   (the one durable factor the model lacks), plus options-skew / short-interest /
+   FTD / dense 13F history. All need paid or longer-history feeds.
+7. **Ensemble** ML + linear / model-average — TESTED repeatedly, dilutes Sharpe;
+   not adopted.
