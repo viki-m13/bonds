@@ -66,12 +66,43 @@ the smaller names (cap each position at a few % of 20-day ADV; large AUM should
 tilt to the larger-cap half). Borrow: restrict shorts to easy-to-borrow to realize
 the modeled 6%/yr.
 
-## Roadmap to improve (when we revisit)
-1. **Turnover/cost-aware construction** — rank-buffering, monthly→quarterly
-   rebalance, name-count vs cost trade-off → get a *tradeable* net Sharpe.
-2. **Sector neutralization** — remove sector bets (likely fixes 2019-21 dip).
-3. **Borrow-aware shorting** — restrict shorts to easy-to-borrow / large names;
-   measure realistic borrow.
-4. **Vol-targeting** the book to a fixed risk; dynamic factor weighting.
-5. **New alpha data** — 13F institutional flows, short-interest/FTD, options skew.
-6. **Ensemble** ML + linear (corr 0.76, modest diversification) + add tree/NN.
+## v2 — borrow-aware shorts: the realized improvement (exp108–109)
+Worked the roadmap empirically on the deployable book (quarterly + buffer2×,
+net 10bps + 6%/yr borrow, 2015–2025, dev 2015–22 / locked holdout 2023–25):
+
+| Variant | net CAGR | net Sharpe | maxDD | dev Sh | holdout Sh | corr QQQ |
+|---|--:|--:|--:|--:|--:|--:|
+| v1 base (short ≥$5) | 44% | 1.83 | −37% | 1.65 | 2.30 | −0.30 |
+| **v2 — short ≥$10 mcap (DEPLOY)** | **52%** | **2.16** | **−34%** | **1.90** | **2.83** | −0.28 |
+| sector-neutral ML | 23% | 1.01 | −63% | 0.67 | 1.87 | −0.43 |
+| ensemble ML + linear | 35% | 1.43 | −58% | 0.97 | 2.69 | −0.34 |
+| v2 + vol-target 12% | 36% | 2.02 | −27% | 1.75 | 2.75 | −0.17 |
+
+**What worked — borrow-aware shorting.** Restricting the short leg to ≥$10 mcap
+names (the only ones reliably borrowable at the modeled ~6%/yr) lifts net Sharpe
+**1.83 → 2.16** with *no* drawdown cost (−37% → −34%) and holds OOS (holdout
+2.30 → 2.83). Micro-cap shorts added squeeze risk and noise, not edge — so the
+deployability constraint and the performance improvement point the same way.
+This is now the deployable SUMMIT (full-sample compounded: CAGR 62% /
+Sharpe 2.16 / maxDD −34% / corr −0.28).
+
+**What did NOT transfer — sector-neutralization.** It helped the *linear* factor
+composite (Sharpe 0.83→0.93, exp99) but actively *hurts* the ML book
+(1.83→1.01, DD →−63%): the gradient-booster already prices sector context, so
+demeaning within sector strips real signal. Likewise the ML+linear ensemble
+dilutes (corr 0.76) → 1.43. Neither is adopted.
+
+**Optional — vol-targeting.** A trailing-6m realized-vol target of 12% (cap 2×)
+on v2 cuts maxDD to −27% for a modest Sharpe give-back (2.16→2.02); the book's
+native vol is ~24%/yr. Use it if drawdown, not raw return, is the binding
+constraint — you can re-lever a vol-targeted book to restore return.
+
+## Roadmap (remaining)
+1. ~~Turnover/cost-aware construction~~ — DONE (quarterly + buffer2×).
+2. ~~Sector neutralization~~ — TESTED, rejected for the ML book (hurts).
+3. ~~Borrow-aware shorting~~ — DONE, adopted as v2 (the main win).
+4. ~~Vol-targeting~~ — TESTED, available as optional DD-control overlay.
+5. **New alpha data** — 13F institutional flows, short-interest/FTD, options
+   skew, **analyst estimate-revisions** (the one durable factor SUMMIT lacks;
+   needs paid data) — the remaining high-EV, un-built lever.
+6. **Ensemble** ML + linear — TESTED, dilutes (corr 0.76); not adopted.
