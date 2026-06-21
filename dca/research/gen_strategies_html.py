@@ -229,5 +229,15 @@ solo=(html
   .replace('<footer>WAVE = deploy now (long-only). SUMMIT = bigger alpha, when you can short.<br>Survivorship-clean &amp; point-in-time; null-gauntlet validated. Research, not advice.</footer>',
            '<footer>SUMMIT — market-neutral long/short, ~0 correlation to the market.<br>Survivorship-clean &amp; point-in-time; all-in net of modeled costs. Research, not advice.</footer>'))
 open("/home/user/bonds/docs/summit.html","w").write(solo)
+# --- independent WAVE-only page ---
+wave=(html
+  .replace("<title>WAVE & SUMMIT — Strategy Brief</title>","<title>WAVE — Long-Only Stock Picker</title>")
+  .replace('<header><h1>WAVE &amp; SUMMIT</h1><p>Equity strategy brief · survivorship-clean point-in-time · interactive</p></header>',
+           '<header><h1>WAVE</h1><p>Long-only ML stock picker · deploy now (no shorting, no margin) · survivorship-clean</p></header>')
+  .replace('<nav class="wrap"><button id="tab-wave" class="on" onclick="setStrat(\'wave\')">WAVE</button><button id="tab-summit" onclick="setStrat(\'summit\')">SUMMIT</button></nav>',
+           '<nav class="wrap" style="display:none"><button id="tab-wave"></button><button id="tab-summit"></button></nav>')
+  .replace('<footer>WAVE = deploy now (long-only). SUMMIT = bigger alpha, when you can short.<br>Survivorship-clean &amp; point-in-time; null-gauntlet validated. Research, not advice.</footer>',
+           '<footer>WAVE — long-only, no shorting or margin; beats QQQ on return, risk and drawdown.<br>Survivorship-clean &amp; point-in-time; null-gauntlet validated. Research, not advice.</footer>'))
+open("/home/user/bonds/docs/wave.html","w").write(wave)
 open("/home/user/bonds/dca/research/strategies/strategies.html","w").write(html)
 print("written",len(html),"bytes")
