@@ -60,3 +60,27 @@ honestly: per-account flow is a real, different signal that should be *low-corre
 to STRATA/VOL (the diversification the blend math actually rewards), but most pure-L4
 edge is sub-second/HFT and below our 4.5bps taker floor — the realistic win is a
 medium-frequency (daily) flow sleeve that *diversifies* the blend, not a standalone 3.
+
+## Chosen path: forward-record for free via GitHub Actions (no AWS, no server)
+
+The repo is private, so no S3/AWS and no always-on box — we collect forward with
+GitHub Actions. `.github/workflows/record_flow.yml` runs `record_trades_l4.py` 3x/day
+(~18 min each, sampling different times of day) and pushes Parquet shards to a dedicated
+`flow-data` branch. Budget: ~1800 min/mo, inside the free 2000-min private tier. Because
+the daily flow features are normalised cross-sectional ratios, a sampled few windows per
+day per coin are enough — we do not need the full tape.
+
+- **Activate:** merge the workflow to `main` (scheduled workflows only fire from the
+  default branch), or hit "Run workflow" (workflow_dispatch) to record on demand.
+- **Backtest once data accrues:**
+  `git fetch origin flow-data && git worktree add /tmp/flowdata flow-data`
+  then `python crypto_pulse/flow_l4.py --tape /tmp/flowdata/shards`.
+- **Honest timeline:** an IC / short-horizon read on the most liquid coins is meaningful
+  after ~3–4 weeks; a ~120-day cross-sectional OOS backtest needs ~4 months of
+  collection. Forward-recorded data is the *most* honest kind (truly out-of-sample). If
+  you later want history instantly, the only shortcut is paying for the S3 archive or a
+  hosted L4 feed.
+
+Vercel is unsuitable for collection (serverless functions are too short-lived for a
+persistent WebSocket); it would only make sense later as a results dashboard.
+
