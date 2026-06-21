@@ -193,3 +193,48 @@ genuinely NEW data, not recombining what the model already sees.
    FTD / dense 13F history. All need paid or longer-history feeds.
 7. **Ensemble** ML + linear / model-average — TESTED repeatedly, dilutes Sharpe;
    not adopted.
+
+## Volatility-signal risk-sizing — VIX3M adopted (exp122, 126-127)
+Tested VIX and a full vol-signal panel (VIX 9d/30d/3m/6m term structure, VVIX,
+SKEW, MOVE bond-vol, credit) as regime overlays.
+
+**Direction levers fail.** "Off in downturns", "lean short in downturns", and
+binary "off when VIX high" all reduce Sharpe — the book is market-neutral, it
+*profits* in downturns and has no directional timing skill. Its true tail-risk
+is the **momentum crash** (junk rebound, e.g. COVID-2020), which is un-timeable
+with monthly signals (the crash→rebound whipsaw is too fast).
+
+**Sizing works.** Running a *smaller* book when implied vol is high helps.
+Forecasting rank-IC of signal_t vs |book ret_{t+1}|: **MOVE +0.29** and
+**VIX term-structure backwardation +0.22** forecast book risk best — better than
+VIX level (+0.11). But MOVE is a poor *sizer* (it flags the book's big-WIN crisis
+months too), so it earns its place as a fragility gauge, not an auto-multiplier.
+Best practical sizer = **inverse-VIX3M** (3-month implied; smoother than spot):
+net Sharpe **2.42 → 2.51**, maxDD **−17% → −12%**, improving in BOTH dev
+(2.11→2.28) and holdout (3.35→3.41), robust across target 16–22. **ADOPTED.**
+The VIX×MOVE composite helps the thinner reduced book most (−38%→−27% DD).
+
+**Deployed SUMMIT (final):** beta-neutral ML decile L/S, short ≥$10 mcap,
+quarterly + 2× buffer, tiered borrow, full cost model, **inverse-VIX3M sized** →
+all-in net **CAGR 50% / Sharpe 2.51 / maxDD −12% / corr 0.00**.
+
+## Longer backtest — 21-year reduced-feature proxy (exp123-125)
+The full SUMMIT cannot run before ~2012 (SEC XBRL fundamentals are 0% covered
+pre-2012). But 13 features are fundamental-free with deep history — the
+price/momentum sleeve + **insider Form-4** signals (~100% back to 2003). Trained
+a consistent walk-forward on those from **2005** and ran the same beta-neutral
+L/S, all-in net, over 21 years.
+
+**2005-2025: CAGR 23% / Sharpe 1.11 / maxDD −38% / corr 0.03** vs QQQ 16% /
+0.89 / −50%. Market-neutral holds over two decades. Regimes: shines when junk is
+dumped (08-09 recovery +1.10, 2011 +3.93, 2015-16 +3.39, 2018 +1.81, 2022 +1.23),
+survived the GFC (−11% DD vs QQQ −42%); its holes are momentum crashes
+(2005-07 −0.43, COVID-2020 −1.24) and the momentum-hostile mid-2000s.
+
+**Key takeaway:** over the 2015-25 overlap the reduced model nets Sharpe 1.40 vs
+the full model's 2.42 — that ~1.0 gap *is the fundamental features' contribution*.
+Fundamentals are SUMMIT's durable backbone and its momentum-crash buffer (the
+full model's worst regime, 2019-21, was still +1.47). The 21-year run is a
+**robustness story for the architecture, not a longer track record for the
+deployed model** — it is a different, weaker, fundamental-free proxy and is
+labelled as such on the site (the "21-year · proxy" toggle).

@@ -56,6 +56,7 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px 16px 0;lin
   <h2 id="title"></h2>
   <p class="sub" id="subtitle"></p>
 
+  <div class="chips" id="btrow" style="display:none;margin-bottom:8px"></div>
   <div class="chips" id="chips"></div>
 
   <div class="card"><h3 id="methdr"></h3><div class="metrics" id="metrics"></div><p class="note" id="metnote"></p></div>
@@ -118,12 +119,12 @@ const CFG={
    <div class="row"><span class="k">Best single factor</span><span class="val">Value (B/M) — Sharpe 1.38</span></div>
    <div class="row"><span class="k">Construction</span><span class="val">Beta-neutral; long top decile,<br>short bottom decile (≥$10 mcap)</span></div></div>
    <div class="card"><h3>Risk-neutral construction</h3>
-   <p style="font-size:12.5px;color:var(--mut);margin:0 0 8px">Two design choices make it genuinely market-neutral and deployable: <b>borrow-aware shorts</b> — short only <b>≥$10 mcap</b> names (reliably borrowable; micro-cap shorts add squeeze risk, not edge); and <b>beta-neutral</b> sizing — scale the short leg to zero <i>net beta</i> (not just dollar-neutral), removing the residual market exposure that drives drawdowns. The metrics below are <b>all-in net</b> of every modeled cost.</p>
+   <p style="font-size:12.5px;color:var(--mut);margin:0 0 8px">Three design choices: <b>borrow-aware shorts</b> (only ≥$10 mcap, reliably borrowable); <b>beta-neutral</b> sizing (short leg scaled to zero <i>net beta</i>, removing residual market exposure); and <b>inverse-VIX3M risk-sizing</b> (run a smaller book when implied vol is high). The metrics below are <b>all-in net</b> of every modeled cost.</p>
    <div class="metrics">
-   <div class="m"><div class="v">2.42</div><div class="l">net Sharpe</div><div class="q">all-in</div></div>
-   <div class="m"><div class="v">−17%</div><div class="l">max drawdown</div><div class="q">~16% vol</div></div>
+   <div class="m"><div class="v">2.51</div><div class="l">net Sharpe</div><div class="q">all-in</div></div>
+   <div class="m"><div class="v">−12%</div><div class="l">max drawdown</div><div class="q">VIX-sized</div></div>
    <div class="m"><div class="v">0.00</div><div class="l">corr to QQQ</div><div class="q">market-neutral</div></div></div>
-   <p style="font-size:12px;color:var(--mut);margin:8px 0 0">The edge is the ML cross-sectional signal. Tested &amp; rejected as added alpha: sector- &amp; size-neutral, ML+linear ensemble, residual-momentum, model-averaging, alternative ML models, short stop-losses, return-tranching — each shown not to help (the model already subsumes public-data factors).</p></div>
+   <p style="font-size:12px;color:var(--mut);margin:8px 0 0">VIX3M sizing was the one overlay that survived dev+holdout (2.42→2.51, DD −17%→−12%). Tested &amp; rejected: regime on/off &amp; lean-short timing (no skill); sector/size-neutral, ML+linear ensemble, residual-momentum, model-averaging, short stop-losses, tranching (the ML already subsumes public-data factors); MOVE/term-structure help as a fragility gauge but not as a sizer.</p></div>
    <div class="card"><h3>Costs &amp; capacity — fully modeled</h3>
    <p style="font-size:12.5px;color:var(--mut);margin:0 0 8px">Net of <b>tiered spread</b> (4–40bps by size), <b>square-root market impact</b>, <b>tiered borrow</b> (1–6%/yr), <b>financing</b>, and a <b>delisting stress</b>. Dividends-on-shorts are already in total-return prices.</p>
    <div class="row"><span class="k">Gross → all-in net Sharpe</span><span class="val">2.62 → <b>2.42</b> (costs ≈ 0.2)</span></div>
@@ -142,16 +143,17 @@ const CFG={
    <li><b>Outside the long-only mandate</b> — parked until shorting is allowed.</li></ul></div>`}
 };
 const PERIODS=[["All","2015-01","2025-12"],["2015–18","2015-01","2018-12"],["2019–21","2019-01","2021-12"],["2022–25","2022-01","2025-12"],["2023–25","2023-01","2025-12"]];
-let S="wave",P=0,sortA={k:"year",asc:true},sortF={k:"sharpe",asc:false},sortH={k:"ret",asc:false};
+const PERIODS_L=[["All 21y","2005-07","2025-12"],["GFC 08–09","2008-01","2009-12"],["2011–14","2011-01","2014-12"],["2015–19","2015-01","2019-12"],["COVID 20","2020-01","2020-12"],["2021–25","2021-01","2025-12"]];
+let S="wave",P=0,BT=0,sortA={k:"year",asc:true},sortF={k:"sharpe",asc:false},sortH={k:"ret",asc:false};
 const $=id=>document.getElementById(id);
-function rng(){const[_,a,b]=PERIODS[P];const i0=D.dates.indexOf(a),i1=D.dates.indexOf(b);return[i0,i1<0?D.dates.length-1:i1];}
-function slice(key){const[i0,i1]=rng();let xs=[],r=[];for(let i=i0;i<=i1;i++){const v=D[key][i],q=D.qqq[i];if(v==null)continue;xs.push(D.dates[i]);r.push(v);}return{xs,r};}
-function pair(){const[i0,i1]=rng();let xs=[],s=[],q=[];for(let i=i0;i<=i1;i++){if(D[S][i]==null||D.qqq[i]==null)continue;xs.push(D.dates[i]);s.push(D[S][i]);q.push(D.qqq[i]);}return{xs,s,q};}
+function DS(){return (S=="summit"&&BT==1)?{dates:D.datesL,s:D.summitL,q:D.qqqL,P:PERIODS_L}:{dates:D.dates,s:D[S],q:D.qqq,P:PERIODS};}
+function rng(){const ds=DS();const[_,a,b]=ds.P[P];const i0=ds.dates.indexOf(a),i1=ds.dates.indexOf(b);return[i0,i1<0?ds.dates.length-1:i1];}
+function pair(){const ds=DS();const[i0,i1]=rng();let xs=[],s=[],q=[];for(let i=i0;i<=i1;i++){if(ds.s[i]==null||ds.q[i]==null)continue;xs.push(ds.dates[i]);s.push(ds.s[i]);q.push(ds.q[i]);}return{xs,s,q};}
 function met(r){if(r.length<3)return{c:NaN,sh:NaN,dd:NaN};let g=1,eq=[],pk=-1e9,dd=0,m=0;for(const x of r){g*=1+x;eq.push(g);}m=r.reduce((a,b)=>a+b,0)/r.length;let sd=Math.sqrt(r.reduce((a,b)=>a+(b-m)**2,0)/(r.length-1));pk=-1e9;for(const e of eq){if(e>pk)pk=e;dd=Math.min(dd,e/pk-1);}return{c:Math.pow(g,12/r.length)-1,sh:sd?m/sd*Math.sqrt(12):NaN,dd};}
 function pct(x){return(x>=0?"+":"")+(x*100).toFixed(1)+"%";}
 function f2(x){return x.toFixed(2);}
 function renderMetrics(){const{s,q}=pair();const a=met(s),b=met(q);
- $("methdr").textContent=CFG[S].name+" vs QQQ — "+PERIODS[P][0];
+ $("methdr").textContent=CFG[S].name+" vs QQQ — "+DS().P[P][0];
  const cls=(x,y)=>x>=y?"good":"bad";const ddcls=(x,y)=>x>=y?"good":"bad";
  $("metrics").innerHTML=
   `<div class="m"><div class="v ${cls(a.c,b.c)}">${pct(a.c)}</div><div class="l">CAGR</div><div class="q">QQQ ${pct(b.c)}</div></div>
@@ -159,7 +161,9 @@ function renderMetrics(){const{s,q}=pair();const a=met(s),b=met(q);
    <div class="m"><div class="v ${ddcls(a.dd,b.dd)}">${pct(a.dd)}</div><div class="l">max drawdown</div><div class="q">QQQ ${pct(b.dd)}</div></div>`;
  $("metnote").textContent = S=="wave"
    ? "Survivorship-clean; delisted names included. Metrics recompute for the selected period."
-   : "Market-neutral net of ~6%/yr borrow. Gross/overlay Sharpe higher (see below).";
+   : (BT==1
+     ? "21-year robustness — a FUNDAMENTAL-FREE PROXY (momentum + insider only; SEC fundamentals don't exist pre-2012). A different, weaker model than the deployed book, shown to test the architecture across the GFC, COVID and 2022."
+     : "Deployed market-neutral book — all-in net of every modeled cost, inverse-VIX3M risk-sized. Metrics recompute for the selected period.");
 }
 function chart(){const{xs,s,q}=pair();if(s.length<2){$("chart").innerHTML="";return;}
  let es=[1],eq=[1];for(let i=0;i<s.length;i++){es.push(es[es.length-1]*(1+s[i]));eq.push(eq[eq.length-1]*(1+q[i]));}
@@ -170,14 +174,14 @@ function chart(){const{xs,s,q}=pair();if(s.length<2){$("chart").innerHTML="";ret
  const path=a=>a.map((v,i)=>(i?"L":"M")+lx(i).toFixed(1)+" "+ly(v).toFixed(1)).join(" ");
  const yr=xs.map(d=>d.slice(0,4));const ticks=[];let last="";xs.forEach((d,i)=>{const y=d.slice(0,4);if(y!=last){ticks.push([i,y]);last=y;}});
  let g="";ticks.forEach(([i,y])=>{const x=lx(i).toFixed(1);g+=`<line x1="${x}" y1="${pad}" x2="${x}" y2="${H-bot}" stroke="#eee"/><text x="${x}" y="${H-4}" font-size="9" fill="#9ca3af" text-anchor="middle">'${y.slice(2)}</text>`;});
- $("charthdr").textContent=PERIODS[P][0]+" ("+xs[0]+" → "+xs[xs.length-1]+")";
+ $("charthdr").textContent=DS().P[P][0]+" ("+xs[0]+" → "+xs[xs.length-1]+")";
  $("chart").innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:200px">${g}
    <path d="${path(eq)}" fill="none" stroke="#9ca3af" stroke-width="1.6"/>
    <path d="${path(es)}" fill="none" stroke="#111418" stroke-width="2.4"/>
    <text x="${(W-pad)}" y="${ly(es[es.length-1])-4}" font-size="10" font-weight="700" fill="#111418" text-anchor="end">${es[es.length-1].toFixed(2)}×</text>
    <text x="${(W-pad)}" y="${ly(eq[eq.length-1])+11}" font-size="10" fill="#6b7280" text-anchor="end">${eq[eq.length-1].toFixed(2)}×</text></svg>`;
 }
-function annualRows(){const yrs={};for(let i=0;i<D.dates.length;i++){const y=D.dates[i].slice(0,4);const sv=D[S][i],qv=D.qqq[i];if(!yrs[y])yrs[y]={s:1,q:1,hs:false,hq:false};if(sv!=null){yrs[y].s*=1+sv;yrs[y].hs=true;}if(qv!=null){yrs[y].q*=1+qv;yrs[y].hq=true;}}
+function annualRows(){const ds=DS();const yrs={};for(let i=0;i<ds.dates.length;i++){const y=ds.dates[i].slice(0,4);const sv=ds.s[i],qv=ds.q[i];if(!yrs[y])yrs[y]={s:1,q:1,hs:false,hq:false};if(sv!=null){yrs[y].s*=1+sv;yrs[y].hs=true;}if(qv!=null){yrs[y].q*=1+qv;yrs[y].hq=true;}}
  let rows=[];for(const y in yrs){if(!yrs[y].hs)continue;const sr=yrs[y].s-1,qr=yrs[y].q-1;rows.push({year:y,strat:sr,qqq:qr,exc:sr-qr});}return rows;}
 function renderAnnual(){let rows=annualRows();const k=sortA.k;rows.sort((a,b)=>{let x=a[k],y=b[k];if(k=="year"){x=+x;y=+y;}return sortA.asc?x-y:y-x;});
  $("thS").textContent=CFG[S].name;
@@ -205,12 +209,15 @@ function renderPicks(){
 function renderHist(){let rows=PK.wave_hist.slice();const k=sortH.k;rows.sort((a,b)=>{let x=a[k],y=b[k];if(k=="t"||k=="entry")return sortH.asc?(x<y?-1:1):(x>y?-1:1);return sortH.asc?x-y:y-x;});
  document.querySelectorAll("#hist th").forEach(th=>{th.classList.toggle("s",th.dataset.k==k);th.classList.toggle("asc",th.dataset.k==k&&sortH.asc);});
  $("hist").querySelector("tbody").innerHTML=rows.map(r=>`<tr><td>${r.t}</td><td>${r.entry}</td><td>${r.held}</td><td class="good">+${r.ret}%</td></tr>`).join("");}
+function renderChips(){const P_=DS().P;$("chips").innerHTML=P_.map((p,i)=>`<button class="${i==P?'on':''}" onclick="setP(${i})">${p[0]}</button>`).join("");}
 function render(){const c=CFG[S];$("badge").textContent=c.badge;$("title").textContent=c.name;$("subtitle").textContent=c.sub;$("lgS").textContent=c.name;$("info").innerHTML=c.info;
  $("tab-wave").classList.toggle("on",S=="wave");$("tab-summit").classList.toggle("on",S=="summit");
- renderMetrics();chart();renderPicks();renderHist();renderAnnual();renderFactors();}
-function setStrat(s){S=s;render();}
-function setP(i){P=i;document.querySelectorAll("#chips button").forEach((b,j)=>b.classList.toggle("on",j==i));renderMetrics();chart();}
-$("chips").innerHTML=PERIODS.map((p,i)=>`<button class="${i==0?'on':''}" onclick="setP(${i})">${p[0]}</button>`).join("");
+ const isSum=S=="summit"&&D.summitL;$("btrow").style.display=isSum?"flex":"none";
+ if(isSum)$("btrow").innerHTML=`<button class="${BT==0?'on':''}" onclick="setBT(0)">Since 2015 · deployed</button><button class="${BT==1?'on':''}" onclick="setBT(1)">21-year · proxy</button>`;
+ renderChips();renderMetrics();chart();renderPicks();renderHist();renderAnnual();renderFactors();}
+function setStrat(s){S=s;P=0;BT=0;render();}
+function setBT(b){BT=b;P=0;render();}
+function setP(i){P=i;renderChips();renderMetrics();chart();}
 document.querySelectorAll("#annual th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortA.k==k)sortA.asc=!sortA.asc;else{sortA.k=k;sortA.asc=k=="year";}renderAnnual();});
 document.querySelectorAll("#factors th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortF.k==k)sortF.asc=!sortF.asc;else{sortF.k=k;sortF.asc=false;}renderFactors();});
 document.querySelectorAll("#hist th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortH.k==k)sortH.asc=!sortH.asc;else{sortH.k=k;sortH.asc=(k=="t"||k=="entry");}renderHist();});
