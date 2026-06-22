@@ -1,30 +1,27 @@
 name: Record HL per-account flow
 
 # Forward-records the Hyperliquid per-account trade tape (free, no server) by running
-# crypto_pulse/record_trades_l4.py on a schedule and persisting Parquet shards to a
-# dedicated `flow-data` branch (keeps main clean). The daily cross-sectional flow
-# features are normalised ratios, so a few short sampled windows per day are enough.
+# crypto_pulse/record_trades_l4.py and persisting Parquet shards to a dedicated
+# `flow-data` branch (keeps main clean).
 #
-# Budget (private repo, free tier = ~2000 min/mo): 3 runs/day x ~18 min ~= 1800 min/mo.
-# On a public repo or paid plan, raise SECS or add cron rows for fuller coverage.
+# Repo is PUBLIC => Actions are free/unlimited on standard runners, so we record
+# NEAR-CONTINUOUSLY: a job every 6h records ~5h45m (jobs cap at 6h), chaining for
+# ~96% coverage. Handoff gaps/overlaps are harmless (flow_l4 dedups on tid).
 #
-# Activation: scheduled workflows only fire from the DEFAULT branch (main), so this
-# must be merged to main to start recording. Trigger manually any time via the
-# "Run workflow" button (workflow_dispatch) to test or top up.
+# Activation: scheduled workflows only fire from the DEFAULT branch (main). Trigger
+# manually any time via "Run workflow" (workflow_dispatch).
 
 on:
   schedule:
-    - cron: '7 1 * * *'     # sample three different times of day to avoid TOD bias
-    - cron: '7 9 * * *'
-    - cron: '7 17 * * *'
+    - cron: '2 */6 * * *'    # 00:02, 06:02, 12:02, 18:02 UTC — chained ~5h45m jobs
   workflow_dispatch:
     inputs:
       secs:
         description: Seconds to record
-        default: '1080'
+        default: '20700'
       coins:
         description: Comma-separated coins
-        default: 'BTC,ETH,SOL,DOGE,AVAX,XRP,LINK,BNB,LTC,ARB,OP,APT,SUI,TIA,SEI,WIF,PEPE,NEAR,INJ,TAO'
+        default: 'AAVE,ADA,ALGO,APT,AR,ARB,ATOM,AVAX,AXS,BCH,BNB,BTC,COMP,CRV,DOGE,DOT,DYDX,ETC,ETH,FIL,GALA,HBAR,INJ,JUP,KAS,LINK,LTC,MKR,NEAR,OP,PYTH,RUNE,SAND,SEI,SNX,SOL,STX,SUI,TIA,TRX,UNI,XLM,XMR,XRP,ZEC'
 
 permissions:
   contents: write
@@ -36,7 +33,7 @@ concurrency:
 jobs:
   record:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 354
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,14 +52,15 @@ jobs:
           PYTHONUNBUFFERED: '1'
         run: |
           python crypto_pulse/record_trades_l4.py \
-            --secs "${{ github.event.inputs.secs || '1080' }}" \
-            --coins "${{ github.event.inputs.coins || 'BTC,ETH,SOL,DOGE,AVAX,XRP,LINK,BNB,LTC,ARB,OP,APT,SUI,TIA,SEI,WIF,PEPE,NEAR,INJ,TAO' }}"
+            --secs "${{ github.event.inputs.secs || '20700' }}" \
+            --coins "${{ github.event.inputs.coins || 'AAVE,ADA,ALGO,APT,AR,ARB,ATOM,AVAX,AXS,BCH,BNB,BTC,COMP,CRV,DOGE,DOT,DYDX,ETC,ETH,FIL,GALA,HBAR,INJ,JUP,KAS,LINK,LTC,MKR,NEAR,OP,PYTH,RUNE,SAND,SEI,SNX,SOL,STX,SUI,TIA,TRX,UNI,XLM,XMR,XRP,ZEC' }}"
 
       - name: Publish shards to flow-data branch
         run: |
           set -e
           ls data/hl_trades_l4/*.parquet >/dev/null 2>&1 || { echo "no shards recorded"; exit 0; }
           mkdir -p /tmp/shards && cp data/hl_trades_l4/*.parquet /tmp/shards/
+          cp crypto_pulse/merge_shards.py /tmp/merge_shards.py
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if git ls-remote --exit-code --heads origin flow-data >/dev/null 2>&1; then
@@ -74,7 +72,8 @@ jobs:
             echo "# HL per-account flow shards (recorded by record-hl-flow workflow)" > README.md
           fi
           mkdir -p shards
-          cp /tmp/shards/*.parquet shards/
+          # merge new shards into the branch, deduping on tid (handles handoff overlap)
+          python /tmp/merge_shards.py /tmp/shards shards
           git add shards README.md
           if git diff --staged --quiet; then
             echo "nothing new to commit"

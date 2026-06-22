@@ -42,7 +42,7 @@ def flush(rows, hk):
     df = pd.DataFrame(rows)
     if os.path.exists(path):
         df = pd.concat([pd.read_parquet(path), df], ignore_index=True)
-        df = df.drop_duplicates(subset=["tid"])
+    df = df.drop_duplicates(subset=["tid"])      # WS resends trades; tid is unique
     df.to_parquet(path, index=False)
     print(f"[{hk}] {len(df)} trades -> {os.path.basename(path)}", flush=True)
 
