@@ -149,11 +149,15 @@ def main():
           f"because it sits ~90%+ in VOL — by the time VOL's drawdown/low-Sharpe fires, the move is "
           "late and whipsaws. A plain static 70/30 (Sharpe ~2.30) dominates it. Continuous "
           "diversification > trying to time the slump.",
-          "- **Recommendation to PROVE VOL while improving the book:** a VOL-dominant *static* blend "
-          "(65-80% VOL / rest STRATA). VOL stays the core engine and proof; STRATA is always-on "
-          "ballast that lifts Sharpe ~2.0->2.3 and CAGR ~40%->~50% at the same -15% DD, and "
-          "specifically rescues VOL's 2025-26 slump. No market-timing required. The L4 whale-flow "
-          "book, once it has history, would be the next always-on diversifier to add on top.\n"]
+          "- **Recommendation:** the mean-variance optimum is VOL 51% / STRATA 49% — i.e. a "
+          "**static ~50/50** (Sharpe peaks flat across 45-55% VOL at ~2.40, CAGR ~51%, DD -14%). "
+          "This is not overfit: it falls out of two near-equal-Sharpe books (2.02 vs 1.85) with "
+          "low correlation (0.17). 50/50 beats every VOL-tilted mix on Sharpe, CAGR AND drawdown. "
+          "The ONLY reason to tilt heavier to VOL is a forward view that VOL mean-reverts to its "
+          "2022-24 strength (the recent-Sharpe column falls as VOL weight rises, because VOL is "
+          "slumping now) — a judgment call, not a backtest fact. Deploy 50/50 as the regime-neutral "
+          "default; 55-60% VOL is a mild pro-VOL hedge at negligible Sharpe cost. The L4 whale-flow "
+          "book, once it has history, is the next always-on diversifier to add on top.\n"]
 
     blend7030 = vt(0.7 * vol + 0.3 * strata, TGT)
     fig, ax = plt.subplots(figsize=(11, 5.5))
