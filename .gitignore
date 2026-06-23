@@ -41,3 +41,4 @@ data/hl_orderflow/
 data/hl_hip3/
 crypto_pulse/research/timesfm_fc.parquet
 crypto_pulse/research/xgb_pred.parquet
+data/l4_shards/
