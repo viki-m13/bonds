@@ -18,9 +18,9 @@ whose **gross exposure is scaled by market-wide trend intensity** (causal):
 Code: `crypto_pulse/tide.py` (`TIDE().build()`), zero parameters fitted after this spec.
 
 ### Refinements (validated, baked into `tide.py`)
-TIDE uses **multi-horizon breakout** (10/20/40d blend) and **Parkinson high-low volatility** for
-sizing — both genuine, robust improvements found honestly (see "Improvement effort"). They lift
-OOS ~1.98 → ~2.19 without overfitting.
+TIDE uses a **5-horizon breakout** (5/10/20/40/80d blend) and **Parkinson high-low volatility**
+for sizing — both genuine, robust improvements found honestly (see "Improvement effort"). They
+lift OOS ~1.98 → ~2.29 without overfitting, and each improved the *independent* pre-HL period too.
 
 ## Honest performance (net of costs + funding, improved version)
 | window | Sharpe | note |
@@ -65,18 +65,22 @@ Same frozen rule run unchanged across asset classes (`tide_crossasset.py`, `tide
 **TIDE is a crypto-daily liquid-universe strategy. It is robust within that domain and is not a
 universal anomaly.**
 
-## Improvement effort (honest — TIDE is near its ceiling)
-Tried 13 signal/construction/mechanism upgrades to TIDE itself (NOT ensembles), each walk-
-forward OOS + deflated (`tide_v2.py`, `tide_v3.py`):
-- **Only multi-horizon breakout helps** — blend the breakout z over 10/20/40d instead of 20d
-  alone: OOS **1.98 → 2.06**, 4-fold WF all positive, pre-HL 1.02, bootstrap CI [0.93, 3.00].
-  Well-motivated (horizon diversification), robust, adopted as the **TIDE refinement**.
-- **Everything else overfits or hurts:** residualized/idiosyncratic breakout, skip-1-day,
-  volume conviction, beta-neutralization, calm-vol regime gate, rank-weights, held-state
-  machine, long/short asymmetry — all help in-sample then **decay or collapse OOS**.
-- Conclusion: the base construction is at the honest ceiling for a single cross-sectional
-  breakout book. Genuine improvement is marginal (~+0.08); the strategy is ~2.0–2.1, not more,
-  and that is the real number — no construction trick honestly pushes a single book to 3.
+## Improvement effort (honest — 28 upgrade attempts, 3 stuck)
+Tried 28 signal/construction/mechanism/risk/novel upgrades to TIDE itself (NOT ensembles), each
+walk-forward OOS + deflated, with the strict bar of also improving the *independent pre-HL*
+period (`tide_v2.py`…`tide_v6.py`):
+- **Three genuine refinements survived** (each improved pre-HL + all WF folds): **multi→5-horizon
+  breakout**, **Parkinson high-low volatility** sizing. Progression: 1.98 → 2.06 → 2.19 → 2.29 OOS.
+- **Everything else overfit or hurt:** residualized/idiosyncratic breakout, skip-1-day, volume
+  conviction, beta-neutralization, calm-vol gate, rank-weights, held-state machine, long/short
+  asymmetry, dd-floor, deadband, param-ensemble, top-N universe, funding-aware sizing, and the
+  novel **Kaufman efficiency-ratio**, **dispersion-timing**, **acceleration** ideas — all help
+  in-sample then decay/collapse OOS.
+- **Longer backtest:** improved TIDE is **positive in all 12 years 2015–2026** (0.24→2.38),
+  full-period Sharpe **1.55** (dragged by the near-untradeable 2015–16), ~1.9–2.4 every year
+  since 2017. A decade-spanning edge.
+- Conclusion: the book is at the honest ceiling for a single cross-sectional breakout — **~2.3
+  HL-era, ~1.55 over 12 years**. No construction trick honestly pushes a single book to 3.
 
 ## Honest limitations
 - **It is a ~2.0 Sharpe book, not 3.** Six iterations across three repos + deflated-Sharpe and a
