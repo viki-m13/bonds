@@ -42,7 +42,7 @@ Block-bootstrap 95% CI on the HL Sharpe: **[1.13, 3.17]**. Still passes the full
 - **Walk-forward** (4 disjoint folds): all positive (0.92–2.43).
 - **Anchored expanding WF** (6 starts): all positive (1.98–2.91), rising recently.
 - **Execution sensitivity** (rebalance × vol-target, 15 cells): 93% > 1.0.
-- **Capacity** (square-root impact): > 1.5 Sharpe to ~$25M, > 1.0 to ~$100M; graceful.
+- **Capacity** (square-root impact, improved book): > 1.5 Sharpe to ~$50M, > 1.0 beyond ~$100M; graceful.
 
 Supporting files: `research/tide.md`, `tide_ci.md`, `tide_capacity.md`, `roc_validate.md`
 (+ the negative-result search `roc_lab*.md` showing TIDE is the survivor of 34 honest trials).

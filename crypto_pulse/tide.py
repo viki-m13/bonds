@@ -62,12 +62,14 @@ class TIDE:
         """Return (wl, R, F, ADV): lagged target weights, returns, funding, $-ADV — for
         capacity/slippage analysis. Same construction as build() pre-cost."""
         C = self.C; V = self.V; F = self.F.reindex(columns=C.columns).fillna(0.0)
+        H = self.H; L = self.L
         R = C.pct_change(); R[R.abs() > 2] = np.nan
         dv = (C * V).rolling(30).mean(); el = C.notna() & (dv > 3e6)
-        sd = R.rolling(30).std()
+        sd = np.sqrt((np.log(H / L) ** 2).rolling(30).mean() / (4 * np.log(2))) + 1e-9  # Parkinson
         nm = lambda x: x.div(x.abs().sum(axis=1), axis=0)
         dmf = lambda x: x.sub(x.mean(axis=1), axis=0)
-        breakout = dmf(((C - C.rolling(win).mean()) / (C.rolling(win).std() + 1e-9)).where(el))
+        f = lambda k: dmf(((C - C.rolling(k).mean()) / (C.rolling(k).std() + 1e-9)).where(el))
+        breakout = sum(f(max(2, int(win * m))) for m in (0.25, 0.5, 1, 2, 4)) / 5.0   # 5-horizon
         ts = ((((C > C.rolling(reg).mean()).where(el)).mean(axis=1) - 0.5).abs() * 2).clip(0, 1)
         w = nm(breakout / sd).mul(ts.shift(1), axis=0)
         rebw = pd.Series(np.arange(len(C)) % hold == 0, index=C.index)
