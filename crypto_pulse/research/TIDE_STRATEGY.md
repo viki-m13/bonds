@@ -41,6 +41,24 @@ Block-bootstrap 95% CI on the HL Sharpe: **[0.96, 2.93]**, P(Sharpe > 1) = 97%.
 Supporting files: `research/tide.md`, `tide_ci.md`, `tide_capacity.md`, `roc_validate.md`
 (+ the negative-result search `roc_lab*.md` showing TIDE is the survivor of 34 honest trials).
 
+## Scope — where TIDE works and where it does NOT (cross-asset tested)
+Same frozen rule run unchanged across asset classes (`tide_crossasset.py`, `tide_ebb.py`):
+- **Crypto daily (its domain):** liquid-57 HL-era ~2.0 / full-period 1.28. **Full 112-coin universe
+  dilutes to 1.07** — keep to the liquid subset, more coins is not free alpha.
+- **Equities — TIDE INVERTS and LOSES** (stocks-96 −0.80, stocks-430 −1.28, −75% DD). Short-horizon
+  cross-sectional moves continue in crypto but mean-revert in equities. **Do NOT run TIDE on HL
+  HIP-3 equity perps (TSLA etc.) — it would lose money.**
+- The equity-reversal mirror (**EBB**) is *not* tradeable either: ~0.2 Sharpe, OOS-negative, dies
+  above 2bps cost (equity short-term reversal is arbitraged away). So a TIDE+EBB cross-asset combo
+  (corr −0.02, genuinely uncorrelated) still *dilutes* to 1.40 — diversification needs two strong
+  legs, and EBB isn't one.
+- **Timeframes:** daily is the sweet spot; weekly 0.55 (weaker); hourly −0.08 (fails on cost/noise).
+- **Leverage:** avg gross ~1.0x, cap 3x — far inside HL limits; scaling vol-target lifts CAGR and
+  drawdown linearly, Sharpe unchanged (30% target ≈ +65% CAGR / −37% DD at ~2.6x gross).
+
+**TIDE is a crypto-daily liquid-universe strategy. It is robust within that domain and is not a
+universal anomaly.**
+
 ## Honest limitations
 - **It is a ~2.0 Sharpe book, not 3.** Six iterations across three repos + deflated-Sharpe and a
   full generalization battery establish that price-based crypto signals cap here. Sharpe 3 is not
