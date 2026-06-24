@@ -58,6 +58,22 @@ class TIDE:
         self.C, self.V, self.H, self.L = v.load_prices(coins)
         self.F = v.load_daily_funding(list(self.C.columns), self.C.index)
 
+    def weights(self, win=20, reg=50, hold=3):
+        """Return (wl, R, F, ADV): lagged target weights, returns, funding, $-ADV — for
+        capacity/slippage analysis. Same construction as build() pre-cost."""
+        C = self.C; V = self.V; F = self.F.reindex(columns=C.columns).fillna(0.0)
+        R = C.pct_change(); R[R.abs() > 2] = np.nan
+        dv = (C * V).rolling(30).mean(); el = C.notna() & (dv > 3e6)
+        sd = R.rolling(30).std()
+        nm = lambda x: x.div(x.abs().sum(axis=1), axis=0)
+        dmf = lambda x: x.sub(x.mean(axis=1), axis=0)
+        breakout = dmf(((C - C.rolling(win).mean()) / (C.rolling(win).std() + 1e-9)).where(el))
+        ts = ((((C > C.rolling(reg).mean()).where(el)).mean(axis=1) - 0.5).abs() * 2).clip(0, 1)
+        w = nm(breakout / sd).mul(ts.shift(1), axis=0)
+        rebw = pd.Series(np.arange(len(C)) % hold == 0, index=C.index)
+        w = w.where(rebw, axis=0).ffill(limit=hold)
+        return w.shift(1), R, F, dv
+
     def build(self, win=20, reg=50, hold=3, cost_mult=1.0, cols=None, shuffle=False, seed=0, vtw=45):
         C = self.C if cols is None else self.C[cols]
         V = self.V[C.columns]; F = self.F.reindex(columns=C.columns).fillna(0.0)
