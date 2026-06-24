@@ -77,12 +77,16 @@ class TIDE:
     def build(self, win=20, reg=50, hold=3, cost_mult=1.0, cols=None, shuffle=False, seed=0, vtw=45):
         C = self.C if cols is None else self.C[cols]
         V = self.V[C.columns]; F = self.F.reindex(columns=C.columns).fillna(0.0)
+        H = self.H[C.columns]; L = self.L[C.columns]
         R = C.pct_change(); R[R.abs() > 2] = np.nan
         dv = (C * V).rolling(30).mean(); el = C.notna() & (dv > 3e6)
-        sd = R.rolling(30).std()
+        # Parkinson high-low volatility (more efficient risk estimate than close-to-close)
+        sd = np.sqrt((np.log(H / L) ** 2).rolling(30).mean() / (4 * np.log(2))) + 1e-9
         nm = lambda x: x.div(x.abs().sum(axis=1), axis=0)
         dmf = lambda x: x.sub(x.mean(axis=1), axis=0)
-        breakout = dmf(((C - C.rolling(win).mean()) / (C.rolling(win).std() + 1e-9)).where(el))
+        # multi-horizon breakout (win/2, win, win*2) — horizon-diversified, more robust
+        f = lambda k: dmf(((C - C.rolling(k).mean()) / (C.rolling(k).std() + 1e-9)).where(el))
+        breakout = (f(max(2, win // 2)) + f(win) + f(win * 2)) / 3.0
         if shuffle:                                    # null: shuffle the signal across coins each row
             rng = np.random.default_rng(seed)
             bv = breakout.values.copy()

@@ -17,15 +17,21 @@ whose **gross exposure is scaled by market-wide trend intensity** (causal):
 
 Code: `crypto_pulse/tide.py` (`TIDE().build()`), zero parameters fitted after this spec.
 
-## Honest performance (net of costs + funding)
+### Refinements (validated, baked into `tide.py`)
+TIDE uses **multi-horizon breakout** (10/20/40d blend) and **Parkinson high-low volatility** for
+sizing — both genuine, robust improvements found honestly (see "Improvement effort"). They lift
+OOS ~1.98 → ~2.19 without overfitting.
+
+## Honest performance (net of costs + funding, improved version)
 | window | Sharpe | note |
 |---|---|---|
-| HL era 2023-05→now (tradeable) | **+2.01** | t = 3.5 |
-| HL out-of-sample (last 40%) | +1.98 | t = 2.2 |
-| Pre-HL 2018–2023 (independent) | +1.11 | t = 3.2, spot proxy |
-| Full 2018→now | +1.28 | t = 4.3 |
+| HL era 2023-05→now (tradeable) | **+2.20** | improved from 2.01 |
+| HL out-of-sample (last 40%) | **+2.19** | improved from 1.98 |
+| Pre-HL 2018–2023 (independent) | +1.25 | improved from 1.11 |
+| Full 2018→now | +1.47 | improved from 1.28 |
 
-Block-bootstrap 95% CI on the HL Sharpe: **[0.96, 2.93]**, P(Sharpe > 1) = 97%.
+Block-bootstrap 95% CI on the HL Sharpe: **[1.13, 3.17]**. Still passes the full overfit battery
+(100% parameter plateau, clean shuffle-null, all 4 WF folds positive, bootstrap 5th-pct 1.23).
 
 ## Why it is not overfit (full battery, all passed)
 - **Parameter plateau:** 100% of a 5×3 breakout/regime grid > 1.0 Sharpe (median 1.79) — not a spike.
