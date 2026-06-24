@@ -4,25 +4,45 @@
     "tc_bps_per_side": 5.0,
     "trade_threshold_pct": 0.5
   },
-  "as_of": "2026-06-23",
+  "as_of": "2026-06-24",
   "start_date": "2026-04-13",
-  "current_nav": 11705.07,
-  "total_return_pct": 17.05,
-  "spy_total_return_pct": 8.6,
-  "n_trade_days": 50,
-  "ann_return_pct": 85.0,
-  "ann_vol_pct": 28.89,
-  "sharpe": 2.942,
+  "current_nav": 11667.01,
+  "total_return_pct": 16.67,
+  "spy_total_return_pct": 8.81,
+  "n_trade_days": 51,
+  "ann_return_pct": 81.75,
+  "ann_vol_pct": 28.64,
+  "sharpe": 2.854,
   "mdd_pct": -8.42,
   "tracking_error_vs_backtest": {
-    "n_days": 50,
-    "mean_diff_bps": 21.83,
-    "stdev_diff_bps": 171.74,
+    "n_days": 51,
+    "mean_diff_bps": 21.29,
+    "stdev_diff_bps": 171.61,
     "max_abs_diff_bps": 492.77,
-    "ann_tracking_error_bps": 2726.3,
+    "ann_tracking_error_bps": 2724.2,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
+    {
+      "Date": "2026-06-24",
+      "signal_date": "2026-06-23",
+      "Ticker": "QLD",
+      "Side": "SELL",
+      "Weight_Delta": -0.0125,
+      "Fill_Price": 91.59,
+      "Shares": -1.5941,
+      "Notional_USD": -146.0
+    },
+    {
+      "Date": "2026-06-24",
+      "signal_date": "2026-06-23",
+      "Ticker": "BIL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0302,
+      "Fill_Price": 91.6,
+      "Shares": 3.8474,
+      "Notional_USD": 352.42
+    },
     {
       "Date": "2026-06-23",
       "signal_date": "2026-06-22",
@@ -30,7 +50,7 @@
       "Side": "BUY",
       "Weight_Delta": 0.0324,
       "Fill_Price": 16.34,
-      "Shares": 23.2272,
+      "Shares": 23.2273,
       "Notional_USD": 379.53
     },
     {
@@ -126,22 +146,22 @@
     {
       "Date": "2026-06-11",
       "signal_date": "2026-06-10",
-      "Ticker": "QLD",
-      "Side": "SELL",
-      "Weight_Delta": -0.0073,
-      "Fill_Price": 87.91,
-      "Shares": -0.9525,
-      "Notional_USD": -83.74
-    },
-    {
-      "Date": "2026-06-11",
-      "signal_date": "2026-06-10",
       "Ticker": "BIL",
       "Side": "BUY",
       "Weight_Delta": 0.0176,
       "Fill_Price": 91.48,
       "Shares": 2.2095,
       "Notional_USD": 202.13
+    },
+    {
+      "Date": "2026-06-11",
+      "signal_date": "2026-06-10",
+      "Ticker": "QLD",
+      "Side": "SELL",
+      "Weight_Delta": -0.0073,
+      "Fill_Price": 87.91,
+      "Shares": -0.9525,
+      "Notional_USD": -83.74
     },
     {
       "Date": "2026-06-10",
@@ -266,22 +286,22 @@
     {
       "Date": "2026-06-01",
       "signal_date": "2026-05-29",
-      "Ticker": "QLD",
-      "Side": "BUY",
-      "Weight_Delta": 0.0892,
-      "Fill_Price": 98.16,
-      "Shares": 11.182,
-      "Notional_USD": 1097.62
-    },
-    {
-      "Date": "2026-06-01",
-      "signal_date": "2026-05-29",
       "Ticker": "BIL",
       "Side": "BUY",
       "Weight_Delta": 0.0083,
       "Fill_Price": 91.4,
       "Shares": 1.1238,
       "Notional_USD": 102.72
+    },
+    {
+      "Date": "2026-06-01",
+      "signal_date": "2026-05-29",
+      "Ticker": "QLD",
+      "Side": "BUY",
+      "Weight_Delta": 0.0892,
+      "Fill_Price": 98.16,
+      "Shares": 11.182,
+      "Notional_USD": 1097.62
     },
     {
       "Date": "2026-06-01",
@@ -302,26 +322,6 @@
       "Fill_Price": 41.33,
       "Shares": 10.4291,
       "Notional_USD": 431.03
-    },
-    {
-      "Date": "2026-05-29",
-      "signal_date": "2026-05-28",
-      "Ticker": "ETHE",
-      "Side": "SELL",
-      "Weight_Delta": -0.0342,
-      "Fill_Price": 16.17,
-      "Shares": -26.0793,
-      "Notional_USD": -421.7
-    },
-    {
-      "Date": "2026-05-29",
-      "signal_date": "2026-05-28",
-      "Ticker": "BIL",
-      "Side": "SELL",
-      "Weight_Delta": -0.0072,
-      "Fill_Price": 91.65,
-      "Shares": -0.9631,
-      "Notional_USD": -88.27
     }
   ],
   "nav_series": [
@@ -670,10 +670,17 @@
     },
     {
       "d": "2026-06-23",
-      "v": 11705.07,
-      "ret": -0.048861,
+      "v": 11705.16,
+      "ret": -0.048854,
       "turnover": 0.0754,
       "tc": 3.8e-05
+    },
+    {
+      "d": "2026-06-24",
+      "v": 11667.01,
+      "ret": -0.003228,
+      "turnover": 0.0604,
+      "tc": 3e-05
     }
   ],
   "spy_series": [
@@ -876,6 +883,10 @@
     {
       "d": "2026-06-23",
       "v": 10860.49
+    },
+    {
+      "d": "2026-06-24",
+      "v": 10880.62
     }
   ]
 }
