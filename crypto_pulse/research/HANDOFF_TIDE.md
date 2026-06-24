@@ -136,17 +136,21 @@ Inputs: daily HL prices + funding via `validate_hl.py` (`data/crypto/*.csv`, `da
 
 ---
 
-## 6b. Phase-2 candidate (researched, NOT yet certified): funding carry
-A market-neutral **funding-carry** leg (short high-funding / long low-funding coins, 14d
-funding lookback) is the most *orthogonal* book found — correlation just **+0.24** to TIDE
-(price/volume diversifiers were +0.40–0.49). A risk-parity **TIDE+CARRY** book hits HL-era
-**OOS 2.87** (vs 2.29 alone), CAGR 41%, all 4 WF folds positive (`tide_carry.py`).
-**Do NOT size it live yet** — three honest blockers: (1) funding data starts ~2023, so carry has
-**no independent pre-HL history** to confirm it on a held-out regime; (2) its edge is concentrated
-in the last ~18 months (IS ~0.6–1.1 vs OOS ~2.0–2.6) — possibly a 2024–25 funding regime; (3)
-**carry-crash tail risk** (standalone maxDD −13% to −24% from short squeezes). Treat as a real
-lead: paper-trade it, collect more out-of-sample funding history, and only then size a small
-sleeve. The certified deployable book today is **TIDE alone**.
+## 6b. Phase-2 candidate (researched & hardened, still NOT certified): funding carry
+A market-neutral **funding-carry** leg (short high-funding / long low-funding, 14d lookback) is
+the most *orthogonal* book found — correlation just **+0.24** to TIDE (price/volume diversifiers
+were +0.40–0.49). Hardened in `tide_carry.py` + `tide_carry2.py`:
+- **Internal battery (HL era):** lookback plateau 7/7 > 1.0 Sharpe (1.23–1.56), coin-bootstrap
+  median 1.52, beats the shuffle-null on average. *Caveat:* shakier than TIDE — one walk-forward
+  fold −0.49 and a higher null max (0.93 vs TIDE's ~0.3).
+- **Tail-tamed:** a drawdown-floor overlay cuts carry maxDD **−18% → −8%** for a small OOS
+  give-up. **TIDE + tamed-carry (risk-parity): HL 2.46, OOS 2.80** (vs 2.29 alone), CAGR 42%,
+  **maxDD −9% (no worse than TIDE alone)**, all 4 WF folds positive.
+**Do NOT size it live yet — the hard blocker is unfixable from history:** funding data starts
+~2023, so carry has **no independent pre-HL regime** to confirm on, and its edge is concentrated
+in the last ~18 months. Treat as a hardened, well-understood lead: paper-trade it, accumulate
+out-of-sample funding history, then size a small sleeve only if it holds. The certified deployable
+book today is **TIDE alone**.
 
 ## 7. Deployment spec (once validated)
 - **Universe:** HL perps with 30d $-ADV > $3M (~57 coins). Recompute eligibility daily.
