@@ -8,6 +8,26 @@ reproduce them), and if it holds up, update the live deployment to run **VOL + S
 
 ---
 
+> ### ⚠️ UPDATE (2026-06): read `HANDOFF_TIDE.md` first — TIDE supersedes STRATA as the leg to add
+> Since this doc was written, the cross-sectional book was rebuilt and hardened into **TIDE**
+> (`HANDOFF_TIDE.md`). Measured head-to-head, all vol-targeted to 15%, HL era, net:
+>
+> | book | Sharpe | corr to VOL |
+> |---|---|---|
+> | VOL | 1.67 | — |
+> | STRATA (this doc) | 1.98 | +0.17 |
+> | **TIDE** | **2.35** | **+0.19** |
+>
+> **TIDE is a stronger standalone book than STRATA and diversifies VOL equally well**, while being
+> simpler (one signal vs seven sleeves), fully documented, and higher-capacity (>1.5 Sharpe to
+> ~$50M). TIDE↔STRATA correlation is **+0.44** — they are the same cross-sectional-crypto family,
+> so **do not run both at full size.** Recommendation: use **VOL + TIDE 50/50** as the cleaner
+> version of this exact idea (VOL+TIDE 2.27 ≈ VOL+STRATA 2.18, with a simpler book). Everything
+> below about *why* a market-neutral crypto leg diversifies VOL still holds — TIDE is just the
+> better leg. See `HANDOFF_TIDE.md` §7b for the full reconciliation and `tide_vs_strata.py`.
+
+---
+
 ## 1. TL;DR recommendation
 
 Keep VOL as a core engine but stop running it **alone**. Add **STRATA** — a daily, market-neutral,

@@ -160,8 +160,37 @@ book today is **TIDE alone**.
 - **Rebalance:** every 3 days; one-day signal lag.
 - **Risk:** vol-target the book to your risk budget (backtest uses 12%); cap gross per HL margin.
 - **Costs:** model ≥ 4.5 bps taker + funding; prefer limit/maker fills where possible.
-- **Relationship to VOL:** TIDE is market-neutral and ~uncorrelated to a directional vol book,
-  so it can run as an independent sleeve alongside VOL (size each to its own risk).
+
+---
+
+## 7b. Relationship to VOL and STRATA — READ THIS if you already have the VOL+STRATA handoff
+You may also hold `HANDOFF_strata_vol_5050.md` (add STRATA to VOL at 50/50). Here is how the
+improved TIDE fits, measured head-to-head, all vol-targeted to 15%, HL era, net
+(`tide_vs_strata.py`, equity curve `research/tide_vs_strata.png`):
+
+| book / combo | Sharpe | CAGR | maxDD |
+|---|---|---|---|
+| VOL (live engine) | 1.67 | +33% | −14% |
+| STRATA (7-sleeve x-sectional) | 1.98 | +30% | −13% |
+| **TIDE (this book)** | **2.35** | **+52%** | **−12%** |
+| VOL + STRATA | 2.18 | +37% | −8% |
+| VOL + TIDE | 2.27 | +43% | −11% |
+| VOL + STRATA + TIDE | 2.56 | +46% | −9% |
+
+Correlations (HL era): **TIDE↔VOL +0.19** (low — TIDE diversifies VOL as well as STRATA's
++0.17), **TIDE↔STRATA +0.44** (same cross-sectional-crypto family — partly redundant).
+
+**Guidance (honest):**
+- **TIDE is the strongest *standalone* market-neutral book of the three** (2.35), and it diversifies
+  VOL just as well as STRATA does. It is also simpler (one signal vs seven sleeves), fully
+  documented, and higher-capacity. **If choosing one market-neutral leg next to VOL, prefer TIDE.**
+- **Do NOT run STRATA and TIDE both at full size** — at +0.44 correlation they are largely the same
+  bet; you'd be double-weighting cross-sectional crypto momentum. VOL+TIDE (2.27) ≈ VOL+STRATA (2.18).
+- The 3-way VOL+STRATA+TIDE does reach 2.56, but the lift over VOL+TIDE comes from adding more
+  market-neutral risk weight, not from a genuinely new source. If you want all three, **down-size
+  STRATA and TIDE so their *combined* risk ≈ one market-neutral leg**, keeping ~50% in VOL.
+- TIDE is market-neutral; VOL is directional vol — that low correlation (+0.19) is the real
+  diversification. Re-check it against your **live** VOL returns (same caveat as the STRATA handoff).
 
 ---
 
@@ -181,4 +210,6 @@ book today is **TIDE alone**.
   honest and exhaustive.
 
 *Supporting research:* `research/tide.md`, `tide_ci.md`, `tide_capacity.md`,
-`tide_crossasset.md`, `tide_v6.md` (12-year), and `TIDE_STRATEGY.md` (the spec).
+`tide_crossasset.md`, `tide_v6.md` (12-year), `tide_carry.md` + `tide_carry2.md` (phase-2 carry),
+`tide_factors.md` (price-factor diversification — none certified), `tide_vs_strata.md`
+(VOL/STRATA/TIDE reconciliation), and `TIDE_STRATEGY.md` (the spec).
