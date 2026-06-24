@@ -58,7 +58,7 @@ class TIDE:
         self.C, self.V, self.H, self.L = v.load_prices(coins)
         self.F = v.load_daily_funding(list(self.C.columns), self.C.index)
 
-    def build(self, win=20, reg=50, hold=3, cost_mult=1.0, cols=None, shuffle=False, seed=0):
+    def build(self, win=20, reg=50, hold=3, cost_mult=1.0, cols=None, shuffle=False, seed=0, vtw=45):
         C = self.C if cols is None else self.C[cols]
         V = self.V[C.columns]; F = self.F.reindex(columns=C.columns).fillna(0.0)
         R = C.pct_change(); R[R.abs() > 2] = np.nan
@@ -81,7 +81,7 @@ class TIDE:
         w = w.where(rebw, axis=0).ffill(limit=hold); wl = w.shift(1)
         pnl = ((wl * R).sum(axis=1) - (wl - wl.shift(1)).abs().sum(axis=1) * TAKER * cost_mult
                - (wl * F).sum(axis=1))
-        return vt(pnl)
+        return vt(pnl, win=vtw)
 
 
 def main():
