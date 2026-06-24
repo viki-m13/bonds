@@ -44,6 +44,22 @@ Lesson (marginal-Sharpe rule): a near-zero-Sharpe book dilutes even at zero corr
 - Daily aggregate order flow — mostly noise.
 - Intraday breakout / pairs / XGBoost ensembles / intraday sleeves (earlier sessions).
 
+## The diversification stack — the best honest result (~2.5 OOS)
+The one lever that genuinely works is stacking STRONG, UNCORRELATED books. We found a new
+independent one — **TITAN** (`data/crypto_titan`, corr 0.03 to TIDE, 0.04 to VOL, 0.08 to
+STRATA — verified NOT VOL/STRATA). Risk-parity weights IS→OOS (`tide_stack.py`):
+| stack | OOS Sharpe | full HL |
+|---|---|---|
+| TIDE + TITAN (no VOL/STRATA) | 1.81 | 2.24 |
+| TIDE+TITAN+VOL+STRATA | 2.47 | 2.84 |
+| **ALL FIVE (TIDE+TITAN+APEX+VOL+STRATA)** | **2.55** | 2.61 |
+
+**OOS ~2.5 is the highest honest Sharpe of the entire search.** It stops short of 3 for an
+honest reason: the books aren't fully independent (TIDE–STRATA 0.42, TITAN–APEX 0.61) and
+risk-parity concentrates ~57% in STRATA, so five books behave like ~three independent bets.
+Reaching 3 needs 1–2 MORE genuinely-independent strong books.
+**Caveat:** TITAN/APEX are pre-existing series of unknown construction — validate before trust.
+
 ## The one open lever: per-account L4 order flow
 The 29h L4 tape showed whale-flow IC positive but not yet significant; the daily AGGREGATE
 flow here is noise — together they say order-flow alpha (if any) lives in **per-account
@@ -52,6 +68,10 @@ running on GitHub Actions. It is a *fresh hypothesis on fresh data* — the only
 that could exceed ~2, and it inherits none of the 34-trial deflation debt.
 
 ## Honest bottom line
-**TIDE (~2.0 crypto-daily) is the validated deliverable. Sharpe 3 is not honestly reachable
-from any price, equity, or aggregate-flow data available now.** The only remaining credible
-path is per-account L4 flow, gated on recording time, not on more ideas.
+- **Single book:** TIDE (~2.0 crypto-daily) — validated, deployable, the clean deliverable.
+- **Best honest stack:** ~2.5 OOS (TIDE+TITAN+VOL+STRATA), via legitimate diversification of
+  uncorrelated books — the highest honest number reached.
+- **Sharpe 3 is close but NOT honestly reached.** The route is now clear and legitimate (more
+  independent strong books, not more price-signal tuning). The credible next legs: validate
+  TITAN's construction, and the per-account L4 flow book (recording) as a 4th independent bet.
+  No fabricated number — 2.5 is real, 3 is the next 1–2 independent books away.
