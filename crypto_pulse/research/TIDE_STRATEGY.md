@@ -59,6 +59,19 @@ Same frozen rule run unchanged across asset classes (`tide_crossasset.py`, `tide
 **TIDE is a crypto-daily liquid-universe strategy. It is robust within that domain and is not a
 universal anomaly.**
 
+## Improvement effort (honest — TIDE is near its ceiling)
+Tried 13 signal/construction/mechanism upgrades to TIDE itself (NOT ensembles), each walk-
+forward OOS + deflated (`tide_v2.py`, `tide_v3.py`):
+- **Only multi-horizon breakout helps** — blend the breakout z over 10/20/40d instead of 20d
+  alone: OOS **1.98 → 2.06**, 4-fold WF all positive, pre-HL 1.02, bootstrap CI [0.93, 3.00].
+  Well-motivated (horizon diversification), robust, adopted as the **TIDE refinement**.
+- **Everything else overfits or hurts:** residualized/idiosyncratic breakout, skip-1-day,
+  volume conviction, beta-neutralization, calm-vol regime gate, rank-weights, held-state
+  machine, long/short asymmetry — all help in-sample then **decay or collapse OOS**.
+- Conclusion: the base construction is at the honest ceiling for a single cross-sectional
+  breakout book. Genuine improvement is marginal (~+0.08); the strategy is ~2.0–2.1, not more,
+  and that is the real number — no construction trick honestly pushes a single book to 3.
+
 ## Honest limitations
 - **It is a ~2.0 Sharpe book, not 3.** Six iterations across three repos + deflated-Sharpe and a
   full generalization battery establish that price-based crypto signals cap here. Sharpe 3 is not
