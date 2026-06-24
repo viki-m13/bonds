@@ -105,8 +105,9 @@ Inputs: daily HL prices + funding via `validate_hl.py` (`data/crypto/*.csv`, `da
   stocks (−0.8 to −1.3 Sharpe) — short-horizon cross-sectional moves continue in crypto but
   mean-revert in equities. TIDE is crypto-only.
 - **Timeframe:** daily is the sweet spot; weekly weaker (~0.55), hourly fails (cost/noise).
-- **Capacity:** under a square-root impact model it holds >1.5 Sharpe to ~$25M and >1.0 to
-  ~$100M (spreads across ~57 coins, <1% ADV participation). *Indicative* — validate on your fills.
+- **Capacity:** under a square-root impact model (refreshed for the improved book) it holds
+  >1.5 Sharpe to **~$50M** and >1.0 well beyond ~$100M (spreads across ~57 coins, only a few %
+  ADV participation even at $100M+). *Indicative* — validate on your own fills.
 - **Leverage:** runs at ~1.0× average gross (3× cap), far inside HL limits. Scaling the vol
   target lifts CAGR and drawdown linearly with Sharpe unchanged (30% target ≈ +65% CAGR /
   −37% DD at ~2.6× gross).
