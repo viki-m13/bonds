@@ -84,9 +84,9 @@ class TIDE:
         sd = np.sqrt((np.log(H / L) ** 2).rolling(30).mean() / (4 * np.log(2))) + 1e-9
         nm = lambda x: x.div(x.abs().sum(axis=1), axis=0)
         dmf = lambda x: x.sub(x.mean(axis=1), axis=0)
-        # multi-horizon breakout (win/2, win, win*2) — horizon-diversified, more robust
+        # multi-horizon breakout (5 horizons scaled by win) — horizon-diversified, more robust
         f = lambda k: dmf(((C - C.rolling(k).mean()) / (C.rolling(k).std() + 1e-9)).where(el))
-        breakout = (f(max(2, win // 2)) + f(win) + f(win * 2)) / 3.0
+        breakout = sum(f(max(2, int(win * m))) for m in (0.25, 0.5, 1, 2, 4)) / 5.0
         if shuffle:                                    # null: shuffle the signal across coins each row
             rng = np.random.default_rng(seed)
             bv = breakout.values.copy()
