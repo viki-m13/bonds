@@ -4,25 +4,35 @@
     "tc_bps_per_side": 5.0,
     "trade_threshold_pct": 0.5
   },
-  "as_of": "2026-06-25",
+  "as_of": "2026-06-26",
   "start_date": "2026-04-13",
-  "current_nav": 11944.18,
-  "total_return_pct": 19.44,
-  "spy_total_return_pct": 9.36,
-  "n_trade_days": 52,
-  "ann_return_pct": 91.69,
-  "ann_vol_pct": 28.71,
-  "sharpe": 3.193,
+  "current_nav": 11562.88,
+  "total_return_pct": 15.63,
+  "spy_total_return_pct": 7.88,
+  "n_trade_days": 53,
+  "ann_return_pct": 74.78,
+  "ann_vol_pct": 29.48,
+  "sharpe": 2.537,
   "mdd_pct": -8.42,
   "tracking_error_vs_backtest": {
-    "n_days": 52,
-    "mean_diff_bps": 21.07,
-    "stdev_diff_bps": 176.16,
+    "n_days": 53,
+    "mean_diff_bps": 20.56,
+    "stdev_diff_bps": 178.88,
     "max_abs_diff_bps": 492.77,
-    "ann_tracking_error_bps": 2796.4,
+    "ann_tracking_error_bps": 2839.7,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
+    {
+      "Date": "2026-06-26",
+      "signal_date": "2026-06-25",
+      "Ticker": "BIL",
+      "Side": "SELL",
+      "Weight_Delta": -0.0074,
+      "Fill_Price": 91.63,
+      "Shares": -0.9392,
+      "Notional_USD": -86.06
+    },
     {
       "Date": "2026-06-25",
       "signal_date": "2026-06-24",
@@ -31,7 +41,7 @@
       "Weight_Delta": 0.0072,
       "Fill_Price": 91.6,
       "Shares": 0.9411,
-      "Notional_USD": 86.2
+      "Notional_USD": 86.21
     },
     {
       "Date": "2026-06-24",
@@ -136,16 +146,6 @@
     {
       "Date": "2026-06-15",
       "signal_date": "2026-06-12",
-      "Ticker": "QLD",
-      "Side": "BUY",
-      "Weight_Delta": 0.0072,
-      "Fill_Price": 97.69,
-      "Shares": 0.9058,
-      "Notional_USD": 88.49
-    },
-    {
-      "Date": "2026-06-15",
-      "signal_date": "2026-06-12",
       "Ticker": "BIL",
       "Side": "SELL",
       "Weight_Delta": -0.0175,
@@ -154,14 +154,14 @@
       "Notional_USD": -213.59
     },
     {
-      "Date": "2026-06-11",
-      "signal_date": "2026-06-10",
-      "Ticker": "BIL",
+      "Date": "2026-06-15",
+      "signal_date": "2026-06-12",
+      "Ticker": "QLD",
       "Side": "BUY",
-      "Weight_Delta": 0.0176,
-      "Fill_Price": 91.48,
-      "Shares": 2.2095,
-      "Notional_USD": 202.13
+      "Weight_Delta": 0.0072,
+      "Fill_Price": 97.69,
+      "Shares": 0.9058,
+      "Notional_USD": 88.49
     },
     {
       "Date": "2026-06-11",
@@ -172,6 +172,16 @@
       "Fill_Price": 87.91,
       "Shares": -0.9525,
       "Notional_USD": -83.74
+    },
+    {
+      "Date": "2026-06-11",
+      "signal_date": "2026-06-10",
+      "Ticker": "BIL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0176,
+      "Fill_Price": 91.48,
+      "Shares": 2.2095,
+      "Notional_USD": 202.13
     },
     {
       "Date": "2026-06-10",
@@ -256,16 +266,6 @@
     {
       "Date": "2026-06-05",
       "signal_date": "2026-06-04",
-      "Ticker": "SOXL",
-      "Side": "BUY",
-      "Weight_Delta": 0.0617,
-      "Fill_Price": 230.85,
-      "Shares": 3.2334,
-      "Notional_USD": 746.44
-    },
-    {
-      "Date": "2026-06-05",
-      "signal_date": "2026-06-04",
       "Ticker": "IBIT",
       "Side": "SELL",
       "Weight_Delta": -0.0688,
@@ -294,24 +294,14 @@
       "Notional_USD": 937.86
     },
     {
-      "Date": "2026-06-01",
-      "signal_date": "2026-05-29",
-      "Ticker": "QLD",
+      "Date": "2026-06-05",
+      "signal_date": "2026-06-04",
+      "Ticker": "SOXL",
       "Side": "BUY",
-      "Weight_Delta": 0.0892,
-      "Fill_Price": 98.16,
-      "Shares": 11.182,
-      "Notional_USD": 1097.62
-    },
-    {
-      "Date": "2026-06-01",
-      "signal_date": "2026-05-29",
-      "Ticker": "BIL",
-      "Side": "BUY",
-      "Weight_Delta": 0.0083,
-      "Fill_Price": 91.4,
-      "Shares": 1.1238,
-      "Notional_USD": 102.72
+      "Weight_Delta": 0.0617,
+      "Fill_Price": 230.85,
+      "Shares": 3.2334,
+      "Notional_USD": 746.44
     },
     {
       "Date": "2026-06-01",
@@ -322,6 +312,16 @@
       "Fill_Price": 54.87,
       "Shares": -20.6976,
       "Notional_USD": -1135.68
+    },
+    {
+      "Date": "2026-06-01",
+      "signal_date": "2026-05-29",
+      "Ticker": "QLD",
+      "Side": "BUY",
+      "Weight_Delta": 0.0892,
+      "Fill_Price": 98.16,
+      "Shares": 11.182,
+      "Notional_USD": 1097.62
     }
   ],
   "nav_series": [
@@ -684,9 +684,16 @@
     },
     {
       "d": "2026-06-25",
-      "v": 11944.18,
-      "ret": 0.02376,
+      "v": 11944.21,
+      "ret": 0.023763,
       "turnover": 0.0144,
+      "tc": 7e-06
+    },
+    {
+      "d": "2026-06-26",
+      "v": 11562.88,
+      "ret": -0.031919,
+      "turnover": 0.0149,
       "tc": 7e-06
     }
   ],
@@ -898,6 +905,10 @@
     {
       "d": "2026-06-25",
       "v": 10935.97
+    },
+    {
+      "d": "2026-06-26",
+      "v": 10788.49
     }
   ]
 }
