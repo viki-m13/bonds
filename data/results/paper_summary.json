@@ -4,22 +4,22 @@
     "tc_bps_per_side": 5.0,
     "trade_threshold_pct": 0.5
   },
-  "as_of": "2026-06-26",
+  "as_of": "2026-06-29",
   "start_date": "2026-04-13",
-  "current_nav": 11562.88,
-  "total_return_pct": 15.63,
-  "spy_total_return_pct": 7.88,
-  "n_trade_days": 53,
-  "ann_return_pct": 74.78,
-  "ann_vol_pct": 29.48,
-  "sharpe": 2.537,
+  "current_nav": 11618.26,
+  "total_return_pct": 16.18,
+  "spy_total_return_pct": 9.01,
+  "n_trade_days": 54,
+  "ann_return_pct": 75.64,
+  "ann_vol_pct": 29.2,
+  "sharpe": 2.59,
   "mdd_pct": -8.42,
   "tracking_error_vs_backtest": {
-    "n_days": 53,
-    "mean_diff_bps": 20.56,
-    "stdev_diff_bps": 178.88,
+    "n_days": 54,
+    "mean_diff_bps": 20.3,
+    "stdev_diff_bps": 177.92,
     "max_abs_diff_bps": 492.77,
-    "ann_tracking_error_bps": 2839.7,
+    "ann_tracking_error_bps": 2824.4,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
@@ -30,7 +30,7 @@
       "Side": "SELL",
       "Weight_Delta": -0.0074,
       "Fill_Price": 91.63,
-      "Shares": -0.9392,
+      "Shares": -0.9393,
       "Notional_USD": -86.06
     },
     {
@@ -691,10 +691,17 @@
     },
     {
       "d": "2026-06-26",
-      "v": 11562.88,
-      "ret": -0.031919,
+      "v": 11562.94,
+      "ret": -0.031914,
       "turnover": 0.0149,
       "tc": 7e-06
+    },
+    {
+      "d": "2026-06-29",
+      "v": 11618.26,
+      "ret": 0.00479,
+      "turnover": 0.01,
+      "tc": 5e-06
     }
   ],
   "spy_series": [
@@ -908,7 +915,11 @@
     },
     {
       "d": "2026-06-26",
-      "v": 10788.49
+      "v": 10788.56
+    },
+    {
+      "d": "2026-06-29",
+      "v": 10900.67
     }
   ]
 }
