@@ -37,3 +37,54 @@ momentum → Monday IBIT (blocked: only ~2.5y of IBIT history); options-income
 ETF sleeves (JEPI/QYLD 2020+, too short for IS protocol); quarter-turn
 seasonality variants; HYG/LQD credit-rotation sleeve at low vol (dilutes CAGR
 at gross ≤ 1 — only worth it if SR gain > CAGR loss).
+
+---
+
+## Iteration 2 — 2026-07-02 (breadth+credit gate integration)
+
+Monkeypatched the BC gate into each sleeve (scratchpad `invent_lab2.py`, IS only):
+
+| Change | Sleeve standalone IS | Blend IS (WF allocator) |
+|---|---|---|
+| ORION gate → breadth+credit | 0.78 → **0.87**, MDD −31.7 → −26.1 | 1.32 → 1.33 |
+| HELIOS gate → breadth+credit | 0.47 → 0.41 (worse) | — |
+| VANGUARD VIX-trigger → credit | 0.93 → 0.87 (worse) | — |
+| All three | — | 1.33 |
+
+**Verdict: blend-neutral (+0.01).** The allocator + tail overlays already absorb
+gate differences. Below the +0.1 lock threshold → production unchanged;
+ORION-BC recorded as a standalone-quality option. Lesson: sleeve-level gate
+polish is saturated; only genuinely new uncorrelated streams can move the blend.
+
+## Iteration 3 — 2026-07-02 (new-stream hunt: all dead ends)
+
+`invent_lab3.py`, IS only: NDX-vs-SPX spread momentum via TQQQ+SPXU /
+UPRO+SQQQ pairs (SR −0.14…0.29); bond turn-of-month TMF/TYD/UBT (0.09–0.19);
+defensive risk-off basket top-2 of TMF/UGL/XLP/XLU/IEF when SPY<200dma (0.33,
+12% vol); commodity x-sec momentum UGL/UCO/SLV/DBC/CPER (≈0). None investable.
+Conclusion: no untapped uncorrelated stream family exists in this ETF universe
+at daily frequency under the cost model.
+
+## Iteration 4 — 2026-07-02 (vol-target frontier → v3.1 shipped)
+
+With signal-space exhausted, examined the risk-preference knob. Under the
+gross ≤ 1 cap the EWMA vol target is pure drag (it can only cut exposure; the
+blend's raw vol ~20% exceeds any sub-20% target most days). Frontier on the
+locked WF blend (full 2014–2026): tv18 → SR 1.17/CAGR 20.0%; tv26 → 1.19/23.6%;
+**no vol target (DD throttle + gate kept) → SR 1.23 / CAGR 25.6% / MDD −24.7%**
+(2019+: 1.11 / 24.3%); no overlays at all → 1.26/28.1%/−25.5%.
+
+**Shipped v3.1** = throttle+gate only (tail insurance worth ~0.03 SR /
+2.5 CAGR pts). CAGR ≥ 25% leg of the target met; Sharpe ≥ 2 leg confirmed
+unreachable honestly in this framework (three iterations of evidence).
+Full-sample-selection caveat disclosed in PHOENIX_V3.md §1b. Frozen validation
+pin updated to 1.4616 (2014–2018).
+
+## Loop conclusion
+
+Four iterations run. Signal space (gates, new streams, seasonality,
+pairs-via-inverse, commodities, tiering, staggering) is exhausted at this
+data frequency; the last real lever (vol-target removal) is shipped. Further
+looping would only spend the honesty budget on in-sample noise. The paths to
+Sharpe 2 remain outside the constraint set: intraday/overnight execution,
+options premia, futures leverage, or new data. Loop ended.

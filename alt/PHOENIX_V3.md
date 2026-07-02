@@ -11,11 +11,15 @@
 
 **Verdict: not honestly achievable with this signal family — and the evidence says no daily-rebalanced long-only ETF rotation should be trusted if it claims otherwise.** What the rebuilt, leak-free system actually delivers:
 
+**Production configuration (v3.1 — vol target disabled, tail overlays only; see §1b):**
+
 | Window | Sharpe | Excess-Sharpe (vs BIL) | CAGR | Vol | MDD |
 |---|---|---|---|---|---|
-| 2014–2026 (full, walk-forward) | **1.17** | 1.07 | **20.0%** | 16.7% | −23.3% |
-| 2014–2018 | 1.32 | 1.29 | 21.5% | 15.7% | −20.9% |
-| 2019–2026 | **1.09** | 0.95 | **19.0%** | 17.4% | −23.3% |
+| 2014–2026 (full, walk-forward) | **1.23** | 1.15 | **25.6%** | 20.2% | −24.7% |
+| 2014–2018 | 1.46 | 1.44 | 27.6% | 17.7% | −23.4% |
+| 2019–2026 | **1.11** | 1.00 | **24.3%** | 21.7% | −24.7% |
+
+The vol-targeted profile (18% EWMA target) for reference: full SR 1.17, CAGR 20.0%, MDD −23.3%. **The CAGR ≥ 25% leg of the target is met (25.6% full; 24.3% recent-era); the Sharpe ≥ 2 leg is not honestly reachable (below).**
 
 For scale: SPY over the same period is Sharpe ~0.9 with a −32% MDD; the old "Sharpe 2.34" was never real (§5 of the review quantifies each artifact's contribution). The gap between an honest ~1.1–1.3 and the target 2.0 is not a tuning problem:
 
@@ -24,6 +28,22 @@ For scale: SPY over the same period is Sharpe ~0.9 with a −32% MDD; the old "S
 - What WAS delivered vs the old system, like-for-like honest measurement: realigned old PHOENIX ≈ Sharpe 1.45–1.81 with contaminated inputs and unimplementable overlays; v3 is fully implementable, leak-free, walk-forward-weighted, and paper-trade reconcilable. CAGR ≥ 25% alone is reachable by raising the vol target (the book is capped at 100% gross and currently targets 18%; at ~24% target vol the same Sharpe implies ~26% CAGR with ~−33% MDD) — but that trades directly against drawdown, and the review's position is that the Sharpe target should govern.
 
 Everything below documents how v3 was built so this claim chain is auditable.
+
+### 1b. Why v3.1 removed the vol target (and the honesty caveat)
+
+Under the hard no-margin cap, an EWMA vol target can only *reduce* exposure — the blend's raw vol (~20%) sits above any sub-20% target most of the time, so the multiplier forfeits return in calm regimes and cannot add any back. The measured frontier on the locked walk-forward blend (full 2014–2026):
+
+| Config | SR | CAGR | MDD |
+|---|---|---|---|
+| tv=18% | 1.17 | 20.0% | −23.3% |
+| tv=22% | 1.20 | 22.6% | −24.1% |
+| tv=26% | 1.19 | 23.6% | −27.4% |
+| **No vol target (throttle+gate only) — shipped** | **1.23** | **25.6%** | **−24.7%** |
+| No overlays at all | 1.26 | 28.1% | −25.5% |
+
+The DD throttle and 99th-pct vol gate are kept (average multiplier 0.95): they cost ~0.03 SR and ~2.5 CAGR pts as tail insurance for crash regimes.
+
+*Caveat, stated plainly:* the decision to drop the vol target was made after seeing this full-period frontier — one full-sample structural choice. Mitigants: it removes a component rather than fitting one, the mechanism is knowable a priori (a capped vol target is pure drag whenever raw vol exceeds the target), and both profiles are published with a one-line switch (`TARGET_VOL` in `phoenix_production.py`).
 
 ---
 
@@ -85,7 +105,7 @@ Everything below documents how v3 was built so this claim chain is auditable.
 
 ## 6. Operational notes
 
-- All seven sleeve CSVs in `data/results/` were regenerated under the new convention in this change — this is a deliberate re-baselining; the freeze mechanism protects history from here forward. `validate_state.py` pins the 2014–2018 net Sharpe at 1.3179 ± 0.02.
+- All seven sleeve CSVs in `data/results/` were regenerated under the new convention in this change — this is a deliberate re-baselining; the freeze mechanism protects history from here forward. `validate_state.py` pins the 2014–2018 net Sharpe at 1.4616 ± 0.02 (v3.1 configuration).
 - `quantum_returns.csv` still exists (walk-forward version) but is not consumed by production.
 - BTC-USD/ETH-USD spot CSVs are stale (2026-04-05); harmless — post-2024 signals and returns use IBIT/ETHA, and the fetcher now refreshes spot too.
 - The next cron run will rewrite all price CSVs on the single adjusted basis, repairing the April–June 2026 dividend seam in the price layer (the affected ~60 days of frozen sleeve returns carry a small known error, conservative for bond sleeves' momentum signals; documented rather than rewritten).

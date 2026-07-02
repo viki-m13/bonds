@@ -78,8 +78,15 @@ SR_FLOOR = 0.30
 MIN_ACTIVE_VOL = 0.05
 W_CAP = 0.35
 
-# Overlay parameters
-TARGET_VOL = 0.18
+# Overlay parameters.
+# TARGET_VOL = None disables the EWMA vol target (v3.1): under the hard
+# no-margin cap a vol target can only REDUCE exposure (the blend's raw vol
+# ~20% sits above any sub-20% target most of the time), so it forfeited
+# ~5pts of CAGR and ~0.06 Sharpe on the full walk-forward window while
+# improving MDD by only ~1pt. The tail overlays (DD throttle + vol gate)
+# remain. The full frontier is documented in PHOENIX_V3.md §1b; set a float
+# (e.g. 0.18) to restore the vol-targeted profile.
+TARGET_VOL = None
 EWMA_LAMBDA = 0.94
 VOL_CAP = 1.0            # max 100% gross — NO portfolio-level margin
 VOL_FLOOR = 0.25
@@ -170,13 +177,16 @@ def current_blend_weights() -> dict:
 
 
 def apply_overlay(raw: pd.Series,
-                  target_vol: float = TARGET_VOL) -> tuple[pd.Series, pd.DataFrame]:
-    """EWMA vol target + DD throttle + vol gate, all applied with an
+                  target_vol: float | None = TARGET_VOL) -> tuple[pd.Series, pd.DataFrame]:
+    """Optional EWMA vol target + DD throttle + vol gate, all applied with an
     effective 2-day shift so every multiplier is decidable before the fill
     that opens the return window it scales."""
-    ew_var = raw.pow(2).ewm(alpha=1 - EWMA_LAMBDA).mean()
-    ew_vol = (ew_var * 252) ** 0.5
-    vol_mult = (target_vol / ew_vol).clip(VOL_FLOOR, VOL_CAP)
+    if target_vol is None:
+        vol_mult = pd.Series(1.0, index=raw.index)
+    else:
+        ew_var = raw.pow(2).ewm(alpha=1 - EWMA_LAMBDA).mean()
+        ew_vol = (ew_var * 252) ** 0.5
+        vol_mult = (target_vol / ew_vol).clip(VOL_FLOOR, VOL_CAP)
 
     scaled = raw * vol_mult.shift(2).fillna(1.0)
     cum = (1 + scaled).cumprod()

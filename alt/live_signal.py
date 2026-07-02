@@ -270,9 +270,13 @@ def compute_overlay_mult(as_of_close: pd.Timestamp | None = None) -> tuple[float
     # the multiplier we output scales the return realized over the NEXT
     # open->open window, and uses raw returns through the as-of close — the
     # same information set as total_mult.shift(2) in the backtest).
+    # TARGET_VOL None = vol target disabled (v3.1); tail overlays remain.
     ew_var = r_hist.pow(2).ewm(alpha=1 - EWMA_LAMBDA).mean()
     ew_vol = (ew_var * 252) ** 0.5
-    vol_mult_series = (TARGET_VOL / ew_vol).clip(VOL_FLOOR, VOL_CAP)
+    if TARGET_VOL is None:
+        vol_mult_series = pd.Series(1.0, index=r_hist.index)
+    else:
+        vol_mult_series = (TARGET_VOL / ew_vol).clip(VOL_FLOOR, VOL_CAP)
     vt_mult = float(vol_mult_series.iloc[-1])
 
     # DD throttle on the vol-targeted series (same construction as backtest)
@@ -289,7 +293,10 @@ def compute_overlay_mult(as_of_close: pd.Timestamp | None = None) -> tuple[float
     vol_gate_mult = 1.0 if vol_gate_ok else 0.5
 
     total = vt_mult * dd_mult * vol_gate_mult
-    parts = [f"EWMA vol target {TARGET_VOL*100:.0f}% → mult {vt_mult:.2f}x (EWMA vol {ew_vol.iloc[-1]*100:.1f}%)"]
+    if TARGET_VOL is None:
+        parts = [f"No vol target (v3.1) — EWMA vol {ew_vol.iloc[-1]*100:.1f}%, tail overlays only"]
+    else:
+        parts = [f"EWMA vol target {TARGET_VOL*100:.0f}% → mult {vt_mult:.2f}x (EWMA vol {ew_vol.iloc[-1]*100:.1f}%)"]
     if dd_mult < 1.0:
         parts.append(f"DD throttle {dd_mult*100:.0f}% (current DD {dd.iloc[-1]*100:.1f}%)")
     if vol_gate_mult < 1.0:
