@@ -134,3 +134,23 @@ independent research cycles (9 iterations, ~150 experiments, 4 agents) found
 exactly two survivors — both accounting/bug corrections, zero new signals.
 Everything selected on any in-sample segment failed the one-shot OOS. This is
 what "no remaining honest edge at this data frequency" looks like empirically.
+
+---
+
+## Iteration 6 — 2026-07-02 (new data channels: High/Low/Volume; new constructions)
+
+Mandate: "try something different and new." Tested data channels the system had
+NEVER used (intraday High/Low range, Volume) plus construction changes, IS-only
+(`invent_lab6.py`):
+
+| Idea | IS result | Verdict |
+|---|---|---|
+| Close-location-value accumulation (CLV = (C-L)/(H-L), rolling > th, in uptrend, QQQ/SPY/SMH via LETFs; 4 variants) | SR 0.23–0.48 | Dead |
+| NR-4/NR-7 range-compression breakout (Crabel), trend-filtered and not | SR 0.30–0.42 | Dead |
+| Volume confirmation on the momentum book (OBV-63 slope; $-volume trend) | 0.58 base → 0.42 / 0.16 filtered | Dead — volume filter actively destroys the book |
+| Softmax continuous weights + lookback ensemble (126/189/252) | 0.53–0.62 vs 0.62 single-lb; halves stable but level poor | Dead — smoother but weaker than top-K |
+| **Parkinson H/L 20d vol driving the 99th-pct gate** (instead of close-based 60d) | segment 1.48 → 1.54, CAGR +2.2pts, MDD −1.5pts worse; single untuned variant | **Candidate, NOT shipped** — small segment-selected overlay change, exactly the class that inverted OOS in iteration 5 (DD throttle). Revisit only with a longer selection basis or live evidence. |
+
+**Third convergence.** New data channels (H/L/V) hold no extractable edge for
+next-open daily ETF rotation at realistic costs. Production remains v3.1+fixes:
+full 2014-2026 SR 1.24 / CAGR 25.9% / MDD −24.3%.
