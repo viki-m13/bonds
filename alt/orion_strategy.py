@@ -236,14 +236,16 @@ def build_safe_sleeve(opens, closes):
 # Backtest
 # ---------------------------------------------------------------------------
 def backtest(weights, opens, cost_bps=COST_BPS):
-    """w[t] set at close[t-1], held open[t] -> open[t+1]."""
-    w = weights.reindex(opens.index).fillna(0.0)
-    o2o = opens.pct_change().shift(-1)         # return from open[t] to open[t+1]
-    gross = (w * o2o).sum(axis=1)
-    dw = w.diff().abs().sum(axis=1).fillna(0.0)
-    tc = dw * (cost_bps / 1e4)
-    net = (gross - tc).fillna(0.0)
-    return net, dw
+    """Unified realization-dated booking (see alt/sleeve_engine.py).
+
+    W[t] is decided from close[t-1] info (signal layer lags) and held from
+    open[t]. The return booked at date t is therefore W[t-1] . o2o[t]
+    (position entered at open[t-1], realized open[t-1] -> open[t]).
+    Costs are charged on date t for the trade executed at open[t].
+    """
+    from sleeve_engine import backtest_weights
+    bt = backtest_weights(weights, opens, cost_bps)
+    return bt["ret"], bt["turnover"]
 
 
 def sharpe(r):
@@ -348,45 +350,49 @@ def build_weights(live_extend: bool = False) -> pd.DataFrame:
         signal layer's shift(1) automatically advances the lookback by one
         day. Used by alt/live_signal.py only.
     """
+    opens, closes = _load_panels(live_extend=live_extend)
+    macro = load_macro()
+    W_risk = build_risk_sleeve(opens, closes, macro)
+    W_safe = build_safe_sleeve(opens, closes)
+    W = RISK_WEIGHT * W_risk + SAFE_WEIGHT * W_safe
+    return W.loc[START_DATE:END_DATE]
+
+
+def _load_panels(live_extend: bool = False):
+    """Full-history union panel. Signals warm up on pre-START_DATE data
+    (names enter as they accrue history); the weight frame is sliced to
+    START_DATE after construction, so the scored window starts hot instead
+    of with a year of dead zeros."""
     opens, closes = load_prices(UNIVERSE)
-    opens = opens.dropna(how="any")
-    closes = closes.loc[opens.index]
-    opens = opens.loc[START_DATE:END_DATE]
-    closes = closes.loc[START_DATE:END_DATE]
+    opens = opens.sort_index()
+    closes = closes.sort_index()
     if live_extend and len(opens) > 0:
         next_day = opens.index[-1] + pd.tseries.offsets.BDay()
         opens.loc[next_day] = opens.iloc[-1]
         closes.loc[next_day] = closes.iloc[-1]
         opens = opens.sort_index()
         closes = closes.sort_index()
-    macro = load_macro()
-    W_risk = build_risk_sleeve(opens, closes, macro)
-    W_safe = build_safe_sleeve(opens, closes)
-    return RISK_WEIGHT * W_risk + SAFE_WEIGHT * W_safe
+    return opens, closes
 
 
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 def main():
-    opens, closes = load_prices(UNIVERSE)
-    opens = opens.dropna(how="any")
-    closes = closes.loc[opens.index]
-    opens = opens.loc[START_DATE:END_DATE]
-    closes = closes.loc[START_DATE:END_DATE]
-
+    opens, closes = _load_panels()
     macro = load_macro()
 
-    W_risk = build_risk_sleeve(opens, closes, macro)
-    W_safe = build_safe_sleeve(opens, closes)
+    W_risk = build_risk_sleeve(opens, closes, macro).loc[START_DATE:END_DATE]
+    W_safe = build_safe_sleeve(opens, closes).loc[START_DATE:END_DATE]
     W = RISK_WEIGHT * W_risk + SAFE_WEIGHT * W_safe
+    opens_bt = opens.loc[W.index.min():W.index.max()]
 
-    returns, dw = backtest(W, opens)
+    returns, dw = backtest(W, opens_bt)
     returns.name = "orion"
 
     # Sub-sleeve returns for diagnostics
-    r_risk, _ = backtest(W_risk, opens)
-    r_safe, _ = backtest(W_safe, opens)
+    r_risk, _ = backtest(W_risk, opens_bt)
+    r_safe, _ = backtest(W_safe, opens_bt)
 
     # Orthogonality diagnostics
     standalone = standalone_signal_portfolios(opens, closes, macro).dropna(how="all")

@@ -16,10 +16,10 @@
   "mdd_pct": -8.42,
   "tracking_error_vs_backtest": {
     "n_days": 56,
-    "mean_diff_bps": 19.35,
-    "stdev_diff_bps": 178.26,
-    "max_abs_diff_bps": 492.77,
-    "ann_tracking_error_bps": 2829.8,
+    "mean_diff_bps": 22.79,
+    "stdev_diff_bps": 109.97,
+    "max_abs_diff_bps": 334.67,
+    "ann_tracking_error_bps": 1745.7,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [

@@ -139,10 +139,18 @@ def build_panel():
 
 # --------------------------- Signals ---------------------------
 def build_signals(close_u: pd.DataFrame):
-    """Trend signal + absolute trend filter, purely from unlevered closes."""
-    mom = close_u.shift(MOM_SKIP) / close_u.shift(MOM_LB) - 1.0
+    """Trend signal + absolute trend filter, purely from unlevered closes.
+
+    Everything is lagged one extra day so the weight decided at date t uses
+    only close[t-1] information — the same convention as every other sleeve.
+    A Friday rebalance therefore uses Thursday's close and executes at
+    Friday's open, and the live signal path reproduces the backtest exactly.
+    """
+    mom_raw = close_u.shift(MOM_SKIP) / close_u.shift(MOM_LB) - 1.0
     sma = close_u.rolling(SMA_LB).mean()
-    abs_ok = (mom > 0) & (close_u > sma)
+    abs_ok_raw = (mom_raw > 0) & (close_u > sma)
+    mom = mom_raw.shift(1)
+    abs_ok = abs_ok_raw.shift(1).astype("boolean").fillna(False).astype(bool)
     return mom, abs_ok
 
 
@@ -157,7 +165,10 @@ def build_macro_gate(idx: pd.DatetimeIndex) -> pd.Series:
 
     vix_z    = (vix - vix.rolling(252).mean()) / vix.rolling(252).std()
     hy_chg20 = hy  - hy.shift(20)
-    gate = ((vix_z < VIX_Z_CAP) & (hy_chg20 < HY_CHG20_CAP)).astype(float)
+    # Lagged one day: the gate applied at decision date t uses macro data
+    # through t-1 (FRED publishes VIX/HY OAS for day t-1 during day t, so
+    # the value is genuinely available before the open[t] fill).
+    gate = ((vix_z < VIX_Z_CAP) & (hy_chg20 < HY_CHG20_CAP)).astype(float).shift(1).fillna(0.0)
     return gate, vix_z, hy_chg20
 
 
@@ -204,43 +215,23 @@ def build_target_weights(close_u, opens_lev):
 
 # --------------------------- Backtest ---------------------------
 def run_backtest(W: pd.DataFrame, opens: pd.DataFrame, cost_bps: float = COST_BPS):
+    """Unified realization-dated booking (see alt/sleeve_engine.py).
+
+    W[t] is decided from close[t-1] information (the signal layer lags) and
+    is held from open[t]. The return booked at date t is W[t-1] . o2o[t] —
+    the P&L realized over open[t-1] -> open[t]. Costs are charged on date t
+    for the trade executed at open[t].
     """
-    Next-day-open execution.  Let
-        r[t] = open[t+2] / open[t+1] - 1        (held from open[t+1] to open[t+2])
-        w[t] = target weight using info up to close[t]
-    Portfolio PnL on day t = w[t] . r[t].
-    This yields zero look-ahead: w[t] uses only close[t] and earlier;
-    the earliest price it hits is open[t+1].
-    """
+    from sleeve_engine import backtest_weights
+
     common = W.index.intersection(opens.index)
     W = W.loc[common]
     opens = opens.loc[common]
 
-    r_fwd = opens.shift(-2) / opens.shift(-1) - 1.0
-
-    # Turnover measured on weights in the CONTEXT they become active.
-    # The physical trade happens at open[t+1], so between w[t-1] and w[t]
-    # (signals dates) the single re-weighting happens at open[t+1].
-    # We apply the cost at day t (signal day) since that's when the
-    # decision is registered; this is conservative and closely tracks the
-    # exec date.
-    turnover = W.diff().abs().sum(axis=1).fillna(0.0)
-    costs = turnover * (cost_bps / 1e4)
-
-    # align columns
-    W_use = W[r_fwd.columns]
-    gross_ret = (W_use * r_fwd).sum(axis=1)
-    net_ret   = gross_ret - costs
-
-    df = pd.DataFrame({
-        "ret":        net_ret,
-        "gross_ret":  gross_ret,
-        "turnover":   turnover,
-        "cost":       costs,
-        "weight_sum": W_use.sum(axis=1),
-        "cash_wt":    W_use.get(CASH_TICKER, pd.Series(0.0, index=W_use.index)),
-    }, index=common)
-    return df
+    bt = backtest_weights(W, opens, cost_bps)
+    bt["weight_sum"] = W.sum(axis=1)
+    bt["cash_wt"] = W.get(CASH_TICKER, pd.Series(0.0, index=W.index))
+    return bt
 
 
 # --------------------------- Metrics ---------------------------
@@ -274,11 +265,10 @@ def build_weights(live_extend: bool = False) -> pd.DataFrame:
     Columns: leveraged ETF tickers + 'BIL'. Weights sum to 1.0 each day.
     Weekly Friday rebalance, forward-filled between rebalance dates.
 
-    live_extend: HELIOS's W[t] is already aligned for live execution
-        (signal at close[t] → trade at open[t+1] → hold to open[t+2]),
-        so the flag is accepted for API uniformity but adds a forward-
-        ffilled row only if t+1 is a Friday and would otherwise miss
-        a fresh rebalance.
+    live_extend: If True, extend the date index by one BDay forward
+        (ffilled) so the LAST row is W[t+1] computed from close[t] info —
+        the weight to hold at the next market open. Same semantics as every
+        other sleeve now that the signal layer carries its own shift(1).
     """
     close_u, opens = build_panel()
     if live_extend and len(opens) > 0:
@@ -287,35 +277,32 @@ def build_weights(live_extend: bool = False) -> pd.DataFrame:
         close_u.loc[next_day] = close_u.iloc[-1]
         opens = opens.sort_index()
         close_u = close_u.sort_index()
+    # Signals warm up on the full (pre-start) history; the weight frame is
+    # sliced afterwards so the scored window starts hot.
+    W, _ = build_target_weights(close_u, opens)
+    return W.loc[_start_date(opens):]
+
+
+def _start_date(opens: pd.DataFrame) -> pd.Timestamp:
+    """First date on which every leveraged expression is listed."""
     lev_firsts = []
     for lev in PAIRS.values():
         s = opens[lev].dropna()
         if len(s):
             lev_firsts.append(s.index.min())
-    start = max(max(lev_firsts), IS_START)
-    close_u = close_u.loc[start:]
-    opens = opens.loc[start:]
-    W, _ = build_target_weights(close_u, opens)
-    return W
+    return max(max(lev_firsts), IS_START)
 
 
 # --------------------------- Main ---------------------------
 def main():
     close_u, opens = build_panel()
 
-    # Start when every leveraged ETF in the map has data
-    lev_firsts = []
-    for lev in PAIRS.values():
-        s = opens[lev].dropna()
-        if len(s):
-            lev_firsts.append(s.index.min())
-    start = max(max(lev_firsts), IS_START)
-
-    close_u = close_u.loc[start:]
-    opens   = opens.loc[start:]
-
+    # Build weights on the full history (signals warm up on pre-start data),
+    # then slice to the date every leveraged expression is listed.
+    start = _start_date(opens)
     W, rebal_dates = build_target_weights(close_u, opens)
-    bt = run_backtest(W, opens)
+    W = W.loc[start:]
+    bt = run_backtest(W, opens.loc[start:])
 
     # Trim to evaluation window
     bt = bt.loc[IS_START:]

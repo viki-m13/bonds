@@ -1,9 +1,9 @@
-"""QUANTUM — ML signal ensemble for leveraged-ETF rotation.
+"""QUANTUM — ML signal ensemble for leveraged-ETF rotation (walk-forward).
 
 Angle
 -----
-Train a gradient-boosted regressor (xgboost) on IS (2010-03-11..2018-12-31)
-to predict each LETF's next-N-day log return. Features per (date, ticker):
+Gradient-boosted regressor (xgboost) predicting each LETF's next-N-day log
+return. Features per (date, ticker):
 
   Per-ticker (using close[t-1]):
     * Momentum lags       : 5, 21, 63, 252 day log returns
@@ -19,29 +19,40 @@ to predict each LETF's next-N-day log return. Features per (date, ticker):
     * T10Y2Y level
     * SPY 21d vs 63d MA spread
 
-Targets: next N-day log return (forward).
+Targets: next N-day log return (forward, close-to-close, ranking objective).
 
-At each rebalance (every N days), rank LETFs by predicted return and
-equal-weight the top K; remainder to cash (0% return). Close[t-1] signals
-drive open[t] fills with 10 bps/side TC.
-
-Anti-overfit:
-  * Train STRICTLY on IS only; model frozen for OOS.
-  * Embargo: drop training rows whose target window overlaps within N days
-    of the validation fold boundary.
+Walk-forward protocol (no in-sample history is ever published):
+  * Models are refit once per calendar year on an EXPANDING window of all
+    data available before that year, minus an N-trading-day embargo before
+    the training cutoff (so no training target overlaps the prediction era).
+  * Predictions for year Y come exclusively from the model trained on data
+    through Dec-31 of Y-1. The first model trains on 2010-03-11..2013-12-31,
+    so the published return series starts 2014-01 (WF_START). There is no
+    "IS backtest" of the final model on its own training data — the pre-2014
+    era is simply not published.
+  * Hyperparameter N (rebalance horizon) is selected by expanding-window CV
+    INSIDE THE FIRST TRAINING WINDOW ONLY (2010-2013) and frozen for all
+    later refits. K (names held) is a declared design constant = 3, not
+    CV-selected (an earlier version claimed K was CV-selected; the CV never
+    actually used K).
   * Heavy regularization: max_depth=4, min_child_weight=20, subsample=0.7,
     colsample_bytree=0.7, reg_lambda=5.
-  * Hyperparam (N, K) selected via K-fold expanding CV inside IS using
-    rank-IC (Spearman) of predicted vs realized N-day return — never touch
-    OOS during selection.
+
+Portfolio: every N trading days rank LETFs by predicted return, equal-weight
+the top K; remainder in cash at 0%. Weights decided from close[t-1] features
+fill at open[t]; returns are booked with the unified realization-dated
+convention (see alt/sleeve_engine.py): the value at date t is the P&L
+realized over open[t-1] -> open[t]. 10 bps/side TC.
 
 Outputs
-  /home/user/bonds/data/results/quantum_metrics.json
-  /home/user/bonds/data/results/quantum_returns.csv
+  data/results/quantum_metrics.json
+  data/results/quantum_returns.csv        (starts at WF_START)
+  data/results/quantum_model.pkl          (per-year model cache)
 """
 from __future__ import annotations
 
 import json
+import pickle
 import warnings
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -71,19 +82,22 @@ UNIVERSE = [
 ]
 BENCH = "SPY"
 
-IS_START = "2010-03-11"
-IS_END = "2018-12-31"
+DATA_START = "2010-03-11"   # first date of usable feature history
+WF_START = "2014-01-02"     # first walk-forward (publishable) date
+IS_END = "2018-12-31"       # kept for reporting splits only
 OOS_START = "2019-01-02"
-OOS_END = None  # extend to latest available data
 
 TC_BPS = 10.0  # per side
 TRADING_DAYS = 252
 SEED = 42
+K_HELD = 3     # design constant — number of names held (NOT CV-selected)
+DEFAULT_N = 21
 
 
 # ------------------------------------------------------------------ loaders
 def load_etf(tkr: str) -> pd.DataFrame:
     df = pd.read_csv(ETF_DIR / f"{tkr}.csv", parse_dates=["Date"]).sort_values("Date")
+    df = df.drop_duplicates(subset=["Date"])
     df = df.set_index("Date")[["Open", "Close"]].astype(float)
     return df
 
@@ -119,7 +133,6 @@ def build_features(opens: pd.DataFrame, closes: pd.DataFrame) -> pd.DataFrame:
     drive the open[t] fill).
     """
     bench_c = closes[BENCH]
-    spy_ret = np.log(bench_c / bench_c.shift(1))
     spy_ma21 = bench_c.rolling(21).mean()
     spy_ma63 = bench_c.rolling(63).mean()
     spy_ma_spread = (spy_ma21 - spy_ma63) / spy_ma63
@@ -181,12 +194,7 @@ def build_features(opens: pd.DataFrame, closes: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_targets(closes: pd.DataFrame, N: int) -> pd.DataFrame:
-    """Forward N-day log return for each ticker, aligned to signal date t.
-
-    We use close-to-close next N. Realized strategy PnL uses open[t]→open[t+N]
-    (see execution), but for the ML target rank-IC we just use close_t→close_{t+N}
-    as a ranking objective; this only affects TRAIN targets, not OOS returns.
-    """
+    """Forward N-day log return for each ticker, aligned to signal date t."""
     frames = []
     for t in UNIVERSE:
         c = closes[t]
@@ -197,9 +205,6 @@ def build_targets(closes: pd.DataFrame, N: int) -> pd.DataFrame:
 
 
 # ------------------------------------------------------------------ model
-FEATURE_COLS = None  # set in main
-
-
 def make_model(seed=SEED):
     return xgb.XGBRegressor(
         n_estimators=400,
@@ -229,18 +234,23 @@ def rank_ic(y_true: np.ndarray, y_pred: np.ndarray, dates: np.ndarray) -> float:
     return float(np.mean(ics)) if ics else float("nan")
 
 
-def cv_select(df_is: pd.DataFrame, feature_cols: List[str]) -> Dict:
-    """Walk-forward CV inside IS to pick (N, K). Returns best config + mean IC."""
-    candidates = [(N, K) for N in [5, 10, 21, 42] for K in [3, 4, 5]]
+def cv_select_N(df_first: pd.DataFrame, feature_cols: List[str]) -> Dict:
+    """Expanding-window CV inside the FIRST training window only to pick N.
+
+    K is a design constant (K_HELD) and is not part of the search — the CV
+    objective (per-date rank IC of predictions vs realized N-day returns)
+    does not depend on how many names are subsequently held.
+    """
+    candidates = [5, 10, 21, 42]
     scores = {}
-    dates = df_is.index.get_level_values("Date")
+    dates = df_first.index.get_level_values("Date")
     unique_dates = np.array(sorted(set(dates)))
-    n_folds = 4
+    n_folds = 3
     fold_size = len(unique_dates) // (n_folds + 1)
 
-    for N, K in candidates:
+    for N in candidates:
         target_col = f"fwd_{N}"
-        if target_col not in df_is.columns:
+        if target_col not in df_first.columns:
             continue
         fold_ics = []
         for f in range(n_folds):
@@ -253,10 +263,10 @@ def cv_select(df_is: pd.DataFrame, feature_cols: List[str]) -> Dict:
             val_start = unique_dates[val_start_idx]
             val_end = unique_dates[val_end_idx - 1]
 
-            tr = df_is[(dates <= train_end)].dropna(subset=feature_cols + [target_col])
+            tr = df_first[(dates <= train_end)].dropna(subset=feature_cols + [target_col])
             va_mask = (dates >= val_start) & (dates <= val_end)
-            va = df_is[va_mask].dropna(subset=feature_cols + [target_col])
-            if len(tr) < 2000 or len(va) < 200:
+            va = df_first[va_mask].dropna(subset=feature_cols + [target_col])
+            if len(tr) < 1000 or len(va) < 200:
                 continue
 
             m = make_model()
@@ -265,42 +275,107 @@ def cv_select(df_is: pd.DataFrame, feature_cols: List[str]) -> Dict:
             ic = rank_ic(va[target_col].values, pred, va.index.get_level_values("Date").values)
             fold_ics.append(ic)
         mean_ic = float(np.nanmean(fold_ics)) if fold_ics else float("nan")
-        scores[(N, K)] = {"mean_ic": mean_ic, "folds": fold_ics}
+        scores[N] = {"mean_ic": mean_ic, "folds": fold_ics}
 
-    # choose best by mean IC; K within (IC, K) tie broken by IC at that N
-    best = None
-    best_ic = -np.inf
-    for (N, K), v in scores.items():
-        if not np.isfinite(v["mean_ic"]):
-            continue
-        if v["mean_ic"] > best_ic:
+    best_N, best_ic = None, -np.inf
+    for N, v in scores.items():
+        if np.isfinite(v["mean_ic"]) and v["mean_ic"] > best_ic:
             best_ic = v["mean_ic"]
-            best = (N, K)
-    # Fallback: if no fold produced a valid IC, use a safe default rather than crashing.
-    if best is None:
-        print(f"[WARN] CV produced no valid scores; falling back to default (N=21, K=3)")
-        best = (21, 3)
-        best_ic = 0.0
-    return {"best_N": best[0], "best_K": best[1], "best_ic": best_ic, "scores": {f"{n}_{k}": v for (n, k), v in scores.items()}}
+            best_N = N
+    if best_N is None:
+        print(f"[WARN] CV produced no valid scores; falling back to N={DEFAULT_N}")
+        best_N, best_ic = DEFAULT_N, 0.0
+    return {"best_N": best_N, "best_ic": best_ic,
+            "scores": {str(n): v for n, v in scores.items()}}
+
+
+# ------------------------------------------------------------------ walk-forward fitting
+def fit_walk_forward(data: pd.DataFrame, feature_cols: List[str], N: int,
+                     years: List[int]) -> Dict[int, "xgb.XGBRegressor"]:
+    """Fit one model per prediction year Y on all data with Date <= Dec-31(Y-1),
+    minus an N-trading-day embargo before the cutoff (so no training target
+    overlaps year Y)."""
+    dates = data.index.get_level_values("Date")
+    unique_dates = np.array(sorted(set(dates)))
+    tgt_col = f"fwd_{N}"
+    models: Dict[int, xgb.XGBRegressor] = {}
+    for y in years:
+        cutoff = pd.Timestamp(f"{y - 1}-12-31")
+        eligible = unique_dates[unique_dates <= np.datetime64(cutoff)]
+        if len(eligible) <= N + 250:
+            continue
+        train_end = eligible[-(N + 1)]  # embargo: last N dates' targets leak past cutoff
+        tr = data[dates <= train_end].dropna(subset=feature_cols + [tgt_col])
+        if len(tr) < 2000:
+            continue
+        m = make_model()
+        m.fit(tr[feature_cols].values, tr[tgt_col].values, verbose=False)
+        models[y] = m
+        print(f"  fit year {y}: train <= {pd.Timestamp(train_end).date()}  rows={len(tr)}")
+    return models
+
+
+def predict_walk_forward(data: pd.DataFrame, feature_cols: List[str],
+                         models: Dict[int, "xgb.XGBRegressor"]) -> pd.DataFrame:
+    """Predictions for every (Date, Ticker) row whose year has a model,
+    strictly from that year's model (trained on prior years only)."""
+    dates = data.index.get_level_values("Date")
+    parts = []
+    for y, m in sorted(models.items()):
+        mask = (dates.year == y)
+        rows = data[mask].dropna(subset=feature_cols)
+        if len(rows) == 0:
+            continue
+        pv = m.predict(rows[feature_cols].values)
+        parts.append(pd.DataFrame({"pred": pv}, index=rows.index))
+    if not parts:
+        return pd.DataFrame(columns=["pred"])
+    return pd.concat(parts).sort_index()
+
+
+# ------------------------------------------------------------------ weights
+def build_wf_weights(closes: pd.DataFrame, preds: pd.DataFrame,
+                     N: int, K: int) -> pd.DataFrame:
+    """Daily decision-dated weight frame: rebalance every N trading days from
+    WF_START, top-K equal weight by prediction; cash (0%) otherwise. W[t] is
+    the weight to hold from open[t], decided from close[t-1] features."""
+    all_dates = closes.index
+    bt_dates = all_dates[all_dates >= pd.Timestamp(WF_START)]
+    reb_set = set(bt_dates[::N])
+
+    pred_dates = set(preds.index.get_level_values("Date")) if len(preds) else set()
+    W = pd.DataFrame(0.0, index=bt_dates, columns=UNIVERSE)
+    current_w = pd.Series(0.0, index=UNIVERSE)
+    for d in bt_dates:
+        if d in reb_set:
+            current_w = pd.Series(0.0, index=UNIVERSE)
+            if d in pred_dates:
+                sl = preds.xs(d, level="Date", drop_level=True)["pred"].dropna()
+                if len(sl) >= K:
+                    top = sl.nlargest(K).index
+                    current_w.loc[top] = 1.0 / K
+        W.loc[d] = current_w.values
+    return W
 
 
 # ------------------------------------------------------------------ live weight builder
 def build_weights(live_extend: bool = False) -> pd.DataFrame:
-    """Compute the canonical QUANTUM daily target-weight DataFrame.
-
-    Index: trading dates from IS_START.
-    Columns: UNIVERSE (17 LETFs). Weights sum to 1.0 (or 0 if no prediction).
-    Top-K equal weight, rebalanced every N trading days. Uses the cached
-    model (RESULTS/quantum_model.pkl) trained on IS only — must be present.
+    """Compute the canonical QUANTUM daily target-weight DataFrame from the
+    cached per-year walk-forward models (RESULTS/quantum_model.pkl).
 
     live_extend: If True, extend the close index by one BDay forward
         (ffilled) so the last row is W[t+1] using close[t] info.
     """
-    import pickle
     cache_path = RESULTS / "quantum_model.pkl"
     if not cache_path.exists():
         raise RuntimeError(
             f"QUANTUM cache missing at {cache_path}. Run quantum_strategy.py first.")
+    with open(cache_path, "rb") as f:
+        cached = pickle.load(f)
+    models = cached["models"]
+    N = cached["N"]
+    K = cached.get("K", K_HELD)
+    cached_cols = cached["feature_cols"]
 
     opens, closes = load_all_prices()
     if live_extend and len(closes) > 0:
@@ -310,124 +385,19 @@ def build_weights(live_extend: bool = False) -> pd.DataFrame:
         opens = opens.sort_index()
         closes = closes.sort_index()
     feats = build_features(opens, closes)
-    feature_cols_local = [c for c in feats.columns if c not in ("Ticker", "Date")]
+    feature_cols = [c for c in cached_cols if c in feats.columns]
+    if len(feature_cols) != len(cached_cols):
+        raise RuntimeError("QUANTUM cache feature set no longer matches build_features()")
 
-    with open(cache_path, "rb") as f:
-        cached = pickle.load(f)
-    model = cached["model"]
-    N = cached["N"]
-    K = cached["K"]
-    cached_cols = cached.get("feature_cols", feature_cols_local)
-    # Use cached feature_cols if present (in case build_features changes column order)
-    feature_cols_use = cached_cols if all(c in feats.columns for c in cached_cols) else feature_cols_local
+    # A prediction year with no fitted model (e.g. current year missing from a
+    # stale cache) falls back to the latest available model.
+    dates = feats.index.get_level_values("Date")
+    years_needed = sorted(set(dates[dates >= pd.Timestamp(WF_START)].year))
+    latest = max(models.keys())
+    models_use = {y: models.get(y, models[latest]) for y in years_needed}
 
-    dates_idx = feats.index.get_level_values("Date")
-    full_mask = dates_idx >= pd.Timestamp(IS_START)
-    data_full = feats[full_mask].dropna(subset=feature_cols_use)
-    preds_vec = model.predict(data_full[feature_cols_use].values)
-    preds_df = pd.DataFrame({"pred": preds_vec}, index=data_full.index)
-
-    all_dates = closes.index
-    start_bt = pd.Timestamp(IS_START)
-    end_bt = all_dates.max()
-    bt_dates = all_dates[(all_dates >= start_bt) & (all_dates <= end_bt)]
-    reb_dates = bt_dates[::N]
-    reb_set = set(reb_dates)
-
-    W = pd.DataFrame(0.0, index=bt_dates, columns=UNIVERSE)
-    current_w = pd.Series(0.0, index=UNIVERSE)
-    pred_dates = set(preds_df.index.get_level_values("Date"))
-    for d in bt_dates:
-        if d in reb_set:
-            if d in pred_dates:
-                sl = preds_df.xs(d, level="Date", drop_level=True)["pred"].dropna()
-                if len(sl) >= K:
-                    top = sl.nlargest(K).index
-                    current_w = pd.Series(0.0, index=UNIVERSE)
-                    current_w.loc[top] = 1.0 / K
-                else:
-                    current_w = pd.Series(0.0, index=UNIVERSE)
-            else:
-                current_w = pd.Series(0.0, index=UNIVERSE)
-        W.loc[d] = current_w.values
-    return W
-
-
-# ------------------------------------------------------------------ backtest
-def backtest(opens: pd.DataFrame, closes: pd.DataFrame, preds: pd.DataFrame,
-             N: int, K: int) -> pd.Series:
-    """Rebalance every N trading days: at signal date t (close[t-1] info), fill
-    top-K equal weight at open[t]. Hold until next rebalance.
-
-    Returns daily strategy returns from open-to-open within the holding period,
-    with transaction costs applied on rebalance days.
-
-    preds : DataFrame indexed (Date, Ticker) with column 'pred'.
-    """
-    # Build open-to-open daily returns for each ticker:
-    # ret on day t (from open[t] close-through to open[t+1]) computed as
-    # open[t+1] / open[t] - 1. We'll use close-to-close within hold but apply
-    # the rebalance fill at the open of the rebalance day.
-    # Simpler and standard: compute daily close-to-close returns; at rebalance,
-    # charge TC and assume entry at open (so the rebalance day's return is
-    # open->close of that day, which is close[t]/open[t]-1, for NEW positions).
-
-    all_dates = closes.index
-    # rebalance dates: every N trading days starting from first valid date
-    start_bt = pd.Timestamp(IS_START)
-    end_bt = all_dates.max()  # latest available market date
-    mask_bt = (all_dates >= start_bt) & (all_dates <= end_bt)
-    bt_dates = all_dates[mask_bt]
-
-    # pick rebalance dates every N
-    reb_dates = bt_dates[::N]
-
-    c2c = closes[UNIVERSE].pct_change()
-    o2c = (closes[UNIVERSE] / opens[UNIVERSE] - 1.0)  # intraday return (open->close)
-
-    port_ret = pd.Series(0.0, index=bt_dates)
-    current_w = pd.Series(0.0, index=UNIVERSE)
-
-    reb_set = set(reb_dates)
-    # precompute reb_date -> target weights
-    target_w_map: Dict[pd.Timestamp, pd.Series] = {}
-    for d in reb_dates:
-        if d not in preds.index.get_level_values("Date"):
-            target_w_map[d] = pd.Series(0.0, index=UNIVERSE)
-            continue
-        sl = preds.xs(d, level="Date", drop_level=True)["pred"]
-        sl = sl.dropna()
-        if len(sl) < K:
-            target_w_map[d] = pd.Series(0.0, index=UNIVERSE)
-            continue
-        top = sl.nlargest(K).index
-        w = pd.Series(0.0, index=UNIVERSE)
-        w.loc[top] = 1.0 / K
-        target_w_map[d] = w
-
-    prev_w = pd.Series(0.0, index=UNIVERSE)
-    for i, d in enumerate(bt_dates):
-        if d in reb_set:
-            new_w = target_w_map[d].fillna(0.0)
-            turnover = (new_w - prev_w).abs().sum()
-            tc = turnover * (TC_BPS / 1e4)
-            # on rebalance day, new positions earn open->close
-            day_ret_vec = o2c.loc[d].fillna(0.0)
-            gross = float((new_w * day_ret_vec).sum())
-            port_ret.loc[d] = gross - tc
-            current_w = new_w * (1.0 + day_ret_vec)
-            current_w = current_w / current_w.sum() if current_w.sum() != 0 else current_w
-            prev_w = new_w  # bookkeeping: for next rebalance turnover calc
-        else:
-            day_ret_vec = c2c.loc[d].fillna(0.0)
-            gross = float((current_w * day_ret_vec).sum())
-            port_ret.loc[d] = gross
-            # drift weights
-            current_w = current_w * (1.0 + day_ret_vec)
-            s = current_w.sum()
-            if s > 0:
-                current_w = current_w / s
-    return port_ret
+    preds = predict_walk_forward(feats, feature_cols, models_use)
+    return build_wf_weights(closes, preds, N=N, K=K)
 
 
 # ------------------------------------------------------------------ metrics
@@ -454,18 +424,14 @@ def compute_metrics(r: pd.Series, label: str) -> Dict:
 
 # ------------------------------------------------------------------ main
 def main():
-    global FEATURE_COLS
+    from sleeve_engine import backtest_weights
+
     print("Loading prices...")
     opens, closes = load_all_prices()
-
-    # Align on common index where UNIVERSE members have data
-    first_valid = closes[UNIVERSE].dropna(how="any").index.min()
-    print(f"First date with all-universe data: {first_valid.date()}")
 
     print("Building features...")
     feats = build_features(opens, closes)
     feature_cols = [c for c in feats.columns if c not in ("Ticker", "Date")]
-    FEATURE_COLS = feature_cols
 
     print("Building targets for all candidate horizons...")
     Ns = [5, 10, 21, 42]
@@ -476,123 +442,87 @@ def main():
     tgts = pd.concat(tgt_frames, axis=1)
 
     data = feats.join(tgts, how="left")
-
-    # Slice IS
     dates_idx = data.index.get_level_values("Date")
-    is_mask = (dates_idx >= pd.Timestamp(IS_START)) & (dates_idx <= pd.Timestamp(IS_END))
-    data_is = data[is_mask]
-    print(f"IS rows (pre-clean): {len(data_is)}")
+    data = data[dates_idx >= pd.Timestamp(DATA_START)]
+    dates_idx = data.index.get_level_values("Date")
 
-    # CACHE: if a trained model + chosen-N cache exists, skip CV + fit entirely.
-    # The training data is FROZEN at 2010-03-11..2018-12-31 (IS_END) so retraining
-    # produces identical outputs. Caching drops runtime from ~60s to ~2s per cron.
-    import pickle
+    years_needed = sorted(set(dates_idx[dates_idx >= pd.Timestamp(WF_START)].year))
+    last_data_year = int(dates_idx.max().year)
+
+    # CACHE: reuse per-year models when the cache covers every prediction
+    # year in the data. Past years' models are frozen by construction
+    # (their training windows are closed), so only a new calendar year
+    # triggers a refit.
     cache_path = RESULTS / "quantum_model.pkl"
     cache_hit = False
     if cache_path.exists():
         try:
-            with open(cache_path, 'rb') as f:
+            with open(cache_path, "rb") as f:
                 cached = pickle.load(f)
-            if (cached.get("is_end") == IS_END and
-                cached.get("feature_cols") == feature_cols):
-                final_model = cached["model"]
+            if (cached.get("feature_cols") == feature_cols
+                    and cached.get("wf_start") == WF_START
+                    and set(years_needed) <= set(cached.get("models", {}).keys())):
+                models = cached["models"]
                 N = cached["N"]
-                K = cached["K"]
                 cv = cached["cv"]
-                print(f"[CACHE HIT] Loaded trained model from {cache_path}")
-                print(f"  N={N}, K={K}, IC={cv['best_ic']:.4f}")
+                print(f"[CACHE HIT] {len(models)} yearly models from {cache_path} (N={N})")
                 cache_hit = True
         except Exception as e:
-            print(f"[CACHE MISS] Failed to load cache ({e}); retraining.")
+            print(f"[CACHE MISS] Failed to load cache ({e}); refitting.")
 
     if not cache_hit:
-        print("Cross-validating (N, K) inside IS...")
-        cv = cv_select(data_is, feature_cols)
+        first_window_mask = dates_idx <= pd.Timestamp(f"{int(pd.Timestamp(WF_START).year) - 1}-12-31")
+        print("Selecting N by CV inside the first training window (2010-2013)...")
+        cv = cv_select_N(data[first_window_mask], feature_cols)
         N = cv["best_N"]
-        K = cv["best_K"]
-        print(f"CV best: N={N}, K={K}, mean_rank_IC={cv['best_ic']:.4f}")
+        print(f"CV best: N={N} (mean rank-IC {cv['best_ic']:.4f}); K={K_HELD} (design constant)")
 
-        # Train final model on ALL of IS using chosen N
-        tgt_col = f"fwd_{N}"
-        train = data_is.dropna(subset=feature_cols + [tgt_col])
-        # If the chosen N produced an empty training set (rare edge case), try
-        # smaller N values. We need a model that's actually trained on data.
-        if len(train) == 0:
-            print(f"[WARN] N={N} gave 0 train rows; checking each feature for all-NaN...")
-            for fc in feature_cols:
-                n_nan = data_is[fc].isna().sum()
-                pct = n_nan / len(data_is) * 100
-                if pct > 90:
-                    print(f"   [{fc}] {n_nan}/{len(data_is)} NaN ({pct:.1f}%)")
-            for fallback_N in [5, 10, 42]:
-                fallback_tgt = f"fwd_{fallback_N}"
-                if fallback_tgt not in data_is.columns:
-                    continue
-                tr = data_is.dropna(subset=feature_cols + [fallback_tgt])
-                if len(tr) > 1000:
-                    print(f"[FALLBACK] Switching to N={fallback_N} ({len(tr)} train rows)")
-                    N = fallback_N
-                    K = 3
-                    tgt_col = fallback_tgt
-                    train = tr
-                    break
-        if len(train) == 0:
-            # Last resort: drop only rows with NaN target, fill features with 0
-            print(f"[LAST RESORT] All N choices empty; dropping NaN target only, zero-fill features")
-            train = data_is.dropna(subset=[tgt_col])
-            if len(train) > 0:
-                train = train.fillna(0)
-        print(f"Final train rows: {len(train)}")
-        if len(train) < 100:
-            raise RuntimeError(f"QUANTUM: cannot train with only {len(train)} rows. "
-                               "Check data integrity (FRED files, ETF coverage).")
-        final_model = make_model()
-        final_model.fit(train[feature_cols].values, train[tgt_col].values, verbose=False)
+        print("Fitting walk-forward models (one per prediction year)...")
+        models = fit_walk_forward(data, feature_cols, N, years_needed)
+        if not models:
+            raise RuntimeError("QUANTUM: walk-forward fitting produced no models")
+        with open(cache_path, "wb") as f:
+            pickle.dump({"models": models, "N": N, "K": K_HELD, "cv": cv,
+                         "wf_start": WF_START, "feature_cols": feature_cols}, f)
+        print(f"[CACHE WRITE] Saved {len(models)} yearly models to {cache_path}")
 
-        # Persist the trained artifact ONLY if it actually trained
-        try:
-            with open(cache_path, 'wb') as f:
-                pickle.dump({"model": final_model, "N": N, "K": K, "cv": cv,
-                             "is_end": IS_END, "feature_cols": feature_cols}, f)
-            print(f"[CACHE WRITE] Saved trained model to {cache_path}")
-        except Exception as e:
-            print(f"[CACHE WRITE ERR] {e}")
+    # Predictions strictly from each year's prior-data model
+    preds = predict_walk_forward(data, feature_cols, models)
 
-    # Feature importances
-    fi = dict(zip(feature_cols, final_model.feature_importances_.astype(float).tolist()))
-    fi_sorted = dict(sorted(fi.items(), key=lambda kv: -kv[1])[:15])
+    print("Building weights + running unified backtest...")
+    W = build_wf_weights(closes, preds, N=N, K=K_HELD)
+    bt = backtest_weights(W, opens.loc[W.index.min():], cost_bps=TC_BPS)
+    port_ret = bt["ret"]
 
-    # Predict over full window
-    full_mask = (dates_idx >= pd.Timestamp(IS_START))
-    data_full = data[full_mask].dropna(subset=feature_cols)
-    preds_vec = final_model.predict(data_full[feature_cols].values)
-    preds_df = pd.DataFrame({"pred": preds_vec}, index=data_full.index)
-
-    print("Running backtest...")
-    port_ret = backtest(opens, closes, preds_df, N=N, K=K)
-    port_ret = port_ret.loc[pd.Timestamp(IS_START):]
-
-    # split IS / OOS / FULL
-    is_r = port_ret.loc[IS_START:IS_END]
+    # Reporting splits: "WF-IS" (2014-2018, walk-forward but overlapping the
+    # blend-weight fitting window) and OOS (2019+).
+    is_r = port_ret.loc[:IS_END]
     oos_r = port_ret.loc[OOS_START:]
-    full_r = port_ret
-    m_is = compute_metrics(is_r, "IS")
-    m_oos = compute_metrics(oos_r, "OOS")
-    m_full = compute_metrics(full_r, "FULL")
+    m_is = compute_metrics(is_r, "WF_2014_2018")
+    m_oos = compute_metrics(oos_r, "OOS_2019on")
+    m_full = compute_metrics(port_ret, "FULL_WF")
 
-    # save
     out_returns = pd.DataFrame({"ret": port_ret})
+    out_returns.index.name = "Date"
     out_returns.to_csv(RESULTS / "quantum_returns.csv")
 
+    fi_last = {}
+    try:
+        last_model = models[max(models.keys())]
+        fi = dict(zip(feature_cols, last_model.feature_importances_.astype(float).tolist()))
+        fi_last = dict(sorted(fi.items(), key=lambda kv: -kv[1])[:15])
+    except Exception:
+        pass
+
     metrics = {
-        "strategy": "QUANTUM",
+        "strategy": "QUANTUM (walk-forward)",
         "params": {
-            "N": int(N), "K": int(K),
+            "N": int(N), "K": int(K_HELD),
             "rebalance_cadence_days": int(N),
             "tc_bps_per_side": TC_BPS,
             "universe": UNIVERSE,
-            "is": [IS_START, IS_END],
-            "oos": [OOS_START, str(port_ret.index[-1].date())],
+            "wf_start": WF_START,
+            "refit": "annual expanding window, N-day embargo before cutoff",
             "model": "xgboost.XGBRegressor",
             "xgb_params": {
                 "n_estimators": 400, "max_depth": 4, "learning_rate": 0.03,
@@ -600,20 +530,18 @@ def main():
                 "reg_lambda": 5.0, "objective": "reg:squarederror",
             },
         },
-        "cv": {"best_N": int(N), "best_K": int(K), "best_ic": cv["best_ic"],
-               "all_scores": cv["scores"]},
-        "feature_importance_top15": fi_sorted,
-        "IS": m_is, "OOS": m_oos, "FULL": m_full,
+        "cv_first_window": cv,
+        "fitted_years": sorted(int(y) for y in models.keys()),
+        "feature_importance_top15_latest": fi_last,
+        "WF_2014_2018": m_is, "OOS_2019on": m_oos, "FULL_WF": m_full,
     }
     (RESULTS / "quantum_metrics.json").write_text(json.dumps(metrics, indent=2, default=float))
 
-    print("\n==== QUANTUM ====")
+    print("\n==== QUANTUM (walk-forward) ====")
     for m in (m_is, m_oos, m_full):
-        print(f"{m['label']:>4} | Sharpe {m['sharpe']:.2f}  CAGR {m['cagr']*100:5.1f}%  "
-              f"MDD {m['mdd']*100:6.1f}%  Vol {m['ann_vol']*100:5.1f}%  n={m['n_days']}")
-    print("Top features:")
-    for k, v in fi_sorted.items():
-        print(f"  {k:25s} {v:.4f}")
+        if "sharpe" in m:
+            print(f"{m['label']:>12} | Sharpe {m['sharpe']:.2f}  CAGR {m['cagr']*100:5.1f}%  "
+                  f"MDD {m['mdd']*100:6.1f}%  Vol {m['ann_vol']*100:5.1f}%  n={m['n_days']}")
 
 
 if __name__ == "__main__":

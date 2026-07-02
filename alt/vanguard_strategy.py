@@ -87,9 +87,11 @@ def build_panels(universe: list[str] | None = None) -> tuple[pd.DataFrame, pd.Da
         closes[t] = d["Close"]
     opens = pd.DataFrame(opens).sort_index()
     closes = pd.DataFrame(closes).sort_index()
-    idx = pd.bdate_range(opens.index.min(), opens.index.max())
-    opens = opens.reindex(idx).ffill(limit=2)
-    closes = closes.reindex(idx).ffill(limit=2)
+    # Real trading calendar only (union of the universe's actual sessions).
+    # A pd.bdate_range here would fabricate exchange-holiday rows (Jan 1,
+    # Memorial Day, ...) that no other sleeve has and no order can fill on.
+    opens = opens.ffill(limit=2)
+    closes = closes.ffill(limit=2)
     return opens, closes
 
 
@@ -128,7 +130,10 @@ def compute_trigger_count(fred: pd.DataFrame, spy: pd.Series) -> pd.Series:
     c_hy = (hy_slope20 > 0.30) | (hy_slope5 > 0.25)
     c_vix = (vix_z > 1.2) | (vix > 30.0)
     c_curve = (t10y2y < 0.0) & (t10y2y_s60 < 0.0)
-    c_spy = ~(spy > spy.rolling(200).mean())
+    # NaN (warm-up / data gap) must NOT fire the trigger — same convention
+    # as the other three triggers (fillna(0) below). `spy < ma` is False on
+    # NaN, unlike the previous `~(spy > ma)` which was True on NaN.
+    c_spy = spy < spy.rolling(200).mean()
 
     trg = (
         c_hy.astype(float).fillna(0)
@@ -194,17 +199,15 @@ def build_basket_weights(
 # Backtest
 # --------------------------------------------------------------------------- #
 def backtest(opens: pd.DataFrame, weights: pd.DataFrame, tc_rate: float = TC_RATE) -> pd.DataFrame:
-    o2o = opens / opens.shift(1) - 1.0
-    w_lag = weights.shift(1).fillna(0.0)            # weight set at open[t-1]
-    gross = (w_lag * o2o).sum(axis=1)               # earns open[t-1]->open[t]
+    """Unified realization-dated booking (see alt/sleeve_engine.py).
 
-    turnover = (weights - weights.shift(1).fillna(0.0)).abs().sum(axis=1)
-    cost_lag = (turnover * tc_rate).shift(1).fillna(0.0)
-    net = gross - cost_lag
-    return pd.DataFrame({
-        "gross_ret": gross, "cost": cost_lag, "net_ret": net,
-        "turnover": turnover.shift(1).fillna(0.0),
-    })
+    W[t] uses close[t-1] info and is held from open[t]; the return booked
+    at date t is W[t-1] . o2o[t]; the cost of the open[t] trade is booked
+    at t (previously it was booked a day late).
+    """
+    from sleeve_engine import backtest_weights
+    bt = backtest_weights(weights, opens, cost_bps=tc_rate * 1e4)
+    return bt.rename(columns={"ret": "net_ret"})
 
 
 # --------------------------------------------------------------------------- #

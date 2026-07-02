@@ -25,16 +25,15 @@ Output files:
     data/results/live_positions.csv    — running log of daily positions
     data/results/live_trades.csv       — running log of trades
 
-PHOENIX (canonical 5-sleeve):
-    Blend (IS inv-vol): VAN 23.6% · ORI 32.7% · HEL 18.5% · QUA 15.2% · CRY 10.1%
-    Each sleeve uses its OWN strategy script's build_weights() — VAN's monthly
-    inv-vol rotation, ORI's weekly Wednesday top-K momentum, HEL's weekly
-    Friday underlying-trend, QUA's XGBoost cached model, CRY's weekly Friday
-    BTC TSMOM (with IBIT substituted for retired GBTC live).
+PHOENIX v3 (canonical 7-sleeve, walk-forward weights):
+    Sleeves: VAN, ORI, HEL, CRY, REV, TOM, BND. QUANTUM retired.
+    Blend weights are the current calendar year's walk-forward fit,
+    recomputed from phoenix_production.current_blend_weights() — no
+    hardcoded weights anywhere.
 
 Production overlay (matches phoenix_production.py exactly):
-    Vol target 15% annualized, cap 1.0x, floor 0.25x, 60d window
-    DD throttle: -10% floor, 252d HWM
+    EWMA(0.94) vol target 18%, mult in [0.25, 1.0] (no margin)
+    DD throttle: -10% floor, 252d HWM (on the vol-targeted series)
     Vol gate: 60d vol > 99th pct (252d) → 0.5x
 """
 from __future__ import annotations
@@ -54,23 +53,40 @@ ALT = ROOT / "alt"
 sys.path.insert(0, str(ALT))
 
 BIL = "BIL"
-# Blend weights are the same IS inv-vol fit used by phoenix_production.py.
-BLEND_WEIGHTS = {"VAN": 0.236, "ORI": 0.327, "HEL": 0.185, "QUA": 0.152, "CRY": 0.101}
 
-# Production overlay parameters (MUST match phoenix_production.py exactly).
-TARGET_VOL = 0.15
-VOL_CAP = 1.0
-VOL_FLOOR = 0.25
-VOL_WIN = 60
-DD_FLOOR = -0.10
-DD_WIN = 252
-VOL_GATE_PCT = 0.99
-VOL_GATE_LOOKBACK = 252
+import phoenix_production as prod
+
+# Overlay parameters come from the single source of truth.
+TARGET_VOL = prod.TARGET_VOL
+EWMA_LAMBDA = prod.EWMA_LAMBDA
+VOL_CAP = prod.VOL_CAP
+VOL_FLOOR = prod.VOL_FLOOR
+DD_FLOOR = prod.DD_FLOOR
+DD_WIN = prod.DD_WIN
+VOL_GATE_PCT = prod.GATE_PCT
+VOL_GATE_LOOKBACK = prod.GATE_LOOKBACK
+GATE_VOL_WIN = prod.GATE_VOL_WIN
+
+# yfinance symbol -> local CSV basename, where they differ
+FETCH_NAME_MAP = {"BTC-USD": "BTC_USD", "ETH-USD": "ETH_USD"}
 
 
 # --------------- Data fetch helpers (same as before) ---------------
 def fetch_latest(tickers):
-    """Refresh price CSVs via yfinance, appending new rows only."""
+    """Refresh price CSVs via yfinance with a FULL-HISTORY, fully-ADJUSTED
+    re-download for every ticker.
+
+    Why full rewrites: the previous incremental fetch appended RAW
+    (auto_adjust=False) rows onto an adjusted history, so every dividend
+    after the append seam booked as a fake price loss, and a split would
+    have frozen a fake ±N00% day into the record (see PHOENIX_REVIEW.md
+    H-1/C-2). Re-downloading the whole adjusted series each day keeps one
+    consistent price basis; the sleeve-return freeze in refresh_all.py is
+    what protects the published track record from vendor revisions.
+
+    Guard: if the fresh download has fewer than 90% of the existing rows,
+    the existing file is kept (protects against partial vendor responses).
+    """
     try:
         import yfinance as yf
     except ImportError:
@@ -78,36 +94,34 @@ def fetch_latest(tickers):
         return
     today = datetime.now(timezone.utc).date()
     for t in tickers:
-        p = ETF / f"{t}.csv"
-        start_candidate = today - timedelta(days=14)
+        fname = FETCH_NAME_MAP.get(t, t)
+        p = ETF / f"{fname}.csv"
+        n_existing = 0
         if p.exists():
             existing = pd.read_csv(p, parse_dates=["Date"]).set_index("Date").sort_index()
-            last_date = existing.index[-1].date()
-            start_candidate = max(start_candidate, last_date)
-            if last_date >= today:
+            n_existing = len(existing)
+            if existing.index[-1].date() >= today:
                 continue
-        start = start_candidate.strftime("%Y-%m-%d")
         try:
-            df = yf.download(t, start=start, progress=False, auto_adjust=False)
+            df = yf.download(t, start="2005-01-01", progress=False, auto_adjust=True)
         except Exception as e:
             print(f"  {t}: fetch failed ({e})", file=sys.stderr)
             continue
         if df is None or len(df) == 0:
-            print(f"  {t}: no new data (market closed or already up to date)")
+            print(f"  {t}: no data returned; keeping existing file")
             continue
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
-        df = df.reset_index()[["Date", "Open", "High", "Low", "Close", "Adj Close", "Volume"]]
-        df.columns = ["Date", "Open", "High", "Low", "Close", "Adj Close", "Volume"]
+        df = df.reset_index()[["Date", "Open", "High", "Low", "Close", "Volume"]]
+        df.columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
         df["Date"] = pd.to_datetime(df["Date"]).dt.strftime("%Y-%m-%d")
-        if p.exists():
-            existing = pd.read_csv(p)
-            combined = pd.concat([existing, df], ignore_index=True)
-            combined = combined.drop_duplicates(subset="Date", keep="last").sort_values("Date")
-            combined.to_csv(p, index=False)
-        else:
-            df.to_csv(p, index=False)
-        print(f"  {t}: +{len(df)} new rows, latest={df['Date'].iloc[-1]}")
+        df = df.drop_duplicates(subset="Date").sort_values("Date")
+        if n_existing and len(df) < 0.9 * n_existing:
+            print(f"  {t}: [WARN] fresh download has {len(df)} rows vs "
+                  f"{n_existing} existing; keeping existing file")
+            continue
+        df.to_csv(p, index=False)
+        print(f"  {t}: full adjusted rewrite, {len(df)} rows, latest={df['Date'].iloc[-1]}")
 
 
 def fetch_fred_latest():
@@ -170,8 +184,12 @@ def aggregate_sleeve_weights(as_of_close: pd.Timestamp | None = None) -> tuple[p
     import vanguard_strategy
     import orion_strategy
     import helios_strategy
-    import quantum_strategy
     import phoenix_v2_crypto
+    import reversal_strategy
+    import tom_strategy
+    import bondtrend_strategy
+
+    blend_weights = prod.current_blend_weights()
 
     sleeves = []
     sleeve_picks = {}
@@ -192,68 +210,39 @@ def aggregate_sleeve_weights(as_of_close: pd.Timestamp | None = None) -> tuple[p
 
     # All sleeves are called with live_extend=True so the LAST row is W[t+1]
     # computed from close[t] info — i.e., the weight to hold at next-day open.
-    # This is what aligns live execution with the backtest.
+    # Every sleeve's signal layer carries its own >=1-bar lag (HELIOS included
+    # since the v3 fix), so this is uniform across all seven.
+    MODULES = [
+        ("VAN", "VANGUARD", lambda: vanguard_strategy.build_weights(live_extend=True)),
+        ("ORI", "ORION", lambda: orion_strategy.build_weights(live_extend=True)),
+        ("HEL", "HELIOS", lambda: helios_strategy.build_weights(live_extend=True)),
+        ("CRY", "CRYPTO", lambda: phoenix_v2_crypto.build_weights(
+            use_live_proxy=True, live_extend=True)),
+        ("REV", "REVERSAL", lambda: reversal_strategy.build_weights(live_extend=True)),
+        ("TOM", "TOM", lambda: tom_strategy.build_weights(live_extend=True)),
+        ("BND", "BONDTREND", lambda: bondtrend_strategy.build_weights(live_extend=True)),
+    ]
+    for tag, name, builder in MODULES:
+        W = builder()
+        row = _last_row(W, name)
+        sleeves.append((tag, row))
+        sleeve_picks[name] = {
+            "as_of": str(row.name.date()),
+            "gross": float(row.sum()),
+            "blend_weight": round(float(blend_weights.get(tag, 0.0)), 4),
+            "weights": {t: round(float(v), 4) for t, v in row.items() if v > 1e-6},
+        }
 
-    # 1. VANGUARD — gross 1.5x rotation across CORE = {QLD, UGL, TMF, TYD}
-    W_van = vanguard_strategy.build_weights(live_extend=True)
-    row_van = _last_row(W_van, "VANGUARD")
-    sleeves.append(("VAN", row_van))
-    sleeve_picks["VANGUARD"] = {
-        "as_of": str(row_van.name.date()),
-        "gross": float(row_van.sum()),
-        "weights": {t: round(float(v), 4) for t, v in row_van.items() if v > 1e-6},
-    }
-
-    # 2. ORION — weekly (Wed) top-K mom across RISK + SAFE LETFs
-    W_ori = orion_strategy.build_weights(live_extend=True)
-    row_ori = _last_row(W_ori, "ORION")
-    sleeves.append(("ORI", row_ori))
-    sleeve_picks["ORION"] = {
-        "as_of": str(row_ori.name.date()),
-        "gross": float(row_ori.sum()),
-        "weights": {t: round(float(v), 4) for t, v in row_ori.items() if v > 1e-6},
-    }
-
-    # 3. HELIOS — weekly (Fri) underlying-trend, expressed via levered ETFs + BIL
-    W_hel = helios_strategy.build_weights(live_extend=True)
-    row_hel = _last_row(W_hel, "HELIOS")
-    sleeves.append(("HEL", row_hel))
-    sleeve_picks["HELIOS"] = {
-        "as_of": str(row_hel.name.date()),
-        "gross": float(row_hel.sum()),
-        "weights": {t: round(float(v), 4) for t, v in row_hel.items() if v > 1e-6},
-    }
-
-    # 4. QUANTUM — XGBoost top-K rebalanced every N trading days (cached model)
-    W_qua = quantum_strategy.build_weights(live_extend=True)
-    row_qua = _last_row(W_qua, "QUANTUM")
-    sleeves.append(("QUA", row_qua))
-    sleeve_picks["QUANTUM"] = {
-        "as_of": str(row_qua.name.date()),
-        "gross": float(row_qua.sum()),
-        "weights": {t: round(float(v), 4) for t, v in row_qua.items() if v > 1e-6},
-    }
-
-    # 5. CRYPTO — weekly (Fri) BTC TSMOM, GBTC→IBIT for live era
-    W_cry = phoenix_v2_crypto.build_weights(use_live_proxy=True, live_extend=True)
-    row_cry = _last_row(W_cry, "CRYPTO")
-    sleeves.append(("CRY", row_cry))
-    sleeve_picks["CRYPTO"] = {
-        "as_of": str(row_cry.name.date()),
-        "gross": float(row_cry.sum()),
-        "weights": {t: round(float(v), 4) for t, v in row_cry.items() if v > 1e-6},
-    }
-
-    # Aggregate: agg[ticker] = sum_i BLEND_WEIGHTS[i] * sleeve_w_i[ticker]
+    # Aggregate: agg[ticker] = sum_i blend_weights[i] * sleeve_w_i[ticker]
     agg = {}
     for tag, row in sleeves:
-        w = BLEND_WEIGHTS[tag]
+        w = blend_weights.get(tag, 0.0)
         for t, v in row.items():
             if abs(v) < 1e-12:
                 continue
             agg[t] = agg.get(t, 0.0) + w * float(v)
     raw = pd.Series(agg, dtype=float).sort_index()
-    return raw, sleeve_picks
+    return raw, sleeve_picks, blend_weights
 
 
 def compute_overlay_mult(as_of_close: pd.Timestamp | None = None) -> tuple[float, float, float, float, str]:
@@ -274,30 +263,33 @@ def compute_overlay_mult(as_of_close: pd.Timestamp | None = None) -> tuple[float
     r_hist = bt["raw_ret"].dropna()
     if as_of_close is not None:
         r_hist = r_hist.loc[r_hist.index <= as_of_close]
-    if len(r_hist) < VOL_WIN:
+    if len(r_hist) < 60:
         return 1.0, 1.0, 1.0, 1.0, "Insufficient history; multiplier defaulted to 1.0"
 
-    # Vol target multiplier (uses today's realized vol → applied next bar)
-    rv_ann = r_hist.rolling(VOL_WIN).std() * np.sqrt(252)
-    vt_raw = (TARGET_VOL / rv_ann.iloc[-1]) if rv_ann.iloc[-1] > 0 else 1.0
-    vt_mult = max(VOL_FLOOR, min(VOL_CAP, float(vt_raw)))
+    # EWMA vol target (matches phoenix_production.apply_overlay one step ahead:
+    # the multiplier we output scales the return realized over the NEXT
+    # open->open window, and uses raw returns through the as-of close — the
+    # same information set as total_mult.shift(2) in the backtest).
+    ew_var = r_hist.pow(2).ewm(alpha=1 - EWMA_LAMBDA).mean()
+    ew_vol = (ew_var * 252) ** 0.5
+    vol_mult_series = (TARGET_VOL / ew_vol).clip(VOL_FLOOR, VOL_CAP)
+    vt_mult = float(vol_mult_series.iloc[-1])
 
-    # DD throttle on vol-target-scaled returns
-    vol_mult_series = (TARGET_VOL / rv_ann).clip(VOL_FLOOR, VOL_CAP).shift(1).fillna(1.0)
-    scaled = r_hist * vol_mult_series
+    # DD throttle on the vol-targeted series (same construction as backtest)
+    scaled = r_hist * vol_mult_series.shift(2).fillna(1.0)
     cum = (1 + scaled).cumprod()
     hwm = cum.rolling(DD_WIN, min_periods=30).max()
     dd = cum / hwm - 1
     dd_mult = max(0.0, min(1.0, 1.0 + float(dd.iloc[-1]) / DD_FLOOR))
 
     # Vol gate on scaled returns
-    sv = scaled.rolling(VOL_WIN).std()
+    sv = scaled.rolling(GATE_VOL_WIN).std()
     sv_thr = sv.rolling(VOL_GATE_LOOKBACK, min_periods=60).quantile(VOL_GATE_PCT)
     vol_gate_ok = (float(sv.iloc[-1]) <= float(sv_thr.iloc[-1])) if not np.isnan(sv_thr.iloc[-1]) else True
     vol_gate_mult = 1.0 if vol_gate_ok else 0.5
 
     total = vt_mult * dd_mult * vol_gate_mult
-    parts = [f"Vol target {TARGET_VOL*100:.0f}% → mult {vt_mult:.2f}x (realized vol {rv_ann.iloc[-1]*100:.1f}%)"]
+    parts = [f"EWMA vol target {TARGET_VOL*100:.0f}% → mult {vt_mult:.2f}x (EWMA vol {ew_vol.iloc[-1]*100:.1f}%)"]
     if dd_mult < 1.0:
         parts.append(f"DD throttle {dd_mult*100:.0f}% (current DD {dd.iloc[-1]*100:.1f}%)")
     if vol_gate_mult < 1.0:
@@ -318,7 +310,7 @@ def build_target_portfolio(as_of_close: pd.Timestamp | None = None) -> tuple[pd.
     target: Series indexed by ticker (incl. BIL), all weights ≥ 0
     context: regime + overlay diagnostics for reporting
     """
-    raw, sleeve_picks = aggregate_sleeve_weights(as_of_close=as_of_close)
+    raw, sleeve_picks, blend_weights = aggregate_sleeve_weights(as_of_close=as_of_close)
     vt_mult, dd_mult, vg_mult, total_mult, reason = compute_overlay_mult(as_of_close=as_of_close)
 
     # Strip BIL out of risk side so the overlay scaling doesn't shrink cash;
@@ -327,6 +319,11 @@ def build_target_portfolio(as_of_close: pd.Timestamp | None = None) -> tuple[pd.
     raw_bil = float(raw.get(BIL, 0.0))
     scaled_risk = risk * total_mult
     gross_risk = float(scaled_risk.sum())
+    # Hard no-margin cap: raw sleeve gross can exceed 1.0 (VANGUARD runs
+    # 1.5x internal gross), so scale the whole risk book down if needed.
+    if gross_risk > 1.0:
+        scaled_risk = scaled_risk / gross_risk
+        gross_risk = 1.0
     bil_weight = max(0.0, 1.0 - gross_risk)
     # Note: the canonical raw blend's own BIL contribution (from CRY when off
     # or HEL when off) is already inside `raw_bil`. The simpler interpretation
@@ -346,7 +343,7 @@ def build_target_portfolio(as_of_close: pd.Timestamp | None = None) -> tuple[pd.
         "raw_risk_gross": float(risk.sum()),
         "raw_weights": raw_summary,
         "sleeve_picks": sleeve_picks,
-        "blend_weights": BLEND_WEIGHTS,
+        "blend_weights": {k: round(float(v), 4) for k, v in blend_weights.items()},
         "vol_target_mult": vt_mult,
         "dd_mult": dd_mult,
         "vol_gate_mult": vg_mult,
@@ -438,15 +435,19 @@ def main():
         import vanguard_strategy as van
         import orion_strategy as ori
         import helios_strategy as hel
-        import quantum_strategy as qua
+        import reversal_strategy as rev
+        import tom_strategy as tomm
+        import bondtrend_strategy as bnd
         u = set()
-        u.update(van.LEV_UNIVERSE)            # VAN's full lev universe (incl. SPY anchor below)
+        u.update(van.LEV_UNIVERSE)            # VAN's full lev universe
         u.update(ori.UNIVERSE)
         u.update(hel.PAIRS.keys())            # HEL underlyings
         u.update(hel.PAIRS.values())          # HEL leveraged expressions
-        u.update(qua.UNIVERSE)
-        u.update(["GBTC", "ETHE", "IBIT"])    # crypto
-        u.update(["SPY", "BIL"])              # anchors
+        u.update(rev.PAIRS.keys())
+        u.update(rev.PAIRS.values())
+        u.update([tomm.VEHICLE, bnd.SIGNAL_TICKER, bnd.LONG_VEHICLE])
+        u.update(["IBIT", "ETHA", "BTC-USD", "ETH-USD"])  # crypto ETFs + spot signal history
+        u.update(["SPY", "BIL", "TLT"])       # anchors + factsheet benchmarks
         print("Fetching latest prices via yfinance...")
         fetch_latest(sorted(u))
         print("Fetching FRED macro series...")
@@ -561,7 +562,7 @@ def main():
         "trades_today": trades,
         "recent_trades_30d": recent_trades,
         "price_context": price_context,
-        "blend_weights": BLEND_WEIGHTS,
+        "blend_weights": context.get("blend_weights", {}),
     }
     (R / "live_signal.json").write_text(json.dumps(out, indent=2))
 

@@ -1,89 +1,256 @@
 {
+  "version": "v3-walkforward",
   "params": {
-    "weights": {
-      "VANGUARD": 0.236,
-      "ORION": 0.327,
-      "HELIOS": 0.185,
-      "QUANTUM": 0.152,
-      "CRYPTO": 0.101
+    "sleeves": {
+      "VAN": "vanguard_returns.csv",
+      "ORI": "orion_returns.csv",
+      "HEL": "helios_returns.csv",
+      "CRY": "crypto_returns.csv",
+      "REV": "reversal_returns.csv",
+      "TOM": "tom_returns.csv",
+      "BND": "bondtrend_returns.csv"
     },
-    "target_vol": 0.15,
+    "allocator": {
+      "fit_years": 4,
+      "sr_floor": 0.3,
+      "min_active_vol": 0.05,
+      "w_cap": 0.35,
+      "budgets": "max(trailing SR, 0.3) * (1 - rho_bar)"
+    },
+    "target_vol": 0.18,
+    "ewma_lambda": 0.94,
     "vol_cap": 1.0,
     "vol_floor": 0.25,
-    "vol_win": 60,
     "dd_floor": -0.1,
     "dd_win": 252,
-    "vol_gate_pct": 0.99,
-    "tc_bps_per_lev_chg": 10.0
+    "gate_pct": 0.99,
+    "tc_bps_per_lev_chg": 10.0,
+    "blend_start": "2014-01-02"
+  },
+  "weights_current_year": {
+    "VAN": 0.1933,
+    "ORI": 0.1811,
+    "HEL": 0.1019,
+    "CRY": 0.1439,
+    "REV": 0.0904,
+    "TOM": 0.0803,
+    "BND": 0.2091
+  },
+  "weights_by_year": {
+    "2014": {
+      "VAN": 0.2775,
+      "ORI": 0.1644,
+      "HEL": 0.034,
+      "CRY": 0.0,
+      "REV": 0.0809,
+      "TOM": 0.2673,
+      "BND": 0.1759
+    },
+    "2015": {
+      "VAN": 0.2108,
+      "ORI": 0.1735,
+      "HEL": 0.0335,
+      "CRY": 0.0,
+      "REV": 0.0854,
+      "TOM": 0.2767,
+      "BND": 0.2202
+    },
+    "2016": {
+      "VAN": 0.1293,
+      "ORI": 0.1332,
+      "HEL": 0.0531,
+      "CRY": 0.2002,
+      "REV": 0.1426,
+      "TOM": 0.1798,
+      "BND": 0.1618
+    },
+    "2017": {
+      "VAN": 0.1067,
+      "ORI": 0.1359,
+      "HEL": 0.083,
+      "CRY": 0.2197,
+      "REV": 0.166,
+      "TOM": 0.1273,
+      "BND": 0.1614
+    },
+    "2018": {
+      "VAN": 0.0876,
+      "ORI": 0.1295,
+      "HEL": 0.095,
+      "CRY": 0.1795,
+      "REV": 0.174,
+      "TOM": 0.108,
+      "BND": 0.2264
+    },
+    "2019": {
+      "VAN": 0.077,
+      "ORI": 0.0677,
+      "HEL": 0.1286,
+      "CRY": 0.1889,
+      "REV": 0.1913,
+      "TOM": 0.1017,
+      "BND": 0.2447
+    },
+    "2020": {
+      "VAN": 0.1053,
+      "ORI": 0.1305,
+      "HEL": 0.1463,
+      "CRY": 0.1436,
+      "REV": 0.1333,
+      "TOM": 0.0912,
+      "BND": 0.2497
+    },
+    "2021": {
+      "VAN": 0.1828,
+      "ORI": 0.1169,
+      "HEL": 0.0971,
+      "CRY": 0.17,
+      "REV": 0.0924,
+      "TOM": 0.1519,
+      "BND": 0.1891
+    },
+    "2022": {
+      "VAN": 0.1694,
+      "ORI": 0.1235,
+      "HEL": 0.1077,
+      "CRY": 0.1293,
+      "REV": 0.0979,
+      "TOM": 0.1562,
+      "BND": 0.2159
+    },
+    "2023": {
+      "VAN": 0.2035,
+      "ORI": 0.1598,
+      "HEL": 0.084,
+      "CRY": 0.1733,
+      "REV": 0.1206,
+      "TOM": 0.1059,
+      "BND": 0.1529
+    },
+    "2024": {
+      "VAN": 0.1708,
+      "ORI": 0.1419,
+      "HEL": 0.0656,
+      "CRY": 0.197,
+      "REV": 0.1083,
+      "TOM": 0.1484,
+      "BND": 0.1679
+    },
+    "2025": {
+      "VAN": 0.1545,
+      "ORI": 0.1373,
+      "HEL": 0.0921,
+      "CRY": 0.1574,
+      "REV": 0.1257,
+      "TOM": 0.0849,
+      "BND": 0.2481
+    },
+    "2026": {
+      "VAN": 0.1933,
+      "ORI": 0.1811,
+      "HEL": 0.1019,
+      "CRY": 0.1439,
+      "REV": 0.0904,
+      "TOM": 0.0803,
+      "BND": 0.2091
+    }
   },
   "full": {
-    "sharpe": 2.3401,
-    "sortino": 3.4722,
-    "cagr": 0.3682,
-    "vol": 0.1381,
-    "mdd": -0.1765,
-    "calmar": 2.0856,
-    "navx": 198.9501,
-    "n": 4255
+    "sharpe": 1.1747,
+    "sortino": 1.5845,
+    "cagr": 0.2,
+    "vol": 0.1672,
+    "mdd": -0.2331,
+    "calmar": 0.8582,
+    "navx": 9.7109,
+    "n": 3142
   },
   "is": {
-    "sharpe": 2.5577,
-    "sortino": 3.8638,
-    "cagr": 0.3822,
-    "vol": 0.1299,
-    "mdd": -0.1632,
-    "calmar": 2.3423,
-    "navx": 19.137,
-    "n": 2298
+    "sharpe": 1.3179,
+    "sortino": 1.7445,
+    "cagr": 0.2152,
+    "vol": 0.1574,
+    "mdd": -0.2091,
+    "calmar": 1.0292,
+    "navx": 2.6459,
+    "n": 1258
   },
   "oos": {
-    "sharpe": 2.1238,
-    "sortino": 3.1311,
-    "cagr": 0.3521,
-    "vol": 0.1472,
-    "mdd": -0.1765,
-    "calmar": 1.9945,
-    "navx": 10.3961,
-    "n": 1956
+    "sharpe": 1.0898,
+    "sortino": 1.4894,
+    "cagr": 0.19,
+    "vol": 0.1735,
+    "mdd": -0.2331,
+    "calmar": 0.815,
+    "navx": 3.6701,
+    "n": 1884
   },
-  "is_oos_gap": 0.4339,
-  "avg_total_mult": 0.8512625364425388,
-  "avg_vol_target_mult": 0.8906387797546798,
+  "excess_sharpe_full": 1.0746,
+  "is_oos_gap": 0.2281,
+  "avg_total_mult": 0.8414278030364375,
   "correlations": {
-    "VANGUARD": {
-      "VANGUARD": 1.0,
-      "ORION": -0.018,
-      "HELIOS": -0.058,
-      "QUANTUM": 0.041,
-      "CRYPTO": 0.127
+    "VAN": {
+      "VAN": 1.0,
+      "ORI": 0.603,
+      "HEL": 0.464,
+      "CRY": 0.094,
+      "REV": 0.357,
+      "TOM": 0.228,
+      "BND": 0.175
     },
-    "ORION": {
-      "VANGUARD": -0.018,
-      "ORION": 1.0,
-      "HELIOS": -0.018,
-      "QUANTUM": 0.185,
-      "CRYPTO": 0.001
+    "ORI": {
+      "VAN": 0.603,
+      "ORI": 1.0,
+      "HEL": 0.676,
+      "CRY": 0.115,
+      "REV": 0.473,
+      "TOM": 0.313,
+      "BND": 0.171
     },
-    "HELIOS": {
-      "VANGUARD": -0.058,
-      "ORION": -0.018,
-      "HELIOS": 1.0,
-      "QUANTUM": -0.036,
-      "CRYPTO": 0.016
+    "HEL": {
+      "VAN": 0.464,
+      "ORI": 0.676,
+      "HEL": 1.0,
+      "CRY": 0.068,
+      "REV": 0.346,
+      "TOM": 0.238,
+      "BND": 0.09
     },
-    "QUANTUM": {
-      "VANGUARD": 0.041,
-      "ORION": 0.185,
-      "HELIOS": -0.036,
-      "QUANTUM": 1.0,
-      "CRYPTO": 0.006
+    "CRY": {
+      "VAN": 0.094,
+      "ORI": 0.115,
+      "HEL": 0.068,
+      "CRY": 1.0,
+      "REV": 0.128,
+      "TOM": 0.102,
+      "BND": 0.008
     },
-    "CRYPTO": {
-      "VANGUARD": 0.127,
-      "ORION": 0.001,
-      "HELIOS": 0.016,
-      "QUANTUM": 0.006,
-      "CRYPTO": 1.0
+    "REV": {
+      "VAN": 0.357,
+      "ORI": 0.473,
+      "HEL": 0.346,
+      "CRY": 0.128,
+      "REV": 1.0,
+      "TOM": 0.378,
+      "BND": -0.19
+    },
+    "TOM": {
+      "VAN": 0.228,
+      "ORI": 0.313,
+      "HEL": 0.238,
+      "CRY": 0.102,
+      "REV": 0.378,
+      "TOM": 1.0,
+      "BND": -0.085
+    },
+    "BND": {
+      "VAN": 0.175,
+      "ORI": 0.171,
+      "HEL": 0.09,
+      "CRY": 0.008,
+      "REV": -0.19,
+      "TOM": -0.085,
+      "BND": 1.0
     }
   }
 }

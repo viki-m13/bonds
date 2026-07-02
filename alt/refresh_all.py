@@ -40,22 +40,27 @@ def run(cmd: list, desc: str):
 
 
 def fetch_latest_prices():
-    """Delegate to live_signal.py's fetch methods, using the union of every
-    canonical sleeve's universe + SPY/BIL anchors + HELIOS underlyings."""
+    """Delegate to live_signal.py's fetch methods (full-history adjusted
+    rewrites — see fetch_latest for why), using the union of every canonical
+    sleeve's universe + anchors."""
     sys.path.insert(0, str(ALT))
     import live_signal as ls
     import vanguard_strategy as van
     import orion_strategy as ori
     import helios_strategy as hel
-    import quantum_strategy as qua
+    import reversal_strategy as rev
+    import tom_strategy as tomm
+    import bondtrend_strategy as bnd
     universe = set()
     universe.update(van.LEV_UNIVERSE)            # full leveraged universe screened by VAN
     universe.update(ori.UNIVERSE)
     universe.update(hel.PAIRS.keys())            # HEL underlyings (signal source)
     universe.update(hel.PAIRS.values())          # HEL leveraged expressions
-    universe.update(qua.UNIVERSE)
-    universe.update(["GBTC", "ETHE", "IBIT"])    # crypto sleeve + live BTC proxy
-    universe.update(["SPY", "BIL"])              # anchors
+    universe.update(rev.PAIRS.keys())
+    universe.update(rev.PAIRS.values())
+    universe.update([tomm.VEHICLE, bnd.SIGNAL_TICKER, bnd.LONG_VEHICLE])
+    universe.update(["IBIT", "ETHA", "BTC-USD", "ETH-USD"])  # crypto
+    universe.update(["SPY", "BIL", "TLT"])       # anchors
     print("Fetching latest ETF prices via yfinance...")
     ls.fetch_latest(sorted(universe))
     print("\nFetching latest FRED macro series...")
@@ -106,35 +111,13 @@ def regenerate_factsheet():
     m_full = metrics(ret); m_is = metrics(ret.loc[:IS_END]); m_oos = metrics(ret.loc[OOS_START:])
     m_spy = metrics(spy_r); m_6040 = metrics(s6040_r)
 
-    # Components (5 sleeves)
-    comps = {}
-    for sname, fn, col in [("VANGUARD", "vanguard_returns.csv", "net_ret"),
-                            ("ORION", "orion_returns.csv", "orion"),
-                            ("HELIOS", "helios_returns.csv", "ret"),
-                            ("QUANTUM", "quantum_returns.csv", "ret"),
-                            ("CRYPTO", "crypto_returns.csv", "ret")]:
-        df = pd.read_csv(R/fn, parse_dates=[0] if sname == "VANGUARD" else ["Date"])
-        if sname == "VANGUARD":
-            s = df.set_index(df.columns[0])[col]
-        else:
-            s = df.set_index("Date")[col]
-        comps[sname] = metrics(s.reindex(dates).fillna(0))
-
-    # Correlations (5x5)
-    corr_df = pd.DataFrame()
-    for sname, fn, col in [("VANGUARD", "vanguard_returns.csv", "net_ret"),
-                            ("ORION", "orion_returns.csv", "orion"),
-                            ("HELIOS", "helios_returns.csv", "ret"),
-                            ("QUANTUM", "quantum_returns.csv", "ret"),
-                            ("CRYPTO", "crypto_returns.csv", "ret")]:
-        df = pd.read_csv(R/fn, parse_dates=[0] if sname == "VANGUARD" else ["Date"])
-        if sname == "VANGUARD":
-            s = df.set_index(df.columns[0])[col]
-        else:
-            s = df.set_index("Date")[col]
-        corr_df[sname] = s.reindex(dates).fillna(0)
+    # Components + correlations from the canonical sleeve registry (v3: 7 sleeves)
+    sys.path.insert(0, str(ALT))
+    import phoenix_production as prodmod
+    sleeve_df = prodmod.load_sleeve_returns().reindex(dates).fillna(0)
+    comps = {tag: metrics(sleeve_df[tag]) for tag in sleeve_df.columns}
     corr_dict = {k: {k2: round(float(v), 3) for k2, v in row.items()}
-                 for k, row in corr_df.corr().to_dict().items()}
+                 for k, row in sleeve_df.corr().to_dict().items()}
 
     # Yearly + monthly
     mr = ret.resample("ME").apply(lambda x: (1 + x).prod() - 1)
@@ -167,60 +150,36 @@ def regenerate_factsheet():
     mult = prod["total_mult"]
 
     # Per-sleeve cumulative ARITHMETIC contribution. Daily contribution from
-    # sleeve i is c_i[t] = blend_weight_i * sleeve_ret_i[t] * overlay_mult[t]
-    # (TC drag handled separately). Cumulative is the sum over time. Two
-    # sleeves' cumulative diff over any window [t0, t1] = arithmetic
-    # contribution over that window; the five sleeves' contributions sum to
-    # Phoenix's arithmetic return over the window. We report % share of total
-    # in the simulator (sums to 100%) plus the corresponding $ amount based
-    # on Phoenix's *compounded* return for the window.
-    SLEEVES = [("VANGUARD", "vanguard_returns.csv", "net_ret"),
-               ("ORION",    "orion_returns.csv",    "orion"),
-               ("HELIOS",   "helios_returns.csv",   "ret"),
-               ("QUANTUM",  "quantum_returns.csv",  "ret"),
-               ("CRYPTO",   "crypto_returns.csv",   "ret")]
-    BLEND = {"VANGUARD": 0.236, "ORION": 0.327, "HELIOS": 0.185,
-             "QUANTUM": 0.152, "CRYPTO": 0.101}
-    cum_df = pd.DataFrame(index=dates)
+    # sleeve i is c_i[t] = wf_weight_i[year(t)] * sleeve_ret_i[t] * overlay_mult[t]
+    # (TC drag handled separately). Weights are the walk-forward per-year fit.
+    Wy = prodmod.build_wf_weight_frame(prodmod.load_sleeve_returns()).reindex(dates).fillna(0.0)
     overlay_aligned = mult.reindex(dates).fillna(1.0)
-    for sname, fn, col in SLEEVES:
-        df = pd.read_csv(R/fn, parse_dates=[0] if sname == "VANGUARD" else ["Date"])
-        if sname == "VANGUARD":
-            s = df.set_index(df.columns[0])[col]
-        else:
-            s = df.set_index("Date")[col]
-        s = s.reindex(dates).fillna(0)
-        contrib_daily = BLEND[sname] * s * overlay_aligned
-        cum_df[sname] = contrib_daily.cumsum()
-    # Resample weekly to align with eq_data
+    cum_df = (sleeve_df[Wy.columns] * Wy).mul(overlay_aligned, axis=0).cumsum()
     cum_w = cum_df.resample("W").last().dropna(how="all")
     sleeve_contribs = []
     for d, row in cum_w.iterrows():
         if any(pd.isna(row.values)):
             continue
-        sleeve_contribs.append({
-            "d": d.strftime("%Y-%m-%d"),
-            "V": round(float(row["VANGUARD"]), 6),
-            "O": round(float(row["ORION"]),    6),
-            "H": round(float(row["HELIOS"]),   6),
-            "Q": round(float(row["QUANTUM"]),  6),
-            "C": round(float(row["CRYPTO"]),   6),
-        })
+        sleeve_contribs.append({"d": d.strftime("%Y-%m-%d"),
+                                **{tag: round(float(row[tag]), 6) for tag in Wy.columns}})
 
+    prod_metrics = json.loads((R / "phoenix_production_metrics.json").read_text())
     out = {
         "meta": {"name": "PHOENIX",
-                 "subtitle": "5 uncorrelated LETF strategies with daily risk sizing",
+                 "subtitle": "7-sleeve LETF ensemble, walk-forward weights, daily risk sizing",
+                 "version": "v3",
                  "start": str(ret.index[0].date()), "end": str(ret.index[-1].date()),
                  "n_days": int(len(ret)),
-                 "weights": {"VANGUARD": 0.236, "ORION": 0.327, "HELIOS": 0.185,
-                             "QUANTUM": 0.152, "CRYPTO": 0.101},
-                 "target_vol": 0.15, "leverage_cap": 1.0, "no_margin": True},
+                 "weights": prod_metrics.get("weights_current_year", {}),
+                 "weights_by_year": prod_metrics.get("weights_by_year", {}),
+                 "target_vol": prodmod.TARGET_VOL, "leverage_cap": 1.0, "no_margin": True},
         "metrics": {"full": m_full, "is": m_is, "oos": m_oos, "spy": m_spy, "s6040": m_6040},
         "components": comps, "correlations": corr_dict,
         "overlay": {"avg_total_mult": float(mult.mean()),
                     "pct_at_full_exposure": float((mult > 0.99).mean()),
                     "pct_below_50": float((mult < 0.50).mean()),
-                    "target_vol": 0.15, "cap": 1.0, "dd_floor": -0.10, "vol_gate_pct": 0.99},
+                    "target_vol": prodmod.TARGET_VOL, "cap": 1.0,
+                    "dd_floor": prodmod.DD_FLOOR, "vol_gate_pct": prodmod.GATE_PCT},
         "is_oos_gap": round(abs(m_is["sharpe"] - m_oos["sharpe"]), 4),
         "yearly": yearly, "monthly": monthly,
         "equity": eq_data, "drawdown": dd_data, "rolling_sharpe_12m": rs_data,
@@ -240,27 +199,23 @@ def regenerate_audit_bundle():
     ret = prod["net_ret"]
     mult = prod["total_mult"]
 
-    van = pd.read_csv(R/"vanguard_returns.csv", parse_dates=[0], index_col=0)["net_ret"]
-    ori = pd.read_csv(R/"orion_returns.csv", parse_dates=["Date"]).set_index("Date")["orion"]
-    hel = pd.read_csv(R/"helios_returns.csv", parse_dates=["Date"]).set_index("Date")["ret"]
-    qua = pd.read_csv(R/"quantum_returns.csv", parse_dates=["Date"]).set_index("Date")["ret"]
-    cry = pd.read_csv(R/"crypto_returns.csv", parse_dates=["Date"]).set_index("Date")["ret"]
+    sys.path.insert(0, str(ALT))
+    import phoenix_production as prodmod
+    sleeve_full = prodmod.load_sleeve_returns()
     idx = ret.index
-    van = van.reindex(idx).fillna(0); ori = ori.reindex(idx).fillna(0)
-    hel = hel.reindex(idx).fillna(0); qua = qua.reindex(idx).fillna(0)
-    cry = cry.reindex(idx).fillna(0)
+    sleeves = sleeve_full.reindex(idx).fillna(0)
+    Wy = prodmod.build_wf_weight_frame(sleeve_full).reindex(idx).fillna(0.0)
+    w_now = {k: float(v) for k, v in Wy.iloc[-1].items()}
 
-    w = {"VAN": 0.236, "ORI": 0.327, "HEL": 0.185, "QUA": 0.152, "CRY": 0.101}
-
-    # Yearly contribution (recompute through latest)
+    # Yearly contribution (recompute through latest, per-year WF weights)
     yrs = sorted(set(idx.year))
     yearly_rows = []
     for y in yrs:
         m = idx.year == y
         row = {"year": y}
         total = 0
-        for nm, s in [("VAN", van), ("ORI", ori), ("HEL", hel), ("QUA", qua), ("CRY", cry)]:
-            c = (s[m] * mult[m]).sum() * w[nm]
+        for nm in sleeves.columns:
+            c = (sleeves.loc[m, nm] * mult[m] * Wy.loc[m, nm]).sum()
             row[nm] = round(float(c) * 100, 1)
             total += c
         row["total"] = round(float(total) * 100, 1)
@@ -269,9 +224,10 @@ def regenerate_audit_bundle():
     # Last 30 days per-sleeve contribs
     last30 = idx[-30:]
     l30 = []
-    for nm, s in [("VAN", van), ("ORI", ori), ("HEL", hel), ("QUA", qua), ("CRY", cry)]:
-        r30 = float((1 + s.loc[last30]).prod() - 1)
-        l30.append({"sleeve": nm, "weight": w[nm], "sleeve_ret": r30, "contrib": w[nm] * r30})
+    for nm in sleeves.columns:
+        r30 = float((1 + sleeves[nm].loc[last30]).prod() - 1)
+        l30.append({"sleeve": nm, "weight": round(w_now[nm], 4),
+                    "sleeve_ret": r30, "contrib": w_now[nm] * r30})
 
     # Overlay mult series (last ~120 days)
     recent = mult.loc[idx[-120:]]
@@ -344,8 +300,7 @@ def regenerate_audit_bundle():
         "as_of": live["context"]["as_of"],
         "overlay_mult": live["context"]["overlay_mult"],
         "current": live["target_positions"],
-        "sleeve_weights": {"VANGUARD": 0.236, "ORION": 0.327, "HELIOS": 0.185,
-                           "QUANTUM": 0.152, "CRYPTO": 0.101},
+        "sleeve_weights": {k: round(v, 4) for k, v in w_now.items()},
     }
     audit["recent_trades"] = live["recent_trades_30d"]
     (R/"phoenix_v2_audit.json").write_text(json.dumps(audit, separators=(",", ":")))
@@ -488,19 +443,18 @@ def main():
     latest = get_latest_market_date()
     print(f"\nLatest common market date across SPY/QQQ/IBIT: {latest}")
 
-    # lookahead_days = how many trailing rows are unsafe to freeze each cron,
-    # because the sleeve's day-t return depends on opens[t+1...t+N]. Those
-    # values would be NaN→0 when yesterday's cron computed them, and must be
-    # reclaimed from a fresh regeneration today.
-    #   VANGUARD: backward-looking (o2o = opens / opens.shift(1)) — safe
-    #   ORION:    o2o = opens.pct_change().shift(-1)               — needs t+1
-    #   HELIOS:   r_fwd = opens.shift(-2)/opens.shift(-1) - 1       — needs t+1, t+2
-    #   QUANTUM:  c2c on closes (no future leakage)                 — safe
+    # All sleeves follow the unified realization-dated convention
+    # (alt/sleeve_engine.py) since v3: the last CSV row is fully known at
+    # its own close, so lookahead_days = 0 for every sleeve. (QUANTUM was
+    # retired from the production blend — see PHOENIX_V3.md.)
     sleeve_map = [
-        ("VANGUARD", "vanguard_strategy.py", "vanguard_returns.csv", None,   0),
-        ("ORION",    "orion_strategy.py",    "orion_returns.csv",    "Date", 1),
-        ("HELIOS",   "helios_strategy.py",   "helios_returns.csv",   "Date", 2),
-        ("QUANTUM",  "quantum_strategy.py",  "quantum_returns.csv",  "Date", 0),
+        ("VANGUARD",  "vanguard_strategy.py",  "vanguard_returns.csv",  None,   0),
+        ("ORION",     "orion_strategy.py",     "orion_returns.csv",     "Date", 0),
+        ("HELIOS",    "helios_strategy.py",    "helios_returns.csv",    "Date", 0),
+        ("CRYPTO",    "phoenix_v2_crypto.py",  "crypto_returns.csv",    "Date", 0),
+        ("REVERSAL",  "reversal_strategy.py",  "reversal_returns.csv",  "Date", 0),
+        ("TOM",       "tom_strategy.py",       "tom_returns.csv",       "Date", 0),
+        ("BONDTREND", "bondtrend_strategy.py", "bondtrend_returns.csv", "Date", 0),
     ]
     for name, script, csv_name, date_col, lookahead in sleeve_map:
         last = get_sleeve_last_date(csv_name)
@@ -513,17 +467,6 @@ def main():
             print(f"\n{name}: last date {last} vs market {latest} — extend "
                   f"(preserving history, lookahead={lookahead})")
             extend_sleeve_preserving_history(name, script, csv_name, date_col, lookahead)
-
-    # CRYPTO uses port_ret.shift(1) so the last saved date isn't NaN-filled —
-    # no lookahead trim needed.
-    cry_last = get_sleeve_last_date("crypto_returns.csv")
-    if cry_last is None or (latest and cry_last < latest):
-        print(f"\nCRYPTO: last date {cry_last} — extending (preserving history)")
-        extend_sleeve_preserving_history("CRYPTO", "phoenix_v2_crypto.py",
-                                          "crypto_returns.csv", "Date",
-                                          lookahead_days=0)
-    else:
-        print(f"\nCRYPTO: already at {cry_last} — skip rerun ✓")
 
     # 4. Re-run production strategy (reads all 5 sleeves, blends + applies overlay)
     # This is fast (~2s) and should always run so the final net_ret reflects the
@@ -564,12 +507,18 @@ def main():
     print("\n=== Injecting into docs/phoenix.html ===")
     inject_into_html()
 
-    # 9. Validate everything against frozen backtest expectations
+    # 9. Validate everything against frozen backtest expectations. This is a
+    # GATE: a failed validation exits nonzero so the workflow does not commit
+    # a corrupted state.
     print("\n=== Validating state against frozen backtest ===")
-    run(["python3", str(ALT / "validate_state.py")],
-        "State validation (IS metrics must match backtest exactly)")
+    ok = run(["python3", str(ALT / "validate_state.py")],
+             "State validation (gating)")
+    if not ok:
+        print("\n❌ Validation FAILED — refusing to complete refresh; nothing "
+              "should be committed from this run.")
+        sys.exit(1)
 
-    print("\n✅ Refresh complete. See validation block above for pass/fail details.")
+    print("\n✅ Refresh complete and validated.")
 
 
 if __name__ == "__main__":

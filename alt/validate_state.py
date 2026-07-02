@@ -1,246 +1,153 @@
-"""Post-refresh validation — prints a pass/fail report against frozen expectations.
+"""PHOENIX v3 state validation — run at the end of every refresh.
 
-Run at the end of every cron. Confirms:
-  1. Production parameters match the locked config (weights, vol target, cap, etc.)
-  2. Each sleeve's returns CSV covers IS (2010-2018) and now extends through today
-  3. IS-window metrics (Sharpe, CAGR, MDD) match the frozen backtest values —
-     historical returns must NOT change between runs; if they do, something
-     upstream has drifted
-  4. OOS-window metrics sanity check
-  5. Full-window (2010-today) metrics sanity check
-  6. Live signal: overlay multiplier math, regime flags, date alignment
-
-Exit code: 0 if all checks pass, 1 if any FAIL (cron will still continue —
-this is a report, not a gate; but the log makes drift visible).
+Checks (exit code 1 on any FAIL — the refresh pipeline treats this as a
+gate and the workflow will not commit a failing state):
+  1. Production params in phoenix_production_metrics.json match the code.
+  2. Every sleeve CSV exists, is current (within 5 calendar days of the
+     SPY close), has no duplicate dates, and has no suspicious trailing
+     run of exact-zero returns (>= 4 rows — under the unified convention
+     the last row is fully known, so long zero tails mean a data problem,
+     not a pending repair).
+  3. No sleeve has a |daily return| > 60% (split/seam corruption canary;
+     the biggest legitimate day in 16 years of 3x-LETF sleeves is ~35%).
+  4. Price-basis integrity: sampled price files must NOT contain a mixed
+     adjusted/raw seam (an 'Adj Close' column differing from Close).
+  5. Frozen-history integrity: the 2014-2018 window of net_ret matches the
+     frozen reference Sharpe within +/-0.02 (this window's sleeve rows are
+     frozen; only a merge bug or retroactive edit can move it).
+  6. live_signal.json sanity: weights sum to ~100%, gross <= 100.5%,
+     overlay mult in [0,1], as_of current.
 """
 from __future__ import annotations
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).parent.parent
+ROOT = Path(__file__).resolve().parent.parent
 R = ROOT / "data/results"
 ETF = ROOT / "data/etfs"
+ALT = ROOT / "alt"
+sys.path.insert(0, str(ALT))
 
-# ==== FROZEN EXPECTATIONS (these should NEVER change across cron runs) ====
-EXPECTED = {
-    "weights": {"VANGUARD": 0.236, "ORION": 0.327, "HELIOS": 0.185,
-                "QUANTUM": 0.152, "CRYPTO": 0.101},
-    "params": {"target_vol": 0.15, "vol_cap": 1.0, "vol_floor": 0.25,
-               "dd_floor": -0.10, "vol_gate_pct": 0.99, "tc_bps_per_lev_chg": 10.0},
-    # IS metrics — frozen ranges. Small drift is acceptable because yfinance
-    # occasionally revises historical data (splits/dividends/GBTC ETF conversion),
-    # which produces slightly different sleeve returns on re-runs.
-    # Sharpe floor is what we need to hold onto; if IS Sharpe drops below 2.0
-    # something is materially wrong.
-    "is_metrics": {"sharpe_min": 2.0, "sharpe_max": 2.7,
-                   "cagr_min": 0.28, "cagr_max": 0.42,
-                   "mdd_min": -0.22, "mdd_max": -0.13},
-    # OOS metrics — grow as cron extends today's data
-    "oos_metrics": {"sharpe_min": 1.50, "cagr_min": 0.25},
-    # Full-window metrics
-    "full_metrics": {"sharpe_min": 1.80, "cagr_min": 0.25, "mdd_max": -0.25},
-}
+import phoenix_production as prod
 
-IS_END = "2018-12-31"
-OOS_START = "2019-01-02"
+# Frozen reference: 2014-2018 Sharpe of the v3 backtest at the time the
+# history baseline was committed. The sleeve rows in this window are frozen
+# by refresh_all's merge, so this number must be stable run-to-run.
+FROZEN_2014_2018_SHARPE = 1.3179  # v3 baseline, committed 2026-07-02
+
+FAILS = []
+WARNS = []
 
 
-def log(symbol, msg):
-    print(f"  [{symbol}] {msg}")
+def check(name: str, ok: bool, detail: str = "", warn_only: bool = False):
+    status = "PASS" if ok else ("WARN" if warn_only else "FAIL")
+    print(f"  [{status}] {name}" + (f" — {detail}" if detail else ""))
+    if not ok:
+        (WARNS if warn_only else FAILS).append(name)
 
 
-checks = {"pass": 0, "fail": 0, "warn": 0}
+def main() -> int:
+    print("=" * 70)
+    print("PHOENIX v3 state validation")
+    print("=" * 70)
 
+    # --- 1. params
+    m = json.loads((R / "phoenix_production_metrics.json").read_text())
+    p = m["params"]
+    check("params.target_vol matches code", p["target_vol"] == prod.TARGET_VOL)
+    check("params.vol_cap matches code", p["vol_cap"] == prod.VOL_CAP)
+    check("params.dd_floor matches code", p["dd_floor"] == prod.DD_FLOOR)
+    check("params.sleeves match registry",
+          set(p["sleeves"].keys()) == set(prod.SLEEVES.keys()),
+          detail=",".join(sorted(p["sleeves"].keys())))
 
-def check(cond, msg_ok, msg_fail, warn=False):
-    if cond:
-        log("PASS", msg_ok); checks["pass"] += 1
-    elif warn:
-        log("WARN", msg_fail); checks["warn"] += 1
-    else:
-        log("FAIL", msg_fail); checks["fail"] += 1
+    # --- anchor date
+    spy = pd.read_csv(ETF / "SPY.csv", parse_dates=["Date"]).sort_values("Date")
+    spy_last = spy["Date"].iloc[-1]
 
+    # --- 2+3. sleeves
+    for tag, (csv, col) in prod.SLEEVES.items():
+        f = R / csv
+        if not f.exists():
+            check(f"{tag}: CSV exists", False)
+            continue
+        df = pd.read_csv(f)
+        dc = "Date" if "Date" in df.columns else df.columns[0]
+        dates = pd.to_datetime(df[dc])
+        s = pd.to_numeric(df[col], errors="coerce")
+        check(f"{tag}: current", (spy_last - dates.iloc[-1]).days <= 5,
+              detail=f"last={dates.iloc[-1].date()} vs SPY {spy_last.date()}")
+        check(f"{tag}: no duplicate dates", not dates.duplicated().any())
+        tail = s.tail(6).values
+        run0 = 0
+        for v in tail[::-1]:
+            if v == 0.0:
+                run0 += 1
+            else:
+                break
+        check(f"{tag}: no trailing zero-run", run0 < 4,
+              detail=f"trailing zeros={run0}", warn_only=(run0 < 6))
+        big = float(np.nanmax(np.abs(s.values))) if len(s) else 0.0
+        check(f"{tag}: no absurd daily return", big <= 0.60,
+              detail=f"max |ret|={big:.2%}")
 
-def metrics(r: pd.Series) -> dict:
-    r = r.dropna()
-    if len(r) == 0:
-        return {}
-    mu = r.mean() * 252; sd = r.std() * np.sqrt(252)
-    sr = mu / sd if sd > 0 else 0
-    c = (1 + r).cumprod(); dd = (c / c.cummax() - 1).min()
-    yrs = len(r) / 252
-    cagr = c.iloc[-1] ** (1 / yrs) - 1 if c.iloc[-1] > 0 else -1
-    return {"sharpe": float(sr), "cagr": float(cagr), "mdd": float(dd),
-            "navx": float(c.iloc[-1]), "n": int(len(r))}
+    # --- 4. price-basis integrity (sampled)
+    for t in ["TQQQ", "TMF", "SPY", "BIL", "IBIT"]:
+        f = ETF / f"{t}.csv"
+        if not f.exists():
+            continue
+        df = pd.read_csv(f)
+        if "Adj Close" in df.columns:
+            adj = pd.to_numeric(df["Adj Close"], errors="coerce")
+            cls = pd.to_numeric(df["Close"], errors="coerce")
+            both = adj.notna() & cls.notna()
+            mixed = bool(both.any() and not np.allclose(adj[both], cls[both], rtol=1e-6))
+            check(f"{t}: no adjusted/raw seam", not mixed, warn_only=True,
+                  detail="Adj Close differs from Close — mixed basis")
+        # else: single-basis file (fully adjusted rewrite) — fine
 
-
-def main():
-    print("=" * 74)
-    print("PHOENIX state validation — run after every cron refresh")
-    print("=" * 74)
-    print(f"Validation time (UTC): {datetime.now(timezone.utc).isoformat(timespec='seconds')}")
-    print()
-
-    # ------- 1. Production parameters -------
-    print("[1/6] Production parameters")
-    prod_meta = json.loads((R/"phoenix_production_metrics.json").read_text())
-    p = prod_meta.get("params", {})
-    for k, v in EXPECTED["params"].items():
-        got = p.get(k)
-        check(got == v,
-              f"{k} = {v}",
-              f"{k} expected {v} but got {got}")
-    pw = prod_meta.get("params", {}).get("weights", {})
-    ew = EXPECTED["weights"]
-    for k, v in ew.items():
-        got = pw.get(k)
-        check(abs((got or 0) - v) < 0.005,
-              f"weight {k} = {v:.3f}",
-              f"weight {k} expected {v:.3f} but got {got}")
-
-    # ------- 2. Sleeve CSVs: coverage -------
-    print("\n[2/6] Sleeve CSV coverage (start + rows + MUST be current)")
-    # Find the latest common market close across SPY/QQQ/IBIT — this is the
-    # "truth" date that sleeves should extend to.
-    market_latest = None
-    for t in ["SPY", "QQQ", "IBIT"]:
-        p = ROOT / "data/etfs" / f"{t}.csv"
-        if p.exists():
-            df = pd.read_csv(p, parse_dates=["Date"])
-            d = df["Date"].iloc[-1].date()
-            market_latest = min(market_latest, d) if market_latest else d
-    log("INFO", f"Latest common market date (SPY/QQQ/IBIT): {market_latest}")
-
-    sleeve_end_dates = {}
-    for name, fn, col in [("VANGUARD", "vanguard_returns.csv", "net_ret"),
-                           ("ORION", "orion_returns.csv", "orion"),
-                           ("HELIOS", "helios_returns.csv", "ret"),
-                           ("QUANTUM", "quantum_returns.csv", "ret"),
-                           ("CRYPTO", "crypto_returns.csv", "ret")]:
-        fp = R / fn
-        if not fp.exists():
-            log("FAIL", f"{name}: {fn} missing!"); checks["fail"] += 1; continue
-        df = pd.read_csv(fp, parse_dates=[0] if name == "VANGUARD" else ["Date"])
-        if name == "VANGUARD":
-            df = df.set_index(df.columns[0])
+    # --- 5. frozen-window stability
+    prod_csv = R / "phoenix_production_returns.csv"
+    if prod_csv.exists():
+        pr = pd.read_csv(prod_csv, parse_dates=["Date"]).set_index("Date")["net_ret"]
+        win = pr.loc["2014-01-02":"2018-12-31"].dropna()
+        sr = float(win.mean() / win.std() * np.sqrt(252)) if win.std() > 0 else 0.0
+        if FROZEN_2014_2018_SHARPE is None:
+            print(f"  [INFO] 2014-2018 Sharpe = {sr:.4f} (no frozen reference set yet)")
         else:
-            df = df.set_index("Date")
-        start = df.index[0].date()
-        end = df.index[-1].date()
-        n = len(df)
-        sleeve_end_dates[name] = end
-        check(start <= pd.Timestamp("2010-04-01").date(),
-              f"{name:9s}  start {start} (covers 2010-IS)",
-              f"{name} start {start} is AFTER 2010-04-01")
-        check(n > 4000,
-              f"{name:9s}  {n} rows",
-              f"{name} only {n} rows (expected > 4000)")
-        # CRITICAL: sleeve MUST be current (within 5 business days of market close)
-        # If it's not, it means today's cron didn't actually extend it (paths broken,
-        # yfinance failed, strategy crashed, etc.) and the live signal is running
-        # on STALE backtest data.
-        if market_latest is not None:
-            gap_days = (market_latest - end).days
-            check(gap_days <= 5,
-                  f"{name:9s}  end   {end} (≤ 5 cal days from market {market_latest})",
-                  f"{name:9s}  end   {end} is {gap_days} cal days BEHIND market {market_latest} — sleeve did NOT extend this cron!")
+            check("frozen 2014-2018 Sharpe stable",
+                  abs(sr - FROZEN_2014_2018_SHARPE) <= 0.02,
+                  detail=f"{sr:.4f} vs frozen {FROZEN_2014_2018_SHARPE:.4f}")
 
-    # Also check sleeves agree with each other (all at same end date)
-    if len(set(sleeve_end_dates.values())) > 1:
-        log("WARN", f"Sleeves disagree on end date: {sleeve_end_dates}")
-        checks["warn"] += 1
+    # --- 6. live signal sanity
+    ls = R / "live_signal.json"
+    if ls.exists():
+        live = json.loads(ls.read_text())
+        tw = {t["ticker"]: t["weight"] for t in live.get("target_positions", [])}
+        tot = sum(tw.values())
+        check("live: weights sum ~100%", 0.97 <= tot <= 1.005, detail=f"sum={tot:.4f}")
+        gross_risk = sum(v for k, v in tw.items() if k != "BIL")
+        check("live: no margin (risk gross <= 100.5%)", gross_risk <= 1.005,
+              detail=f"risk gross={gross_risk:.4f}")
+        om = live.get("context", {}).get("overlay_mult", None)
+        check("live: overlay mult in [0,1]", om is not None and 0.0 <= om <= 1.0,
+              detail=f"mult={om}")
+        check("live: as_of current",
+              (spy_last - pd.Timestamp(live["context"]["as_of"])).days <= 5,
+              detail=f"as_of={live['context']['as_of']}")
     else:
-        log("PASS", f"All 5 sleeves at same end date: {list(sleeve_end_dates.values())[0]}")
-        checks["pass"] += 1
+        check("live_signal.json exists", False, warn_only=True)
 
-    latest = max(sleeve_end_dates.values()) if sleeve_end_dates else None
-
-    # ------- 3. IS metrics stability (range-based, tolerates yfinance data revisions) -------
-    print("\n[3/6] IS metrics (ranges — yfinance occasionally revises history)")
-    prod = pd.read_csv(R/"phoenix_production_returns.csv", parse_dates=["Date"]).set_index("Date")
-    ret = prod["net_ret"]
-    m_is = metrics(ret.loc[:IS_END])
-    exp = EXPECTED["is_metrics"]
-    check(exp["sharpe_min"] <= m_is["sharpe"] <= exp["sharpe_max"],
-          f"IS Sharpe  {m_is['sharpe']:.2f}  (in [{exp['sharpe_min']}, {exp['sharpe_max']}])",
-          f"IS Sharpe  {m_is['sharpe']:.2f}  OUTSIDE [{exp['sharpe_min']}, {exp['sharpe_max']}] — sleeve returns drifted")
-    check(exp["cagr_min"] <= m_is["cagr"] <= exp["cagr_max"],
-          f"IS CAGR    {m_is['cagr']*100:.1f}%  (in [{exp['cagr_min']*100:.0f}%, {exp['cagr_max']*100:.0f}%])",
-          f"IS CAGR    {m_is['cagr']*100:.1f}%  OUTSIDE range")
-    check(exp["mdd_min"] <= m_is["mdd"] <= exp["mdd_max"],
-          f"IS MDD     {m_is['mdd']*100:.1f}%  (in [{exp['mdd_min']*100:.0f}%, {exp['mdd_max']*100:.0f}%])",
-          f"IS MDD     {m_is['mdd']*100:.1f}%  OUTSIDE range — check sleeve logic")
-
-    # ------- 4. OOS metrics sanity -------
-    print("\n[4/6] OOS metrics (grows as cron extends; sanity-check only)")
-    m_oos = metrics(ret.loc[OOS_START:])
-    exp = EXPECTED["oos_metrics"]
-    check(m_oos["sharpe"] >= exp["sharpe_min"],
-          f"OOS Sharpe {m_oos['sharpe']:.2f}  (>= {exp['sharpe_min']})",
-          f"OOS Sharpe {m_oos['sharpe']:.2f}  BELOW minimum {exp['sharpe_min']}")
-    check(m_oos["cagr"] >= exp["cagr_min"],
-          f"OOS CAGR   {m_oos['cagr']*100:.1f}%  (>= {exp['cagr_min']*100:.0f}%)",
-          f"OOS CAGR   {m_oos['cagr']*100:.1f}%  BELOW minimum {exp['cagr_min']*100:.0f}%")
-
-    # ------- 5. Full-window metrics -------
-    print("\n[5/6] Full-window metrics (2010-today)")
-    m_full = metrics(ret)
-    exp = EXPECTED["full_metrics"]
-    check(m_full["sharpe"] >= exp["sharpe_min"],
-          f"Full Sharpe {m_full['sharpe']:.2f}  (>= {exp['sharpe_min']})",
-          f"Full Sharpe {m_full['sharpe']:.2f}  BELOW minimum {exp['sharpe_min']}")
-    check(m_full["cagr"] >= exp["cagr_min"],
-          f"Full CAGR   {m_full['cagr']*100:.1f}%  (>= {exp['cagr_min']*100:.0f}%)",
-          f"Full CAGR   {m_full['cagr']*100:.1f}%  BELOW minimum {exp['cagr_min']*100:.0f}%")
-    check(m_full["mdd"] >= exp["mdd_max"],
-          f"Full MDD    {m_full['mdd']*100:.1f}%  (>= {exp['mdd_max']*100:.0f}%)",
-          f"Full MDD    {m_full['mdd']*100:.1f}%  WORSE than expected {exp['mdd_max']*100:.0f}%")
-    log("INFO", f"NAV× = {m_full['navx']:.1f}  ({m_full['n']} trading days)")
-    log("INFO", f"Last return date in production CSV: {ret.index[-1].date()}")
-
-    # ------- 6. Live signal -------
-    print("\n[6/6] Live signal")
-    live_p = R / "live_signal.json"
-    if not live_p.exists():
-        log("FAIL", "live_signal.json missing!"); checks["fail"] += 1
-    else:
-        live = json.loads(live_p.read_text())
-        ctx = live.get("context", {})
-        as_of = ctx.get("as_of")
-        mult = ctx.get("overlay_mult")
-        regime = ctx.get("regime_gate_pass")
-        vix = ctx.get("vix")
-        positions = live.get("target_positions", [])
-        total_w = sum(p.get("weight", 0) for p in positions)
-        log("INFO", f"as_of: {as_of}")
-        log("INFO", f"overlay_mult: {(mult or 0)*100:.1f}%  (0 ≤ mult ≤ 1)")
-        log("INFO", f"regime_gate_pass: {regime}  (VIX={vix})")
-        log("INFO", f"target positions: {len(positions)} entries")
-        log("INFO", f"  " + "  ·  ".join(f"{p['ticker']} {p['pct']:.1f}%" for p in positions[:6]))
-        check(mult is not None and 0 <= mult <= 1.0,
-              f"overlay_mult in [0, 1.0] — no margin",
-              f"overlay_mult = {mult}  VIOLATES no-margin constraint")
-        check(abs(total_w - 1.0) < 0.01,
-              f"target positions sum to {total_w*100:.2f}% (≈ 100%)",
-              f"target positions sum to {total_w*100:.2f}% — should be ~100%")
-        check(as_of is not None,
-              f"signal has an as_of date: {as_of}",
-              f"signal missing as_of date")
-
-    # ------- Summary -------
-    print()
-    print("=" * 74)
-    print(f"Validation summary: {checks['pass']} pass, {checks['warn']} warn, {checks['fail']} fail")
-    print("=" * 74)
-    if checks["fail"] > 0:
-        print("⚠️  Drift detected. Investigate before trusting today's live signal.")
+    print("-" * 70)
+    if FAILS:
+        print(f"VALIDATION FAILED: {len(FAILS)} check(s): {FAILS}")
         return 1
-    print("✅ All checks passed.  Live signal matches the frozen backtest spec.")
+    print(f"Validation passed ({len(WARNS)} warning(s): {WARNS})" if WARNS
+          else "Validation passed (all checks green)")
     return 0
 
 

@@ -43,8 +43,10 @@ jobs:
           echo "No changes to commit"
         else
           git commit -m "PHOENIX refresh: $(date -u +%Y-%m-%d)"
-          # Retry push on transient errors
+          # Rebase before push so a race with daily-update.yml doesn't drop
+          # this run's state; retry on transient errors.
           for i in 1 2 3; do
+            git pull --rebase --autostash origin "$(git rev-parse --abbrev-ref HEAD)" || true
             git push && break
             echo "Push attempt $i failed, retrying..."
             sleep $((i*2))
