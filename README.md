@@ -25,6 +25,12 @@ factsheets at https://viki-m13.github.io/bonds/ :
   academic + FinTwit + retail research sweep, validated with an honest IS/OOS
   event study and a survivorship-matched random control. Full record in
   [`parabolic/README.md`](parabolic/README.md).
+- **ASCENT** — the honest answer to "which stocks to buy every 2 weeks/month,
+  min-30-day hold, cut losers, beat QQQ-DCA": a stricter mandate-specific
+  harness, ~40 new configurations, proper nulls/trajectory/era tests — and the
+  finding that the previously-published WAVE champion rests on two backtest
+  defects. Verdict, deployable spec, and current picks in
+  [`dca/research/strategies/ascent/FINDINGS.md`](dca/research/strategies/ascent/FINDINGS.md).
 
 ## Data Sources
 

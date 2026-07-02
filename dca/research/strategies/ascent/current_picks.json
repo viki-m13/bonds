@@ -1,0 +1,24 @@
+{
+ "asof": "2026-06-01",
+ "mode2_buy": [
+  "MU",
+  "NVDA",
+  "MRVL",
+  "SNDK",
+  "INTC"
+ ],
+ "ml_reference": [
+  "GDOT",
+  "OFG",
+  "DECK",
+  "GM",
+  "PRU",
+  "TNL",
+  "MET",
+  "KOP",
+  "AER",
+  "TK",
+  "DAC",
+  "TROW"
+ ]
+}

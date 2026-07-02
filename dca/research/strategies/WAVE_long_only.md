@@ -1,9 +1,21 @@
 # WAVE — Long-Only Concentrated Stock-Picker (NO margin, NO shorting)
 
-> **Status: CURRENT deployment track.** Long-only, no leverage, no shorting —
-> matches the live mandate. Survivorship-clean PIT backtest.
-> Scripts: `dca/research/exp79_ml_longonly.py` (picker), `exp77_runners.py`
-> (runner mechanics), `exp70_composite.py` (factor composite).
+> **⚠️ STATUS DOWNGRADED (2026-07-02): does NOT survive independent rebuild.**
+> An independent re-implementation (`strategies/ascent/FINDINGS.md` §3) found
+> two backtest defects in the published numbers: (1) test-time survivor
+> filtering — candidates required a complete forward-12-month label, so names
+> that delisted/were acquired within a year were silently unpickable; (2)
+> train/test label overlap — fwd-12m training labels reached into the test
+> year. Fixed, the champion falls from the published 21.5%/1.41 to ~12%/0.73 —
+> below QQQ (19.6%/1.06) — and under a DCA + costs + min-hold harness it lands
+> inside the random-score null. The cross-sectional IC (~0.075) is real; the
+> QQQ-beat is not. Treat like SUMMIT: retired claim. Details + decomposition
+> table in `ascent/FINDINGS.md`.
+
+> Original status text (historical): CURRENT deployment track. Long-only, no
+> leverage, no shorting — matches the live mandate. Survivorship-clean PIT
+> backtest. Scripts: `dca/research/exp79_ml_longonly.py` (picker),
+> `exp77_runners.py` (runner mechanics), `exp70_composite.py` (factor composite).
 
 ## The strategy
 Pick a concentrated book of ~12 names each month from the **ML stock-picker**
