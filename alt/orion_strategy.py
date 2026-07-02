@@ -355,6 +355,8 @@ def build_weights(live_extend: bool = False) -> pd.DataFrame:
     W_risk = build_risk_sleeve(opens, closes, macro)
     W_safe = build_safe_sleeve(opens, closes)
     W = RISK_WEIGHT * W_risk + SAFE_WEIGHT * W_safe
+    # Residual cash held in BIL (live holds BIL, not 0%-yield cash)
+    W["BIL"] = (1.0 - W.sum(axis=1)).clip(lower=0.0)
     return W.loc[START_DATE:END_DATE]
 
 
@@ -385,7 +387,10 @@ def main():
     W_risk = build_risk_sleeve(opens, closes, macro).loc[START_DATE:END_DATE]
     W_safe = build_safe_sleeve(opens, closes).loc[START_DATE:END_DATE]
     W = RISK_WEIGHT * W_risk + SAFE_WEIGHT * W_safe
+    W["BIL"] = (1.0 - W.sum(axis=1)).clip(lower=0.0)
     opens_bt = opens.loc[W.index.min():W.index.max()]
+    opens_bt = opens_bt.copy()
+    opens_bt["BIL"] = _read_etf("BIL")["BIL_Open"].reindex(opens_bt.index).ffill(limit=3)
 
     returns, dw = backtest(W, opens_bt)
     returns.name = "orion"

@@ -264,7 +264,11 @@ def build_weights(
     trg = compute_trigger_count(fred, spy)
     part = participation_from_triggers(trg)
     basket_w = build_basket_weights(opens, closes, mom_lb=mom_lb, sma_lb=sma_lb, vol_lb=vol_lb)
-    return basket_w.mul(part * gross, axis=0)
+    w = basket_w.mul(part * gross, axis=0)
+    # Residual cash is held in BIL (the live portfolio actually holds BIL,
+    # not 0%-yield cash; booking it at 0 understated returns).
+    w["BIL"] = (1.0 - w.sum(axis=1)).clip(lower=0.0)
+    return w
 
 
 def run(
@@ -286,10 +290,14 @@ def run(
     # Basket
     basket_w = build_basket_weights(opens, closes, mom_lb=mom_lb, sma_lb=sma_lb, vol_lb=vol_lb)
 
-    # Apply gate + gross
+    # Apply gate + gross; residual cash held in BIL
     w = basket_w.mul(part * gross, axis=0)
+    w["BIL"] = (1.0 - w.sum(axis=1)).clip(lower=0.0)
 
-    bt = backtest(opens, w, tc_rate=TC_RATE).loc[IS_START:]
+    bil = load_etf("BIL")
+    opens_bt = opens.copy()
+    opens_bt["BIL"] = bil["Open"].reindex(opens.index).ffill(limit=3)
+    bt = backtest(opens_bt, w, tc_rate=TC_RATE).loc[IS_START:]
     net = bt["net_ret"]
 
     is_r = net.loc[IS_START:IS_END]

@@ -56,7 +56,8 @@ def build_weights(live_extend: bool = False) -> pd.DataFrame:
         m = dates[ym == p]
         pos.loc[m[-N_BEFORE:]] = 1.0
         pos.loc[m[:N_AFTER]] = 1.0
-    W = pd.DataFrame({VEHICLE: pos})
+    # Residual cash held in BIL (live holds BIL, not 0%-yield cash)
+    W = pd.DataFrame({VEHICLE: pos, "BIL": 1.0 - pos})
     return W.loc[START_DATE:]
 
 
@@ -64,8 +65,9 @@ def main():
     from sleeve_engine import backtest_weights, perf_block
 
     W = build_weights()
-    opens = load_etf(VEHICLE)[["Open"]].rename(columns={"Open": VEHICLE}).reindex(W.index)
-    bt = backtest_weights(W, opens, COST_BPS)
+    opens = pd.DataFrame({VEHICLE: load_etf(VEHICLE)["Open"],
+                          "BIL": load_etf("BIL")["Open"]}).reindex(W.index).ffill(limit=3)
+    bt = backtest_weights(W, opens, {VEHICLE: COST_BPS, "BIL": 2.0})
     ret = bt["ret"]
 
     m = {"full": perf_block(ret), "is": perf_block(ret.loc[:IS_END]),
