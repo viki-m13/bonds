@@ -29,12 +29,25 @@ direction, enter 9:35, stop at OR opposite extreme, EOD exit, risk-1%/trade,
 **Verdict so far:** honest ORB-on-ETFs ceiling ≈ 19%/0.72 at *optimistic*
 friction; ≤0 at conservative friction. Not a path to 25%/2.0 by itself.
 
+## Iteration 2 (2026-07-02) — intraday momentum, VWAP reversion, ORB ensembles
+
+`scripts/51_intraday_momentum.py` + inline studies:
+1. **Intraday momentum (GHLZ) is DEAD 2016–2026**: all 7 ETFs, all signal
+   variants (first-half-hour, penultimate, agree), ≈0 or negative even at
+   0.25bp/side. Textbook post-publication decay (paper sample was 1993–2013).
+2. **Afternoon VWAP reversion: no edge** (triggers <1% of days at usable
+   thresholds; returns ~0).
+3. **Cross-ETF ORB: only QQQ carries the edge** — SPY/IWM/GLD/TLT dilute
+   (4-ETF EW: 3.1%/0.29 vs QQQ-only 19.0%/0.72 at best-case costs).
+4. **ORB-QQQ corr to the EOD 6-sleeve book = −0.07** (genuinely orthogonal).
+   Best honest combined portfolio so far: **25% ORB + 75% EOD-k2 =
+   13.8% CAGR / 1.03 Sh(d) / 1.27 Sh(m) / −20% DD** — contingent on
+   0.25bp/side ORB friction (institutional-grade execution).
+
 ## Queue for next iterations
-- [ ] **Intraday momentum (Gao-Han-Li-Zhou)**: first-half-hour return predicts
-      last-half-hour; trade 15:30→close only. 1 round-trip/day max, unlevered
-      base — structurally cost-robust. Test on all 7 ETFs.
-- [ ] Afternoon VWAP reversion; noon-breakout variant of intraday TSMOM.
-- [ ] Cross-ETF intraday ORB ensemble at best-case cost (corr across ETFs?).
-- [ ] Combine best intraday sleeve(s) with the EOD 6-sleeve book (corr ≈ 0
-      expected) — measure ensemble Sharpe lift.
-- [ ] Honest final statement of the 25/2.0 feasibility with this data.
+- [ ] ORB exit engineering (dev/holdout): time-of-day exit, trailing stop,
+      profit target multiples — can gross/trade rise enough to survive 1bp?
+- [ ] Overnight session anomaly (close→open long QQQ; 1 trade/day, daily
+      OHLC suffices, 25yr history available).
+- [ ] Final loop verdict: honest 25%/2.0 feasibility statement + best
+      deployable portfolio; fold into FINDINGS_v2.
