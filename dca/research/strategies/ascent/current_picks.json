@@ -1,12 +1,5 @@
 {
  "asof": "2026-06-01",
- "mode2_buy": [
-  "MU",
-  "NVDA",
-  "MRVL",
-  "SNDK",
-  "INTC"
- ],
  "ml_reference": [
   "GDOT",
   "OFG",
@@ -20,5 +13,18 @@
   "TK",
   "DAC",
   "TROW"
+ ],
+ "strategy": "ASCENT (concentration-timed leaders basket, INV-6)",
+ "regime": {
+  "state": "ON",
+  "spread3": 1.912,
+  "persistence": 0.6
+ },
+ "ascent_buy": [
+  "MU",
+  "NVDA",
+  "MRVL",
+  "SNDK",
+  "INTC"
  ]
 }

@@ -157,6 +157,42 @@ small/mid-cap pond — a pond that structurally lagged QQQ all sample. Timing,
 entry rules, exits, cadence, and ML recombinations of the same features cannot
 manufacture the missing pond beta. (46+119 prior experiments; ~40 more here.)
 
+## 6b. Invention round 2 — new mechanisms, built and gauntleted (`run_invent.py`, `run_invent2.py`)
+
+Per the mandate to *invent*, four mechanisms no prior repo work had tried:
+
+* **INV-1 Beta-harvest** (top-8 trailing-beta NDX names — compensated risk as an
+  implicit-leverage substitute): 1.86× (2015–26) but the trajectory shows the
+  whole lead arrived in the final 6 months (1.04/0.88/1.11/0.78/0.99→1.86), and
+  2003–14 = 0.46× with −71% DD. High beta is not proportionally compensated
+  (vol drag + crashes) — dead.
+* **INV-2 Leadership-persistence switch** (top-10-$-volume set overlap vs 12m ago
+  ≥ 0.6 → hold leaders basket, else QQQ): 3.99× (2015–26), beats QQQ in BOTH dev
+  and holdout — but the detector almost never fired OFF in-sample (p25 = 0.70)
+  and only cushioned 2003–09 to 0.66×. Too slow.
+* **INV-4 Faithful staged-exit qualifier** (exp67 ladder under the mandate
+  harness): 0.80× — fails in DCA form.
+* **INV-6 Concentration timing** (the genuine invention: hold the leaders basket
+  only while the *concentration premium itself* is trending — current top-5
+  trailing-6m return > QQQ's — else hold QQQ; always invested; disclosed as
+  designed after seeing the 2003–09 failure, so judged on untouched eras):
+
+| era | INV-6 vs QQQ-DCA | static basket | note |
+|---|--:|--:|---|
+| 2000–02 (untouched holdout) | 1.03× (−72% DD) | 1.03× | spread is relative → no crash protection |
+| 2003–09 | 0.46× | 0.44× | designed-for failure mode NOT fixed |
+| 2010–14 | 0.79× (−15% DD) | 0.78× (−37% DD) | DD halved — timing's real contribution |
+| 2015–19 | 1.01× | 0.88× | |
+| 2020–26 | 2.58× | 2.34× | the AI/mega-cap era pays |
+| 2000–26 full | 2.80× | 1.75× | −81% max DD; 2003-start trajectory sat at 0.5× for 17 years |
+
+Random-picks null with the same timing overlay: mean 0.53× — the era beta lives
+in the *leaders* selection, not the overlay. **Conclusion: INV-6 strictly
+dominates the static leaders basket (never worse, sometimes better, always
+invested) but does not create era-robust outperformance.** With this round, all
+four honest mechanism families are exhausted: selection alpha, pond
+concentration, compensated beta, and exposure-shape regime timing.
+
 ## 7. What to actually do (the deliverable)
 
 **PRIMARY (recommended): DCA into QQQ, biweekly or monthly, buy immediately on
@@ -165,22 +201,29 @@ here — this has the highest expected terminal wealth of anything implementable
 from this data. It also trivially satisfies the mandate (min-hold is moot; QQQ
 never triggers a cut).
 
-**STOCK-FORM VARIANT ("leaders basket") — only if you want tickers, sized as a
-satellite you can afford to see halve:**
-* Every 2 weeks (or monthly), rank current **NASDAQ-100 members** by median
-  daily dollar volume; **buy the top 5** (equal split of the contribution;
-  adding to an existing holding is fine).
-* Hold ≥ 30 days. Then: **cut** any holding that closes below its 10-month MA
-  or −30% from its peak since entry; redeploy proceeds with the next
-  contribution.
-* Honest expectations: 2015–2026 this made 2.3–6.6× QQQ's terminal wealth
-  *because* mega-cap leadership persisted; 2000–2014 the same rule did
-  0.65–0.95× with −60/−72% drawdowns. It is **a leadership-persistence bet —
-  concentrated QQQ, not alpha**. The cut-losers discipline is what caps the
-  rotation damage (era-extension DD −72% → the trend exit is load-bearing;
-  never remove it).
-* Current list (data through 2026-06-18): **MU, NVDA, MRVL, SNDK, INTC**
-  (next in line: AVGO, GOOGL). See `current_picks.json`; regenerate with
+**STOCK-FORM STRATEGY — "ASCENT" (the concentration-timed leaders basket,
+INV-6). This is the strategy for anyone who wants tickers; size it knowing its
+era profile (§6b table):**
+* **Regime check** (each buy date, causal): current top-5 NDX names by median
+  daily $ volume — is their equal-weight trailing-6-month return (3-month
+  smoothed) above QQQ's trailing-6-month return? Is the top-10 leadership set
+  ≥ 60% overlapping with 12 months ago?
+  * **Both yes → regime ON:** the contribution buys the **top-5 leaders**
+    (equal split; adding to an existing holding is fine), trend-gated
+    (price > 10-month MA).
+  * **Otherwise → regime OFF:** the contribution buys **QQQ**, and (after
+    their 30-day embargo) stock holdings are rotated back into QQQ.
+* **Exits** (only after 30 days held): close below the 10-month MA, or −30%
+  from the peak since entry, or regime OFF. Proceeds redeploy at the next
+  buy date. Never remove the trend exit — it is what caps rotation damage.
+* Honest expectations: 5.06× QQQ-DCA terminal wealth 2015–2026 and ≥ the
+  static basket in every tested era, BUT 0.46–0.79× through 2003–2014 and a
+  −72% drawdown through 2000–02. It outperforms **if and only if concentrated
+  mega-cap leadership eras persist/recur**. That is a bet, honestly priced —
+  not extracted alpha.
+* **Current state (data through 2026-06-18): regime ON** (leaders spread
+  +191%, persistence 0.60). **Buy list: MU, NVDA, MRVL, SNDK, INTC** (next in
+  line: AVGO, GOOGL). See `current_picks.json`; regenerate with
   `scripts/current_picks.py` after refreshing prices (needs `TIINGO_KEY`).
 
 **What NOT to do:** deploy the ML/insider/qualifier pickers expecting a QQQ
