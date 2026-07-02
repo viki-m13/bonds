@@ -296,8 +296,6 @@ def compute_overlay_mult(as_of_close: pd.Timestamp | None = None) -> tuple[float
         parts = [f"No vol target (v3.1) — EWMA vol {ew_vol.iloc[-1]*100:.1f}%, tail overlays only"]
     else:
         parts = [f"EWMA vol target {TARGET_VOL*100:.0f}% → mult {vt_mult:.2f}x (EWMA vol {ew_vol.iloc[-1]*100:.1f}%)"]
-    if dd_mult < 1.0:
-        parts.append(f"DD throttle {dd_mult*100:.0f}% (current DD {dd.iloc[-1]*100:.1f}%)")
     if vol_gate_mult < 1.0:
         parts.append("Vol-regime gate ACTIVE (60d vol > 99th pct of trailing 252d)")
     if dd_mult >= 1.0 and vol_gate_mult >= 1.0:

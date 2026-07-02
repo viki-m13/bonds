@@ -40,7 +40,7 @@ jobs:
         python -c "
         import yfinance as yf
         import pandas as pd
-        spy = yf.download('SPY', start='2005-01-01', progress=False)
+        spy = yf.download('SPY', start='2005-01-01', progress=False, auto_adjust=True)  # pin basis: PHOENIX sleeves read this file
         if isinstance(spy.columns, pd.MultiIndex):
             spy.columns = spy.columns.get_level_values(0)
         spy.index.name = 'Date'
@@ -99,5 +99,17 @@ jobs:
           echo "No changes to commit"
         else
           git commit -m "Daily update: $(date +%Y-%m-%d) market data and allocations"
-          git push
+          # Rebase before push: phoenix-signal.yml may push while this job
+          # runs; without the rebase this push fails and the run is dropped.
+          pushed=0
+          for i in 1 2 3; do
+            git pull --rebase --autostash origin "$(git rev-parse --abbrev-ref HEAD)" || git rebase --abort || true
+            if git push; then pushed=1; break; fi
+            echo "Push attempt $i failed, retrying..."
+            sleep $((i*2))
+          done
+          if [ "$pushed" -ne 1 ]; then
+            echo "::error::All push attempts failed — state not persisted"
+            exit 1
+          fi
         fi

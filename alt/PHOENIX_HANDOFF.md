@@ -1,5 +1,20 @@
 # PHOENIX — Complete Handoff Record
 
+> **v4 ADDENDUM (2026-07-02, independent re-review):** the v3.1 system this
+> handoff describes was itself independently re-audited and found to carry
+> five significant defects (permanently-long TOM live signal, fabricated ETH
+> tail on a dead feed, unfinanced 1.5x VANGUARD gross vs a "no margin"
+> claim, an allocator dominated by plain 1/N, a decade of non-investable
+> spot-crypto in the headline) plus a 2014 gate warm-up bug and validator
+> blind spots. All are fixed in **v4** (equal-weight-active allocator, CRY
+> from IBIT's listing, VAN gross 1.0, TOM calendar projection, crypto
+> staleness guard, seam-heal freeze floor, hardened validator/workflows).
+> Honest headline is now SR 1.09 / CAGR 22.4% / MDD -17.9% (2014-2026).
+> Read `alt/PHOENIX_V4_REVIEW.md` FIRST — it supersedes §3-4 below where
+> they conflict; the review documents (§2) and research ledger (§5) remain
+> fully valid.
+
+
 **Date:** 2026-07-02 · **Branch:** `claude/phoenix-strategy-review-pybwuz`
 **Purpose:** everything done in this engagement — the review of the original PHOENIX, every issue found, everything rebuilt, every experiment run, and where every artifact lives — so any agent (or human) can pick up from here with zero context loss.
 

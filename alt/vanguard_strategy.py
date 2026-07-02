@@ -13,7 +13,9 @@ Core architecture:
       yield-curve inversion, SPY-below-200d. Each trigger reduces
       participation in 25% steps (1.0 -> 0.75 -> 0.50 -> 0.25 -> 0.0)
       with 5-day smoothing for stability.
-    * Gross is scaled by a constant multiplier to hit the 20% CAGR target.
+    * Gross capped at 1.0 (no margin). The previous constant 1.5x gross
+      "to hit the 20% CAGR target" was in-sample calibration financed by
+      unmodeled 0%-cost margin and has been removed.
 
 Signal timing:
     * All signals computed through close[t-1].
@@ -236,12 +238,18 @@ def build_weights(
     mom_lb: int = 189,
     sma_lb: int = 200,
     vol_lb: int = 60,
-    gross: float = 1.5,
+    gross: float = 1.0,
     live_extend: bool = False,
 ) -> pd.DataFrame:
     """Compute the canonical target-weight DataFrame indexed by date with
-    columns = CORE tickers. Weights can sum > 1 (gross 1.5x). Used by both
-    the backtest in run() and the live-signal aggregator.
+    columns = CORE tickers. Gross is capped at 1.0 (no margin): the sleeve
+    historically ran gross=1.5 with ZERO financing cost, which was both
+    unimplementable in a cash account (the blend's stated mandate is
+    gross <= 100%) and the only way it hit its in-sample "20% CAGR target".
+    At gross=1.0 the sleeve is fully self-funding and its Sharpe is
+    unchanged-to-slightly-better (0.90 vs 0.88); the CAGR it loses was
+    margin, not edge. Used by both the backtest in run() and the
+    live-signal aggregator.
 
     Cash residual is implicit: gross_at_t < 1 means (1 - gross_at_t) sits
     in cash earning ~0.
@@ -275,7 +283,7 @@ def run(
     mom_lb: int = 189,
     sma_lb: int = 200,
     vol_lb: int = 60,
-    gross: float = 1.5,
+    gross: float = 1.0,
     verbose: bool = True,
 ):
     opens, closes = build_panels(CORE)

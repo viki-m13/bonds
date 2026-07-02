@@ -15,7 +15,7 @@ Design
 3. Absolute trend filter per asset: same momentum > 0 AND close > 200-day SMA.
 
 4. Macro meta-gate for RISK-asset eligibility:
-        VIX z-score (252d) < 0.75   AND   HY OAS 20d change < +0.3
+        VIX z-score (252d) < 1.5    AND   HY OAS 20d change < +0.3
    Defensive assets (TLT, GLD, IEF) bypass this gate because they
    typically benefit when the equity gate is off.
 
@@ -157,7 +157,7 @@ def build_signals(close_u: pd.DataFrame):
 def build_macro_gate(idx: pd.DatetimeIndex) -> pd.Series:
     """
     Equity risk-on gate.
-        vix_z < 0.75  AND  hy_chg20 < 0.3
+        vix_z < 1.5 (VIX_Z_CAP)  AND  hy_chg20 < 0.3 (HY_CHG20_CAP)
     VIX z-score is the 252-day rolling z; HY chg20 is 20-day level change.
     """
     vix = load_fred("VIXCLS").reindex(idx).ffill()

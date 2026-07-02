@@ -44,11 +44,18 @@ jobs:
         else
           git commit -m "PHOENIX refresh: $(date -u +%Y-%m-%d)"
           # Rebase before push so a race with daily-update.yml doesn't drop
-          # this run's state; retry on transient errors.
+          # this run's state; retry on transient errors. If every attempt
+          # fails, FAIL the job (the old loop ended on `sleep` and exited 0,
+          # silently dropping the day's state).
+          pushed=0
           for i in 1 2 3; do
-            git pull --rebase --autostash origin "$(git rev-parse --abbrev-ref HEAD)" || true
-            git push && break
+            git pull --rebase --autostash origin "$(git rev-parse --abbrev-ref HEAD)" || git rebase --abort || true
+            if git push; then pushed=1; break; fi
             echo "Push attempt $i failed, retrying..."
             sleep $((i*2))
           done
+          if [ "$pushed" -ne 1 ]; then
+            echo "::error::All push attempts failed — state not persisted"
+            exit 1
+          fi
         fi

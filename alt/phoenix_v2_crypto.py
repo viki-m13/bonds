@@ -95,11 +95,21 @@ def metrics(r):
     return {"sharpe": float(sr), "cagr": float(cagr), "mdd": float(dd), "vol": float(sd)}
 
 
+STALE_LIMIT = 3   # sessions without a real print in the in-use price source
+                  # before the asset is forced ineligible / out to cash.
+                  # Must be < the ffill limit (5) so a held position exits on
+                  # still-fillable prices before its return series goes NaN —
+                  # otherwise a dead feed silently books flat returns while
+                  # the asset moves (this exact failure fabricated ~19 flat
+                  # ETH days in May-Jun 2026 when ETHA/ETH_USD went stale).
+
+
 def build_chained_panel(dates: pd.DatetimeIndex):
     """Per asset: chained o2o/c2c return series on the NYSE calendar (spot
-    until the ETF lists, ETF after), a proxy-era mask, and chained synthetic
-    close levels for the momentum signal."""
-    o2o, c2c, closes, proxy_era, etf_first = {}, {}, {}, {}, {}
+    until the ETF lists, ETF after), a proxy-era mask, chained synthetic
+    close levels for the momentum signal, and a freshness mask (real print
+    in the in-use source within the last STALE_LIMIT sessions)."""
+    o2o, c2c, closes, proxy_era, etf_first, fresh = {}, {}, {}, {}, {}, {}
     for name, cfg in ASSETS.items():
         spot = load_etf(cfg["spot"])
         if spot is None:
@@ -107,8 +117,10 @@ def build_chained_panel(dates: pd.DatetimeIndex):
         etf = load_etf(cfg["etf"])
         s_open = spot["Open"].reindex(dates).ffill(limit=5)
         s_close = spot["Close"].reindex(dates).ffill(limit=5)
+        s_raw = spot["Open"].reindex(dates).notna()
         so2o = s_open.pct_change(fill_method=None)
         sc2c = s_close.pct_change(fill_method=None)
+        src_raw = s_raw
         if etf is not None and etf["Open"].dropna().size > 0:
             first = etf["Open"].dropna().index.min()
             e_open = etf["Open"].reindex(dates)
@@ -120,18 +132,22 @@ def build_chained_panel(dates: pd.DatetimeIndex):
             use_etf = dates > first
             so2o = so2o.where(~use_etf, eo2o.where(eo2o.notna(), so2o))
             sc2c = sc2c.where(~use_etf, ec2c.where(ec2c.notna(), sc2c))
+            src_raw = s_raw.where(~use_etf, e_open.notna())
             etf_first[name] = first
         else:
             etf_first[name] = None
         o2o[name] = so2o
         c2c[name] = sc2c
         closes[name] = (1 + sc2c.fillna(0.0)).cumprod()
+        # fresh[t]: the in-use source printed at least once in the last
+        # STALE_LIMIT sessions ending at t (known at close[t]).
+        fresh[name] = src_raw.rolling(STALE_LIMIT, min_periods=1).max().astype(bool)
         pe = pd.Series(True, index=dates)
         if etf_first[name] is not None:
             pe.loc[dates > etf_first[name]] = False
         proxy_era[name] = pe
     return (pd.DataFrame(o2o), pd.DataFrame(c2c), pd.DataFrame(closes),
-            pd.DataFrame(proxy_era), etf_first)
+            pd.DataFrame(proxy_era), etf_first, pd.DataFrame(fresh))
 
 
 def build_regime(dates: pd.DatetimeIndex) -> pd.Series:
@@ -144,10 +160,19 @@ def build_regime(dates: pd.DatetimeIndex) -> pd.Series:
     return (spy_ok & (hy_slope < 1.0) & (vix < 30)).shift(1).fillna(False)
 
 
-def build_asset_weights(dates, closes, regime_ok) -> pd.DataFrame:
-    """Decision-dated weights over ASSETS + BIL (weekly Friday rebalance)."""
+def build_asset_weights(dates, closes, regime_ok,
+                        fresh: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Decision-dated weights over ASSETS + BIL (weekly Friday rebalance).
+
+    fresh: per-asset staleness mask from build_chained_panel. An asset whose
+    price source has gone stale is ineligible at rebalance AND force-exited
+    to cash daily (decided from fresh[t-1], same lag as every other signal).
+    Without this, a dead feed freezes the momentum numerator and books flat
+    returns on a phantom position."""
     universe = list(closes.columns)
     mom = closes.pct_change(MOM_LB, fill_method=None).shift(1)
+    fresh_lag = (fresh.shift(1).fillna(False) if fresh is not None
+                 else pd.DataFrame(True, index=dates, columns=universe))
     cols = universe + [CASH]
     W = pd.DataFrame(0.0, index=dates, columns=cols)
     current = pd.Series(0.0, index=cols)
@@ -157,6 +182,7 @@ def build_asset_weights(dates, closes, regime_ok) -> pd.DataFrame:
             if bool(regime_ok.iloc[i]):
                 m = mom.iloc[i].dropna()
                 m = m[m > 0]
+                m = m[[t for t in m.index if bool(fresh_lag.iloc[i].get(t, False))]]
                 new_w = pd.Series(0.0, index=cols)
                 if len(m) > 0:
                     for t in m.index:
@@ -167,6 +193,13 @@ def build_asset_weights(dates, closes, regime_ok) -> pd.DataFrame:
             else:
                 current = pd.Series(0.0, index=cols)
                 current[CASH] = 1.0
+        held = current.copy()
+        # daily staleness override: force-exit any held asset whose feed died
+        for t in universe:
+            if held[t] > 0 and not bool(fresh_lag.iloc[i].get(t, False)):
+                held[CASH] += held[t]
+                held[t] = 0.0
+        current = held
         W.iloc[i] = current.values
     return W
 
@@ -180,15 +213,22 @@ def _nyse_dates() -> pd.DatetimeIndex:
 def build_sleeve_returns() -> tuple[pd.Series, pd.DataFrame]:
     """Unified-convention sleeve returns with era-dependent costs."""
     dates = _nyse_dates()
-    o2o, _, closes, proxy_era, _ = build_chained_panel(dates)
+    o2o, _, closes, proxy_era, _, fresh = build_chained_panel(dates)
     regime_ok = build_regime(dates)
-    W = build_asset_weights(dates, closes, regime_ok)
+    W = build_asset_weights(dates, closes, regime_ok, fresh)
 
     bil = load_etf(CASH)["Open"].reindex(dates).ffill(limit=5)
     ret_panel = o2o.copy()
     ret_panel[CASH] = bil.pct_change(fill_method=None)
 
     w_prev = W.shift(1).fillna(0.0)
+    # belt-and-braces: a held asset must never have a NaN return (the
+    # staleness guard exits positions before the ffill window runs out).
+    univ = [c for c in ret_panel.columns if c != CASH]
+    fab = ((w_prev[univ] > 0) & ret_panel[univ].isna()).any(axis=1)
+    if int(fab.sum()) > 0:
+        print(f"[WARN] CRYPTO: {int(fab.sum())} day(s) hold an asset with a "
+              f"NaN return (dead feed?): {list(dates[fab][-5:].date)}")
     gross = (w_prev[ret_panel.columns] * ret_panel).sum(axis=1)
 
     dw = (W - w_prev).abs()
@@ -200,7 +240,7 @@ def build_sleeve_returns() -> tuple[pd.Series, pd.DataFrame]:
     cost = (dw * bps / 1e4).sum(axis=1)
 
     net = gross - cost
-    return net, W
+    return net, W, int(fab.sum())
 
 
 def build_weights(use_live_proxy: bool = True,
@@ -218,9 +258,9 @@ def build_weights(use_live_proxy: bool = True,
     dates = _nyse_dates()
     if live_extend and len(dates) > 0:
         dates = dates.append(pd.DatetimeIndex([dates[-1] + pd.tseries.offsets.BDay()]))
-    o2o, _, closes, _, etf_first = build_chained_panel(dates)
+    o2o, _, closes, _, etf_first, fresh = build_chained_panel(dates)
     regime_ok = build_regime(dates)
-    W = build_asset_weights(dates, closes, regime_ok)
+    W = build_asset_weights(dates, closes, regime_ok, fresh)
 
     out_cols = [ASSETS[n]["etf"] for n in ASSETS if n in W.columns] + [CASH]
     out = pd.DataFrame(0.0, index=W.index, columns=out_cols)
@@ -241,7 +281,7 @@ def build_weights(use_live_proxy: bool = True,
 
 
 def main():
-    net, W = build_sleeve_returns()
+    net, W, fab_days = build_sleeve_returns()
 
     m_full = metrics(net)
     m_is = metrics(net.loc[:IS_END])
@@ -262,6 +302,7 @@ def main():
     (R / "crypto_metrics.json").write_text(json.dumps({
         "full": m_full, "is": m_is, "oos": m_oos,
         "active_days": int(active.sum()),
+        "fabricated_days": fab_days,  # held-asset NaN-return days; must be 0
         "params": {"mom_lb": MOM_LB, "rebal": "W-FRI",
                    "tc_bps_proxy": TC_BPS_PROXY, "tc_bps_etf": TC_BPS_ETF,
                    "assets": {k: v for k, v in ASSETS.items()},

@@ -1,4 +1,4 @@
-"""PHOENIX v3 state validation — run at the end of every refresh.
+"""PHOENIX v4 state validation — run at the end of every refresh.
 
 Checks (exit code 1 on any FAIL — the refresh pipeline treats this as a
 gate and the workflow will not commit a failing state):
@@ -17,6 +17,9 @@ gate and the workflow will not commit a failing state):
      frozen; only a merge bug or retroactive edit can move it).
   6. live_signal.json sanity: weights sum to ~100%, gross <= 100.5%,
      overlay mult in [0,1], as_of current.
+  7. BIL dividend-drop canary (catches raw-on-adjusted price seams that the
+     Adj-Close comparison is structurally blind to) and production-output
+     currency (a crashed production step must not ship stale results).
 """
 from __future__ import annotations
 import json
@@ -37,7 +40,8 @@ import phoenix_production as prod
 # Frozen reference: 2014-2018 Sharpe of the v3 backtest at the time the
 # history baseline was committed. The sleeve rows in this window are frozen
 # by refresh_all's merge, so this number must be stable run-to-run.
-FROZEN_2014_2018_SHARPE = 1.4765  # v3 baseline, committed 2026-07-02
+FROZEN_2014_2018_SHARPE = 1.0904  # v4 baseline (equal-active allocator,
+# VAN gross 1.0, CRY from IBIT listing, gate NaN fix), committed 2026-07-02
 
 FAILS = []
 WARNS = []
@@ -52,7 +56,7 @@ def check(name: str, ok: bool, detail: str = "", warn_only: bool = False):
 
 def main() -> int:
     print("=" * 70)
-    print("PHOENIX v3 state validation")
+    print("PHOENIX v4 state validation")
     print("=" * 70)
 
     # --- 1. params
@@ -60,6 +64,12 @@ def main() -> int:
     p = m["params"]
     check("params.target_vol matches code", p["target_vol"] == prod.TARGET_VOL)
     check("params.vol_cap matches code", p["vol_cap"] == prod.VOL_CAP)
+    check("params.gate_pct matches code", p.get("gate_pct") == prod.GATE_PCT)
+    check("params.ewma_lambda matches code", p.get("ewma_lambda") == prod.EWMA_LAMBDA)
+    check("params.vol_floor matches code", p.get("vol_floor") == prod.VOL_FLOOR)
+    check("params.allocator matches code",
+          p.get("allocator", {}).get("type") == prod.ALLOCATOR,
+          detail=f"metrics={p.get('allocator', {}).get('type')} code={prod.ALLOCATOR}")
     check("params.sleeves match registry",
           set(p["sleeves"].keys()) == set(prod.SLEEVES.keys()),
           detail=",".join(sorted(p["sleeves"].keys())))
@@ -108,6 +118,33 @@ def main() -> int:
             check(f"{t}: no adjusted/raw seam", not mixed, warn_only=True,
                   detail="Adj Close differs from Close — mixed basis")
         # else: single-basis file (fully adjusted rewrite) — fine
+
+    # --- 4b. dividend-drop canary: on an adjusted (total-return) basis a
+    # T-bill ETF's open must NEVER drop more than a few bps. Any BIL day
+    # below -10 bps means raw ex-div rows were appended onto adjusted
+    # history — the exact seam the Adj-Close comparison above cannot see
+    # (freshly appended raw rows always have Adj == Close).
+    bil_f = ETF / "BIL.csv"
+    if bil_f.exists():
+        bil = pd.read_csv(bil_f, parse_dates=["Date"]).sort_values("Date")
+        bo = pd.to_numeric(bil["Open"], errors="coerce")
+        recent = bo.pct_change().tail(90)
+        worst = float(recent.min()) if len(recent) else 0.0
+        # warn-only until the first post-v4 cron rewrites full adjusted
+        # history (heals the Apr-Jun 2026 raw tail); a hard gate afterwards.
+        heal_grace = pd.Timestamp.now() < pd.Timestamp("2026-08-01")
+        check("BIL: no ex-div drop in trailing 90d (raw-tail seam canary)",
+              worst > -0.0010, detail=f"worst day={worst:.4%}",
+              warn_only=heal_grace)
+
+    # --- 4c. production output currency: a crashed production step must not
+    # ship yesterday's blend series as today's.
+    pr_f = R / "phoenix_production_returns.csv"
+    if pr_f.exists():
+        pr_dates = pd.to_datetime(pd.read_csv(pr_f, usecols=["Date"])["Date"])
+        check("production returns current",
+              (spy_last - pr_dates.iloc[-1]).days <= 5,
+              detail=f"last={pr_dates.iloc[-1].date()} vs SPY {spy_last.date()}")
 
     # --- 5. frozen-window stability
     prod_csv = R / "phoenix_production_returns.csv"

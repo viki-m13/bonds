@@ -38,24 +38,74 @@ def load_etf(t):
     return df[["Open", "Close"]].apply(pd.to_numeric, errors="coerce")
 
 
+def _nyse_calendar():
+    """Approximate NYSE holiday calendar, used ONLY to project the remaining
+    sessions of the in-progress month (complete months use observed dates).
+
+    NYSE quirk: New Year's Day falling on a Saturday is NOT observed on the
+    preceding Friday (Dec 31 stays a session), so sunday_to_monday — not
+    nearest_workday — is the correct observance there; getting this wrong
+    would misclassify Dec 31 inside the last-4 window."""
+    from pandas.tseries.holiday import (
+        AbstractHolidayCalendar, Holiday, nearest_workday, sunday_to_monday,
+        USMartinLutherKingJr, USPresidentsDay, GoodFriday, USMemorialDay,
+        USLaborDay, USThanksgivingDay)
+
+    class _NYSE(AbstractHolidayCalendar):
+        rules = [
+            Holiday("NewYearsDay", month=1, day=1, observance=sunday_to_monday),
+            USMartinLutherKingJr, USPresidentsDay, GoodFriday, USMemorialDay,
+            Holiday("Juneteenth", month=6, day=19,
+                    start_date=pd.Timestamp("2022-06-19"),
+                    observance=nearest_workday),
+            Holiday("IndependenceDay", month=7, day=4, observance=nearest_workday),
+            USLaborDay, USThanksgivingDay,
+            Holiday("Christmas", month=12, day=25, observance=nearest_workday),
+        ]
+
+    return _NYSE()
+
+
+def _project_month_sessions(observed: pd.DatetimeIndex) -> pd.DatetimeIndex:
+    """Full expected session list for the month of observed[-1]: the sessions
+    already observed plus projected business days (minus NYSE holidays)
+    through month-end. Needed so 'last N sessions of the month' is evaluated
+    on the true month window even while the month is in progress."""
+    last = observed[-1]
+    month_end = last + pd.offsets.MonthEnd(0)
+    if last >= month_end:
+        return observed
+    future = pd.bdate_range(last + pd.Timedelta(days=1), month_end)
+    hols = _nyse_calendar().holidays(start=future[0], end=future[-1]) if len(future) else []
+    future = future.difference(pd.DatetimeIndex(hols))
+    return observed.append(future)
+
+
 def build_weights(live_extend: bool = False) -> pd.DataFrame:
     """Decision-dated daily target weights ({VEHICLE} column).
 
-    Caveat on the live edge: the last month in the index is still in
-    progress, so 'last N days of the month' is only known for it once the
-    next month begins — EXCEPT that the NYSE calendar is deterministic, so
-    the live layer appends the next business day and the month window is
-    evaluated on the known exchange calendar.
+    The month windows are evaluated on the full month's session calendar:
+    observed sessions for complete months, observed + projected (deterministic
+    NYSE calendar) for the in-progress month. Without the projection, the
+    'last N sessions' rule degenerates to 'last N AVAILABLE sessions', which
+    marks every data tail — and every live_extend appended day — as
+    turn-of-month, i.e. permanently long.
     """
     dates = load_etf("SPY")["Open"].dropna().index
     if live_extend and len(dates) > 0:
-        dates = dates.append(pd.DatetimeIndex([dates[-1] + pd.tseries.offsets.BDay()]))
+        nxt = dates[-1] + pd.tseries.offsets.CustomBusinessDay(calendar=_nyse_calendar())
+        dates = dates.append(pd.DatetimeIndex([nxt]))
     ym = dates.to_period("M")
     pos = pd.Series(0.0, index=dates)
-    for p in ym.unique():
+    for i, p in enumerate(ym.unique()):
         m = dates[ym == p]
-        pos.loc[m[-N_BEFORE:]] = 1.0
-        pos.loc[m[:N_AFTER]] = 1.0
+        if i == len(ym.unique()) - 1:
+            full = _project_month_sessions(m)
+            long_days = full[-N_BEFORE:].union(full[:N_AFTER])
+            pos.loc[m.intersection(long_days)] = 1.0
+        else:
+            pos.loc[m[-N_BEFORE:]] = 1.0
+            pos.loc[m[:N_AFTER]] = 1.0
     # Residual cash held in BIL (live holds BIL, not 0%-yield cash)
     W = pd.DataFrame({VEHICLE: pos, "BIL": 1.0 - pos})
     return W.loc[START_DATE:]

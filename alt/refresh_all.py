@@ -115,7 +115,13 @@ def regenerate_factsheet():
     sys.path.insert(0, str(ALT))
     import phoenix_production as prodmod
     sleeve_df = prodmod.load_sleeve_returns().reindex(dates).fillna(0)
-    comps = {tag: metrics(sleeve_df[tag]) for tag in sleeve_df.columns}
+    # Per-sleeve stats over each sleeve's ACTIVE window in the blend (CRY only
+    # counts from IBIT's listing — quoting its spot-proxy era on the public
+    # page would contradict the investability rule the headline follows).
+    comps = {}
+    for tag in sleeve_df.columns:
+        act_start = prodmod.SLEEVE_ACTIVATION.get(tag, sleeve_df.index[0])
+        comps[tag] = metrics(sleeve_df[tag].loc[act_start:])
     corr_dict = {k: {k2: round(float(v), 3) for k2, v in row.items()}
                  for k, row in sleeve_df.corr().to_dict().items()}
 
@@ -152,7 +158,7 @@ def regenerate_factsheet():
     # Per-sleeve cumulative ARITHMETIC contribution. Daily contribution from
     # sleeve i is c_i[t] = wf_weight_i[year(t)] * sleeve_ret_i[t] * overlay_mult[t]
     # (TC drag handled separately). Weights are the walk-forward per-year fit.
-    Wy = prodmod.build_wf_weight_frame(prodmod.load_sleeve_returns()).reindex(dates).fillna(0.0)
+    Wy = prodmod.build_weight_frame(prodmod.load_sleeve_returns()).reindex(dates).fillna(0.0)
     overlay_aligned = mult.reindex(dates).fillna(1.0)
     cum_df = (sleeve_df[Wy.columns] * Wy).mul(overlay_aligned, axis=0).cumsum()
     cum_w = cum_df.resample("W").last().dropna(how="all")
@@ -166,8 +172,8 @@ def regenerate_factsheet():
     prod_metrics = json.loads((R / "phoenix_production_metrics.json").read_text())
     out = {
         "meta": {"name": "PHOENIX",
-                 "subtitle": "7-sleeve LETF ensemble, walk-forward weights, daily risk sizing",
-                 "version": "v3",
+                 "subtitle": "7-sleeve LETF ensemble, equal-weight allocation, tail-risk gate",
+                 "version": "v4",
                  "start": str(ret.index[0].date()), "end": str(ret.index[-1].date()),
                  "n_days": int(len(ret)),
                  "weights": prod_metrics.get("weights_current_year", {}),
@@ -204,7 +210,7 @@ def regenerate_audit_bundle():
     sleeve_full = prodmod.load_sleeve_returns()
     idx = ret.index
     sleeves = sleeve_full.reindex(idx).fillna(0)
-    Wy = prodmod.build_wf_weight_frame(sleeve_full).reindex(idx).fillna(0.0)
+    Wy = prodmod.build_weight_frame(sleeve_full).reindex(idx).fillna(0.0)
     w_now = {k: float(v) for k, v in Wy.iloc[-1].items()}
 
     # Yearly contribution (recompute through latest, per-year WF weights)
@@ -408,6 +414,22 @@ def extend_sleeve_preserving_history(name, script, csv_name, date_col_name=None,
         bkp = bkp.iloc[:-lookahead_days].copy()
         print(f"  Dropping {lookahead_days} trailing row(s) from backup "
               f"to refresh: {dropped}")
+
+    # One-time re-baseline floor (v4, 2026-07): sleeve rows for
+    # 2026-04-06..2026-07-01 were computed on seam-contaminated prices (the
+    # pre-v3 fetcher appended raw rows onto dividend-adjusted history, so
+    # e.g. BIL booked every monthly ex-div as a fake loss and ETH data went
+    # stale). Until the floor expires, crons re-derive that window from the
+    # healed full-adjusted price files instead of freezing the contamination.
+    REBASE_FLOOR = pd.Timestamp("2026-04-03")
+    REBASE_FLOOR_EXPIRES = pd.Timestamp("2026-08-01")
+    if pd.Timestamp.now() < REBASE_FLOOR_EXPIRES:
+        pre = len(bkp)
+        bkp = bkp[bkp[bkp_dc] <= REBASE_FLOOR].copy()
+        if len(bkp) < pre:
+            print(f"  [REBASE] Unfreezing {pre - len(bkp)} row(s) after "
+                  f"{REBASE_FLOOR.date()} for the one-time seam heal "
+                  f"(expires {REBASE_FLOOR_EXPIRES.date()})")
 
     freeze_until = bkp[bkp_dc].max()
     print(f"  Freezing {name} history through {freeze_until.date()} ({len(bkp)} rows)")
