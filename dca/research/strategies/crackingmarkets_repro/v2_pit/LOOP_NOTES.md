@@ -44,10 +44,36 @@ friction; ≤0 at conservative friction. Not a path to 25%/2.0 by itself.
    13.8% CAGR / 1.03 Sh(d) / 1.27 Sh(m) / −20% DD** — contingent on
    0.25bp/side ORB friction (institutional-grade execution).
 
-## Queue for next iterations
-- [ ] ORB exit engineering (dev/holdout): time-of-day exit, trailing stop,
-      profit target multiples — can gross/trade rise enough to survive 1bp?
-- [ ] Overnight session anomaly (close→open long QQQ; 1 trade/day, daily
-      OHLC suffices, 25yr history available).
-- [ ] Final loop verdict: honest 25%/2.0 feasibility statement + best
-      deployable portfolio; fold into FINDINGS_v2.
+## Iteration 3 (2026-07-02) — exit engineering, overnight anomaly, FINAL VERDICT
+
+1. **ORB exit engineering fails to rescue it**: 12:00/14:00 exits, 4R/10R
+   targets — every variant ≤ the EOD-exit baseline at 0.25bp and ALL are
+   negative at 1bp/side. ORB verdict final: viable only with
+   institutional-grade friction, and then ~19%/0.72, decaying (dev 0.85 →
+   holdout 0.61).
+2. **Overnight anomaly (long QQQ close→open) is real and 25-yr robust**:
+   12.5%/0.89 at 0.25bp (8.3%/0.63 at 1bp). The ENTIRE 25-yr QQQ return is
+   overnight — intraday open→close nets ≈0. corr to ORB 0.01, to EOD book
+   0.35.
+3. **FINAL BLEND** (`52_final_blend.py`): 40% EOD-6-sleeve-k2 + 20% ORB-QQQ
+   + 40% QQQ-overnight = **13.4% CAGR / 1.19 Sh(d) / 1.39 Sh(m) / −21.5% DD**
+   — the best honest portfolio of the whole arc. Levered 2× (upper bound,
+   pre-financing): ~27% CAGR at Sharpe ~1.19.
+
+## FINAL VERDICT on the 25% CAGR / 2.0 Sharpe target
+
+**Not achievable with the data in this repo, honestly measured.** Surveyed:
+EOD (PIT mean-reversion, clean momentum, dip, trend, crisis-alpha), intraday
+(ORB + exits/filters, GHLZ intraday momentum, VWAP reversion), overnight
+session. Every family honestly costed. The binding constraints:
+- best single-sleeve honest Sharpe ≈ 1.0 (MR-limit, ORB-at-best-case ~0.7);
+- cross-family correlations 0–0.35 give a blended ceiling ≈ 1.2–1.4;
+- leverage cannot convert ~1.2 Sharpe into 2.0 (financing + vol drag), and
+  25% CAGR at Sharpe ~1.2 means ~22% vol and −40% drawdowns.
+CAGR ≥25% alone: reachable only at ≥2× leverage on the final blend with
+best-case friction (upper bound ~27%/1.19, −39% DD). Sharpe ≥2: requires
+strategy families outside this dataset (options vol premium, futures
+carry/trend breadth, true microstructure/HFT) or biased accounting.
+
+Loop closed 2026-07-02 after 3 iterations. Restart if new data classes
+(options, futures, tick) are added to the repo.
