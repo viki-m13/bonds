@@ -231,6 +231,39 @@ would win everywhere; plausible free carriers are stock-specific text/event
 data (8-K item-level changes, 10-K/Q language deltas à la Lazy-Prices, earnings
 call content) — the identified frontier for future iterations.
 
+## 6d. Loop iterations 6–7 — construction refuted; 8-K item events null; the loop's terminus
+
+* **Shoulder-bucket construction (`loop6_shoulder.py`):** if the ML's top picks
+  are poisoned by factor crowding, maybe an interior conviction bucket has the
+  precision. Refuted: P(true top decile | score bucket) is **flat at 7–9% —
+  below the 10% base rate — in every bucket, both eras**. The ordering skill
+  (mean forward rank 0.50→0.54) carries zero tail information anywhere in the
+  distribution. No portfolio construction can rescue it.
+* **8-K item-level events (`fetch_8k_items.py`, `loop7_8k_signal.py`; new
+  dataset `data/sec/8k_items.parquet`, 1.02M filings × item codes, 5,414
+  tickers incl. delisted, 1994–2026):** the first event-type (non-price) source
+  tested at item granularity. Result: all cohort spreads are ±0.02–0.08 in
+  forward rank and **sign-flip across eras**. Negative-event cohorts (4.01
+  auditor change, 4.02 restatement, 3.01 delisting notice) show bottom-decile
+  enrichment 16–23% vs 10% in 2020+ (a weak, recent-era crash-avoidance veto)
+  but invert pre-2015. Best top-decile enrichment anywhere: 13–16% — far from
+  the 27.5% that an IC≈0.05 idiosyncratic signal achieves. Event *type*
+  without content/direction is not selection information (extends exp93's
+  count-level null to item level).
+
+**Loop terminus.** Within the data obtainable here (all prices incl. delisted,
+SEC fundamentals, insider Form-345, 13F, 8-K items), every branch is now
+tested to its bound: selection alpha (factor-structured, tail-blind),
+construction (flat precision), concentration/rotation/beta (era beta, oracle-
+bounded), event types (unstable). The required-skill curve defines what would
+change the answer: **any signal with era-stable top-decile precision ≥ ~15–20%
+and factor-orthogonal errors.** Candidate data that could plausibly carry it —
+all outside this repo's free perimeter: earnings-call/10-K text *content*
+deltas (Lazy-Prices at scale), analyst estimate revisions, pre-2011 PIT
+fundamentals (CRSP/Compustat), true alt-data. Absent that, the honest
+frontier remains §7: QQQ-DCA as the expected-value optimum, ASCENT as the
+priced leadership bet.
+
 ## 7. What to actually do (the deliverable)
 
 **PRIMARY (recommended): DCA into QQQ, biweekly or monthly, buy immediately on
