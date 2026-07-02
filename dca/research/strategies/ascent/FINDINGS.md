@@ -193,6 +193,44 @@ invested) but does not create era-robust outperformance.** With this round, all
 four honest mechanism families are exhausted: selection alpha, pond
 concentration, compensated beta, and exposure-shape regime timing.
 
+## 6c. The all-era loop (`loop1..loop5_*.py`) — infeasibility bounds + the required-skill discovery
+
+A further directive raised the bar to "outperform substantially during ALL
+periods." Five iterations settled what that would take:
+
+1. **Pond rotation** (mega/mid/small/low-vol/high-mom slices, dual-momentum
+   meta-signal, single-stock implementation): fails — and exposed a general trap:
+   a pond *defined by* trailing return mechanically wins any trailing-return
+   comparison (self-contaminated meta-signal).
+2. **Feasibility bound:** the static per-era grid of every pond's top-5 basket
+   (k=5 and k=25) shows **no pond beats QQQ-DCA in 2003–09 (best 0.82×), none in
+   2010–14 (best 0.96×), none in 2015–19 (best 0.85×)**. A *perfect* pond oracle
+   loses 3 of 5 eras → all-era outperformance is infeasible for the entire
+   pond-concentration class, independent of any rotation signal.
+3. **Adversarial mining of the losing decade:** 30 causal price-signal baskets
+   fitted directly ON 2003–14: 29 lose in-sample anyway; the lone survivor
+   (lowest-price/lottery) is a microstructure artifact that fails 2015–26.
+4. **The required-skill curve** (synthetic signals, noise-calibrated): a signal
+   with **rank-IC ≈ 0.05 whose errors are RANDOM beats QQQ-DCA in every era**
+   (worst seed 1.10×; oracle = 3.5–43×). The prize doesn't require much skill —
+   it requires the right *error structure*.
+5. **Why our signals fail despite comparable IC (the tail-precision metric):**
+   P(top-5 pick lands in the true fwd-12m top decile): random 10.2%, synthetic
+   IC≈0.05 27.5%, **the honest ML (IC 0.060) 8.3% — below random**. Its IC is
+   mid-distribution ordering; its extreme picks are extreme *factor* bets
+   (crowded momentum/quality/trend) that fail together. Factor-orthogonalizing
+   the score lifts precision to 12.5% but the residual (idiosyncratic) IC is
+   only +0.024 — economically nil after costs.
+
+**The method specification this yields (the real answer to "how to be excellent
+at stock picking"):** judge any candidate signal on (a) top-bucket precision vs
+random and (b) factor-orthogonality of its errors — *before* any backtest. All
+price/fundamental/insider *transforms* fail (a) or (b): their information is
+factor exposure in disguise. Idiosyncratic-error information at even IC 0.05
+would win everywhere; plausible free carriers are stock-specific text/event
+data (8-K item-level changes, 10-K/Q language deltas à la Lazy-Prices, earnings
+call content) — the identified frontier for future iterations.
+
 ## 7. What to actually do (the deliverable)
 
 **PRIMARY (recommended): DCA into QQQ, biweekly or monthly, buy immediately on
