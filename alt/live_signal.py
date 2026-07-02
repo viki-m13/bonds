@@ -33,7 +33,7 @@ PHOENIX v3 (canonical 7-sleeve, walk-forward weights):
 
 Production overlay (matches phoenix_production.py exactly):
     EWMA(0.94) vol target 18%, mult in [0.25, 1.0] (no margin)
-    DD throttle: -10% floor, 252d HWM (on the vol-targeted series)
+    No DD throttle (historical formula was inert; corrected version rejected OOS)
     Vol gate: 60d vol > 99th pct (252d) → 0.5x
 """
 from __future__ import annotations
@@ -279,12 +279,11 @@ def compute_overlay_mult(as_of_close: pd.Timestamp | None = None) -> tuple[float
         vol_mult_series = (TARGET_VOL / ew_vol).clip(VOL_FLOOR, VOL_CAP)
     vt_mult = float(vol_mult_series.iloc[-1])
 
-    # DD throttle on the vol-targeted series (same construction as backtest)
+    # No DD throttle (matches phoenix_production.apply_overlay: the historical
+    # formula was inert due to a sign bug; the corrected version was rejected
+    # on out-of-sample evidence).
     scaled = r_hist * vol_mult_series.shift(2).fillna(1.0)
-    cum = (1 + scaled).cumprod()
-    hwm = cum.rolling(DD_WIN, min_periods=30).max()
-    dd = cum / hwm - 1
-    dd_mult = max(0.0, min(1.0, 1.0 + float(dd.iloc[-1]) / DD_FLOOR))
+    dd_mult = 1.0
 
     # Vol gate on scaled returns
     sv = scaled.rolling(GATE_VOL_WIN).std()

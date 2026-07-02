@@ -88,3 +88,49 @@ data frequency; the last real lever (vol-target removal) is shipped. Further
 looping would only spend the honesty budget on in-sample noise. The paths to
 Sharpe 2 remain outside the constraint set: intraday/overnight execution,
 options premia, futures leverage, or new data. Loop ended.
+
+---
+
+## Iteration 5 — 2026-07-02 (parallel novel-research cycle, 4 agents)
+
+Mandate: "think novel, try many strategies, test rigorously." Ran four parallel
+research agents (regime, cross-sectional, calendar, allocator), each IS-only
+(2010-2018; allocator on the 2014-2018 WF segment), ~60 further experiments.
+
+**Adopted (shipped):**
+- Cash-accounting fix (previous commit): implicit sleeve cash -> BIL. 2019+
+  SR 1.11->1.13, CAGR 24.3->24.8%. Free.
+- Dead-code removal: the DD throttle formula `(1+dd/DD_FLOOR).clip(0,1)` was
+  INERT (sign bug — always exactly 1.0), here AND in the original PHOENIX.
+  Removed the dead code and corrected all documentation. Behavior-preserving
+  (also removed ~29 spurious NaN warm-up rows; frozen pin now 1.4765).
+
+**Researched, verified, and REJECTED on the one-shot out-of-sample check:**
+- Corrected deadband DD throttle (-5%->-15%): segment 1.46->1.65 SR, uniformly
+  positive 36-pt grid — but full-period/2019+ WORSE (de-risks into V-recoveries
+  2020/2023). Not shipped. Lesson: DD throttles look great in grinding-bear
+  segments and bleed in V-recovery regimes; a 5y selection segment cannot see
+  this.
+- GH 52w-high rotation sleeve (GHR, IS 1.08) and the 4-diversifier stack
+  (turnaround-Tuesday CAL 1.08 halves 1.08/1.08 corr 0.07; crash-recovery CRC
+  corr 0.01; SVXY post-panic SVP 1.06; HYG-lead HLS 1.07): segment blend SR up
+  to 2.05 — but one-shot full/OOS: DEFAULT (base7+GHR) 2019+ SR 0.78/CAGR 13.5%
+  and DEFENSE (all) 1.01/11.5%, BOTH below shipped v3.1 (1.13/24.8%). The GH
+  engine, seasonality and SVXY (leverage change Feb-2018) all decayed post-2018.
+  Not shipped. Candidate CSVs and agent reports retained in scratchpad.
+
+**Also honestly killed at the sleeve/allocator level:** sleeve-momentum budget
+tilt, quarterly/monthly refits, window changes, shrinkage cov, allocator
+ensembles, no-trade bands, semicov ERC, family caps (inert), gate re-tuning
+(baseline is plateau edge), pre-holiday/Halloween/OpEx/Monday/quarter-turn/gap
+effects, residual momentum, RS switch pairs, dispersion gating (prior inverted),
+yield-curve bond machine, real-rate gold, dd-depth sizing, bear inverse books,
+HYG snapback, activity-capped budgets, diversifier cap frontier (smooth
+SR<->CAGR trade, no free point).
+
+**Convergence (second full cycle):** the honest ceiling of this framework
+remains v3.1: full 2014-2026 SR ~1.24 / CAGR ~25.9% / MDD ~-24%. Two
+independent research cycles (9 iterations, ~150 experiments, 4 agents) found
+exactly two survivors — both accounting/bug corrections, zero new signals.
+Everything selected on any in-sample segment failed the one-shot OOS. This is
+what "no remaining honest edge at this data frequency" looks like empirically.

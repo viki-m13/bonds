@@ -34,9 +34,9 @@ realized over open[t-1]->open[t] is a function of blend returns through
 t-2, i.e. decidable at close[t-2] and traded at open[t-1]):
     - EWMA (lambda=0.94) vol target 18%, mult in [0.25, 1.0] — NO margin,
       gross never exceeds 100%.
-    - DD throttle: linear de-risk vs 252d HWM of the vol-targeted series,
-      floor at -10% DD (this throttles exposure; it does NOT cap the
-      strategy's own drawdown at 10%).
+    - No drawdown throttle (the historical formula was inert due to a sign
+      bug; a corrected throttle was researched and rejected on out-of-sample
+      evidence — see apply_overlay and RESEARCH_LOG_V3PLUS.md).
     - Vol-regime gate: halve exposure when 60d vol of the vol-targeted
       series exceeds its trailing-252d 99th percentile.
     - 10 bps TC on |change in total multiplier|.
@@ -83,7 +83,7 @@ W_CAP = 0.35
 # no-margin cap a vol target can only REDUCE exposure (the blend's raw vol
 # ~20% sits above any sub-20% target most of the time), so it forfeited
 # ~5pts of CAGR and ~0.06 Sharpe on the full walk-forward window while
-# improving MDD by only ~1pt. The tail overlays (DD throttle + vol gate)
+# improving MDD by only ~1pt. The tail overlay (vol gate)
 # remain. The full frontier is documented in PHOENIX_V3.md §1b; set a float
 # (e.g. 0.18) to restore the vol-targeted profile.
 TARGET_VOL = None
@@ -189,10 +189,14 @@ def apply_overlay(raw: pd.Series,
         vol_mult = (target_vol / ew_vol).clip(VOL_FLOOR, VOL_CAP)
 
     scaled = raw * vol_mult.shift(2).fillna(1.0)
-    cum = (1 + scaled).cumprod()
-    hwm = cum.rolling(DD_WIN, min_periods=30).max()
-    dd = cum / hwm - 1
-    dd_mult = (1 + dd / DD_FLOOR).clip(0.0, 1.0)
+    # NOTE — no drawdown throttle. The historical `(1 + dd/DD_FLOOR).clip(0,1)`
+    # formula (here and in the original PHOENIX) had a sign error that made it
+    # exactly 1.0 on every date — it never throttled anything. A corrected
+    # deadband throttle (-5% -> -15%) was researched: it looked strong on
+    # 2014-2018 (SR 1.46 -> 1.65) but REDUCED full-period and 2019+ results
+    # (it de-risks into V-shaped recoveries like 2020/2023), so it was
+    # rejected rather than shipped. See RESEARCH_LOG_V3PLUS.md iteration 5.
+    dd_mult = pd.Series(1.0, index=raw.index)
 
     sv = scaled.rolling(GATE_VOL_WIN).std()
     sv_thr = sv.rolling(GATE_LOOKBACK, min_periods=60).quantile(GATE_PCT)
@@ -296,7 +300,7 @@ def main():
                           "budgets": "max(trailing SR, 0.3) * (1 - rho_bar)"},
             "target_vol": TARGET_VOL, "ewma_lambda": EWMA_LAMBDA,
             "vol_cap": VOL_CAP, "vol_floor": VOL_FLOOR,
-            "dd_floor": DD_FLOOR, "dd_win": DD_WIN,
+            "dd_floor": None, "dd_win": None,  # throttle removed (was inert; fix rejected OOS)
             "gate_pct": GATE_PCT, "tc_bps_per_lev_chg": TC_BPS_PER_LEV_CHG,
             "blend_start": BLEND_START,
         },
