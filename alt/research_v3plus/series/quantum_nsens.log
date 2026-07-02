@@ -1,0 +1,56 @@
+  fit year 2014: train <= 2013-12-23  rows=14684
+  fit year 2015: train <= 2014-12-23  rows=18968
+  fit year 2016: train <= 2015-12-23  rows=23252
+  fit year 2017: train <= 2016-12-22  rows=27536
+  fit year 2018: train <= 2017-12-21  rows=31803
+  fit year 2019: train <= 2018-12-21  rows=36070
+  fit year 2020: train <= 2019-12-23  rows=40354
+  fit year 2021: train <= 2020-12-23  rows=44655
+  fit year 2022: train <= 2021-12-23  rows=48939
+  fit year 2023: train <= 2022-12-22  rows=53206
+  fit year 2024: train <= 2023-12-21  rows=57456
+  fit year 2025: train <= 2024-12-23  rows=61740
+  fit year 2026: train <= 2025-12-23  rows=65990
+N=  5  FULL SR  0.21  CAGR   -2.6%  MDD  -90.5%  | 2014-18 SR  0.02  2019+ SR  0.32
+  fit year 2014: train <= 2013-12-16  rows=14599
+  fit year 2015: train <= 2014-12-16  rows=18883
+  fit year 2016: train <= 2015-12-16  rows=23167
+  fit year 2017: train <= 2016-12-15  rows=27451
+  fit year 2018: train <= 2017-12-14  rows=31718
+  fit year 2019: train <= 2018-12-14  rows=35985
+  fit year 2020: train <= 2019-12-16  rows=40269
+  fit year 2021: train <= 2020-12-16  rows=44570
+  fit year 2022: train <= 2021-12-16  rows=48854
+  fit year 2023: train <= 2022-12-15  rows=53121
+  fit year 2024: train <= 2023-12-14  rows=57371
+  fit year 2025: train <= 2024-12-16  rows=61655
+  fit year 2026: train <= 2025-12-16  rows=65905
+N= 10  FULL SR  0.40  CAGR    7.8%  MDD  -89.2%  | 2014-18 SR  0.63  2019+ SR  0.29
+  fit year 2014: train <= 2013-11-29  rows=14412
+  fit year 2015: train <= 2014-12-01  rows=18696
+  fit year 2016: train <= 2015-12-01  rows=22980
+  fit year 2017: train <= 2016-11-30  rows=27264
+  fit year 2018: train <= 2017-11-29  rows=31531
+  fit year 2019: train <= 2018-11-28  rows=35798
+  fit year 2020: train <= 2019-11-29  rows=40082
+  fit year 2021: train <= 2020-12-01  rows=44383
+  fit year 2022: train <= 2021-12-01  rows=48667
+  fit year 2023: train <= 2022-11-30  rows=52934
+  fit year 2024: train <= 2023-11-29  rows=57184
+  fit year 2025: train <= 2024-11-29  rows=61468
+  fit year 2026: train <= 2025-12-01  rows=65718
+N= 21  FULL SR  0.55  CAGR   15.9%  MDD  -81.8%  | 2014-18 SR  0.63  2019+ SR  0.51
+  fit year 2014: train <= 2013-10-30  rows=14055
+  fit year 2015: train <= 2014-10-30  rows=18339
+  fit year 2016: train <= 2015-10-30  rows=22623
+  fit year 2017: train <= 2016-10-31  rows=26907
+  fit year 2018: train <= 2017-10-30  rows=31174
+  fit year 2019: train <= 2018-10-29  rows=35441
+  fit year 2020: train <= 2019-10-30  rows=39725
+  fit year 2021: train <= 2020-10-30  rows=44026
+  fit year 2022: train <= 2021-11-01  rows=48310
+  fit year 2023: train <= 2022-10-31  rows=52577
+  fit year 2024: train <= 2023-10-30  rows=56827
+  fit year 2025: train <= 2024-10-30  rows=61111
+  fit year 2026: train <= 2025-10-30  rows=65361
+N= 42  FULL SR  0.33  CAGR    4.0%  MDD  -77.2%  | 2014-18 SR  0.28  2019+ SR  0.36
