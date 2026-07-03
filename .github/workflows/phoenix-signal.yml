@@ -9,9 +9,16 @@ on:
 permissions:
   contents: write
 
+# Never run two refreshes at once (cron + manual dispatch would race on the
+# same CSVs and the push step); don't cancel a running refresh mid-commit.
+concurrency:
+  group: phoenix-refresh
+  cancel-in-progress: false
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
     - name: Checkout repository
