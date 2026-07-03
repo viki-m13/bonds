@@ -329,3 +329,28 @@ membership panel starts 2015 — era extensions use the broad liquid pond.
 reference list only, not any conclusion).
 
 *Not investment advice. Past performance does not guarantee future results.*
+
+## 8. The accuracy question ("consistently pick stocks that beat QQQ") — measured (`acc1_hitrates.py`)
+
+The objective P(pick beats QQQ) has a hard base-rate wall: over 12-month
+horizons only **32–46% of all eligible liquid stocks beat QQQ** (2015–19:
+31.7%) — cap-weighted skew means the index outruns most of its own members
+(Bessembinder). Against that base:
+
+* **No signal in the data reaches even 50% accuracy at 12m in any era.** Best
+  lifts over base: trailing information-ratio + low tracking error (+5–8pp →
+  37–44%), buybacks (+4–6pp), ML (+3–5pp). The accuracy-native IR-persistence
+  signal (never tested before) helps most at 3m (47–50%) — still a coin flip.
+* Majority-reliability ("most of this month's 20 picks beat QQQ") occurs in
+  only 12–42% of months depending on signal/horizon.
+* Extreme 52w-high proximity picks beat QQQ only 5–17% of the time at 12m —
+  extension without new information mean-reverts (consistent with the
+  tail-precision crowding result).
+
+**Conclusion:** consistent high-accuracy anti-QQQ selection does not exist in
+price/fundamental/insider/event data — and any external claim of 60%+ hit
+rates against QQQ at these horizons is a red flag (weaker benchmark, favorable
+era, or survivorship). The two honest shapes of outperformance remain:
+(a) low-accuracy/fat-tail books (hit ~35–53%, payoff asymmetry does the work —
+the WAVE decomposition profile), or (b) idiosyncratic information meeting the
+§6c spec. Accuracy is the wrong yardstick; expectancy is the right one.
