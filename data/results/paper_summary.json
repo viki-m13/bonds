@@ -6,20 +6,20 @@
   },
   "as_of": "2026-07-02",
   "start_date": "2026-04-13",
-  "current_nav": 11643.61,
-  "total_return_pct": 16.44,
+  "current_nav": 11697.77,
+  "total_return_pct": 16.98,
   "spy_total_return_pct": 10.62,
   "n_trade_days": 57,
-  "ann_return_pct": 72.92,
-  "ann_vol_pct": 28.8,
-  "sharpe": 2.532,
-  "mdd_pct": -8.42,
+  "ann_return_pct": 74.95,
+  "ann_vol_pct": 28.73,
+  "sharpe": 2.609,
+  "mdd_pct": -8.35,
   "tracking_error_vs_backtest": {
     "n_days": 57,
-    "mean_diff_bps": 10.51,
-    "stdev_diff_bps": 111.58,
+    "mean_diff_bps": 11.32,
+    "stdev_diff_bps": 111.63,
     "max_abs_diff_bps": 292.41,
-    "ann_tracking_error_bps": 1771.3,
+    "ann_tracking_error_bps": 1772.1,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
@@ -30,8 +30,8 @@
       "Side": "BUY",
       "Weight_Delta": 0.0476,
       "Fill_Price": 142.24,
-      "Shares": 3.898,
-      "Notional_USD": 554.46
+      "Shares": 3.9162,
+      "Notional_USD": 557.04
     },
     {
       "Date": "2026-07-02",
@@ -40,8 +40,8 @@
       "Side": "BUY",
       "Weight_Delta": 0.0152,
       "Fill_Price": 31.78,
-      "Shares": 5.5556,
-      "Notional_USD": 176.56
+      "Shares": 5.5815,
+      "Notional_USD": 177.38
     },
     {
       "Date": "2026-07-02",
@@ -50,8 +50,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.0308,
       "Fill_Price": 16.01,
-      "Shares": -22.4138,
-      "Notional_USD": -358.85
+      "Shares": -22.5181,
+      "Notional_USD": -360.51
     },
     {
       "Date": "2026-07-02",
@@ -60,8 +60,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.0308,
       "Fill_Price": 23.59,
-      "Shares": -15.2118,
-      "Notional_USD": -358.85
+      "Shares": -15.2825,
+      "Notional_USD": -360.51
     },
     {
       "Date": "2026-07-02",
@@ -69,9 +69,9 @@
       "Ticker": "TQQQ",
       "Side": "BUY",
       "Weight_Delta": 0.1835,
-      "Fill_Price": 77.47,
-      "Shares": 27.5753,
-      "Notional_USD": 2136.26
+      "Fill_Price": 77.45,
+      "Shares": 27.7107,
+      "Notional_USD": 2146.19
     },
     {
       "Date": "2026-07-02",
@@ -80,8 +80,8 @@
       "Side": "BUY",
       "Weight_Delta": 0.112,
       "Fill_Price": 34.56,
-      "Shares": 37.7468,
-      "Notional_USD": 1304.53
+      "Shares": 37.9223,
+      "Notional_USD": 1310.6
     },
     {
       "Date": "2026-07-02",
@@ -90,8 +90,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.007,
       "Fill_Price": 212.38,
-      "Shares": -0.3841,
-      "Notional_USD": -81.57
+      "Shares": -0.3859,
+      "Notional_USD": -81.95
     },
     {
       "Date": "2026-07-02",
@@ -100,8 +100,8 @@
       "Side": "BUY",
       "Weight_Delta": 0.0558,
       "Fill_Price": 219.23,
-      "Shares": 2.9624,
-      "Notional_USD": 649.44
+      "Shares": 2.9762,
+      "Notional_USD": 652.46
     },
     {
       "Date": "2026-07-02",
@@ -110,8 +110,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.0725,
       "Fill_Price": 93.97,
-      "Shares": -8.9797,
-      "Notional_USD": -843.82
+      "Shares": -9.0215,
+      "Notional_USD": -847.75
     },
     {
       "Date": "2026-07-02",
@@ -120,8 +120,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.007,
       "Fill_Price": 81.61,
-      "Shares": -0.9996,
-      "Notional_USD": -81.57
+      "Shares": -1.0042,
+      "Notional_USD": -81.95
     },
     {
       "Date": "2026-07-02",
@@ -130,8 +130,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.2659,
       "Fill_Price": 91.43,
-      "Shares": -33.8683,
-      "Notional_USD": -3096.58
+      "Shares": -34.0259,
+      "Notional_USD": -3110.98
     },
     {
       "Date": "2026-06-26",
@@ -139,9 +139,9 @@
       "Ticker": "BIL",
       "Side": "SELL",
       "Weight_Delta": -0.0074,
-      "Fill_Price": 91.63,
-      "Shares": -0.9393,
-      "Notional_USD": -86.06
+      "Fill_Price": 91.362,
+      "Shares": -0.945,
+      "Notional_USD": -86.34
     },
     {
       "Date": "2026-06-25",
@@ -149,9 +149,9 @@
       "Ticker": "BIL",
       "Side": "BUY",
       "Weight_Delta": 0.0072,
-      "Fill_Price": 91.6,
-      "Shares": 0.9411,
-      "Notional_USD": 86.21
+      "Fill_Price": 91.3321,
+      "Shares": 0.9469,
+      "Notional_USD": 86.48
     },
     {
       "Date": "2026-06-24",
@@ -159,9 +159,9 @@
       "Ticker": "BIL",
       "Side": "BUY",
       "Weight_Delta": 0.0302,
-      "Fill_Price": 91.6,
-      "Shares": 3.8474,
-      "Notional_USD": 352.42
+      "Fill_Price": 91.3321,
+      "Shares": 3.8711,
+      "Notional_USD": 353.56
     },
     {
       "Date": "2026-06-24",
@@ -170,8 +170,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.0125,
       "Fill_Price": 91.59,
-      "Shares": -1.5941,
-      "Notional_USD": -146.0
+      "Shares": -1.5992,
+      "Notional_USD": -146.47
     },
     {
       "Date": "2026-06-23",
@@ -179,9 +179,9 @@
       "Ticker": "UBT",
       "Side": "BUY",
       "Weight_Delta": 0.0324,
-      "Fill_Price": 16.34,
-      "Shares": 23.2273,
-      "Notional_USD": 379.53
+      "Fill_Price": 16.2222,
+      "Shares": 23.4623,
+      "Notional_USD": 380.61
     },
     {
       "Date": "2026-06-23",
@@ -190,8 +190,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.0321,
       "Fill_Price": 125.14,
-      "Shares": -3.0019,
-      "Notional_USD": -375.66
+      "Shares": -3.0104,
+      "Notional_USD": -376.73
     },
     {
       "Date": "2026-06-23",
@@ -199,9 +199,9 @@
       "Ticker": "BIL",
       "Side": "SELL",
       "Weight_Delta": -0.0056,
-      "Fill_Price": 91.59,
-      "Shares": -0.7135,
-      "Notional_USD": -65.35
+      "Fill_Price": 91.3221,
+      "Shares": -0.7176,
+      "Notional_USD": -65.53
     },
     {
       "Date": "2026-06-22",
@@ -209,9 +209,9 @@
       "Ticker": "BIL",
       "Side": "SELL",
       "Weight_Delta": -0.0052,
-      "Fill_Price": 91.58,
-      "Shares": -0.7036,
-      "Notional_USD": -64.43
+      "Fill_Price": 91.3122,
+      "Shares": -0.7071,
+      "Notional_USD": -64.57
     },
     {
       "Date": "2026-06-17",
@@ -220,8 +220,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.0248,
       "Fill_Price": 37.41,
-      "Shares": -8.0089,
-      "Notional_USD": -299.61
+      "Shares": -8.0253,
+      "Notional_USD": -300.23
     },
     {
       "Date": "2026-06-17",
@@ -230,8 +230,8 @@
       "Side": "BUY",
       "Weight_Delta": 0.0255,
       "Fill_Price": 81.67,
-      "Shares": 3.7742,
-      "Notional_USD": 308.24
+      "Shares": 3.782,
+      "Notional_USD": 308.88
     },
     {
       "Date": "2026-06-16",
@@ -239,9 +239,9 @@
       "Ticker": "QLD",
       "Side": "SELL",
       "Weight_Delta": -0.0127,
-      "Fill_Price": 98.77,
-      "Shares": -1.572,
-      "Notional_USD": -155.26
+      "Fill_Price": 98.7039,
+      "Shares": -1.5763,
+      "Notional_USD": -155.58
     },
     {
       "Date": "2026-06-16",
@@ -249,9 +249,9 @@
       "Ticker": "BIL",
       "Side": "BUY",
       "Weight_Delta": 0.0306,
-      "Fill_Price": 91.53,
-      "Shares": 4.0946,
-      "Notional_USD": 374.78
+      "Fill_Price": 91.2623,
+      "Shares": 4.1151,
+      "Notional_USD": 375.55
     },
     {
       "Date": "2026-06-15",
@@ -259,9 +259,9 @@
       "Ticker": "QLD",
       "Side": "BUY",
       "Weight_Delta": 0.0072,
-      "Fill_Price": 97.69,
-      "Shares": 0.9058,
-      "Notional_USD": 88.49
+      "Fill_Price": 97.6247,
+      "Shares": 0.9083,
+      "Notional_USD": 88.67
     },
     {
       "Date": "2026-06-15",
@@ -269,9 +269,9 @@
       "Ticker": "BIL",
       "Side": "SELL",
       "Weight_Delta": -0.0175,
-      "Fill_Price": 91.52,
-      "Shares": -2.3338,
-      "Notional_USD": -213.59
+      "Fill_Price": 91.2523,
+      "Shares": -2.3455,
+      "Notional_USD": -214.03
     },
     {
       "Date": "2026-06-11",
@@ -279,9 +279,9 @@
       "Ticker": "QLD",
       "Side": "SELL",
       "Weight_Delta": -0.0073,
-      "Fill_Price": 87.91,
-      "Shares": -0.9525,
-      "Notional_USD": -83.74
+      "Fill_Price": 87.8512,
+      "Shares": -0.9551,
+      "Notional_USD": -83.91
     },
     {
       "Date": "2026-06-11",
@@ -289,9 +289,9 @@
       "Ticker": "BIL",
       "Side": "BUY",
       "Weight_Delta": 0.0176,
-      "Fill_Price": 91.48,
-      "Shares": 2.2095,
-      "Notional_USD": 202.13
+      "Fill_Price": 91.2125,
+      "Shares": 2.2205,
+      "Notional_USD": 202.54
     },
     {
       "Date": "2026-06-10",
@@ -300,8 +300,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.0257,
       "Fill_Price": 71.68,
-      "Shares": -4.1288,
-      "Notional_USD": -295.95
+      "Shares": -4.1372,
+      "Notional_USD": -296.56
     },
     {
       "Date": "2026-06-10",
@@ -309,9 +309,9 @@
       "Ticker": "QLD",
       "Side": "BUY",
       "Weight_Delta": 0.0075,
-      "Fill_Price": 88.52,
-      "Shares": 0.978,
-      "Notional_USD": 86.57
+      "Fill_Price": 88.4608,
+      "Shares": 0.9807,
+      "Notional_USD": 86.75
     },
     {
       "Date": "2026-06-10",
@@ -319,9 +319,9 @@
       "Ticker": "BIL",
       "Side": "SELL",
       "Weight_Delta": -0.0182,
-      "Fill_Price": 91.48,
-      "Shares": -2.2844,
-      "Notional_USD": -208.97
+      "Fill_Price": 91.2125,
+      "Shares": -2.2958,
+      "Notional_USD": -209.4
     }
   ],
   "nav_series": [
@@ -425,302 +425,302 @@
     },
     {
       "d": "2026-05-01",
-      "v": 11311.36,
-      "ret": 0.009332,
+      "v": 11323.05,
+      "ret": 0.010376,
       "turnover": 0.0138,
       "tc": 7e-06
     },
     {
       "d": "2026-05-04",
-      "v": 11545.76,
+      "v": 11557.7,
       "ret": 0.020753,
       "turnover": 0.0593,
       "tc": 3e-05
     },
     {
       "d": "2026-05-05",
-      "v": 11634.12,
+      "v": 11646.15,
       "ret": 0.008257,
       "turnover": 1.199,
       "tc": 0.0006
     },
     {
       "d": "2026-05-06",
-      "v": 12108.69,
+      "v": 12121.2,
       "ret": 0.04086,
       "turnover": 0.133,
       "tc": 6.7e-05
     },
     {
       "d": "2026-05-07",
-      "v": 12276.3,
+      "v": 12288.99,
       "ret": 0.013847,
       "turnover": 0.0087,
       "tc": 4e-06
     },
     {
       "d": "2026-05-08",
-      "v": 12305.02,
+      "v": 12317.74,
       "ret": 0.002477,
       "turnover": 0.2756,
       "tc": 0.000138
     },
     {
       "d": "2026-05-11",
-      "v": 12560.12,
+      "v": 12573.1,
       "ret": 0.020735,
       "turnover": 0.0072,
       "tc": 4e-06
     },
     {
       "d": "2026-05-12",
-      "v": 12572.96,
+      "v": 12585.95,
       "ret": 0.001038,
       "turnover": 0.0327,
       "tc": 1.6e-05
     },
     {
       "d": "2026-05-13",
-      "v": 12558.92,
+      "v": 12571.91,
       "ret": -0.001082,
       "turnover": 0.0691,
       "tc": 3.5e-05
     },
     {
       "d": "2026-05-14",
-      "v": 12548.56,
+      "v": 12561.53,
       "ret": -0.000824,
       "turnover": 0.003,
       "tc": 1e-06
     },
     {
       "d": "2026-05-15",
-      "v": 12256.3,
+      "v": 12268.97,
       "ret": -0.02329,
       "turnover": 0.0016,
       "tc": 1e-06
     },
     {
       "d": "2026-05-18",
-      "v": 12287.4,
+      "v": 12300.11,
       "ret": 0.002558,
       "turnover": 0.0405,
       "tc": 2e-05
     },
     {
       "d": "2026-05-19",
-      "v": 12012.57,
+      "v": 12024.99,
       "ret": -0.022359,
       "turnover": 0.0152,
       "tc": 8e-06
     },
     {
       "d": "2026-05-20",
-      "v": 12088.05,
+      "v": 12100.55,
       "ret": 0.006443,
       "turnover": 0.3171,
       "tc": 0.000159
     },
     {
       "d": "2026-05-21",
-      "v": 12141.18,
+      "v": 12153.74,
       "ret": 0.004497,
       "turnover": 0.2022,
       "tc": 0.000101
     },
     {
       "d": "2026-05-22",
-      "v": 12229.52,
+      "v": 12242.16,
       "ret": 0.007375,
       "turnover": 0.1974,
       "tc": 9.9e-05
     },
     {
       "d": "2026-05-26",
-      "v": 12322.39,
+      "v": 12335.13,
       "ret": 0.007604,
       "turnover": 0.0188,
       "tc": 9e-06
     },
     {
       "d": "2026-05-27",
-      "v": 12250.12,
+      "v": 12262.79,
       "ret": -0.00583,
       "turnover": 0.0703,
       "tc": 3.5e-05
     },
     {
       "d": "2026-05-28",
-      "v": 12182.77,
+      "v": 12195.36,
       "ret": -0.005488,
       "turnover": 0.0203,
       "tc": 1e-05
     },
     {
       "d": "2026-05-29",
-      "v": 12339.23,
+      "v": 12351.99,
       "ret": 0.012885,
       "turnover": 0.0827,
       "tc": 4.1e-05
     },
     {
       "d": "2026-06-01",
-      "v": 12309.99,
-      "ret": -0.002272,
+      "v": 12335.27,
+      "ret": -0.001256,
       "turnover": 0.195,
       "tc": 9.8e-05
     },
     {
       "d": "2026-06-02",
-      "v": 12429.38,
+      "v": 12454.91,
       "ret": 0.0097,
       "turnover": 0.0025,
       "tc": 1e-06
     },
     {
       "d": "2026-06-03",
-      "v": 12555.78,
+      "v": 12581.56,
       "ret": 0.010173,
       "turnover": 0.0086,
       "tc": 4e-06
     },
     {
       "d": "2026-06-04",
-      "v": 12272.33,
+      "v": 12297.53,
       "ret": -0.022575,
       "turnover": 0.0004,
       "tc": 0.0
     },
     {
       "d": "2026-06-05",
-      "v": 12100.02,
+      "v": 12124.87,
       "ret": -0.013903,
       "turnover": 0.2784,
       "tc": 0.000139
     },
     {
       "d": "2026-06-08",
-      "v": 11811.11,
+      "v": 11835.37,
       "ret": -0.02386,
       "turnover": 0.0355,
       "tc": 1.8e-05
     },
     {
       "d": "2026-06-09",
-      "v": 11940.63,
+      "v": 11965.15,
       "ret": 0.010984,
       "turnover": 0.0371,
       "tc": 1.9e-05
     },
     {
       "d": "2026-06-10",
-      "v": 11512.11,
+      "v": 11535.75,
       "ret": -0.035845,
       "turnover": 0.0877,
       "tc": 4.4e-05
     },
     {
       "d": "2026-06-11",
-      "v": 11505.01,
+      "v": 11528.64,
       "ret": -0.000599,
       "turnover": 0.0351,
       "tc": 1.8e-05
     },
     {
       "d": "2026-06-12",
-      "v": 11820.5,
+      "v": 11844.77,
       "ret": 0.027425,
       "turnover": 0.0069,
       "tc": 3e-06
     },
     {
       "d": "2026-06-15",
-      "v": 12228.69,
+      "v": 12253.8,
       "ret": 0.03455,
       "turnover": 0.0349,
       "tc": 1.7e-05
     },
     {
       "d": "2026-06-16",
-      "v": 12231.37,
+      "v": 12256.48,
       "ret": 0.00025,
       "turnover": 0.0613,
       "tc": 3.1e-05
     },
     {
       "d": "2026-06-17",
-      "v": 12092.7,
+      "v": 12117.54,
       "ret": -0.011308,
       "turnover": 0.0587,
       "tc": 2.9e-05
     },
     {
       "d": "2026-06-18",
-      "v": 12152.81,
+      "v": 12177.77,
       "ret": 0.004974,
       "turnover": 0.0063,
       "tc": 3e-06
     },
     {
       "d": "2026-06-22",
-      "v": 12306.84,
+      "v": 12332.11,
       "ret": 0.012679,
       "turnover": 0.0105,
       "tc": 5e-06
     },
     {
       "d": "2026-06-23",
-      "v": 11705.16,
-      "ret": -0.048854,
+      "v": 11738.34,
+      "ret": -0.048112,
       "turnover": 0.0754,
       "tc": 3.8e-05
     },
     {
       "d": "2026-06-24",
-      "v": 11667.06,
-      "ret": -0.003225,
+      "v": 11704.71,
+      "ret": -0.002835,
       "turnover": 0.0604,
       "tc": 3e-05
     },
     {
       "d": "2026-06-25",
-      "v": 11944.21,
+      "v": 11982.76,
       "ret": 0.023763,
       "turnover": 0.0144,
       "tc": 7e-06
     },
     {
       "d": "2026-06-26",
-      "v": 11562.94,
+      "v": 11600.26,
       "ret": -0.031914,
       "turnover": 0.0149,
       "tc": 7e-06
     },
     {
       "d": "2026-06-29",
-      "v": 11618.26,
+      "v": 11655.76,
       "ret": 0.00479,
       "turnover": 0.01,
       "tc": 5e-06
     },
     {
       "d": "2026-06-30",
-      "v": 11835.92,
+      "v": 11874.12,
       "ret": 0.018737,
       "turnover": 0.0065,
       "tc": 3e-06
     },
     {
       "d": "2026-07-01",
-      "v": 11778.02,
-      "ret": -0.004886,
+      "v": 11832.88,
+      "ret": -0.003468,
       "turnover": 0.0093,
       "tc": 5e-06
     },
     {
       "d": "2026-07-02",
-      "v": 11643.61,
-      "ret": -0.011003,
+      "v": 11697.77,
+      "ret": -0.011009,
       "turnover": 0.8281,
       "tc": 0.000414
     }
