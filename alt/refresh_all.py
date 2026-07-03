@@ -516,6 +516,13 @@ def main():
     print("\n=== Regenerating audit bundle ===")
     regenerate_audit_bundle()
 
+    # 7a2. Regenerate the v4 robustness suite (survivorship, TC sensitivity,
+    # weight perturbation, allocator comparison, block bootstrap, QUANTUM
+    # ablation) into phoenix_v2_audit.json's `robustness` block. Best-effort
+    # (~15s); a failure here must not block the daily signal.
+    run([sys.executable, str(ALT / "robustness_v4.py")],
+        "Regenerate v4 robustness suite")
+
     # 7b. Period-returns table (MTD/QTD/YTD/1Y/3Y/5Y/10Y/ITD for backtest and
     # paper trade). Writes into phoenix_factsheet.json under `performance` so
     # inject_into_html picks it up via const F. Must run AFTER paper_trader
