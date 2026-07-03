@@ -1,0 +1,288 @@
+{
+ "confirmed": [
+  {
+   "claim": "Across 97 cross-sectional return predictors published in peer-reviewed finance/accounting/economics journals, long-short portfolio returns are 26% lower out-of-sample and 58% lower post-publication, implying roughly 32% of the in-sample edge is destroyed by publication-informed trading (with the 26% out-of-sample decline an upper bound on data-mining bias). Any backtest of published anomalies should therefore haircut in-sample edges by roughly one-third to one-half.",
+   "source": "https://www.researchgate.net/publication/315421495_Does_Academic_Research_Destroy_Stock_Return_Predictability",
+   "quote": "We study the out-of-sample and post-publication return-predictability of 97 variables that academic studies show to predict cross-sectional stock returns. Portfolio returns are 26% lower out-of-sample and 58% lower post-publication. The out-of-sample decline is an upper bound estimate of data mining effects. We estimate a 32% (58% - 26%) lower return from publication-informed trading.",
+   "vote": "3-0"
+  },
+  {
+   "claim": "The absolute edge sizes are quantified: the average predictor earns 58.2 basis points per month in-sample; the statistically significant post-sample decline is 15.0 bps/month and the post-publication decline is 33.7 bps/month, leaving roughly 24 bps/month of surviving edge on average after publication \u2014 before transaction costs. The sample period for these estimates ends in 2013.",
+   "source": "https://www.researchgate.net/publication/315421495_Does_Academic_Research_Destroy_Stock_Return_Predictability",
+   "quote": "The post-sample coefficient in this regression is -0.150 percent, and it is statistically significant. Thus, our best estimate of the post-sample decline is 15.0 basis points. The post-publication coefficient is -0.337, and it is also statistically significant. ... Table I shows that the average predictor has an in-sample mean return of 58.2 basis points per month. Hence, post-sample and post-publication returns decline relative to the in-sample mean by 26% and 58% respectively.",
+   "vote": "3-0"
+  },
+  {
+   "claim": "Across 204 published stock-market anomalies, after accounting for effective bid-ask spreads, post-publication decay, and restricting to the modern trading era (post-2005), the average anomaly's expected long-short return is only about 4 bps per month \u2014 versus 68 bps gross in-sample \u2014 implying near-total erosion of the documented edge under realistic conditions.",
+   "source": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/945133D5A3ECEEAF466AEE91551FD225/S0022109022000874a.pdf/zeroing-in-on-the-expected-returns-of-anomalies.pdf",
+   "quote": "We zero in on the expected returns of long-short portfolios based on 204 stock market anomalies by accounting for i) effective bid\u2013ask spreads, ii) post-publication effects, and iii) the modern era of trading technology that began in the early 2000s. Net of these effects, the average anomaly's expected return is a measly 4 bps per month.",
+   "vote": "3-0"
+  },
+  {
+   "claim": "The paper replicates McLean-Pontiff's ~50% post-publication gross-return decay, but shows the decay rises to 72% when restricted to post-2005 data and to 93% after trading costs, so even the 90th-percentile (strongest-decile) anomaly nets only about 6 bps per month out-of-sample.",
+   "source": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/945133D5A3ECEEAF466AEE91551FD225/S0022109022000874a.pdf/zeroing-in-on-the-expected-returns-of-anomalies.pdf",
+   "quote": "We replicate McLean and Pontiff's (2016) well-known finding that the gross returns of anomalies decay by roughly 50% post-publication... However, if we limit post-publication data to post-2005 observations, the decay increases to 72%. Indeed, after total trading costs (including cost mitigation), the decay is 93%, implying that the 90th percentile anomaly produces an expected return of just 6 bps per month.",
+   "vote": "3-0"
+  },
+  {
+   "claim": "In post-publication, post-2005 net-return data, only 7% of anomaly t-statistics exceed 2.0 in absolute value \u2014 approximately what a standard normal (pure luck) distribution would produce \u2014 so cross-anomaly heterogeneity in recent net returns is largely attributable to chance, and empirical Bayes puts the 90th-percentile anomaly at ~10 bps/month expected return.",
+   "source": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/945133D5A3ECEEAF466AEE91551FD225/S0022109022000874a.pdf/zeroing-in-on-the-expected-returns-of-anomalies.pdf",
+   "quote": "We find that the distribution of t-stats for post-publication and post-2005 net returns closely resembles a standard normal, with only 7% of t-stats exceeding 2.0 in absolute value. Thus, the heterogeneity in mean net returns in recent data can largely be accounted for by luck, and our empirical Bayes estimates imply that the 90th percentile anomaly has an expected return of around 10 bps per month.",
+   "vote": "3-0"
+  },
+  {
+   "claim": "Combining anomalies via Fama-MacBeth fitted returns, rank averaging, IPCA, or LASSO yields spectacular in-sample results (three of four methods gross ~380 bps/month in 1985-2005, ex-microcaps) but only ~20 bps/month net in post-2005/post-publication data \u2014 a warning that in-sample multi-signal backtests over pre-2006 eras dramatically overstate expected returns.",
+   "source": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/945133D5A3ECEEAF466AEE91551FD225/S0022109022000874a.pdf/zeroing-in-on-the-expected-returns-of-anomalies.pdf",
+   "quote": "Despite the relative simplicity of these strategies, they produce very impressive returns in the 1985\u20132005 sample. Three out of 4 methods produce a gross return of 380 bps per month, even with microcaps excluded... Net of trading costs and stale data, however, the best of our combination strategies earn around 20 bps per month.",
+   "vote": "3-0"
+  },
+  {
+   "claim": "A long-short portfolio that shorts firms making textual changes to their quarterly/annual SEC filings ('changers') and buys firms that do not ('non-changers') earned up to 188 basis points per month in alpha (over 22% annualized) over the 1995-2014 sample of all U.S. corporate 10-K/10-Q filers.",
+   "source": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1658471",
+   "quote": "a portfolio that shorts 'changers' and buys 'non-changers' earns up to 188 basis points in monthly alphas (over 22% per year)",
+   "vote": "3-0"
+  },
+  {
+   "claim": "The signal's returns accrue slowly rather than at the filing date: prices react only when the information embedded in the filing changes is later revealed through news, events, or earnings, which the authors attribute to investor inattention. This implies a multi-month drift exploitable after the filing is public.",
+   "source": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1658471",
+   "quote": "investors are inattentive to these simple changes across the universe of public firms ... returns only accruing when the information is later revealed through news, events, or earnings",
+   "vote": "3-0"
+  },
+  {
+   "claim": "Among 39 stock markets studied, the United States is the only country showing a statistically reliable post-publication decline in long-short returns of published cross-sectional anomalies \u2014 implying that for US-focused strategies (such as those targeting QQQ/Nasdaq-100 outperformance), published anomaly edges should be assumed to decay after publication, while international versions of the same anomalies largely persist.",
+   "source": "https://www.sciencedirect.com/science/article/abs/pii/S0304405X19301618",
+   "quote": "We find, based on more than two million anomaly country-months, that the United States is the only country with a reliable post-publication decline in long-short returns.",
+   "vote": "3-0"
+  },
+  {
+   "claim": "The study is a large-scale meta-analysis covering 241 cross-sectional anomalies across 39 stock markets, using more than two million anomaly country-months \u2014 making it one of the broadest quantified tests of post-publication anomaly decay available for grading which stock-picking signals survive out-of-sample.",
+   "source": "https://www.sciencedirect.com/science/article/abs/pii/S0304405X19301618",
+   "quote": "Motivated by McLean and Pontiff (2016), we study the pre- and post-publication return predictability of 241 cross-sectional anomalies in 39 stock markets.",
+   "vote": "3-0"
+  },
+  {
+   "claim": "The authors conclude that anomalies on average reflect genuine mispricing rather than data mining, with post-publication decay driven by arbitrage activity that is constrained by market-specific barriers \u2014 i.e., decay is an arbitrage/crowding phenomenon, not evidence the original results were spurious.",
+   "source": "https://www.sciencedirect.com/science/article/abs/pii/S0304405X19301618",
+   "quote": "Collectively, our meta-analysis of return predictors suggests that barriers to arbitrage trading can create segmented markets and that anomalies tend to represent mispricing instead of data mining.",
+   "vote": "3-0"
+  },
+  {
+   "claim": "The classic PEAD strategy (zero-investment long top-decile / short bottom-decile SUE portfolio, US stocks, Bernard and Thomas 1989 era) produced roughly 2% abnormal drift over 60 trading days per side, i.e. about 4% quarterly and 18% annualized abnormal returns.",
+   "source": "https://www.sciencedirect.com/science/article/pii/S2214635020303750",
+   "quote": "The results of Bernard and Thomas (1989) show a positive (negative) drift of around 2% over 60 trading days for the good (bad) news stocks. This amounts to about 4% (18%) in abnormal quarterly (annualized) excess returns.",
+   "vote": "3-0"
+  },
+  {
+   "claim": "PEAD has measurably decayed post-publication: multiple studies (Chordia et al. 2014; Martineau 2019; Richardson et al. 2010) document declining magnitude, attributed to lower limits to arbitrage, more arbitrage activity, and better information environments \u2014 though the drift still persisted two decades after publication and across international markets (Griffin et al. 2010).",
+   "source": "https://www.sciencedirect.com/science/article/pii/S2214635020303750",
+   "quote": "Surprisingly, the drift continues to exist even two decades after publication and across markets (Griffin et al., 2010). However, there is also evidence that the magnitude of PEAD returns has been declining (Chordia et al., 2014; Martineau, 2019; Richardson et al., 2010).",
+   "vote": "3-0"
+  }
+ ],
+ "unverified": [
+  {
+   "claim": "Net-of-cost profitability of PEAD is disputed and the anomaly is concentrated in small, illiquid, high-transaction-cost stocks: several studies find close to zero abnormal profits after trading frictions (Chordia et al. 2009; Ng et al. 2008; Zhang et al. 2013), while others still find significant profits (Battalio and Mendenhall 2011) \u2014 a direct caution for applying PEAD to a large-cap Nasdaq-100 universe with realistic costs.",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://www.sciencedirect.com/science/article/pii/S2214635020303750"
+  },
+  {
+   "claim": "Over 2004-2008, the average member of Congress's actual stock portfolio underperformed the market by about 0.23 percentage points per month (roughly -2.8% annualized, 95% CI [-4.9%, -0.5%], Carhart four-factor alpha), directly contradicting the premise that copying congressional stock holdings provides positive edge.",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1762019"
+  },
+  {
+   "claim": "Applying the same calendar-time transaction-portfolio methodology as the widely cited Ziobrowski studies to a new dataset of 48,309 congressional stock transactions (422 members, 2,581 companies, 2004-2008), the authors find no evidence of informed trading \u2014 i.e., a copy-trading signal built from congressional buys/sells shows no abnormal returns in this era.",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1762019"
+  },
+  {
+   "claim": "The prior academic basis for congressional copy-trading \u2014 Ziobrowski et al.'s findings that synthetic transaction portfolios beat the market by 12%/year for the Senate (1993-98) and 6%/year for the House (1985-2001) \u2014 is reinterpreted as showing no informed trading in the House study and Senate excess returns driven by only a handful of members, indicating the documented edge was fragile and did not survive re-examination or out-of-sample testing.",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1762019"
+  },
+  {
+   "claim": "Post-STOCK Act (Jan 2012 - Dec 2020), copy-trading congressional disclosures has no documented edge: stocks bought by House Members underperformed by 26 bps over six months and stocks they sold underperformed by 11 bps, with no evidence of superior performance even among Senators specifically accused of informed trading.",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://www.sciencedirect.com/science/article/abs/pii/S0047272722000044"
+  },
+  {
+   "claim": "Selecting only the best-performing members of Congress to copy would not have produced a real signal: even the 95th and 99th percentile ex-post returns of House and Senate stock picks are statistically consistent with random stock picking over 2012-2020.",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://www.sciencedirect.com/science/article/abs/pii/S0047272722000044"
+  },
+  {
+   "claim": "The pre-2012 congressional trading edge documented in earlier literature (Ziobrowski et al.: ~12%/yr for senators, ~6%/yr for House members) decayed to zero after publication and the STOCK Act's disclosure regime, a textbook post-publication decay case for this copy-trading signal.",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://www.sciencedirect.com/science/article/abs/pii/S0047272722000044"
+  },
+  {
+   "claim": "A portfolio strategy focused solely on 'opportunistic' insider trades (insiders without a routine calendar pattern of trading) yields value-weighted abnormal returns of 82 basis points per month, while routine insider trades earn essentially zero abnormal returns.",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.2012.01740.x"
+  },
+  {
+   "claim": "Over half of all insider trades are predictable 'routine' trades that carry no information about future firm performance, so filtering them out is essential for any insider-copy-trading signal.",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.2012.01740.x"
+  },
+  {
+   "claim": "70-80 percent of the total abnormal return (alpha) from insider trades dissipates between the insider's transaction date and the following trading day, i.e., before the trade is publicly disclosed via a Form 4 filing \u2014 so copy-trading strategies that can only enter at the filing date capture at most 20-30 percent of the documented insider alpha.",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5966834"
+  },
+  {
+   "claim": "Strategies that enter at the public filing date generate negligible alpha, with the strategy Sharpe ratio collapsing from over 9.0 (transaction-date entry, which is unimplementable) to about 1.5 (filing-date entry).",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5966834"
+  },
+  {
+   "claim": "Practitioner backtests of insider-trading copy strategies systematically overstate performance relative to the academic literature, and the discrepancy is attributable to look-ahead bias in trade-entry timing (backtesting entry at the transaction date instead of the filing date).",
+   "erroredVotes": 3,
+   "validVotes": 0,
+   "source": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5966834"
+  }
+ ],
+ "sources": [
+  {
+   "url": "https://www.researchgate.net/publication/315421495_Does_Academic_Research_Destroy_Stock_Return_Predictability",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/945133D5A3ECEEAF466AEE91551FD225/S0022109022000874a.pdf/zeroing-in-on-the-expected-returns-of-anomalies.pdf",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1658471",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://www.sciencedirect.com/science/article/abs/pii/S0304405X19301618",
+   "quality": "primary",
+   "claimCount": 4
+  },
+  {
+   "url": "https://www.sciencedirect.com/science/article/pii/S2214635020303750",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://quantpedia.com/in-sample-vs-out-of-sample-analysis-of-trading-strategies/",
+   "quality": "secondary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1762019",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://www.sciencedirect.com/science/article/abs/pii/S0047272722000044",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.2012.01740.x",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5966834",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://quantpedia.com/strategies/alpha-cloning-following-13f-fillings",
+   "quality": "secondary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://www.govgreed.com/data/do-politicians-beat-the-market",
+   "quality": "blog",
+   "claimCount": 5
+  },
+  {
+   "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4294297",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/jofi.12365",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://www.sciencedirect.com/science/article/abs/pii/S0929119919309368",
+   "quality": "primary",
+   "claimCount": 4
+  },
+  {
+   "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3159577",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://www.tidy-finance.org/blog/gu-kelly-xiu-replication/",
+   "quality": "blog",
+   "claimCount": 5
+  },
+  {
+   "url": "https://ssrn.com/abstract=4702406",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://arxiv.org/abs/2304.07619",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://quantpedia.com/guardrails-make-the-researcher-what-an-ai-agent-got-right-and-wrong-replicating-nine-equity-anomalies/",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3604626",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://www.researchgate.net/publication/254926004_Does_Academic_Research_Destroy_Stock_Return_Predictability",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2294498",
+   "quality": "primary",
+   "claimCount": 5
+  },
+  {
+   "url": "https://quantpedia.com/the-expected-returns-of-machine-learning-strategies/",
+   "quality": "secondary",
+   "claimCount": 5
+  }
+ ],
+ "stats": {
+  "angles": 5,
+  "sources": 24,
+  "claims": 118,
+  "verified": 25,
+  "confirmed": 13,
+  "killed": 0,
+  "unverified": 12,
+  "afterSynthesis": 0
+ }
+}
