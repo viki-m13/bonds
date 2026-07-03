@@ -1,7 +1,7 @@
 {
-  "generated_at_utc": "2026-07-02T22:04:38+00:00",
+  "generated_at_utc": "2026-07-03T08:29:44+00:00",
   "context": {
-    "as_of": "2026-07-01",
+    "as_of": "2026-07-02",
     "raw_blend_gross": 1.0,
     "raw_risk_gross": 0.7857142857142857,
     "raw_weights": {
@@ -17,7 +17,7 @@
     },
     "sleeve_picks": {
       "VANGUARD": {
-        "as_of": "2026-07-02",
+        "as_of": "2026-07-03",
         "gross": 1.0,
         "blend_weight": 0.1429,
         "weights": {
@@ -25,7 +25,7 @@
         }
       },
       "ORION": {
-        "as_of": "2026-07-02",
+        "as_of": "2026-07-03",
         "gross": 1.0,
         "blend_weight": 0.1429,
         "weights": {
@@ -37,7 +37,7 @@
         }
       },
       "HELIOS": {
-        "as_of": "2026-07-02",
+        "as_of": "2026-07-03",
         "gross": 1.0,
         "blend_weight": 0.1429,
         "weights": {
@@ -46,7 +46,7 @@
         }
       },
       "CRYPTO": {
-        "as_of": "2026-07-02",
+        "as_of": "2026-07-03",
         "gross": 1.0,
         "blend_weight": 0.1429,
         "weights": {
@@ -54,7 +54,7 @@
         }
       },
       "REVERSAL": {
-        "as_of": "2026-07-02",
+        "as_of": "2026-07-03",
         "gross": 1.0,
         "blend_weight": 0.1429,
         "weights": {
@@ -64,7 +64,7 @@
         }
       },
       "TOM": {
-        "as_of": "2026-07-02",
+        "as_of": "2026-07-06",
         "gross": 1.0,
         "blend_weight": 0.1429,
         "weights": {
@@ -72,7 +72,7 @@
         }
       },
       "BONDTREND": {
-        "as_of": "2026-07-02",
+        "as_of": "2026-07-03",
         "gross": 1.0,
         "blend_weight": 0.1429,
         "weights": {
@@ -93,63 +93,58 @@
     "dd_mult": 1.0,
     "vol_gate_mult": 1.0,
     "overlay_mult": 1.0,
-    "overlay_reason": "No vol target (v3.1) \u2014 EWMA vol 36.2%, tail overlays only \u00b7 All safety gates clear",
-    "vix": 16.45,
-    "hy_oas_slope_20d": 0.040000000000000036,
-    "spy_vs_200dma": 0.08351225519539196,
+    "overlay_reason": "No vol target (v3.1) \u2014 EWMA vol 35.8%, tail overlays only \u00b7 All safety gates clear",
+    "vix": 16.59,
+    "hy_oas_slope_20d": -0.009999999999999787,
+    "spy_vs_200dma": 0.08137269642969613,
     "regime_gate_pass": true,
     "regime_risk_on": true
   },
   "previous_positions": [
     {
       "ticker": "BIL",
-      "weight": 0.480232490195591,
-      "pct": 48.02
-    },
-    {
-      "ticker": "QLD",
-      "weight": 0.2153279092694684,
-      "pct": 21.53
-    },
-    {
-      "ticker": "SOXL",
-      "weight": 0.081128135307388,
-      "pct": 8.11
-    },
-    {
-      "ticker": "UCO",
-      "weight": 0.056265061037926,
-      "pct": 5.63
-    },
-    {
-      "ticker": "TMF",
-      "weight": 0.0308190604604135,
-      "pct": 3.08
-    },
-    {
-      "ticker": "TYD",
-      "weight": 0.0308190604604135,
-      "pct": 3.08
-    },
-    {
-      "ticker": "UBT",
-      "weight": 0.0308190604604135,
-      "pct": 3.08
-    },
-    {
-      "ticker": "EDC",
-      "weight": 0.0248630742694619,
-      "pct": 2.49
-    },
-    {
-      "ticker": "TECL",
-      "weight": 0.0248630742694619,
-      "pct": 2.49
+      "weight": 0.2142857142857143,
+      "pct": 21.43
     },
     {
       "ticker": "TQQQ",
-      "weight": 0.0248630742694619,
-      "pct": 2.49
+      "weight": 0.2083333333333333,
+      "pct": 20.83
+    },
+    {
+      "ticker": "QLD",
+      "weight": 0.1428571428571428,
+      "pct": 14.29
+    },
+    {
+      "ticker": "TMF",
+      "weight": 0.1428571428571428,
+      "pct": 14.29
+    },
+    {
+      "ticker": "SOXL",
+      "weight": 0.1369047619047619,
+      "pct": 13.69
+    },
+    {
+      "ticker": "UCO",
+      "weight": 0.0714285714285714,
+      "pct": 7.14
+    },
+    {
+      "ticker": "UPRO",
+      "weight": 0.0476190476190476,
+      "pct": 4.76
+    },
+    {
+      "ticker": "EDC",
+      "weight": 0.0178571428571428,
+      "pct": 1.79
+    },
+    {
+      "ticker": "TECL",
+      "weight": 0.0178571428571428,
+      "pct": 1.79
     }
   ],
   "target_positions": [
@@ -199,168 +194,16 @@
       "pct": 1.79
     }
   ],
-  "trades_today": [
-    {
-      "ticker": "BIL",
-      "side": "SELL",
-      "weight_before": 0.4802,
-      "weight_after": 0.2143,
-      "weight_delta": -0.2659,
-      "delta_pct": -26.59
-    },
-    {
-      "ticker": "QLD",
-      "side": "SELL",
-      "weight_before": 0.2153,
-      "weight_after": 0.1429,
-      "weight_delta": -0.0725,
-      "delta_pct": -7.25
-    },
-    {
-      "ticker": "TYD",
-      "side": "SELL",
-      "weight_before": 0.0308,
-      "weight_after": 0.0,
-      "weight_delta": -0.0308,
-      "delta_pct": -3.08
-    },
-    {
-      "ticker": "UBT",
-      "side": "SELL",
-      "weight_before": 0.0308,
-      "weight_after": 0.0,
-      "weight_delta": -0.0308,
-      "delta_pct": -3.08
-    },
-    {
-      "ticker": "EDC",
-      "side": "SELL",
-      "weight_before": 0.0249,
-      "weight_after": 0.0179,
-      "weight_delta": -0.007,
-      "delta_pct": -0.7
-    },
-    {
-      "ticker": "TECL",
-      "side": "SELL",
-      "weight_before": 0.0249,
-      "weight_after": 0.0179,
-      "weight_delta": -0.007,
-      "delta_pct": -0.7
-    },
-    {
-      "ticker": "TQQQ",
-      "side": "BUY",
-      "weight_before": 0.0249,
-      "weight_after": 0.2083,
-      "weight_delta": 0.1835,
-      "delta_pct": 18.35
-    },
-    {
-      "ticker": "TMF",
-      "side": "BUY",
-      "weight_before": 0.0308,
-      "weight_after": 0.1429,
-      "weight_delta": 0.112,
-      "delta_pct": 11.2
-    },
-    {
-      "ticker": "SOXL",
-      "side": "BUY",
-      "weight_before": 0.0811,
-      "weight_after": 0.1369,
-      "weight_delta": 0.0558,
-      "delta_pct": 5.58
-    },
-    {
-      "ticker": "UPRO",
-      "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.0476,
-      "weight_delta": 0.0476,
-      "delta_pct": 4.76
-    },
-    {
-      "ticker": "UCO",
-      "side": "BUY",
-      "weight_before": 0.0563,
-      "weight_after": 0.0714,
-      "weight_delta": 0.0152,
-      "delta_pct": 1.52
-    }
-  ],
+  "trades_today": [],
   "recent_trades_30d": [
     {
       "Date": "2026-07-01",
-      "ticker": "UCO",
+      "ticker": "UPRO",
       "side": "BUY",
-      "weight_before": 0.0563,
-      "weight_after": 0.0714,
-      "weight_delta": 0.0152,
-      "delta_pct": 1.52
-    },
-    {
-      "Date": "2026-07-01",
-      "ticker": "TECL",
-      "side": "SELL",
-      "weight_before": 0.0249,
-      "weight_after": 0.0179,
-      "weight_delta": -0.007,
-      "delta_pct": -0.7
-    },
-    {
-      "Date": "2026-07-01",
-      "ticker": "BIL",
-      "side": "SELL",
-      "weight_before": 0.4802,
-      "weight_after": 0.2143,
-      "weight_delta": -0.2659,
-      "delta_pct": -26.59
-    },
-    {
-      "Date": "2026-07-01",
-      "ticker": "QLD",
-      "side": "SELL",
-      "weight_before": 0.2153,
-      "weight_after": 0.1429,
-      "weight_delta": -0.0725,
-      "delta_pct": -7.25
-    },
-    {
-      "Date": "2026-07-01",
-      "ticker": "UBT",
-      "side": "SELL",
-      "weight_before": 0.0308,
-      "weight_after": 0.0,
-      "weight_delta": -0.0308,
-      "delta_pct": -3.08
-    },
-    {
-      "Date": "2026-07-01",
-      "ticker": "EDC",
-      "side": "SELL",
-      "weight_before": 0.0249,
-      "weight_after": 0.0179,
-      "weight_delta": -0.007,
-      "delta_pct": -0.7
-    },
-    {
-      "Date": "2026-07-01",
-      "ticker": "TYD",
-      "side": "SELL",
-      "weight_before": 0.0308,
-      "weight_after": 0.0,
-      "weight_delta": -0.0308,
-      "delta_pct": -3.08
-    },
-    {
-      "Date": "2026-07-01",
-      "ticker": "TQQQ",
-      "side": "BUY",
-      "weight_before": 0.0249,
-      "weight_after": 0.2083,
-      "weight_delta": 0.1835,
-      "delta_pct": 18.35
+      "weight_before": 0.0,
+      "weight_after": 0.0476,
+      "weight_delta": 0.0476,
+      "delta_pct": 4.76
     },
     {
       "Date": "2026-07-01",
@@ -373,6 +216,24 @@
     },
     {
       "Date": "2026-07-01",
+      "ticker": "BIL",
+      "side": "SELL",
+      "weight_before": 0.4802,
+      "weight_after": 0.2143,
+      "weight_delta": -0.2659,
+      "delta_pct": -26.59
+    },
+    {
+      "Date": "2026-07-01",
+      "ticker": "EDC",
+      "side": "SELL",
+      "weight_before": 0.0249,
+      "weight_after": 0.0179,
+      "weight_delta": -0.007,
+      "delta_pct": -0.7
+    },
+    {
+      "Date": "2026-07-01",
       "ticker": "SOXL",
       "side": "BUY",
       "weight_before": 0.0811,
@@ -382,12 +243,57 @@
     },
     {
       "Date": "2026-07-01",
-      "ticker": "UPRO",
+      "ticker": "TECL",
+      "side": "SELL",
+      "weight_before": 0.0249,
+      "weight_after": 0.0179,
+      "weight_delta": -0.007,
+      "delta_pct": -0.7
+    },
+    {
+      "Date": "2026-07-01",
+      "ticker": "QLD",
+      "side": "SELL",
+      "weight_before": 0.2153,
+      "weight_after": 0.1429,
+      "weight_delta": -0.0725,
+      "delta_pct": -7.25
+    },
+    {
+      "Date": "2026-07-01",
+      "ticker": "TQQQ",
       "side": "BUY",
-      "weight_before": 0.0,
-      "weight_after": 0.0476,
-      "weight_delta": 0.0476,
-      "delta_pct": 4.76
+      "weight_before": 0.0249,
+      "weight_after": 0.2083,
+      "weight_delta": 0.1835,
+      "delta_pct": 18.35
+    },
+    {
+      "Date": "2026-07-01",
+      "ticker": "TYD",
+      "side": "SELL",
+      "weight_before": 0.0308,
+      "weight_after": 0.0,
+      "weight_delta": -0.0308,
+      "delta_pct": -3.08
+    },
+    {
+      "Date": "2026-07-01",
+      "ticker": "UBT",
+      "side": "SELL",
+      "weight_before": 0.0308,
+      "weight_after": 0.0,
+      "weight_delta": -0.0308,
+      "delta_pct": -3.08
+    },
+    {
+      "Date": "2026-07-01",
+      "ticker": "UCO",
+      "side": "BUY",
+      "weight_before": 0.0563,
+      "weight_after": 0.0714,
+      "weight_delta": 0.0152,
+      "delta_pct": 1.52
     },
     {
       "Date": "2026-06-25",
@@ -644,44 +550,44 @@
   ],
   "price_context": {
     "TQQQ": {
-      "price": 77.46,
-      "mom63": 0.8584,
-      "mom21": -0.0997
+      "price": 73.35,
+      "mom63": 0.6967,
+      "mom21": -0.159
     },
     "QLD": {
-      "price": 93.9,
-      "mom63": 0.5393,
-      "mom21": -0.0575
+      "price": 90.61,
+      "mom63": 0.45,
+      "mom21": -0.0987
     },
     "TMF": {
-      "price": 34.8,
-      "mom63": -0.0349,
-      "mom21": -0.0057
+      "price": 34.78,
+      "mom63": -0.0328,
+      "mom21": -0.0125
     },
     "SOXL": {
-      "price": 217.55,
-      "mom63": 3.5408,
-      "mom21": -0.0418
+      "price": 181.47,
+      "mom63": 2.4724,
+      "mom21": -0.3186
     },
     "UCO": {
-      "price": 31.93,
-      "mom63": -0.1875,
-      "mom21": -0.3015
+      "price": 32.37,
+      "mom63": -0.1298,
+      "mom21": -0.3092
     },
     "UPRO": {
-      "price": 141.39,
-      "mom63": 0.4579,
-      "mom21": -0.0592
+      "price": 140.77,
+      "mom63": 0.4195,
+      "mom21": -0.0669
     },
     "EDC": {
-      "price": 81.58,
-      "mom63": 0.4573,
-      "mom21": -0.1814
+      "price": 78.37,
+      "mom63": 0.3706,
+      "mom21": -0.2368
     },
     "TECL": {
-      "price": 213.09,
-      "mom63": 1.462,
-      "mom21": -0.1918
+      "price": 195.27,
+      "mom63": 1.1615,
+      "mom21": -0.2855
     }
   },
   "blend_weights": {

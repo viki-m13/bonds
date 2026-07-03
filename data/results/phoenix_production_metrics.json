@@ -156,14 +156,14 @@
     }
   },
   "full": {
-    "sharpe": 1.0902,
-    "sortino": 1.4035,
-    "cagr": 0.2235,
+    "sharpe": 1.0828,
+    "sortino": 1.3943,
+    "cagr": 0.2216,
     "vol": 0.2043,
     "mdd": -0.1792,
-    "calmar": 1.2471,
-    "navx": 12.3638,
-    "n": 3142
+    "calmar": 1.2369,
+    "navx": 12.1452,
+    "n": 3143
   },
   "is": {
     "sharpe": 1.0904,
@@ -176,44 +176,44 @@
     "n": 1258
   },
   "oos": {
-    "sharpe": 1.1061,
-    "sortino": 1.4435,
-    "cagr": 0.251,
+    "sharpe": 1.0949,
+    "sortino": 1.4296,
+    "cagr": 0.2478,
     "vol": 0.2256,
     "mdd": -0.1792,
-    "calmar": 1.4006,
-    "navx": 5.3336,
-    "n": 1884
+    "calmar": 1.3831,
+    "navx": 5.2393,
+    "n": 1885
   },
   "since_ibit_2024": {
-    "sharpe": 1.1938,
-    "sortino": 1.5218,
-    "cagr": 0.299,
-    "vol": 0.2444,
+    "sharpe": 1.162,
+    "sortino": 1.4839,
+    "cagr": 0.2891,
+    "vol": 0.2445,
     "mdd": -0.1684,
-    "calmar": 1.7759,
-    "navx": 1.9014,
-    "n": 619
+    "calmar": 1.7169,
+    "navx": 1.8677,
+    "n": 620
   },
-  "excess_sharpe_full": 1.0083,
-  "is_oos_gap": 0.0157,
-  "avg_total_mult": 0.9711966900063653,
+  "excess_sharpe_full": 1.0008,
+  "is_oos_gap": 0.0045,
+  "avg_total_mult": 0.9712058542793509,
   "reference_spot_proxy_crypto": {
     "warning": "NOT INVESTABLE pre-2024: allocates to spot BTC/ETH returns before any spot ETF existed. Research reference only \u2014 do not quote as performance.",
-    "sharpe": 1.3267,
-    "sortino": 1.7581,
-    "cagr": 0.2751,
+    "sharpe": 1.3189,
+    "sortino": 1.7481,
+    "cagr": 0.2732,
     "vol": 0.1981,
     "mdd": -0.2047,
-    "calmar": 1.3438,
-    "navx": 20.7007,
-    "n": 3142
+    "calmar": 1.3345,
+    "navx": 20.3346,
+    "n": 3143
   },
   "correlations": {
     "VAN": {
       "VAN": 1.0,
       "ORI": 0.603,
-      "HEL": 0.464,
+      "HEL": 0.465,
       "CRY": 0.095,
       "REV": 0.357,
       "TOM": 0.228,
@@ -229,12 +229,12 @@
       "BND": 0.171
     },
     "HEL": {
-      "VAN": 0.464,
+      "VAN": 0.465,
       "ORI": 0.676,
       "HEL": 1.0,
       "CRY": 0.068,
       "REV": 0.347,
-      "TOM": 0.238,
+      "TOM": 0.239,
       "BND": 0.09
     },
     "CRY": {
@@ -258,7 +258,7 @@
     "TOM": {
       "VAN": 0.228,
       "ORI": 0.313,
-      "HEL": 0.238,
+      "HEL": 0.239,
       "CRY": 0.102,
       "REV": 0.378,
       "TOM": 1.0,

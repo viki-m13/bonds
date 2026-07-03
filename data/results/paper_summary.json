@@ -4,25 +4,135 @@
     "tc_bps_per_side": 5.0,
     "trade_threshold_pct": 0.5
   },
-  "as_of": "2026-07-01",
+  "as_of": "2026-07-02",
   "start_date": "2026-04-13",
-  "current_nav": 11778.0,
-  "total_return_pct": 17.78,
-  "spy_total_return_pct": 10.26,
-  "n_trade_days": 56,
-  "ann_return_pct": 79.17,
-  "ann_vol_pct": 28.91,
-  "sharpe": 2.739,
+  "current_nav": 11643.61,
+  "total_return_pct": 16.44,
+  "spy_total_return_pct": 10.62,
+  "n_trade_days": 57,
+  "ann_return_pct": 72.92,
+  "ann_vol_pct": 28.8,
+  "sharpe": 2.532,
   "mdd_pct": -8.42,
   "tracking_error_vs_backtest": {
-    "n_days": 56,
-    "mean_diff_bps": 9.51,
-    "stdev_diff_bps": 112.33,
+    "n_days": 57,
+    "mean_diff_bps": 10.51,
+    "stdev_diff_bps": 111.58,
     "max_abs_diff_bps": 292.41,
-    "ann_tracking_error_bps": 1783.2,
+    "ann_tracking_error_bps": 1771.3,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "UPRO",
+      "Side": "BUY",
+      "Weight_Delta": 0.0476,
+      "Fill_Price": 142.24,
+      "Shares": 3.898,
+      "Notional_USD": 554.46
+    },
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "UCO",
+      "Side": "BUY",
+      "Weight_Delta": 0.0152,
+      "Fill_Price": 31.78,
+      "Shares": 5.5556,
+      "Notional_USD": 176.56
+    },
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "UBT",
+      "Side": "SELL",
+      "Weight_Delta": -0.0308,
+      "Fill_Price": 16.01,
+      "Shares": -22.4138,
+      "Notional_USD": -358.85
+    },
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "TYD",
+      "Side": "SELL",
+      "Weight_Delta": -0.0308,
+      "Fill_Price": 23.59,
+      "Shares": -15.2118,
+      "Notional_USD": -358.85
+    },
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "TQQQ",
+      "Side": "BUY",
+      "Weight_Delta": 0.1835,
+      "Fill_Price": 77.47,
+      "Shares": 27.5753,
+      "Notional_USD": 2136.26
+    },
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "TMF",
+      "Side": "BUY",
+      "Weight_Delta": 0.112,
+      "Fill_Price": 34.56,
+      "Shares": 37.7468,
+      "Notional_USD": 1304.53
+    },
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "TECL",
+      "Side": "SELL",
+      "Weight_Delta": -0.007,
+      "Fill_Price": 212.38,
+      "Shares": -0.3841,
+      "Notional_USD": -81.57
+    },
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "SOXL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0558,
+      "Fill_Price": 219.23,
+      "Shares": 2.9624,
+      "Notional_USD": 649.44
+    },
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "QLD",
+      "Side": "SELL",
+      "Weight_Delta": -0.0725,
+      "Fill_Price": 93.97,
+      "Shares": -8.9797,
+      "Notional_USD": -843.82
+    },
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "EDC",
+      "Side": "SELL",
+      "Weight_Delta": -0.007,
+      "Fill_Price": 81.61,
+      "Shares": -0.9996,
+      "Notional_USD": -81.57
+    },
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "BIL",
+      "Side": "SELL",
+      "Weight_Delta": -0.2659,
+      "Fill_Price": 91.43,
+      "Shares": -33.8683,
+      "Notional_USD": -3096.58
+    },
     {
       "Date": "2026-06-26",
       "signal_date": "2026-06-25",
@@ -46,22 +156,22 @@
     {
       "Date": "2026-06-24",
       "signal_date": "2026-06-23",
-      "Ticker": "QLD",
-      "Side": "SELL",
-      "Weight_Delta": -0.0125,
-      "Fill_Price": 91.59,
-      "Shares": -1.5941,
-      "Notional_USD": -146.0
-    },
-    {
-      "Date": "2026-06-24",
-      "signal_date": "2026-06-23",
       "Ticker": "BIL",
       "Side": "BUY",
       "Weight_Delta": 0.0302,
       "Fill_Price": 91.6,
       "Shares": 3.8474,
       "Notional_USD": 352.42
+    },
+    {
+      "Date": "2026-06-24",
+      "signal_date": "2026-06-23",
+      "Ticker": "QLD",
+      "Side": "SELL",
+      "Weight_Delta": -0.0125,
+      "Fill_Price": 91.59,
+      "Shares": -1.5941,
+      "Notional_USD": -146.0
     },
     {
       "Date": "2026-06-23",
@@ -146,22 +256,22 @@
     {
       "Date": "2026-06-15",
       "signal_date": "2026-06-12",
-      "Ticker": "BIL",
-      "Side": "SELL",
-      "Weight_Delta": -0.0175,
-      "Fill_Price": 91.52,
-      "Shares": -2.3338,
-      "Notional_USD": -213.59
-    },
-    {
-      "Date": "2026-06-15",
-      "signal_date": "2026-06-12",
       "Ticker": "QLD",
       "Side": "BUY",
       "Weight_Delta": 0.0072,
       "Fill_Price": 97.69,
       "Shares": 0.9058,
       "Notional_USD": 88.49
+    },
+    {
+      "Date": "2026-06-15",
+      "signal_date": "2026-06-12",
+      "Ticker": "BIL",
+      "Side": "SELL",
+      "Weight_Delta": -0.0175,
+      "Fill_Price": 91.52,
+      "Shares": -2.3338,
+      "Notional_USD": -213.59
     },
     {
       "Date": "2026-06-11",
@@ -182,16 +292,6 @@
       "Fill_Price": 91.48,
       "Shares": 2.2095,
       "Notional_USD": 202.13
-    },
-    {
-      "Date": "2026-06-10",
-      "signal_date": "2026-06-09",
-      "Ticker": "UCO",
-      "Side": "BUY",
-      "Weight_Delta": 0.0285,
-      "Fill_Price": 46.01,
-      "Shares": 7.1412,
-      "Notional_USD": 328.57
     },
     {
       "Date": "2026-06-10",
@@ -222,106 +322,6 @@
       "Fill_Price": 91.48,
       "Shares": -2.2844,
       "Notional_USD": -208.97
-    },
-    {
-      "Date": "2026-06-09",
-      "signal_date": "2026-06-08",
-      "Ticker": "QLD",
-      "Side": "SELL",
-      "Weight_Delta": -0.0077,
-      "Fill_Price": 94.02,
-      "Shares": -0.9756,
-      "Notional_USD": -91.73
-    },
-    {
-      "Date": "2026-06-09",
-      "signal_date": "2026-06-08",
-      "Ticker": "BIL",
-      "Side": "BUY",
-      "Weight_Delta": 0.0185,
-      "Fill_Price": 91.46,
-      "Shares": 2.4209,
-      "Notional_USD": 221.41
-    },
-    {
-      "Date": "2026-06-08",
-      "signal_date": "2026-06-05",
-      "Ticker": "QLD",
-      "Side": "SELL",
-      "Weight_Delta": -0.0073,
-      "Fill_Price": 92.71,
-      "Shares": -0.9364,
-      "Notional_USD": -86.81
-    },
-    {
-      "Date": "2026-06-08",
-      "signal_date": "2026-06-05",
-      "Ticker": "BIL",
-      "Side": "BUY",
-      "Weight_Delta": 0.0177,
-      "Fill_Price": 91.46,
-      "Shares": 2.2911,
-      "Notional_USD": 209.55
-    },
-    {
-      "Date": "2026-06-05",
-      "signal_date": "2026-06-04",
-      "Ticker": "IBIT",
-      "Side": "SELL",
-      "Weight_Delta": -0.0688,
-      "Fill_Price": 35.16,
-      "Shares": -23.6894,
-      "Notional_USD": -832.92
-    },
-    {
-      "Date": "2026-06-05",
-      "signal_date": "2026-06-04",
-      "Ticker": "ERX",
-      "Side": "SELL",
-      "Weight_Delta": -0.063,
-      "Fill_Price": 92.72,
-      "Shares": -8.2271,
-      "Notional_USD": -762.82
-    },
-    {
-      "Date": "2026-06-05",
-      "signal_date": "2026-06-04",
-      "Ticker": "BIL",
-      "Side": "BUY",
-      "Weight_Delta": 0.0775,
-      "Fill_Price": 91.45,
-      "Shares": 10.2554,
-      "Notional_USD": 937.86
-    },
-    {
-      "Date": "2026-06-05",
-      "signal_date": "2026-06-04",
-      "Ticker": "SOXL",
-      "Side": "BUY",
-      "Weight_Delta": 0.0617,
-      "Fill_Price": 230.85,
-      "Shares": 3.2334,
-      "Notional_USD": 746.44
-    },
-    {
-      "Date": "2026-06-01",
-      "signal_date": "2026-05-29",
-      "Ticker": "UGL",
-      "Side": "SELL",
-      "Weight_Delta": -0.0923,
-      "Fill_Price": 54.87,
-      "Shares": -20.6976,
-      "Notional_USD": -1135.68
-    },
-    {
-      "Date": "2026-06-01",
-      "signal_date": "2026-05-29",
-      "Ticker": "QLD",
-      "Side": "BUY",
-      "Weight_Delta": 0.0892,
-      "Fill_Price": 98.16,
-      "Shares": 11.182,
-      "Notional_USD": 1097.62
     }
   ],
   "nav_series": [
@@ -712,10 +712,17 @@
     },
     {
       "d": "2026-07-01",
-      "v": 11778.0,
-      "ret": -0.004888,
+      "v": 11778.02,
+      "ret": -0.004886,
       "turnover": 0.0093,
       "tc": 5e-06
+    },
+    {
+      "d": "2026-07-02",
+      "v": 11643.61,
+      "ret": -0.011003,
+      "turnover": 0.8281,
+      "tc": 0.000414
     }
   ],
   "spy_series": [
@@ -942,6 +949,10 @@
     {
       "d": "2026-07-01",
       "v": 11026.1
+    },
+    {
+      "d": "2026-07-02",
+      "v": 11061.62
     }
   ]
 }
