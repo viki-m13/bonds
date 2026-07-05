@@ -12,8 +12,7 @@ the skill->outcome curve; they are not tradeable.
 import os, sys, time, warnings
 warnings.filterwarnings("ignore")
 import numpy as np, pandas as pd
-import os as _os; HERE = _os.environ.get("ASCENT_WORK", "/tmp/ascent_work"); _os.makedirs(HERE, exist_ok=True)
-REPO = _os.environ.get("BONDS_REPO", _os.path.abspath(_os.path.join(_os.path.dirname(__file__), "..", "..", "..", "..", "..")))
+HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from engine import dca_benchmark, stats
 

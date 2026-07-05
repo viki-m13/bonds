@@ -8,7 +8,7 @@ Eligible pond: top-1500 $vol, price>=$3, above 10mo MA (tradeable names).
 import os, sys, time, warnings
 warnings.filterwarnings("ignore")
 import numpy as np, pandas as pd
-import os as _os; HERE = _os.environ.get("ASCENT_WORK", "/tmp/ascent_work"); _os.makedirs(HERE, exist_ok=True)
+HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 t0 = time.time()
