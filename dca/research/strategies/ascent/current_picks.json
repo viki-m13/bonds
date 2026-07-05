@@ -1,0 +1,30 @@
+{
+ "asof": "2026-06-01",
+ "ml_reference": [
+  "GDOT",
+  "OFG",
+  "DECK",
+  "GM",
+  "PRU",
+  "TNL",
+  "MET",
+  "KOP",
+  "AER",
+  "TK",
+  "DAC",
+  "TROW"
+ ],
+ "strategy": "ASCENT (concentration-timed leaders basket, INV-6)",
+ "regime": {
+  "state": "ON",
+  "spread3": 1.912,
+  "persistence": 0.6
+ },
+ "ascent_buy": [
+  "MU",
+  "NVDA",
+  "MRVL",
+  "SNDK",
+  "INTC"
+ ]
+}
