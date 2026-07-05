@@ -1,4 +1,4 @@
-<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>ATLAS-LEV — Strategy Factsheet</title></head><body><style>
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>VOLT — Strategy Factsheet</title></head><body><style>
 :root{
   --ground:#0e1420; --surface:#161d2b; --surface2:#1c2536; --hair:#28324a;
   --ink:#e8eef7; --ink2:#aeb9cc; --muted:#7f8ca3;
@@ -87,7 +87,7 @@ tbody tr:hover td{background:var(--surface2);color:var(--ink)}
   <div class="top">
     <div>
       <div class="eyebrow">Systematic Strategy · Factsheet</div>
-      <h1>ATLAS&#8288;-&#8288;LEV <span class="tag">vol-targeted leveraged NASDAQ</span></h1>
+      <h1>VOLT <span class="tag">vol-targeted leveraged NASDAQ</span></h1>
       <p class="sub">A monthly dollar-cost-average that scales exposure to <b>3&#215; NASDAQ (TQQQ)</b> by its own volatility, holding a <b>50/50 gold&#8211;Treasury</b> sleeve for the rest. It beats DCA-into-QQQ in every era since 2006 &#8212; a <b>risk-managed leverage dial, not stock-picking alpha</b>.</p>
     </div>
     <button class="themebtn" id="themeToggle">◑ THEME</button>
@@ -109,7 +109,7 @@ tbody tr:hover td{background:var(--surface2);color:var(--ink)}
     <div class="card">
       <div class="charthead">
         <div class="legend">
-          <span><span class="swatch" style="background:var(--accent)"></span><b>ATLAS-LEV</b> <span id="lg-atlas"></span></span>
+          <span><span class="swatch" style="background:var(--accent)"></span><b>VOLT</b> <span id="lg-atlas"></span></span>
           <span><span class="swatch" style="background:var(--bench)"></span><b>QQQ-DCA</b> <span id="lg-qqq"></span></span>
           <span><span class="swatch" style="background:var(--muted)"></span>Contributed <span id="lg-con"></span></span>
         </div>
@@ -121,7 +121,7 @@ tbody tr:hover td{background:var(--surface2);color:var(--ink)}
 
   <div class="two">
     <section style="margin:0">
-      <div class="h2row"><h2>Wealth ratio by era</h2><div class="note">ATLAS &#247; QQQ-DCA</div></div>
+      <div class="h2row"><h2>Wealth ratio by era</h2><div class="note">VOLT &#247; QQQ-DCA</div></div>
       <div class="card" id="eras"></div>
     </section>
     <section style="margin:0">
@@ -193,7 +193,7 @@ $("#allocbig").innerHTML=`${(wt*100).toFixed(0)}<small>% in TQQQ</small>`;
 
 /* kpis */
 const kpis=[
-  ["Wealth vs QQQ-DCA",S.wealth_ratio.toFixed(2)+"&#215;","ATLAS "+fmtM(S.atlas_value)+" vs "+fmtM(S.qqq_value)],
+  ["Wealth vs QQQ-DCA",S.wealth_ratio.toFixed(2)+"&#215;","VOLT "+fmtM(S.atlas_value)+" vs "+fmtM(S.qqq_value)],
   ["CAGR",pct(S.atlas.cagr),"QQQ "+pct(S.qqq.cagr),S.atlas.cagr>S.qqq.cagr],
   ["Max drawdown",pct(S.atlas.maxdd),"QQQ "+pct(S.qqq.maxdd),S.atlas.maxdd>S.qqq.maxdd],
   ["Sharpe",S.atlas.sharpe.toFixed(2),"QQQ "+S.qqq.sharpe.toFixed(2),S.atlas.sharpe>=S.qqq.sharpe],
@@ -234,7 +234,7 @@ function drawEquity(){
 }
 let eqGeo=null;
 const cvpx=$("#equity");
-cvpx.addEventListener("pointermove",e=>{if(!eqGeo)return;const r=cvpx.getBoundingClientRect();const mx=e.clientX-r.left;let i=Math.round((mx-eqGeo.pad.l)/(eqGeo.w-eqGeo.pad.l-eqGeo.pad.r)*(eqGeo.n-1));i=Math.max(0,Math.min(eqGeo.n-1,i));const d=M[i];const tip=$("#tip");tip.innerHTML=`${d.date.slice(0,7)} · TQQQ ${(d.tqqq_wt*100).toFixed(0)}%<br>ATLAS ${fmtM(d.value)} · QQQ ${fmtM(d.qqq_value)}<br>ratio ${(d.value/d.qqq_value).toFixed(2)}× · mret ${spct(d.mret)}`;tip.style.left=Math.min(e.clientX+14,innerWidth-190)+"px";tip.style.top=(e.clientY-10)+"px";tip.style.opacity=1;draw();const xx=eqGeo.X(i);const c=cvpx.getContext("2d");c.strokeStyle=cv("--ink2");c.globalAlpha=.4;c.beginPath();c.moveTo(xx,eqGeo.pad.t);c.lineTo(xx,eqGeo.h-eqGeo.pad.b);c.stroke();c.globalAlpha=1;c.fillStyle=cv("--accent");c.beginPath();c.arc(xx,eqGeo.Yv(d.value),3.5,0,7);c.fill();});
+cvpx.addEventListener("pointermove",e=>{if(!eqGeo)return;const r=cvpx.getBoundingClientRect();const mx=e.clientX-r.left;let i=Math.round((mx-eqGeo.pad.l)/(eqGeo.w-eqGeo.pad.l-eqGeo.pad.r)*(eqGeo.n-1));i=Math.max(0,Math.min(eqGeo.n-1,i));const d=M[i];const tip=$("#tip");tip.innerHTML=`${d.date.slice(0,7)} · TQQQ ${(d.tqqq_wt*100).toFixed(0)}%<br>VOLT ${fmtM(d.value)} · QQQ ${fmtM(d.qqq_value)}<br>ratio ${(d.value/d.qqq_value).toFixed(2)}× · mret ${spct(d.mret)}`;tip.style.left=Math.min(e.clientX+14,innerWidth-190)+"px";tip.style.top=(e.clientY-10)+"px";tip.style.opacity=1;draw();const xx=eqGeo.X(i);const c=cvpx.getContext("2d");c.strokeStyle=cv("--ink2");c.globalAlpha=.4;c.beginPath();c.moveTo(xx,eqGeo.pad.t);c.lineTo(xx,eqGeo.h-eqGeo.pad.b);c.stroke();c.globalAlpha=1;c.fillStyle=cv("--accent");c.beginPath();c.arc(xx,eqGeo.Yv(d.value),3.5,0,7);c.fill();});
 cvpx.addEventListener("pointerleave",()=>{$("#tip").style.opacity=0;draw();});
 $("#btnLin").onclick=()=>{mode="lin";$("#btnLin").classList.add("on");$("#btnLog").classList.remove("on");draw();};
 $("#btnLog").onclick=()=>{mode="log";$("#btnLog").classList.add("on");$("#btnLin").classList.remove("on");draw();};
@@ -269,7 +269,7 @@ function drawDD(){
 function draw(){drawEquity();drawYears();drawDD();}
 
 /* risk table */
-const rows=[["ATLAS-LEV ★",S.atlas,true],["QQQ buy &amp; hold",S.qqq,false],["TQQQ buy &amp; hold",S.tqqq,false]];
+const rows=[["VOLT ★",S.atlas,true],["QQQ buy &amp; hold",S.qqq,false],["TQQQ buy &amp; hold",S.tqqq,false]];
 $("#risktable tbody").innerHTML=rows.map(([nm,s,hi])=>`<tr><td class="${hi?'rt':''}">${nm}</td><td>${pct(s.cagr)}</td><td>${s.sharpe.toFixed(2)}</td><td class="down">${pct(s.maxdd)}</td><td class="down">${pct(s.worst12)}</td><td>${s.uw} mo</td><td>${s.mult.toFixed(1)}&#215;</td></tr>`).join("");
 
 /* trades */
@@ -278,7 +278,7 @@ $("#trades tbody").innerHTML=T.map(t=>{const inc=t.to_wt>=t.from_wt;return `<tr>
 /* monthly */
 $("#monthly tbody").innerHTML=M.map(d=>`<tr><td>${d.date.slice(0,7)}</td><td class="rt">${(d.tqqq_wt*100).toFixed(0)}%</td><td>${d.tqqq_vol!=null?(d.tqqq_vol*100).toFixed(0)+'%':'–'}</td><td class="${d.tqqq_ret>=0?'up':'down'}">${spct(d.tqqq_ret)}</td><td class="${d.def_ret>=0?'up':'down'}">${spct(d.def_ret)}</td><td class="${d.mret>=0?'up':'down'}">${spct(d.mret)}</td><td class="down">${pct(d.drawdown)}</td><td>${fmtM(d.value)}</td><td>${fmtM(d.qqq_value)}</td></tr>`).join("");
 
-$("#foot").innerHTML=`ATLAS-LEV · vol-targeted 3&#215; NASDAQ (TQQQ) with 50/50 GLD-TLT defense · monthly DCA, 10bps/side, no look-ahead (weight set at prior month-end) · leveraged series reconstructed from real underlyings, validated 0.999 daily-corr vs real TQQQ · survivorship-clean.<br>Backtest, ${S.months} months (${S.start} &#8211; ${S.end}). Not investment advice; leveraged ETFs carry substantial risk of large loss. Past performance does not guarantee future results.`;
+$("#foot").innerHTML=`VOLT · vol-targeted 3&#215; NASDAQ (TQQQ) with 50/50 GLD-TLT defense · monthly DCA, 10bps/side, no look-ahead (weight set at prior month-end) · leveraged series reconstructed from real underlyings, validated 0.999 daily-corr vs real TQQQ · survivorship-clean.<br>Backtest, ${S.months} months (${S.start} &#8211; ${S.end}). Not investment advice; leveraged ETFs carry substantial risk of large loss. Past performance does not guarantee future results.`;
 
 addEventListener("resize",()=>{clearTimeout(window._rz);window._rz=setTimeout(draw,120);});
 draw();
