@@ -7,8 +7,9 @@ when necessary, to **significantly and durably outperform DCA-into-QQQ**.
 
 > **Headline (honest):** a **vol-targeted leveraged-NASDAQ** sleeve — monthly-rebalanced
 > TQQQ scaled by its own volatility, with a defensive GLD/TLT blend — **beats QQQ-DCA
-> in every era back to 2006** (1.2–1.5× per era, **2.4× full period**), at **CAGR 22.7%
-> vs QQQ 15.9%** and **max drawdown −47% vs QQQ −50%**. It is a **risk-managed leverage
+> in every era back to 2006** (1.2–1.3× per era, **2.6× full period**), at **CAGR 24.0%
+> vs QQQ 15.9%**, **Sharpe 0.95 vs 0.90**, and **max drawdown −44% vs QQQ −50%** (a
+> vol-acceleration overlay improves every axis vs the base version). It is a **risk-managed leverage
 > dial, not stock-selection alpha** — you get more of QQQ's own beta, vol-scaled to keep
 > drawdowns near QQQ's instead of the −94% that buy-and-hold TQQQ suffers.
 
@@ -50,7 +51,7 @@ TQQQ 2011–2026 the edge holds (1.4–1.7× QQQ-DCA depending on defense).
 ### DCA final-wealth ratio vs QQQ-DCA ($1,000/mo), by era
 | config | 2006–09 | 2010–14 | 2015–19 | 2020–26 | 2010–26 | 2006–26 |
 |---|--:|--:|--:|--:|--:|--:|
-| **vt30 TQQQ ǀ GLD-TLT ★** | **1.20** | **1.50** | **1.28** | **1.33** | **1.89** | **2.41** |
+| **vt30 TQQQ ǀ GLD-TLT + accel ★** | **1.27** | **1.32** | **1.23** | **1.22** | **1.89** | **2.57** |
 | vt30 TQQQ ǀ TLT | 1.10 | 1.57 | 1.31 | 1.05† | 1.38 | 1.70 |
 | vt30 TQQQ ǀ BIL (cash) | 1.03† | 1.44 | 1.18 | 1.29 | 1.59 | 1.74 |
 | vt40 TQQQ ǀ GLD-TLT | 1.16 | 1.85 | 1.38 | 1.58 | 2.94 | 3.90 |
@@ -62,14 +63,14 @@ TLT dies in the 2022 rate shock, cash lags the 2008 recovery). The 50/50 blend i
 ### Honest lump-sum $1 risk (2006–2026, no contributions)
 | strategy | CAGR | Sharpe | max DD | worst 12m | terminal mult |
 |---|--:|--:|--:|--:|--:|
-| **vt30 TQQQ ǀ GLD-TLT ★** | **22.7%** | 0.84 | **−47%** | −47% | 67× |
+| **vt30 TQQQ ǀ GLD-TLT + accel ★** | **24.0%** | **0.95** | **−44%** | −44% | 83× |
 | vt40 TQQQ ǀ GLD-TLT | 25.2% | 0.79 | −59% | −59% | 102× |
 | QQQ buy & hold | 15.9% | 0.90 | −50% | −43% | 21× |
 | TQQQ buy & hold | 25.8% | 0.70 | **−94%** | −89% | 112× |
 
-**The honest pitch:** ATLAS-LEV lifts CAGR by ~6.8 points over QQQ (22.7% vs 15.9%) at a
-**drawdown no worse than QQQ's** (−47% vs −50%) — because vol-targeting cuts the −94%
-buy-and-hold-TQQQ catastrophe down to QQQ-magnitude pain. Its **Sharpe (0.84) is ~ QQQ's
+**The honest pitch:** VOLT lifts CAGR by ~8 points over QQQ (24.0% vs 15.9%) at a
+**drawdown no worse than QQQ's** (−44% vs −50%) — because vol-targeting cuts the −94%
+buy-and-hold-TQQQ catastrophe down to QQQ-magnitude pain. Its **Sharpe (0.95) beats QQQ's
 (0.90)** — i.e. it does **not** beat QQQ risk-adjusted; it delivers **more absolute return
 at roughly the same risk efficiency**. That is exactly what a well-run leverage dial should do.
 
@@ -79,10 +80,28 @@ at roughly the same risk efficiency**. That is exactly what a well-run leverage 
 * **Real vs synthetic data:** edge survives on real TQQQ (2011–26, full 1.7× QQQ-DCA); reconstruction is conservative.
 * **2022 stress:** TLT-only defense lost −52% (rate shock); the GLD-TLT blend / cash held better — the reason the blend is the recommended defense.
 
+
+## v2 improvements tested (see findings files)
+- **Vol-acceleration overlay — SHIPPED.** Keep the slow 63-day vol level but inflate the
+  estimate when the fast 20-day vol spikes above it, so we de-lever on *acceleration* without
+  re-levering prematurely. A genuine Pareto win: full ratio 2.41×→2.57×, CAGR 22.7%→24.0%,
+  Sharpe 0.84→0.95, drawdown −47%→−44% (dot-com −65%→−58%), every era still beats QQQ-DCA,
+  k-plateau, phase-robust. (`scripts/improve_volest.py`; the key insight: *faster ≠ safer* —
+  a naively shorter window whipsaws and deepens the drawdown; asymmetry is what helps.)
+- **Leveraged risk parity (TQQQ+TMF+UGL) — REJECTED.** At matched volatility it is strictly
+  dominated by VOLT (0.77 vs 0.84 Sharpe, −57% vs −47% DD); it only looks safer because it is
+  de-levered. One keeper: gold is real stock-bond-crash insurance (2022), validating the GLD
+  in VOLT's defense. (`RISKPARITY_FINDINGS.md`.)
+- **Risk-off / cash gates (SPY-200MA, drawdown-based) — REJECTED.** All cut return more than
+  drawdown and lose to QQQ-DCA in modern eras (whipsaw); vol-targeting already handles crashes.
+  (`RISKOFF_FINDINGS.md`.)
+- **Dot-com stress (1999–2026):** true worst case is −58% (post-overlay), not the −44% of the
+  2006+ window. VOLT survived the crash that wiped out buy-and-hold TQQQ (−99.9%). (`DOTCOM_STRESS.md`.)
+
 ## 4. Honest caveats (read before trusting this)
 
 1. **It is leverage, not alpha.** The excess return is compensation for holding ~1.6× average
-   NASDAQ exposure. A −47% year *will* happen; you must be able to hold through it.
+   NASDAQ exposure. A −44% year (−58% including the dot-com crash) *will* happen; you must hold through it.
 2. **Recent-era edge is thinner on real data** than on the reconstructed series — don't
    over-promise 2020s outperformance.
 3. **Tail risk the vol window can't dodge:** a fast overnight gap-down (before trailing vol
