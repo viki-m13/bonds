@@ -17,11 +17,18 @@ tqqq=(1+tqqq_dret).cumprod()*100
 mg=pd.DatetimeIndex(sorted(qqq.groupby(qqq.index.to_period("M")).apply(lambda x:x.index[-1]).values))
 qmret=qqq.reindex(mg).pct_change(); tqmret=tqqq.reindex(mg).pct_change()
 cm=(1+cash_dret).resample("ME").prod()-1; cashm=cm.reindex(mg,method="nearest")
-# vol-target weight WITH acceleration overlay (matches v2)
+# vol-target weight WITH acceleration overlay + reversal dial (matches shipped VOLT)
 def av(w): return (tqqq_dret.rolling(w,min_periods=int(w*.7)).std()*np.sqrt(252)).reindex(mg,method="ffill")
 v63,v20=av(63),av(20)
 veff=v63*(v20/v63).clip(lower=1.0)**2.0
-w=(0.30/veff).clip(0,1).shift(1)
+w=(0.30/veff).clip(0,1)
+# reversal dial: lean up when oversold BUT secular uptrend intact (disabled in the
+# dot-com collapse because QQQ is below its 200d MA -> keeps us de-levered)
+pxm=qqq.reindex(mg,method="ffill")
+sec=(qqq>qqq.rolling(200,min_periods=120).mean()).reindex(mg,method="ffill")
+ma50=qqq.rolling(50,min_periods=25).mean().reindex(mg,method="ffill")
+osv=(ma50/pxm-1.0).clip(lower=0.0)
+w=(w*(1.0+6.0*osv.where(sec.fillna(False),0.0)).clip(1.0,2.5)).clip(0,1).shift(1)
 S,E=pd.Timestamp("1999-03-01"),pd.Timestamp("2006-12-31")
 g=mg[(mg>=S)&(mg<=E)]
 Vv=0;Vq=0;prevw=0;rows=[]
