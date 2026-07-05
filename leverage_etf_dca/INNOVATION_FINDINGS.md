@@ -49,6 +49,20 @@ period's regime in advance; every attempt to infer the regime from data either
   dot-com (1.19×), GFC (1.18×), and 2020–26/2022 (1.04×) with far lower drawdowns —
   but gives up the tech bull, ending ~0.49× over the full sample.
 
+## Macro/credit gating of the leverage dial (follow-up)
+Tested whether a macro regime signal times the dial better than trailing vol (`macrogate.py`).
+- **Yield-curve gates (T10Y3M / T10Y2Y inversion): FAILED** — same structural wall. The
+  curve inverted in 2022–23 and stayed inverted through the 2023–25 tech bull, so the gate
+  chronically de-levers into the biggest up-move (2020–26 collapses to 0.78–0.99×).
+- **Credit-spread gate (HY OAS above its 252d MA, from FRED BAMLH0A0HYM2, data from 2000):
+  a REAL, phase-robust DRAWDOWN reducer.** Credit spikes *during* stress and normalizes
+  fast, so it de-levers 2008/2020/2022 without dragging the bull. GFC maxDD **−45% → −20%**,
+  improving on *every* rebalance day (1.36–1.51× vs baseline 1.10–1.27×); full-history maxDD
+  **−62% → −52%**; dot-com-era maxDD −62% → −51%. BUT it does **not** robustly improve
+  *return* — the full-period worst-rebalance-day ratio slips (06–26: 1.76→1.51; 99–26:
+  2.01→1.88). Verdict: a genuine **defensive overlay** for a drawdown-averse investor
+  (optional "VOLT-Defensive" mode), not a free upgrade to VOLT's return.
+
 ## Honesty correction for the factsheet
 VOLT's shipped headline (2.57× full-period, 2006–26) is the **month-end-flattered
 best case.** Across rebalance days it is **1.17×–1.77× (2006–26) / 1.24×–2.06×
