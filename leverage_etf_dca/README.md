@@ -31,14 +31,15 @@ risk scaling with no discrete switch to get unlucky on). This is the well-docume
 "volatility-managed" effect (Moreira–Muir 2017): scaling exposure down when volatility is
 high improves the ride because high-vol periods don't pay proportionally more return.
 
-## 2. The strategy (ATLAS-LEV)
+## 2. The strategy (VOLT)
 
 Each month, on the last trading day:
 1. Estimate TQQQ's **trailing 63-day annualized volatility** (known at prior month-end — no look-ahead).
-2. Set the leveraged weight **w = clip( 0.30 / vol , 0 , 1 )**. (TQQQ vol ≈ 45–60% normally → w ≈ 0.5–0.65; in a vol spike w falls toward 0.)
-3. Hold **w in TQQQ** and **(1−w) in a 50/50 GLD+TLT defensive blend**.
-4. **Rebalance monthly** to those weights (this is the "sell when necessary" — you trim TQQQ as its vol rises, and rotate to defense; you add back as vol falls). 10 bps/side cost.
-5. DCA the fixed monthly contribution into the same target weights.
+2. **Acceleration overlay:** when the fast 20-day vol spikes above the slow 63-day vol, raise the vol estimate by `(vol_20 / vol_63)²` — so exposure is cut *faster* into an accelerating selloff, and not re-levered until the fast vol subsides.
+3. Set the leveraged weight **w = clip( 0.30 / vol*, 0 , 1 )**. (TQQQ vol ≈ 45–60% normally → w ≈ 0.5–0.65; in a vol spike w falls toward 0.)
+4. Hold **w in TQQQ** and **(1−w) in a 50/50 GLD+TLT defensive blend**.
+5. **Rebalance monthly** to those weights (this is the "sell when necessary" — you trim TQQQ as its vol rises, and rotate to defense; you add back as vol falls). 10 bps/side cost.
+6. DCA the fixed monthly contribution into the same target weights.
 
 **Leveraged data:** TQQQ/SOXL/etc. only launched ~2010, so pre-2010 is **reconstructed**
 from the real underlying (3× daily QQQ − fees − financing). The reconstruction was
@@ -81,7 +82,7 @@ at roughly the same risk efficiency**. That is exactly what a well-run leverage 
 * **2022 stress:** TLT-only defense lost −52% (rate shock); the GLD-TLT blend / cash held better — the reason the blend is the recommended defense.
 
 
-## v2 improvements tested (see findings files)
+## Improvements tested — what shipped and what didn't (see findings files)
 - **Vol-acceleration overlay — SHIPPED.** Keep the slow 63-day vol level but inflate the
   estimate when the fast 20-day vol spikes above it, so we de-lever on *acceleration* without
   re-levering prematurely. A genuine Pareto win: full ratio 2.41×→2.57×, CAGR 22.7%→24.0%,
@@ -120,7 +121,7 @@ python3 strategy.py         # prints the tables above + writes charts/equity_vol
 
 ## 6. Files
 * `scripts/build_panel.py` — builds the 53-ETF daily panel (37 real base + 16 leveraged reconstructed from underlyings, validated vs real TQQQ).
-* `scripts/strategy.py` — the ATLAS-LEV strategy, era/risk tables, and equity-curve chart.
+* `scripts/strategy.py` — the VOLT strategy, era/risk tables, and equity-curve chart.
 * `charts/equity_voltarget.png` — the equity curve.
 * `_etf_panel.pkl` — cached panel (reproducible via `build_panel.py`).
 
