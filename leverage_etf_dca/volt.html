@@ -1,4 +1,4 @@
-<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>VOLT v2 — Strategy Factsheet</title></head><body><style>
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>VOLT — Strategy Factsheet</title></head><body><style>
 :root{
   --ground:#0e1420; --surface:#161d2b; --surface2:#1c2536; --hair:#28324a;
   --ink:#e8eef7; --ink2:#aeb9cc; --muted:#7f8ca3;
@@ -86,8 +86,8 @@ tbody tr:hover td{background:var(--surface2);color:var(--ink)}
 <div class="wrap">
   <div class="top">
     <div>
-      <div class="eyebrow">Systematic Strategy · Factsheet · v2</div>
-      <h1>VOLT <span style="font-size:.5em;font-weight:700;letter-spacing:.04em;color:var(--accent);vertical-align:middle">v2</span> <span class="tag">vol-targeted leveraged NASDAQ · acceleration overlay</span></h1>
+      <div class="eyebrow">Systematic Strategy · Factsheet</div>
+      <h1>VOLT <span class="tag">vol-targeted leveraged NASDAQ</span></h1>
       <p class="sub">A monthly dollar-cost-average that scales exposure to <b>3&#215; NASDAQ (TQQQ)</b> by its own volatility, holding a <b>50/50 gold&#8211;Treasury</b> sleeve for the rest, with a <b>volatility-acceleration overlay</b> that de-risks faster into crashes. It beats DCA-into-QQQ in every era since 2006 &#8212; a <b>risk-managed leverage dial, not stock-picking alpha</b>.</p>
     </div>
     <button class="themebtn" id="themeToggle">◑ THEME</button>
@@ -97,7 +97,7 @@ tbody tr:hover td{background:var(--surface2);color:var(--ink)}
     <div>
       <div class="lbl">This month&#8217;s allocation &#8212; computed from TQQQ&#8217;s trailing volatility <span id="curvol" class="mono"></span></div>
       <div class="bar" id="allocbar"></div>
-      <div class="pill dot" style="margin-top:12px">Rule: w<sub>TQQQ</sub> = clip( 30% &#247; annualized&nbsp;63d&nbsp;vol , 0 , 1 ) · rebalance monthly</div>
+      <div class="pill dot" style="margin-top:12px">Rule: w<sub>TQQQ</sub> = clip( 30% &#247; vol* , 0 , 1 ) · vol* = 63d&nbsp;vol, raised when 20d&nbsp;vol accelerates above it · rebalance monthly</div>
     </div>
     <div class="big" id="allocbig"></div>
   </div>

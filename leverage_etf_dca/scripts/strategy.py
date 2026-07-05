@@ -1,6 +1,6 @@
 """LEVERAGE-DCA — the validated deliverable.
 
-Strategy (ATLAS-LEV): monthly DCA into a vol-targeted leveraged-NASDAQ sleeve.
+Strategy (VOLT): monthly DCA into a vol-targeted leveraged-NASDAQ sleeve.
   each month, weight in TQQQ  w = clip(target_vol / trailing_63d_annualized_vol(TQQQ), 0, 1)
   remaining (1-w) in a 50/50 GLD+TLT defensive blend; rebalance monthly; 10bps/side.
   Weight decided at PRIOR month-end (no look-ahead). Leveraged series reconstructed
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     BLUE,RED,INK = "#2a78d6","#e34948","#6f7787"
     fig,axes = plt.subplots(2,1,figsize=(11,10))
     for ax,(logy,ttl) in zip(axes,[(False,"2006-2026 · $1,000/month (linear)"),(True,"2006-2026 (log)")]):
-        ax.plot(eqA.index,eqA["V"],color=BLUE,lw=2,label="ATLAS-LEV: vol-targeted TQQQ | 50/50 GLD-TLT")
+        ax.plot(eqA.index,eqA["V"],color=BLUE,lw=2,label="VOLT: vol-targeted TQQQ | 50/50 GLD-TLT")
         ax.plot(bq.index,bq["V"],color=RED,lw=2,label="QQQ-DCA")
         ax.plot(eqA.index,eqA["contributed"],color=INK,lw=1.1,ls=(0,(4,3)),label="Contributed")
         if logy: ax.set_yscale("log")
@@ -105,13 +105,13 @@ if __name__ == "__main__":
         for sp in ("top","right"): ax.spines[sp].set_visible(False)
         ax.set_title(ttl,loc="left",fontweight="bold")
         ax.yaxis.set_major_formatter(lambda v,_: f"${v/1e6:.1f}M" if v>=1e6 else f"${v/1e3:.0f}k")
-    axes[0].annotate(f"ATLAS ${eqA['V'].iloc[-1]/1e6:.1f}M ({eqA['V'].iloc[-1]/bq['V'].iloc[-1]:.2f}x QQQ-DCA)",
+    axes[0].annotate(f"VOLT ${eqA['V'].iloc[-1]/1e6:.1f}M ({eqA['V'].iloc[-1]/bq['V'].iloc[-1]:.2f}x QQQ-DCA)",
                      xy=(eqA.index[-1],eqA["V"].iloc[-1]),xytext=(-6,4),textcoords="offset points",ha="right",
                      color="#1a2333",fontweight="bold",fontsize=9.5)
     axes[0].annotate(f"QQQ-DCA ${bq['V'].iloc[-1]/1e6:.1f}M",xy=(bq.index[-1],bq["V"].iloc[-1]),
                      xytext=(-6,-12),textcoords="offset points",ha="right",color="#8a2b2b",fontsize=9.5)
     axes[0].legend(loc="upper left",frameon=False,fontsize=9.3)
-    fig.suptitle(f"ATLAS-LEV vs QQQ-DCA · CAGR {lm['cagr']:.0%} vs {qs['cagr']:.0%} · maxDD {lm['maxdd']:.0%} vs {qs['maxdd']:.0%} · Sharpe {lm['sharpe']:.2f} vs {qs['sharpe']:.2f}",
+    fig.suptitle(f"VOLT vs QQQ-DCA · CAGR {lm['cagr']:.0%} vs {qs['cagr']:.0%} · maxDD {lm['maxdd']:.0%} vs {qs['maxdd']:.0%} · Sharpe {lm['sharpe']:.2f} vs {qs['sharpe']:.2f}",
                  x=0.06,y=0.99,ha="left",fontsize=12.5,fontweight="bold")
     fig.text(0.06,0.955,"Risk-managed leverage dial (vol-scaled 3x NASDAQ), not alpha · leveraged series validated vs real TQQQ (0.999 corr) · monthly rebal, 10bps/side, no look-ahead",fontsize=8.5,color=INK)
     fig.tight_layout(rect=(0,0,1,0.94))
