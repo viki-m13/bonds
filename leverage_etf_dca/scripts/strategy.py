@@ -21,19 +21,35 @@ retd = close.pct_change()
 mgrid = pd.DatetimeIndex(sorted(close.groupby(close.index.to_period("M")).apply(lambda x: x.index[-1]).values))
 mret = close.reindex(mgrid).pct_change()
 
-def tqqq_weight(target=0.30, cap=1.0, volwin=63, fastwin=20, accel_k=2.0):
-    """Vol-target weight with a volatility-ACCELERATION overlay (v2 improvement).
-    Base = target / trailing-63d vol. Overlay: when the fast 20d vol spikes above the
-    slow 63d vol, inflate the vol estimate by (v_fast/v_slow)^accel_k, so we de-lever on
-    acceleration but never re-lever below base — the asymmetric response that cuts crash
-    drawdowns (dot-com -65% -> -58%) while raising return & Sharpe. accel_k=0 -> base VOLT."""
+def tqqq_weight(target=0.30, cap=1.0, volwin=63, fastwin=20, accel_k=2.0,
+                rev_k=6.0, rev_cap=2.5, os_win=50, sec_win=200):
+    """Vol-target weight + two asymmetric overlays.
+    Base = target / trailing-63d vol.
+    (1) ACCELERATION overlay: when the fast 20d vol spikes above the slow 63d vol,
+        inflate the vol estimate by (v_fast/v_slow)^accel_k -> de-lever on acceleration,
+        never re-lever below base. Cuts crash drawdowns.
+    (2) REVERSAL dial: pure vol-targeting DE-LEVERS into capitulation bottoms (vol peaks
+        exactly when price is cheapest) -> it sells low. So when NASDAQ is oversold
+        (below its 50d MA) BUT its secular trend is intact (QQQ > 200d MA), lean the
+        weight back UP by (1 + rev_k*depth), capped at rev_cap*base -> lean into the dip
+        for the V-rebound; a BROKEN secular trend (dot-com) disables it, keeping us
+        de-levered. Phase-robust: improves every rebalance day with no added drawdown.
+    accel_k=0 / rev_k=0 recover the earlier variants."""
     def av(w):
         return (retd["TQQQ"].rolling(w, min_periods=int(w*0.7)).std()*np.sqrt(252)).reindex(mgrid, method="ffill")
     vs = av(volwin)
     if accel_k:
         accel = (av(fastwin) / vs).clip(lower=1.0) ** accel_k
         vs = vs * accel
-    return (target/vs).clip(0, cap).shift(1)   # decided at prior month-end
+    w = (target/vs).clip(0, cap)
+    if rev_k:
+        q = close["QQQ"]; px = q.reindex(mgrid, method="ffill")
+        sec = (q > q.rolling(sec_win, min_periods=120).mean()).reindex(mgrid, method="ffill")
+        maN = q.rolling(os_win, min_periods=os_win//2).mean().reindex(mgrid, method="ffill")
+        oversold = (maN/px - 1.0).clip(lower=0.0)          # depth below the short MA
+        boost = (1.0 + rev_k*oversold.where(sec.fillna(False), 0.0)).clip(1.0, rev_cap)
+        w = (w*boost).clip(0, cap)
+    return w.shift(1)   # decided at prior month-end
 
 def strat_ret(start, end, target=0.30, defense=("GLD","TLT"), cost=0.001, const=None):
     w = (tqqq_weight(target) if const is None else pd.Series(const, index=mgrid))
