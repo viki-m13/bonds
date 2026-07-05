@@ -81,6 +81,41 @@ tbody tr:hover td{background:var(--surface2);color:var(--ink)}
 .caveats b{color:var(--ink)}
 .foot{margin-top:50px;padding-top:20px;border-top:1px solid var(--hair);font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7}
 .tip{position:fixed;pointer-events:none;background:var(--surface);border:1px solid var(--hair);border-radius:8px;padding:8px 11px;font-family:var(--mono);font-size:11px;color:var(--ink);box-shadow:var(--shadow);opacity:0;transition:opacity .1s;z-index:20;white-space:nowrap}
+
+/* how-it-works mechanism grid */
+.how{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.howc{padding:16px}
+.howc .hn{font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:var(--accent);font-weight:600;margin-bottom:6px}
+.howc p{margin:0;color:var(--ink2);font-size:13.5px;line-height:1.55}
+/* scroll hint on wide tables */
+.tablewrap{position:relative;-webkit-overflow-scrolling:touch}
+.scrollx::after{content:"";position:absolute;top:34px;right:0;bottom:0;width:22px;pointer-events:none;background:linear-gradient(90deg,transparent,var(--surface))}
+.scrollnote{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin:0 0 6px;display:none}
+/* ---- MOBILE ---- */
+@media(max-width:640px){
+  .wrap{padding:16px 12px 64px}
+  h1{font-size:30px}
+  h1 .tag{display:block;margin:8px 0 0;font-size:13px}
+  .top{gap:12px}
+  .alloc{grid-template-columns:1fr;padding:16px;gap:14px}
+  .alloc .bar{min-width:0;width:100%}
+  .alloc .big{text-align:left;font-size:28px}
+  .kpis{grid-template-columns:1fr 1fr;gap:8px}
+  .kpi{padding:12px 13px}
+  .kpi .v{font-size:21px}
+  .how{grid-template-columns:1fr}
+  .two{grid-template-columns:1fr;gap:14px}
+  section{margin:30px 0}
+  table{font-size:11px}
+  thead th,tbody td{padding:6px 9px}
+  .scrollnote{display:block}
+  .sumtable{font-size:10px;width:100%}
+  .sumtable th{white-space:normal;padding:6px 6px;font-size:9px;letter-spacing:0}
+  .sumtable td{white-space:normal;padding:6px 6px}
+  .charthead{gap:8px}
+  .legend{font-size:11px;gap:10px}
+  .erabar{grid-template-columns:58px 1fr 46px;font-size:11px}
+}
 </style>
 
 <div class="wrap">
@@ -103,6 +138,16 @@ tbody tr:hover td{background:var(--surface2);color:var(--ink)}
   </div>
 
   <div class="kpis" id="kpis"></div>
+
+  <section>
+    <div class="h2row"><h2>How it works &amp; how drawdowns are managed</h2><div class="note">the whole mechanism</div></div>
+    <div class="how">
+      <div class="card howc"><div class="hn">1 · Vol-targeting</div><p>Each month, set the TQQQ weight to <b>30% &#247; TQQQ&#8217;s own volatility</b>. Calm markets &#8594; ~50&#8211;65% in 3&#215; NASDAQ; when volatility spikes in a selloff the weight falls automatically toward zero. Exposure is <b>largest when risk is low, smallest when risk is high</b> &#8212; no forecasting.</p></div>
+      <div class="card howc"><div class="hn">2 · Acceleration overlay</div><p>Volatility <em>level</em> lags a fast crash, so when the <b>20-day</b> vol jumps above the <b>63-day</b> vol the estimate is inflated by <b>(fast&#247;slow)&#178;</b> &#8212; de-risking <b>faster</b> into an accelerating drop and not re-levering until it calms. This cut the dot-com drawdown &#8722;65% &#8594; &#8722;58%.</p></div>
+      <div class="card howc"><div class="hn">3 · Defensive sleeve</div><p>Whatever isn&#8217;t in TQQQ sits in a <b>50/50 gold + long-Treasury</b> blend &#8212; not cash. Gold held up in 2022 when stocks <em>and</em> bonds fell together, so the sleeve carries genuine crisis insurance.</p></div>
+      <div class="card howc"><div class="hn">4 · The result</div><p>Together these hold the drawdown near plain QQQ&#8217;s (<b>&#8722;44%</b>; &#8722;58% incl. dot-com) instead of buy-and-hold TQQQ&#8217;s <b>&#8722;94%</b> &#8212; while compounding at <b>24%/yr</b>. Managing the downside <em>is</em> the return engine: avoided leveraged losses compound.</p></div>
+    </div>
+  </section>
 
   <section>
     <div class="h2row"><h2>Growth of a $1,000/month plan</h2><div class="note">247 months · Jan 2006 &#8211; Jun 2026 · net of 10bps/side</div></div>
@@ -137,7 +182,8 @@ tbody tr:hover td{background:var(--surface2);color:var(--ink)}
 
   <section>
     <div class="h2row"><h2>Risk &amp; return, head to head</h2><div class="note">lump-sum $1, 2006&#8211;2026</div></div>
-    <div class="tablewrap" style="max-height:none">
+    <p class="scrollnote">&#8596; swipe table</p>
+    <div class="tablewrap scrollx" style="max-height:none">
       <table id="risktable"><thead><tr><th>Strategy</th><th>CAGR</th><th>Sharpe</th><th>Max drawdown</th><th>Worst 12&#8288;mo</th><th>Underwater</th><th>Terminal &#215;</th></tr></thead><tbody></tbody></table>
     </div>
   </section>
@@ -145,14 +191,16 @@ tbody tr:hover td{background:var(--surface2);color:var(--ink)}
   <section>
     <div class="h2row"><h2>Rebalance log</h2><div class="note" id="tradecount"></div></div>
     <p class="sub" style="margin-top:-6px">Every month the leverage weight is re-set from TQQQ&#8217;s volatility. Rows below list each material shift (&#8805; 5 percentage points) &#8212; the &#8220;buy more / sell down&#8221; decisions.</p>
-    <div class="tablewrap">
+    <p class="scrollnote">&#8596; swipe table</p>
+    <div class="tablewrap scrollx">
       <table id="trades"><thead><tr><th>Date</th><th>Action</th><th>TQQQ from</th><th>TQQQ to</th><th>Trail vol</th><th>Portfolio</th></tr></thead><tbody></tbody></table>
     </div>
   </section>
 
   <section>
     <div class="h2row"><h2>Full monthly history</h2><div class="note">247 rows</div></div>
-    <div class="tablewrap">
+    <p class="scrollnote">&#8596; swipe table</p>
+    <div class="tablewrap scrollx">
       <table id="monthly"><thead><tr><th>Month</th><th>TQQQ wt</th><th>Trail vol</th><th>TQQQ ret</th><th>Defense ret</th><th>Strat ret</th><th>Drawdown</th><th>Value</th><th>QQQ-DCA</th></tr></thead><tbody></tbody></table>
     </div>
   </section>
@@ -161,7 +209,7 @@ tbody tr:hover td{background:var(--surface2);color:var(--ink)}
     <div class="h2row"><h2>Dot-com stress test</h2><div class="note">1999&#8211;2026 · reconstructed TQQQ · cash defense</div></div>
     <div class="card">
       <p class="sub" style="margin-top:0">QQQ trades back to 1999, so VOLT can be run through the worst tech crash on record. Buy-and-hold 3&#215; TQQQ lost <b>&#8722;99.9%</b> in 2000&#8211;2002 and never recovered (2% CAGR over 27 years). VOLT&#8217;s vol-targeting cut TQQQ exposure to <b>14&#8211;27%</b> as volatility spiked to 108&#8211;208%, and the acceleration overlay trims the dot-com drawdown further &#8212; from &#8722;65% to <b>&#8722;58%</b>.</p>
-      <div class="tablewrap" style="max-height:none"><table><thead><tr><th>Period</th><th>VOLT CAGR</th><th>VOLT max DD</th><th>VOLT &#247; QQQ-DCA</th><th>Buy&amp;hold TQQQ</th></tr></thead><tbody>
+      <div class="tablewrap" style="max-height:none"><table class="sumtable"><thead><tr><th>Period</th><th>VOLT CAGR</th><th>VOLT max DD</th><th>VOLT &#247; QQQ-DCA</th><th>Buy&amp;hold TQQQ</th></tr></thead><tbody>
         <tr><td>Dot-com bust 2000&#8211;02</td><td class="down">&#8722;22%</td><td class="down">&#8722;58%</td><td class="rt">1.12&#215;</td><td class="down">&#8722;77%/yr</td></tr>
         <tr><td>Dot-com + GFC 2000&#8211;09</td><td class="down">&#8722;2%</td><td class="down">&#8722;58%</td><td>1.05&#215;</td><td class="down">wiped out</td></tr>
         <tr><td class="rt">Full 1999&#8211;2026</td><td class="rt">15.4%</td><td class="down">&#8722;58%</td><td class="rt">1.85&#215;</td><td class="down">2% / &#8722;100%</td></tr>
