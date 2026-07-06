@@ -195,7 +195,7 @@
     "navx": 1.8677,
     "n": 620
   },
-  "excess_sharpe_full": 0.9973,
+  "excess_sharpe_full": 0.9985,
   "is_oos_gap": 0.0045,
   "avg_total_mult": 0.9712058542793509,
   "reference_spot_proxy_crypto": {
