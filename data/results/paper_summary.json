@@ -4,25 +4,75 @@
     "tc_bps_per_side": 5.0,
     "trade_threshold_pct": 0.5
   },
-  "as_of": "2026-07-06",
+  "as_of": "2026-07-07",
   "start_date": "2026-04-13",
-  "current_nav": 11459.88,
-  "total_return_pct": 14.6,
-  "spy_total_return_pct": 10.81,
-  "n_trade_days": 58,
-  "ann_return_pct": 64.81,
-  "ann_vol_pct": 28.86,
-  "sharpe": 2.246,
-  "mdd_pct": -8.81,
+  "current_nav": 11098.42,
+  "total_return_pct": 10.98,
+  "spy_total_return_pct": 11.03,
+  "n_trade_days": 59,
+  "ann_return_pct": 50.31,
+  "ann_vol_pct": 29.46,
+  "sharpe": 1.708,
+  "mdd_pct": -11.68,
   "tracking_error_vs_backtest": {
     "n_days": 57,
-    "mean_diff_bps": 11.14,
-    "stdev_diff_bps": 111.66,
+    "mean_diff_bps": 11.15,
+    "stdev_diff_bps": 111.67,
     "max_abs_diff_bps": 292.41,
-    "ann_tracking_error_bps": 1772.6,
+    "ann_tracking_error_bps": 1772.7,
     "note": "diff = paper_realized_ret - backtest_net_ret per trade-open day. Source of drift: TC bps applied here vs in backtest, plus any timing-convention differences across sleeves."
   },
   "recent_fills": [
+    {
+      "Date": "2026-07-07",
+      "signal_date": "2026-07-06",
+      "Ticker": "UPRO",
+      "Side": "SELL",
+      "Weight_Delta": -0.0476,
+      "Fill_Price": 143.75,
+      "Shares": -3.6765,
+      "Notional_USD": -528.5
+    },
+    {
+      "Date": "2026-07-07",
+      "signal_date": "2026-07-06",
+      "Ticker": "TQQQ",
+      "Side": "SELL",
+      "Weight_Delta": -0.119,
+      "Fill_Price": 73.7,
+      "Shares": -17.9273,
+      "Notional_USD": -1321.24
+    },
+    {
+      "Date": "2026-07-07",
+      "signal_date": "2026-07-06",
+      "Ticker": "SOXL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0238,
+      "Fill_Price": 165.4,
+      "Shares": 1.5976,
+      "Notional_USD": 264.25
+    },
+    {
+      "Date": "2026-07-07",
+      "signal_date": "2026-07-06",
+      "Ticker": "BIL",
+      "Side": "BUY",
+      "Weight_Delta": 0.1429,
+      "Fill_Price": 91.45,
+      "Shares": 17.3372,
+      "Notional_USD": 1585.49
+    },
+    {
+      "Date": "2026-07-02",
+      "signal_date": "2026-07-01",
+      "Ticker": "BIL",
+      "Side": "SELL",
+      "Weight_Delta": -0.2659,
+      "Fill_Price": 91.43,
+      "Shares": -33.9933,
+      "Notional_USD": -3108.01
+    },
     {
       "Date": "2026-07-02",
       "signal_date": "2026-07-01",
@@ -30,8 +80,8 @@
       "Side": "BUY",
       "Weight_Delta": 0.0476,
       "Fill_Price": 142.24,
-      "Shares": 3.9122,
-      "Notional_USD": 556.47
+      "Shares": 3.9124,
+      "Notional_USD": 556.5
     },
     {
       "Date": "2026-07-02",
@@ -40,8 +90,8 @@
       "Side": "BUY",
       "Weight_Delta": 0.0152,
       "Fill_Price": 31.78,
-      "Shares": 5.5758,
-      "Notional_USD": 177.2
+      "Shares": 5.5761,
+      "Notional_USD": 177.21
     },
     {
       "Date": "2026-07-02",
@@ -50,8 +100,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.0308,
       "Fill_Price": 16.01,
-      "Shares": -22.4952,
-      "Notional_USD": -360.15
+      "Shares": -22.4965,
+      "Notional_USD": -360.17
     },
     {
       "Date": "2026-07-02",
@@ -60,8 +110,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.0308,
       "Fill_Price": 23.59,
-      "Shares": -15.267,
-      "Notional_USD": -360.15
+      "Shares": -15.2679,
+      "Notional_USD": -360.17
     },
     {
       "Date": "2026-07-02",
@@ -70,8 +120,8 @@
       "Side": "BUY",
       "Weight_Delta": 0.1835,
       "Fill_Price": 77.45,
-      "Shares": 27.6825,
-      "Notional_USD": 2144.01
+      "Shares": 27.6842,
+      "Notional_USD": 2144.14
     },
     {
       "Date": "2026-07-02",
@@ -80,8 +130,8 @@
       "Side": "BUY",
       "Weight_Delta": 0.112,
       "Fill_Price": 34.56,
-      "Shares": 37.8837,
-      "Notional_USD": 1309.26
+      "Shares": 37.886,
+      "Notional_USD": 1309.34
     },
     {
       "Date": "2026-07-02",
@@ -91,7 +141,7 @@
       "Weight_Delta": -0.007,
       "Fill_Price": 212.38,
       "Shares": -0.3855,
-      "Notional_USD": -81.87
+      "Notional_USD": -81.88
     },
     {
       "Date": "2026-07-02",
@@ -100,8 +150,8 @@
       "Side": "BUY",
       "Weight_Delta": 0.0558,
       "Fill_Price": 219.23,
-      "Shares": 2.9731,
-      "Notional_USD": 651.8
+      "Shares": 2.9733,
+      "Notional_USD": 651.84
     },
     {
       "Date": "2026-07-02",
@@ -110,8 +160,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.0725,
       "Fill_Price": 93.97,
-      "Shares": -9.0123,
-      "Notional_USD": -846.88
+      "Shares": -9.0128,
+      "Notional_USD": -846.93
     },
     {
       "Date": "2026-07-02",
@@ -120,18 +170,8 @@
       "Side": "SELL",
       "Weight_Delta": -0.007,
       "Fill_Price": 81.61,
-      "Shares": -1.0032,
-      "Notional_USD": -81.87
-    },
-    {
-      "Date": "2026-07-02",
-      "signal_date": "2026-07-01",
-      "Ticker": "BIL",
-      "Side": "SELL",
-      "Weight_Delta": -0.2659,
-      "Fill_Price": 91.43,
-      "Shares": -33.9912,
-      "Notional_USD": -3107.82
+      "Shares": -1.0033,
+      "Notional_USD": -81.88
     },
     {
       "Date": "2026-06-26",
@@ -141,7 +181,7 @@
       "Weight_Delta": -0.0074,
       "Fill_Price": 91.362,
       "Shares": -0.9441,
-      "Notional_USD": -86.25
+      "Notional_USD": -86.26
     },
     {
       "Date": "2026-06-25",
@@ -150,18 +190,8 @@
       "Side": "BUY",
       "Weight_Delta": 0.0072,
       "Fill_Price": 91.3321,
-      "Shares": 0.9459,
+      "Shares": 0.946,
       "Notional_USD": 86.4
-    },
-    {
-      "Date": "2026-06-24",
-      "signal_date": "2026-06-23",
-      "Ticker": "BIL",
-      "Side": "BUY",
-      "Weight_Delta": 0.0302,
-      "Fill_Price": 91.3321,
-      "Shares": 3.8672,
-      "Notional_USD": 353.2
     },
     {
       "Date": "2026-06-24",
@@ -170,8 +200,18 @@
       "Side": "SELL",
       "Weight_Delta": -0.0125,
       "Fill_Price": 91.59,
-      "Shares": -1.5976,
-      "Notional_USD": -146.32
+      "Shares": -1.5977,
+      "Notional_USD": -146.33
+    },
+    {
+      "Date": "2026-06-24",
+      "signal_date": "2026-06-23",
+      "Ticker": "BIL",
+      "Side": "BUY",
+      "Weight_Delta": 0.0302,
+      "Fill_Price": 91.3321,
+      "Shares": 3.8674,
+      "Notional_USD": 353.22
     },
     {
       "Date": "2026-06-23",
@@ -229,8 +269,8 @@
       "Ticker": "TQQQ",
       "Side": "BUY",
       "Weight_Delta": 0.0255,
-      "Fill_Price": 81.67,
-      "Shares": 3.7781,
+      "Fill_Price": 81.4824,
+      "Shares": 3.7868,
       "Notional_USD": 308.56
     },
     {
@@ -276,52 +316,12 @@
     {
       "Date": "2026-06-11",
       "signal_date": "2026-06-10",
-      "Ticker": "QLD",
-      "Side": "SELL",
-      "Weight_Delta": -0.0073,
-      "Fill_Price": 87.8512,
-      "Shares": -0.9541,
-      "Notional_USD": -83.82
-    },
-    {
-      "Date": "2026-06-11",
-      "signal_date": "2026-06-10",
       "Ticker": "BIL",
       "Side": "BUY",
       "Weight_Delta": 0.0176,
       "Fill_Price": 91.2125,
       "Shares": 2.2183,
       "Notional_USD": 202.33
-    },
-    {
-      "Date": "2026-06-10",
-      "signal_date": "2026-06-09",
-      "Ticker": "TQQQ",
-      "Side": "SELL",
-      "Weight_Delta": -0.0257,
-      "Fill_Price": 71.68,
-      "Shares": -4.133,
-      "Notional_USD": -296.25
-    },
-    {
-      "Date": "2026-06-10",
-      "signal_date": "2026-06-09",
-      "Ticker": "QLD",
-      "Side": "BUY",
-      "Weight_Delta": 0.0075,
-      "Fill_Price": 88.4608,
-      "Shares": 0.9797,
-      "Notional_USD": 86.66
-    },
-    {
-      "Date": "2026-06-10",
-      "signal_date": "2026-06-09",
-      "Ticker": "BIL",
-      "Side": "SELL",
-      "Weight_Delta": -0.0182,
-      "Fill_Price": 91.2125,
-      "Shares": -2.2934,
-      "Notional_USD": -209.19
     }
   ],
   "nav_series": [
@@ -677,59 +677,66 @@
     },
     {
       "d": "2026-06-24",
-      "v": 11692.8,
-      "ret": -0.002835,
+      "v": 11693.51,
+      "ret": -0.002775,
       "turnover": 0.0604,
       "tc": 3e-05
     },
     {
       "d": "2026-06-25",
-      "v": 11970.57,
+      "v": 11971.29,
       "ret": 0.023763,
       "turnover": 0.0144,
       "tc": 7e-06
     },
     {
       "d": "2026-06-26",
-      "v": 11588.46,
+      "v": 11589.15,
       "ret": -0.031914,
       "turnover": 0.0149,
       "tc": 7e-06
     },
     {
       "d": "2026-06-29",
-      "v": 11643.9,
+      "v": 11644.6,
       "ret": 0.00479,
       "turnover": 0.01,
       "tc": 5e-06
     },
     {
       "d": "2026-06-30",
-      "v": 11862.04,
+      "v": 11862.75,
       "ret": 0.018737,
       "turnover": 0.0065,
       "tc": 3e-06
     },
     {
       "d": "2026-07-01",
-      "v": 11820.84,
+      "v": 11821.55,
       "ret": -0.003468,
       "turnover": 0.0093,
       "tc": 5e-06
     },
     {
       "d": "2026-07-02",
-      "v": 11685.87,
+      "v": 11686.57,
       "ret": -0.011009,
       "turnover": 0.8281,
       "tc": 0.000414
     },
     {
       "d": "2026-07-06",
-      "v": 11459.88,
-      "ret": -0.019338,
+      "v": 11460.88,
+      "ret": -0.019311,
       "turnover": 0.0,
       "tc": 0.0
+    },
+    {
+      "d": "2026-07-07",
+      "v": 11098.42,
+      "ret": -0.031465,
+      "turnover": 0.3333,
+      "tc": 0.000167
     }
   ],
   "spy_series": [
@@ -964,6 +971,10 @@
     {
       "d": "2026-07-06",
       "v": 11081.46
+    },
+    {
+      "d": "2026-07-07",
+      "v": 11103.36
     }
   ]
 }
