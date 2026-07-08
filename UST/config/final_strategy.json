@@ -1,0 +1,43 @@
+{
+  "name": "ust_rv_combo",
+  "description": "Duration-neutral long-short over individual nominal Treasury notes/bonds. Two orthogonal sleeves (IS daily return correlation 0.05), combined with inverse-IS-vol weights rounded to 75/25. Frozen 2026-07-08 after IS-only tuning on 2010-2019; see results/is_experiments.csv for the full grid searched.",
+  "rebalance": "W-WED",
+  "universe": {
+    "types": ["MARKET BASED NOTE", "MARKET BASED BOND"],
+    "min_maturity_years": 1.0,
+    "max_spread_pct": 0.04
+  },
+  "construction": {
+    "weighting": "inverse_duration",
+    "duration_neutral": true,
+    "gross_exposure": 2.0,
+    "name_cap": 0.10
+  },
+  "sleeves": [
+    {
+      "weight": 0.75,
+      "signal": "value_z",
+      "z_window": 120,
+      "frac": 0.2,
+      "exit_mult": 3.0
+    },
+    {
+      "weight": 0.25,
+      "signal": "carry",
+      "roll_h": 1.0,
+      "frac": 0.1,
+      "exit_mult": 2.0
+    }
+  ],
+  "costs": {
+    "model": "fedinvest_half_spread_per_side",
+    "floor_bp_per_side": 1.0
+  },
+  "is_expectation": {
+    "note": "IS 2010-2019 combo metrics at freeze time, for comparison against OOS",
+    "sharpe": 0.545,
+    "ann_ret": 0.0033,
+    "ann_vol": 0.0061,
+    "max_dd": -0.0124
+  }
+}

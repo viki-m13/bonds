@@ -43,12 +43,20 @@ def build_ls_weights(
     reb_dates: pd.DatetimeIndex,
     frac: float = 0.2,
     name_cap: float = 0.10,
+    exit_mult: float = 1.0,
 ) -> pd.DataFrame:
     """Long-short duration-neutral weights from a wide signal matrix.
 
     sig/dur/tradeable: wide (date x cusip). Higher signal => long.
+
+    Hysteresis: a name ENTERS a side only if it ranks inside the top/bottom
+    `frac`; once held it STAYS until it falls out of the wider top/bottom
+    `frac * exit_mult` band. exit_mult=1 disables hysteresis. This cuts
+    turnover massively for slow-moving cross-sections.
     """
     out = []
+    held_long: set = set()
+    held_short: set = set()
     for t in reb_dates:
         if t not in sig.index:
             continue
@@ -61,8 +69,18 @@ def build_ls_weights(
             continue
         d = dur.loc[t].reindex(s.index)
         n = max(int(len(s) * frac), 5)
-        longs = s.nlargest(n).index
-        shorts = s.nsmallest(n).index
+        n_exit = max(int(len(s) * frac * exit_mult), n)
+        ranks_desc = s.rank(ascending=False, method="first")
+        ranks_asc = s.rank(ascending=True, method="first")
+
+        keep_l = {c for c in held_long if c in s.index and ranks_desc[c] <= n_exit}
+        keep_s = {c for c in held_short if c in s.index and ranks_asc[c] <= n_exit}
+        # fill remaining slots with best-ranked names not already held
+        add_l = [c for c in s.nlargest(n_exit).index if c not in keep_l][: max(n - len(keep_l), 0)]
+        add_s = [c for c in s.nsmallest(n_exit).index if c not in keep_s][: max(n - len(keep_s), 0)]
+        longs = pd.Index(sorted(keep_l) + add_l)
+        shorts = pd.Index(sorted(keep_s) + add_s)
+        held_long, held_short = set(longs), set(shorts)
 
         def side(names, sign):
             dd = d.reindex(names).clip(lower=0.5)
@@ -108,6 +126,10 @@ class SignalSet:
         self.tradeable = (
             self.tsy.ge(1.0) & self.ytm.notna() & self.resid.notna() & self.dur.notna()
         )
+        # liquidity-screened universe: drop names whose current FedInvest
+        # spread is wide (illiquid old bonds); NaN spreads pass (median cost
+        # is charged for them in the engine anyway)
+        self.tradeable_liq = self.tradeable & ~self.spread.gt(0.04)
 
     # ---- signals (wide matrices, higher = more attractive to be long) ----
 
@@ -143,7 +165,7 @@ class SignalSet:
             X0 = nss_basis(np.maximum(tv - roll_h, 0.02), row["tau1"], row["tau2"])
             b = row[["b0", "b1", "b2", "b3"]].values.astype(float)
             roll = (X1 - X0) @ b  # y(tsy) - y(tsy - h): positive when upward-sloping
-            y_short = float(nss_basis(np.array([0.25]), row["tau1"], row["tau2"]) @ b)
+            y_short = (nss_basis(np.array([0.25]), row["tau1"], row["tau2"]) @ b).item()
             vals = np.full(len(tsy), np.nan)
             ytm = self.ytm.loc[t].values.astype(float)[valid]
             dur = self.dur.loc[t].values.astype(float)[valid]

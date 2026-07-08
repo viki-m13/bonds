@@ -66,16 +66,19 @@ def main() -> int:
     rows = []
     for name, fn in grid:
         sig = fn()
-        for frac in (0.1, 0.2, 0.3):
-            w = st.build_ls_weights(sig, ss.dur, ss.tradeable, reb, frac=frac)
-            res = backtest.run(panel, w)
-            m = backtest.metrics(res.ret, label=f"{name}_f{frac}")
-            mg = backtest.metrics(res.ret_gross, label="")
-            m["gross_sharpe"] = mg["sharpe"]
-            m["ann_cost"] = round(float(res.cost.mean() * 252), 5)
-            m["avg_turnover"] = round(float(res.turnover.mean()), 4)
-            rows.append(m)
-            print(m)
+        for frac in (0.1, 0.2):
+            for em in (1.0, 2.0, 3.0):
+                w = st.build_ls_weights(
+                    sig, ss.dur, ss.tradeable_liq, reb, frac=frac, exit_mult=em
+                )
+                res = backtest.run(panel, w)
+                m = backtest.metrics(res.ret, label=f"{name}_f{frac}_x{em}")
+                mg = backtest.metrics(res.ret_gross, label="")
+                m["gross_sharpe"] = mg["sharpe"]
+                m["ann_cost"] = round(float(res.cost.mean() * 252), 5)
+                m["avg_turnover"] = round(float(res.turnover.mean()), 4)
+                rows.append(m)
+                print({k: m[k] for k in ("label", "sharpe", "gross_sharpe", "ann_ret", "ann_vol", "ann_cost", "avg_turnover")}, flush=True)
 
     df = pd.DataFrame(rows)
     outf = ROOT / "results" / "is_experiments.csv"
