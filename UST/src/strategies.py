@@ -177,3 +177,26 @@ class SignalSet:
         """Idiosyncratic momentum: negative change of the residual over the
         lookback (residual falling = bond richening = positive momentum)."""
         return -(self.resid - self.resid.shift(lookback))
+
+    def sig_local(self, k: int = 6) -> pd.DataFrame:
+        """Yield minus duration-weighted mean yield of the k nearest-maturity
+        coupon neighbours (each side) on each date. Local cheapness, no curve
+        model. Positive = cheap. Vectorized per date via sorted cumsum."""
+        ytm, tsy = self.ytm, self.tsy
+        out = pd.DataFrame(np.nan, index=ytm.index, columns=ytm.columns)
+        for t in ytm.index:
+            y = ytm.loc[t].dropna()
+            if len(y) < k + 2:
+                continue
+            m = tsy.loc[t].reindex(y.index).sort_values()
+            names = m.index
+            ys = y.reindex(names).values.astype(float)
+            n = len(ys)
+            csum = np.concatenate([[0.0], np.cumsum(ys)])
+            lo = np.maximum(np.arange(n) - k, 0)
+            hi = np.minimum(np.arange(n) + k + 1, n)
+            wsum = csum[hi] - csum[lo]
+            cnt = (hi - lo).astype(float)
+            nbr_mean = (wsum - ys) / np.maximum(cnt - 1, 1)
+            out.loc[t, names] = ys - nbr_mean
+        return out
