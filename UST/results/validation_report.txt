@@ -1,0 +1,24 @@
+panel: 1,403,468 rows, 2,466 cusips, 4,130 dates (2010-01-04..2026-07-07)
+
+[1] securities per date by type (median):
+{'MARKET BASED BILL': 34.0, 'MARKET BASED BOND': 72.0, 'MARKET BASED NOTE': 237.0}
+calendar gaps >5 days: 0
+
+[2] clean price outside [40,250]: 0 rows
+buy-sell spread %% of mid: median=0.0156 p90=0.0560 p99=0.1811 (coverage 92.7%)
+
+[3] daily |ret| > dur*50bp+1%: 0 of 1,401,002 (0.00e+00)
+largest daily returns:
+      date     cusip          sec_type  tsy_years       ret
+2020-03-06 912810SL3 MARKET BASED BOND  29.946612  0.074315
+2020-03-06 912810SK5 MARKET BASED BOND  29.694730  0.070569
+2020-03-06 912810SJ8 MARKET BASED BOND  29.442847  0.070162
+2020-03-10 912810SJ8 MARKET BASED BOND  29.431896 -0.066563
+2020-03-10 912810SF6 MARKET BASED BOND  28.936345 -0.065607
+
+[4] cross-check computed YTM vs FRED constant-maturity yields:
+  DGS2: n=4,126 median|gap|=1.3bp p95=4.6bp
+  DGS10: n=4,126 median|gap|=1.4bp p95=7.7bp
+  DGS30: n=4,126 median|gap|=0.6bp p95=2.8bp
+
+[5] coupons received per full cusip-year / rate: median=1.000 (expect ~1.0), p10=1.000, p90=1.000

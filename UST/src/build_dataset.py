@@ -47,6 +47,9 @@ def load_raw() -> pd.DataFrame:
     panel["maturity"] = pd.to_datetime(panel["maturity"], format="%m/%d/%Y")
     for c in ("buy", "sell", "eod", "rate"):
         panel[c] = pd.to_numeric(panel[c], errors="coerce")
+    # FedInvest quotes the coupon as a decimal fraction (0.04125 = 4.125%);
+    # convert to percent, which is what bondmath expects (per $100 par).
+    panel["rate"] = panel["rate"] * 100.0
     # zero prices mean "not available"
     for c in ("buy", "sell", "eod"):
         panel.loc[panel[c] <= 1.0, c] = np.nan
