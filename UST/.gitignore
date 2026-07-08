@@ -1,0 +1,6 @@
+# raw FedInvest daily files (~125MB, reproducible via src/download_fedinvest.py)
+data/raw/fedinvest/
+# raw metadata (43MB, reproducible via src/download_metadata.py)
+data/raw/securities_meta.json
+# derived caches
+data/processed/cache_*/
