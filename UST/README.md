@@ -46,6 +46,27 @@ happen to prove that this particular signal set is not tradeable. A folder
 that instead re-tuned after seeing 2020–2026 and presented a nice OOS curve
 would be the dishonest outcome.
 
+### Follow-up: is an honest Sharpe of 3+ achievable here? (No — and here's the proof)
+
+A second investigation (**[`FINDINGS.md`](FINDINGS.md)**) chased a high Sharpe
+directly with sharper, more "arbitrage-like" local relative-value signals. It
+found configurations with gross Sharpe up to **7.8** — and proved they are
+**bid-ask bounce**, not tradeable alpha:
+
+- The gross Sharpe **collapses from 7.8 to 0.68** the moment you trade one day
+  after seeing the signal instead of at the same close (`src/rv_backtest.py`).
+- In an idealized sim the 1-day edge **flips negative by lag 3** — the
+  fingerprint of mark reversion, not a risk premium.
+- Net of realistic costs, **every honest-execution configuration loses money**.
+
+![bounce](results/bounce_decomposition.png)
+
+Genuine 3+ Sharpe trades in Treasuries (on-the-run specialness, auction-cycle
+financing, CTD) live in repo/futures financing data that outright EOD prices
+don't contain. Everything visible in EOD prices that *looks* like a 3 is the
+bounce above. Manufacturing a 3 would have required lag-0 fills or ignoring
+costs — the exact moves this folder exists to catch.
+
 ## Data
 
 | What | Source | Coverage here |
