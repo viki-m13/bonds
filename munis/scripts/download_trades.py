@@ -5,11 +5,15 @@ Writes munis/data/trades/{six}.csv.gz, one file per security, columns:
   ts (ISO-8601, ET), price, ytw, par, side   (side: D inter-dealer,
   S customer buy / dealer sell, P customer sell / dealer purchase)
 
-Selection: top N securities by trades_1y (default 1200). The strategy layer
-applies its own trailing-liquidity gate at each backtest date, so this cut
-only bounds download size, it is not the tradable-universe definition.
+Selection (bounds download size only — the strategy layer applies its own
+trailing-liquidity gate at each backtest date):
+  * Tier A: top TOP_N securities by trades_1y (today's most tradable names,
+    skewed to recent issues because new issues trade heavily), plus
+  * Tier B: SAMPLE_N drawn at random (seeded) from the rest with
+    trades_1y >= SAMPLE_MIN — this reaches seasoned bonds with multi-year
+    histories that a pure top-N cut would miss.
 
-Usage:  python munis/scripts/download_trades.py [N]
+Usage:  python munis/scripts/download_trades.py [TOP_N] [SAMPLE_N]
 Resumable: existing per-security files are skipped.
 """
 
@@ -30,23 +34,43 @@ TRADES_DIR = ROOT / "data" / "trades"
 META = ROOT / "data" / "universe" / "download_meta.csv"
 
 
-def main(top_n: int = 1200) -> None:
+SAMPLE_MIN = 40   # min trailing-year trades for the random seasoned sample
+
+
+def select_targets(top_n: int, sample_n: int) -> list[dict]:
+    import random
     with gzip.open(UNIVERSE, "rt") as fh:
         universe = list(csv.DictReader(fh))
     universe.sort(key=lambda r: -int(r["trades_1y"] or 0))
-    targets = universe[:top_n]
-    print(f"universe {len(universe)} securities, downloading top {len(targets)}")
+    tier_a = universe[:top_n]
+    a_ids = {r["six"] for r in tier_a}
+    pool = [r for r in universe[top_n:]
+            if int(r["trades_1y"] or 0) >= SAMPLE_MIN and r["six"] not in a_ids]
+    random.Random(17).shuffle(pool)
+    tier_b = pool[:sample_n]
+    return tier_a + tier_b
 
-    client = EmmaClient(ROOT / "data" / "universe" / "_cookies.txt", delay=0.8)
+
+def main(top_n: int = 1000, sample_n: int = 800,
+         shard_idx: int = 0, shard_count: int = 1) -> None:
+    targets = select_targets(top_n, sample_n)
+    if shard_count > 1:
+        targets = [t for i, t in enumerate(targets)
+                   if i % shard_count == shard_idx]
+    meta_path = (META if shard_count == 1
+                 else META.with_name(f"download_meta_{shard_idx}.csv"))
+    print(f"shard {shard_idx}/{shard_count}: {len(targets)} targets")
+
+    client = EmmaClient(ROOT / "data" / "universe" / "_cookies.txt", delay=0.5)
     client.ensure_session()
 
-    meta_exists = META.exists()
+    meta_exists = meta_path.exists()
     done = set()
     if meta_exists:
-        with open(META) as fh:
+        with open(meta_path) as fh:
             done = {row["six"] for row in csv.DictReader(fh)}
 
-    with open(META, "a", newline="") as mfh:
+    with open(meta_path, "a", newline="") as mfh:
         mwriter = csv.DictWriter(mfh, fieldnames=["six", "desc", "n_trades",
                                                   "first_trade", "last_trade"])
         if not meta_exists:
@@ -90,5 +114,8 @@ def main(top_n: int = 1200) -> None:
 
 
 if __name__ == "__main__":
-    n = int(sys.argv[1]) if len(sys.argv) > 1 else 1200
-    main(n)
+    top = int(sys.argv[1]) if len(sys.argv) > 1 else 1000
+    samp = int(sys.argv[2]) if len(sys.argv) > 2 else 800
+    sidx = int(sys.argv[3]) if len(sys.argv) > 3 else 0
+    scnt = int(sys.argv[4]) if len(sys.argv) > 4 else 1
+    main(top, samp, sidx, scnt)

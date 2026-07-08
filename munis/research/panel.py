@@ -65,14 +65,19 @@ def _one(path: str) -> pd.DataFrame | None:
     out["n_all"] = g_all.size()
 
     p = pd.DataFrame(out)
-    p["mid"] = p.get("d_px")
+    # signal-only reference price: prefer inter-dealer, then S/P midpoint,
+    # then whichever customer side printed. Never used for fills.
+    mid = pd.Series(np.nan, index=p.index, dtype=float)
+    if "d_px" in p:
+        mid = p["d_px"].astype(float)
     if "s_px" in p and "p_px" in p:
         both = p["s_px"].notna() & p["p_px"].notna()
-        p.loc[p["mid"].isna() & both, "mid"] = (
-            (p["s_px"] + p["p_px"]) / 2)[p["mid"].isna() & both]
+        fill = mid.isna() & both
+        mid[fill] = (p["s_px"] + p["p_px"]) / 2
     for c in ("s_px", "p_px"):
         if c in p:
-            p["mid"] = p["mid"].fillna(p[c])
+            mid = mid.fillna(p[c])
+    p["mid"] = mid
     p["six"] = six
     return p.reset_index().rename(columns={"index": "date"})
 
