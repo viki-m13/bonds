@@ -7,7 +7,44 @@ backtest cross-sectional strategies that go long/short **individual bonds**
 
 ## TL;DR results
 
-*(filled in after the single frozen OOS run — see `results/final_results.json`)*
+**The in-sample edge did not survive out-of-sample. The honest conclusion is
+that this relative-value strategy does not work going forward, and the folder
+reports that faithfully rather than tuning until OOS looked good.**
+
+| Window | Net Sharpe | Gross Sharpe | Ann. return (net) | Max DD |
+|---|---:|---:|---:|---:|
+| In-sample 2010–2019 | **+0.55** | +1.19 | +0.33% | −1.2% |
+| **Out-of-sample 2020–2026** | **−1.41** | **−0.46** | −1.00% | −6.6% |
+
+Three things make this a *clean* rejection rather than a cost artifact:
+
+1. **Even gross of costs the OOS Sharpe is negative (−0.46).** The signal
+   itself decayed; it isn't that transaction costs ate a real edge.
+2. **Every OOS year is negative** (2020 through 2026), worsening over time
+   (2024 net Sharpe −4.2). It is a persistent failure, not one bad regime.
+3. **The IS Sharpe was inflated by a single year** — 2018 alone had a net
+   Sharpe of +3.8; strip it and the IS result was already marginal. That is
+   exactly the fragility an OOS test is meant to expose.
+
+For reference, a passive long-only 1/duration ladder of the same universe
+(excess of cash) also went from +0.78 IS to −0.44 OOS Sharpe — the 2022
+hiking cycle was punishing for anything touching this market.
+
+![equity curve](results/final_equity_curve.png)
+
+The net-of-cost NAV peaks almost exactly at the IS/OOS boundary and is in a
+continuous drawdown for the entire out-of-sample period. Full numbers in
+`results/final_results.json`.
+
+### Why report a losing strategy?
+
+Because the request was to *validate and backtest honestly OOS*, and the
+value of this folder is the honest machinery, not a curve that goes up. The
+data pipeline, the bond math (YTMs match FRED to ~1bp), the no-look-ahead
+engine, and the pre-registered split are all reusable and correct; they just
+happen to prove that this particular signal set is not tradeable. A folder
+that instead re-tuned after seeing 2020–2026 and presented a nice OOS curve
+would be the dishonest outcome.
 
 ## Data
 
@@ -90,6 +127,22 @@ UST/
 ├── data/processed/panel.parquet
 └── results/
 ```
+
+## What would come next (not done here)
+
+The honest negative result closes the pre-registered experiment. Directions a
+follow-up could pre-register *before* touching OOS data again:
+
+- **On-the-run / off-the-run specialness** as an explicit signal rather than
+  noise the value sleeve accidentally shorts.
+- **Auction-cycle effects** (cheapness into/after auctions) with issue-size
+  aware sizing.
+- A **regime filter** on the level/slope of rates — but note this adds
+  parameters and would need its own fresh OOS window to be credible.
+
+None of these are implemented, because doing so now and reporting the result
+on the same 2020–2026 data would relabel a second in-sample search as
+"out-of-sample."
 
 ## Limitations (read before believing any backtest)
 

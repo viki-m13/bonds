@@ -101,7 +101,7 @@ def main() -> int:
     for t in reb:
         if t not in ss.tradeable_liq.index:
             continue
-        ok = ss.tradeable_liq.loc[t]
+        ok = ss.tradeable_liq.loc[t].fillna(False).astype(bool)
         names = ok[ok].index
         d = ss.dur.loc[t].reindex(names).clip(lower=0.5)
         bw = (1.0 / d) / (1.0 / d).sum()

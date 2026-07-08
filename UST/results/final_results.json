@@ -1,0 +1,253 @@
+{
+  "config": {
+    "name": "ust_rv_combo",
+    "description": "Duration-neutral long-short over individual nominal Treasury notes/bonds. Two orthogonal sleeves (IS daily return correlation 0.05), combined with inverse-IS-vol weights rounded to 75/25. Frozen 2026-07-08 after IS-only tuning on 2010-2019; see results/is_experiments.csv for the full grid searched.",
+    "rebalance": "W-WED",
+    "universe": {
+      "types": [
+        "MARKET BASED NOTE",
+        "MARKET BASED BOND"
+      ],
+      "min_maturity_years": 1.0,
+      "max_spread_pct": 0.04
+    },
+    "construction": {
+      "weighting": "inverse_duration",
+      "duration_neutral": true,
+      "gross_exposure": 2.0,
+      "name_cap": 0.1
+    },
+    "sleeves": [
+      {
+        "weight": 0.75,
+        "signal": "value_z",
+        "z_window": 120,
+        "frac": 0.2,
+        "exit_mult": 3.0
+      },
+      {
+        "weight": 0.25,
+        "signal": "carry",
+        "roll_h": 1.0,
+        "frac": 0.1,
+        "exit_mult": 2.0
+      }
+    ],
+    "costs": {
+      "model": "fedinvest_half_spread_per_side",
+      "floor_bp_per_side": 1.0
+    },
+    "is_expectation": {
+      "note": "IS 2010-2019 combo metrics at freeze time, for comparison against OOS",
+      "sharpe": 0.545,
+      "ann_ret": 0.0033,
+      "ann_vol": 0.0061,
+      "max_dd": -0.0124
+    }
+  },
+  "oos_start": "2020-01-01",
+  "ann_cost_full": 0.00506,
+  "avg_weekly_turnover": 0.397,
+  "sleeve_corr_is": 0.053,
+  "sleeve_corr_oos": 0.111,
+  "metrics": [
+    {
+      "label": "net_IS",
+      "ann_ret": 0.00332,
+      "cagr": 0.00329,
+      "ann_vol": 0.0061,
+      "sharpe": 0.545,
+      "max_dd": -0.0122,
+      "n_days": 2500,
+      "start": "2010-01-04",
+      "end": "2019-12-31"
+    },
+    {
+      "label": "net_OOS",
+      "ann_ret": -0.01001,
+      "cagr": -0.00992,
+      "ann_vol": 0.00709,
+      "sharpe": -1.412,
+      "max_dd": -0.0658,
+      "n_days": 1630,
+      "start": "2020-01-02",
+      "end": "2026-07-07"
+    },
+    {
+      "label": "net_FULL",
+      "ann_ret": -0.00194,
+      "cagr": -0.00194,
+      "ann_vol": 0.00652,
+      "sharpe": -0.297,
+      "max_dd": -0.0669,
+      "n_days": 4130,
+      "start": "2010-01-04",
+      "end": "2026-07-07"
+    },
+    {
+      "label": "gross_IS",
+      "ann_ret": 0.00723,
+      "cagr": 0.00719,
+      "ann_vol": 0.00607,
+      "sharpe": 1.192,
+      "max_dd": -0.0073,
+      "n_days": 2500,
+      "start": "2010-01-04",
+      "end": "2019-12-31"
+    },
+    {
+      "label": "gross_OOS",
+      "ann_ret": -0.00319,
+      "cagr": -0.00319,
+      "ann_vol": 0.00699,
+      "sharpe": -0.456,
+      "max_dd": -0.032,
+      "n_days": 1630,
+      "start": "2020-01-02",
+      "end": "2026-07-07"
+    },
+    {
+      "label": "gross_FULL",
+      "ann_ret": 0.00312,
+      "cagr": 0.00308,
+      "ann_vol": 0.00645,
+      "sharpe": 0.483,
+      "max_dd": -0.032,
+      "n_days": 4130,
+      "start": "2010-01-04",
+      "end": "2026-07-07"
+    },
+    {
+      "label": "sleeve_value_z_net_IS",
+      "ann_ret": 0.00234,
+      "cagr": 0.00231,
+      "ann_vol": 0.00568,
+      "sharpe": 0.412,
+      "max_dd": -0.0175,
+      "n_days": 2500,
+      "start": "2010-01-04",
+      "end": "2019-12-31"
+    },
+    {
+      "label": "sleeve_value_z_net_OOS",
+      "ann_ret": -0.00271,
+      "cagr": -0.00272,
+      "ann_vol": 0.00755,
+      "sharpe": -0.359,
+      "max_dd": -0.0276,
+      "n_days": 1630,
+      "start": "2020-01-02",
+      "end": "2026-07-07"
+    },
+    {
+      "label": "sleeve_value_z_net_FULL",
+      "ann_ret": 0.00035,
+      "cagr": 0.00032,
+      "ann_vol": 0.00648,
+      "sharpe": 0.053,
+      "max_dd": -0.0276,
+      "n_days": 4130,
+      "start": "2010-01-04",
+      "end": "2026-07-07"
+    },
+    {
+      "label": "sleeve_carry_net_IS",
+      "ann_ret": 0.00628,
+      "cagr": 0.00612,
+      "ann_vol": 0.01657,
+      "sharpe": 0.379,
+      "max_dd": -0.0437,
+      "n_days": 2500,
+      "start": "2010-01-04",
+      "end": "2019-12-31"
+    },
+    {
+      "label": "sleeve_carry_net_OOS",
+      "ann_ret": -0.03192,
+      "cagr": -0.03132,
+      "ann_vol": 0.01475,
+      "sharpe": -2.164,
+      "max_dd": -0.1985,
+      "n_days": 1630,
+      "start": "2020-01-02",
+      "end": "2026-07-07"
+    },
+    {
+      "label": "sleeve_carry_net_FULL",
+      "ann_ret": -0.00879,
+      "cagr": -0.00882,
+      "ann_vol": 0.01592,
+      "sharpe": -0.552,
+      "max_dd": -0.2105,
+      "n_days": 4130,
+      "start": "2010-01-04",
+      "end": "2026-07-07"
+    },
+    {
+      "label": "net_2xcost_IS",
+      "ann_ret": -0.00058,
+      "cagr": -0.0006,
+      "ann_vol": 0.00618,
+      "sharpe": -0.094,
+      "max_dd": -0.0254,
+      "n_days": 2500,
+      "start": "2010-01-04",
+      "end": "2019-12-31"
+    },
+    {
+      "label": "net_2xcost_OOS",
+      "ann_ret": -0.01683,
+      "cagr": -0.01661,
+      "ann_vol": 0.00737,
+      "sharpe": -2.285,
+      "max_dd": -0.1054,
+      "n_days": 1630,
+      "start": "2020-01-02",
+      "end": "2026-07-07"
+    },
+    {
+      "label": "net_2xcost_FULL",
+      "ann_ret": -0.00699,
+      "cagr": -0.00694,
+      "ann_vol": 0.00669,
+      "sharpe": -1.045,
+      "max_dd": -0.1126,
+      "n_days": 4130,
+      "start": "2010-01-04",
+      "end": "2026-07-07"
+    },
+    {
+      "label": "ladder_excess_IS",
+      "ann_ret": 0.01406,
+      "cagr": 0.0139,
+      "ann_vol": 0.01815,
+      "sharpe": 0.775,
+      "max_dd": -0.0398,
+      "n_days": 2500,
+      "start": "2010-01-04",
+      "end": "2019-12-31"
+    },
+    {
+      "label": "ladder_excess_OOS",
+      "ann_ret": -0.0117,
+      "cagr": -0.01191,
+      "ann_vol": 0.02689,
+      "sharpe": -0.435,
+      "max_dd": -0.119,
+      "n_days": 1630,
+      "start": "2020-01-02",
+      "end": "2026-07-07"
+    },
+    {
+      "label": "ladder_excess_FULL",
+      "ann_ret": 0.0039,
+      "cagr": 0.00364,
+      "ann_vol": 0.02203,
+      "sharpe": 0.177,
+      "max_dd": -0.119,
+      "n_days": 4130,
+      "start": "2010-01-04",
+      "end": "2026-07-07"
+    }
+  ]
+}
