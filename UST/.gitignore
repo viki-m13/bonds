@@ -4,3 +4,8 @@ data/raw/fedinvest/
 data/raw/securities_meta.json
 # derived caches
 data/processed/cache_*/
+
+# Fed securities-lending raw (44MB, reproducible via src/download_seclending.py)
+data/raw/seclending.parquet
+# derived specialness panel (82MB, reproducible via src/build_special.py)
+data/processed/special_panel.parquet

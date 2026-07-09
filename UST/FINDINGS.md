@@ -111,10 +111,60 @@ attractive-looking artifact. Fabricating a 3 would have required either
 lag-0 fills, ignoring costs, or both — exactly the moves this folder exists to
 catch.
 
+## Part 2 — new data: does Fed repo-specialness get us to Sharpe 3? (Still no)
+
+Since a real edge cannot come from EOD prices alone (everything there is
+bounce), the natural next step is data that is *not* in the price: which bonds
+are scarce / special in repo. The Federal Reserve publishes exactly this for
+free — its daily **Securities Lending** operations list, per CUSIP, how much
+primary dealers borrowed from the SOMA portfolio
+(`src/download_seclending.py`, 528k rows, 2010–2026). A heavily-borrowed bond
+is special: hard to short, richly priced. Because this signal is absent from
+prices, any predictive power at execution lag ≥ 1 would be genuinely tradeable
+(not bounce).
+
+Economic hypothesis tested (`src/explore_special.py`, IS only): special bonds
+are rich and should **cheapen** as scarcity fades. Result:
+
+- **Information coefficient ≈ +0.02** (rank-corr of specialness with forward
+  duration-neutral return) — negligible, and the *opposite* sign to the
+  cheapening hypothesis.
+- The best long/short book is **gross Sharpe < 0.6** before costs — nowhere
+  near 3, and cost-fragile.
+
+Worse, the signal is **not stable across the split** — the killer chart:
+
+![specialness](results/specialness_signal.png)
+
+- *Left*: the specialness score cleanly ranks scarcity (top quintile ≈ $135mm
+  borrowed from the Fed, bottom quintiles ≈ $0). The data is real and correct.
+- *Right*: forward duration-neutral return by specialness quintile. **In-sample
+  it is monotone (q4 +161 bp, q0 −60 bp) — but out-of-sample it inverts
+  entirely (q4 −147 bp, q0 +99 bp).** An "edge" whose sign flips between the
+  training and test windows is a regime artifact, not a tradeable signal.
+
+And the one thing the data measures directly — the SecLend **fee** — is a
+floor-rate backstop (median 0, ≈ 0.4 bp/yr even for the most special bonds),
+so it contains no capturable specialness *carry* either. The real specialness
+premium lives in private DVP/GCF repo rates, which are not freely available.
+
+**Conclusion across both parts:** an honest OOS Sharpe of 3+ is not obtainable
+from freely-available Treasury data (EOD prices + Fed specialness). The genuine
+high-Sharpe Treasury trades (on-the-run/off-the-run, CTD basis, matched-book
+RV) are **financing** trades that need private repo rates and leverage — and
+whose headline Sharpe is itself misleading, because the leverage carries the
+tail risk that detonated in March 2020. This folder's honest deliverable is the
+validated data, the no-look-ahead engine, and the proof of what does *not*
+work — not a manufactured number.
+
 ## Reproduce
 
 ```bash
-python3 src/explore_rv.py        # idealized lag/horizon grid (IS)
-python3 src/rv_backtest.py       # real cost-charging IS sweep
-python3 src/prove_bounce.py      # the decomposition figure (IS + OOS)
+python3 src/explore_rv.py          # idealized lag/horizon grid (IS)
+python3 src/rv_backtest.py         # real cost-charging IS sweep
+python3 src/prove_bounce.py        # bounce decomposition figure (IS + OOS)
+python3 src/download_seclending.py # Fed per-CUSIP specialness history
+python3 src/build_special.py       # merge specialness onto the price panel
+python3 src/explore_special.py     # specialness IC / L/S test (IS)
+python3 src/special_figure.py      # scarcity-vs-return figure (IS + OOS)
 ```

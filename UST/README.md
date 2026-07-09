@@ -67,12 +67,31 @@ don't contain. Everything visible in EOD prices that *looks* like a 3 is the
 bounce above. Manufacturing a 3 would have required lag-0 fills or ignoring
 costs — the exact moves this folder exists to catch.
 
+**Then I brought in the non-price data that *should* contain the edge** — the
+Fed's per-CUSIP daily [Securities Lending](https://markets.newyorkfed.org/static/docs/markets-api.html)
+operations, a free direct measure of which bonds are special/scarce in repo
+(528k rows, 2010–2026). It cleanly ranks scarcity but **does not predict a
+tradeable price move**: information coefficient ≈ +0.02, best long/short book
+gross Sharpe < 0.6, and — decisively — the in-sample quintile pattern **inverts
+out-of-sample** (below). The capturable SecLend fee is a ~0.4 bp/yr floor-rate
+backstop, so there's no harvestable carry either. Full analysis in
+[`FINDINGS.md`](FINDINGS.md).
+
+![specialness](results/specialness_signal.png)
+
+**Bottom line:** an honest OOS Sharpe of 3+ is not obtainable from freely
+available Treasury data. The real high-Sharpe trades are leveraged *financing*
+strategies needing private repo rates — and their headline Sharpe hides the
+March-2020-style tail risk. This folder delivers the validated data, the
+honest engine, and the proof — not a fabricated number.
+
 ## Data
 
 | What | Source | Coverage here |
 |---|---|---|
 | Daily per-CUSIP prices (buy / sell / end-of-day, per $100 par) | [FedInvest / TreasuryDirect](https://www.treasurydirect.gov/GA-FI/FedInvest/securityPriceDetail) (Bureau of the Fiscal Service) | 2010-01-04 → 2026-07-07, 4,133 trading days, 2,466 CUSIPs, 1.4M rows |
 | Security metadata (issue/dated dates, original term, coupon) | [TreasuryDirect securities API](https://www.treasurydirect.gov/TA_WS/securities/search) | all 11,969 auction records |
+| Per-CUSIP daily repo specialness (Fed securities lending) | [NY Fed markets API](https://markets.newyorkfed.org/static/docs/markets-api.html) | 528k rows, 2,295 CUSIPs, 2010–2026 |
 | Cross-check yields | FRED DGS2 / DGS10 / DGS30 | validation only |
 
 The FedInvest file lists **every outstanding marketable CUSIP each day**, so
