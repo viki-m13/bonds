@@ -1,0 +1,39 @@
+{
+  "config": {
+    "name": "ust_long_tilt",
+    "description": "Long-only monthly cheapness+carry tilt vs a 1/duration ladder. Active return isolates security selection (ladder-matched duration). Frozen gamma after IS-only sweep (best IS active Sharpe at gamma=0.5).",
+    "gamma": 0.5,
+    "rebalance": "monthly",
+    "lag": 1,
+    "is_active_sharpe": 0.4
+  },
+  "metrics": [
+    {
+      "label": "IS",
+      "active_sharpe": 0.4,
+      "active_ann": 0.0046,
+      "active_vol": 0.0115,
+      "max_dd": -0.0273,
+      "n": 2500,
+      "tilt_cost": 0.0006
+    },
+    {
+      "label": "OOS",
+      "active_sharpe": -0.26,
+      "active_ann": -0.0028,
+      "active_vol": 0.0105,
+      "max_dd": -0.0317,
+      "n": 1630,
+      "tilt_cost": 0.0028
+    },
+    {
+      "label": "FULL",
+      "active_sharpe": 0.15,
+      "active_ann": 0.0017,
+      "active_vol": 0.0112,
+      "max_dd": -0.0526,
+      "n": 4130,
+      "tilt_cost": 0.0015
+    }
+  ]
+}

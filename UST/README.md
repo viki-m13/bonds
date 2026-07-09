@@ -79,11 +79,22 @@ backstop, so there's no harvestable carry either. Full analysis in
 
 ![specialness](results/specialness_signal.png)
 
-**Bottom line:** an honest OOS Sharpe of 3+ is not obtainable from freely
-available Treasury data. The real high-Sharpe trades are leveraged *financing*
-strategies needing private repo rates — and their headline Sharpe hides the
-March-2020-style tail risk. This folder delivers the validated data, the
-honest engine, and the proof — not a fabricated number.
+**Then I tried everything else** — month-end index extension, the auction/roll
+cycle, curve butterflies (curvature genuinely mean-reverts but nets negative
+after costs), and a long-only cheap/carry tilt (the one net-positive in-sample
+result, +0.40 active Sharpe — which still flips to −0.26 out-of-sample).
+
+![scorecard](results/scorecard.png)
+
+**Bottom line:** across eight structurally different strategies, *every* one with
+a positive in-sample Sharpe collapses to negative out-of-sample. That
+consistency is the finding — these are 2010s ZIRP/QE-regime artifacts the 2020s
+hiking/QT regime broke, not robust edges. An honest OOS Sharpe of 3+ is not
+obtainable from freely available Treasury data. The real high-Sharpe trades are
+leveraged *financing* strategies needing private repo rates — and their headline
+Sharpe hides the March-2020-style tail. This folder delivers the validated data,
+the honest engine, and the proof — not a fabricated number. Full battery and
+methodology in [`FINDINGS.md`](FINDINGS.md).
 
 ## Data
 

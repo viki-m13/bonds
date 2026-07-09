@@ -1,0 +1,50 @@
+[
+  {
+    "strategy": "Curve+carry RV combo",
+    "is_sharpe": 0.545,
+    "oos_sharpe": -1.412,
+    "source": "run_final.py"
+  },
+  {
+    "strategy": "Carry sleeve alone",
+    "is_sharpe": 0.38,
+    "oos_sharpe": -2.16,
+    "source": "run_final.py sleeve_carry"
+  },
+  {
+    "strategy": "Value-z sleeve alone",
+    "is_sharpe": 0.41,
+    "oos_sharpe": -0.36,
+    "source": "run_final.py sleeve_value"
+  },
+  {
+    "strategy": "Local RV (lag>=1, net)",
+    "is_sharpe": -1.27,
+    "oos_sharpe": -1.51,
+    "source": "rv_backtest.py step5 f0.2 l1"
+  },
+  {
+    "strategy": "Momentum (idio)",
+    "is_sharpe": -1.22,
+    "oos_sharpe": null,
+    "source": "run_experiments.py (neg IS, dropped)"
+  },
+  {
+    "strategy": "Specialness L/S",
+    "is_sharpe": 0.55,
+    "oos_sharpe": -0.55,
+    "source": "explore_special quintile sign-flip"
+  },
+  {
+    "strategy": "Butterfly curvature",
+    "is_sharpe": -0.37,
+    "oos_sharpe": null,
+    "source": "butterfly.py (net neg IS, dropped)"
+  },
+  {
+    "strategy": "Long-only cheap/carry tilt",
+    "is_sharpe": 0.4,
+    "oos_sharpe": -0.26,
+    "source": "long_tilt.py"
+  }
+]

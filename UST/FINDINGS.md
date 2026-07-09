@@ -157,6 +157,60 @@ tail risk that detonated in March 2020. This folder's honest deliverable is the
 validated data, the no-look-ahead engine, and the proof of what does *not*
 work — not a manufactured number.
 
+## Part 3 — "try everything": the full battery
+
+Pushed further across every family that could plausibly work on this data.
+Futures/CTD-basis (the classic high-Sharpe RV) could not be tested — Treasury
+futures history is not reachable here (Yahoo rate-limits, Stooq bot-walls), and
+continuous futures can't form a clean CTD basis anyway. What *was* testable:
+
+- **Month-end index extension** (`battery_diag.py`): long-duration bonds richen
+  into month-end — but only ~0.09 bp/day, too small to trade net.
+- **Auction / on-the-run roll** (`battery_diag.py`): OTR cheapens vs off-the-runs
+  by ~0.05 bp/day — real, far too small for costs.
+- **Curve butterfly** (`butterfly.py`): curvature genuinely mean-reverts (weekly
+  Δ autocorr −0.37), but the cash-bond implementation nets **negative** — the
+  edge (gross Sharpe ~0.2) is thinner than the trading cost.
+- **Long-only cheap/carry tilt** (`long_tilt.py`): the one net-**positive**
+  in-sample result (active Sharpe +0.40 over the duration-matched ladder, low
+  turnover) — but it too flips to **−0.26 out-of-sample**.
+
+### The capstone: in-sample vs out-of-sample, every family
+
+![scorecard](results/scorecard.png)
+
+| strategy | IS net Sharpe | OOS net Sharpe |
+|---|---:|---:|
+| Curve+carry RV combo | +0.55 | −1.41 |
+| Carry sleeve alone | +0.38 | −2.16 |
+| Value-z sleeve alone | +0.41 | −0.36 |
+| Local RV (lag≥1, net) | −1.27 | −1.51 |
+| Momentum (idio) | −1.22 | — |
+| Specialness L/S | +0.55 | −0.55 |
+| Butterfly curvature | −0.37 | — |
+| Long-only cheap/carry tilt | +0.40 | −0.26 |
+
+**Every family with a positive in-sample Sharpe collapses to negative
+out-of-sample.** That consistency across eight structurally different strategies
+is itself the finding: these are not robust risk premia, they are artifacts of
+the 2010s ZIRP/QE regime that the 2020s hiking/QT regime broke. Nothing comes
+within shouting distance of Sharpe 3 — and the honest way to show that is this
+table, not a cherry-picked curve.
+
+### What an honest 3+ would actually require
+
+- **Leverage + private repo financing.** The real high-Sharpe Treasury trades
+  (cash/futures basis, matched-book RV) are financing trades run at 10–50×
+  leverage on special repo rates that are not free data — and whose headline
+  Sharpe omits the tail that detonated in March 2020 and again in the 2019 repo
+  spike. A 3 there is a 3-until-it's-a-ruin.
+- **Sub-daily execution.** Capturing the mark reversion in Part 1 for real needs
+  intraday quotes and a latency budget, not end-of-day files.
+
+Neither is reachable from free end-of-day data, which is why this folder's
+honest deliverable is the validated dataset, the no-look-ahead cost-aware
+engine, and the proof of what does *not* work.
+
 ## Reproduce
 
 ```bash
@@ -167,4 +221,8 @@ python3 src/download_seclending.py # Fed per-CUSIP specialness history
 python3 src/build_special.py       # merge specialness onto the price panel
 python3 src/explore_special.py     # specialness IC / L/S test (IS)
 python3 src/special_figure.py      # scarcity-vs-return figure (IS + OOS)
+python3 src/battery_diag.py        # month-end / roll / curvature diagnostics
+python3 src/butterfly.py           # curve butterfly sweep (IS); --oos to confirm
+python3 src/long_tilt.py           # long-only tilt sweep (IS); --oos to confirm
+python3 src/scorecard.py           # the IS-vs-OOS capstone figure
 ```
