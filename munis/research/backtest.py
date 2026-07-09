@@ -84,18 +84,28 @@ def run_signal(bonds: dict[str, pd.DataFrame],
                min_hold: int = 10,
                date_lo: pd.Timestamp | None = None,
                date_hi: pd.Timestamp | None = None,
-               per_bond_cooldown: int = 30) -> list[Fill]:
+               per_bond_cooldown: int = 30,
+               use_gate: bool = True,
+               restrict: set[str] | None = None) -> list[Fill]:
     """Generic engine: signal_fn(g) -> boolean Series aligned to g.index
-    (True = enter at the NEXT day's S print)."""
+    (True = enter at the NEXT day's S print).
+
+    use_gate=False disables the trailing-liquidity eligibility filter (for
+    the new-issue family, which by definition has no trailing history at
+    entry). restrict, if given, limits trading to that set of securities.
+    """
     fills: list[Fill] = []
     for six, g in bonds.items():
+        if restrict is not None and six not in restrict:
+            continue
         coupon = g["coupon"].iloc[0]
         if np.isnan(coupon):
             coupon = 4.5  # conservative default; universe median ~4.9
         sig = signal_fn(g)
         if sig is None:
             continue
-        idx = np.flatnonzero(sig.to_numpy() & g["eligible"].to_numpy())
+        gate = g["eligible"].to_numpy() if use_gate else np.ones(len(g), bool)
+        idx = np.flatnonzero(sig.to_numpy() & gate)
         last_exit: pd.Timestamp | None = None
         for i in idx:
             if i + 1 >= len(g):
@@ -143,9 +153,11 @@ def matched_random_control(bonds: dict[str, pd.DataFrame],
                            fills: list[Fill],
                            n_draws: int = 20,
                            min_hold: int = 10,
-                           seed: int = 11) -> pd.DataFrame:
-    """For each real fill, draw random eligible entry days in the same bond
-    within the same evaluation window, run the identical exit logic."""
+                           seed: int = 11,
+                           use_gate: bool = True) -> pd.DataFrame:
+    """For each real fill, draw random entry days in the same bond within the
+    same evaluation window, run the identical exit logic. Candidate days
+    respect the same liquidity gate as the strategy (use_gate)."""
     rng = np.random.default_rng(seed)
     if not fills:
         return pd.DataFrame()
@@ -154,7 +166,8 @@ def matched_random_control(bonds: dict[str, pd.DataFrame],
     rows = []
     for f in fills:
         g = bonds[f.six]
-        cand = g[g["eligible"] & g["s_px"].notna()
+        gate = g["eligible"] if use_gate else True
+        cand = g[gate & g["s_px"].notna()
                  & (g["date"] >= lo) & (g["date"] <= hi)]
         if cand.empty:
             continue

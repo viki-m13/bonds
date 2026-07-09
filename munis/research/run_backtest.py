@@ -46,12 +46,28 @@ def load_bonds():
     return bt.prepare(pnl, coupons)
 
 
-def eval_config(bonds, family: str, params: dict, lo, hi) -> dict:
+def uncapped_bonds() -> set[str]:
+    """Securities whose recorded history is NOT truncated by EMMA's
+    5000-trade cap, so their first observed print is at/near issuance
+    (required for a meaningful new-issue test)."""
+    meta = pd.read_csv(ROOT / "data" / "universe" / "download_meta.csv")
+    return set(meta.loc[meta["n_trades"] < 5000, "six"])
+
+
+def eval_config(bonds, family: str, params: dict, lo, hi,
+                uncapped: set[str] | None = None) -> dict:
     fn = FACTORIES[family](**params)
+    # New issues have no trailing history at entry, so the liquidity gate is
+    # disabled and trading is restricted to bonds whose recorded history
+    # starts at issuance (uncapped by EMMA's 5000-trade limit).
+    use_gate = family != "new_issue"
+    restrict = uncapped if family == "new_issue" else None
     fills = bt.run_signal(bonds, fn, min_hold=MIN_HOLDS[family],
-                          date_lo=lo, date_hi=hi)
+                          date_lo=lo, date_hi=hi, use_gate=use_gate,
+                          restrict=restrict)
     ctl = bt.matched_random_control(bonds, fills,
-                                    min_hold=MIN_HOLDS[family])
+                                    min_hold=MIN_HOLDS[family],
+                                    use_gate=use_gate)
     row = bt.summarize(fills, f"{family} {params}", control=ctl)
     row["family"] = family
     row["params"] = json.dumps(params)
@@ -59,11 +75,13 @@ def eval_config(bonds, family: str, params: dict, lo, hi) -> dict:
 
 
 def stage_is(bonds) -> None:
+    uncapped = uncapped_bonds()
     rows = []
     for family, grid in GRIDS.items():
         for params in grid:
             print(f"IS: {family} {params}", flush=True)
-            rows.append(eval_config(bonds, family, params, IS_LO, IS_HI))
+            rows.append(eval_config(bonds, family, params, IS_LO, IS_HI,
+                                    uncapped=uncapped))
     df = pd.DataFrame(rows)
     df.to_csv(RESULTS_DIR / "is_grid.csv", index=False)
     print(df.to_string(index=False))
@@ -73,6 +91,7 @@ def stage_oos(bonds) -> None:
     if not LOCKED.exists():
         sys.exit("locked_configs.json missing — lock IS choices first")
     locked = json.loads(LOCKED.read_text())
+    uncapped = uncapped_bonds()
     rows = []
     for entry in locked:
         family, params = entry["family"], entry["params"]
@@ -81,7 +100,8 @@ def stage_oos(bonds) -> None:
             ("survivorship-free 2025-07-08..", SURV_FREE_LO, OOS_HI),
         ]:
             print(f"OOS: {family} {params} [{label}]", flush=True)
-            row = eval_config(bonds, family, params, lo, hi)
+            row = eval_config(bonds, family, params, lo, hi,
+                              uncapped=uncapped)
             row["window"] = label
             rows.append(row)
     df = pd.DataFrame(rows)

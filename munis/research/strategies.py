@@ -63,9 +63,9 @@ def new_issue(max_age_days: int):
     (new-issue concession capture)."""
     def fn(g: pd.DataFrame) -> pd.Series | None:
         age = (g["date"] - g["date"].iloc[0]).dt.days
-        # a single entry window: first day within the age band with S flow
-        sig = (age >= 1) & (age <= max_age_days)
-        return sig & sig.cumsum().eq(sig.cumsum().where(sig).min())
+        # fire across the post-issue age band; the engine's per-bond cooldown
+        # and first-available-S-print rule collapse this to one entry.
+        return ((age >= 1) & (age <= max_age_days)).fillna(False)
     return fn
 
 
