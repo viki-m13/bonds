@@ -79,6 +79,55 @@ def prepare(panel: pd.DataFrame, coupons: pd.Series) -> dict[str, pd.DataFrame]:
     return out
 
 
+class _Arr:
+    """Precomputed numpy view of one bond, for fast exit lookups."""
+    __slots__ = ("day", "s_px", "p_px", "elig", "p_day", "p_px_at",
+                 "s_day", "s_px_at", "coupon", "n")
+
+    def __init__(self, g: pd.DataFrame):
+        self.day = g["date"].values.astype("datetime64[D]").astype(np.int64)
+        self.s_px = g["s_px"].to_numpy(float) if "s_px" in g \
+            else np.full(len(g), np.nan)
+        self.p_px = g["p_px"].to_numpy(float) if "p_px" in g \
+            else np.full(len(g), np.nan)
+        self.elig = g["eligible"].to_numpy(bool)
+        c = g["coupon"].iloc[0]
+        self.coupon = 4.5 if pd.isna(c) else float(c)
+        self.n = len(g)
+        pmask = ~np.isnan(self.p_px)
+        self.p_day = self.day[pmask]
+        self.p_px_at = self.p_px[pmask]
+        smask = ~np.isnan(self.s_px)
+        self.s_day = self.day[smask]
+        self.s_px_at = self.s_px[smask]
+
+
+_ARR_CACHE: dict[int, _Arr] = {}
+
+
+def _arr(six: str, g: pd.DataFrame) -> _Arr:
+    a = _ARR_CACHE.get(id(g))
+    if a is None:
+        a = _Arr(g)
+        _ARR_CACHE[id(g)] = a
+    return a
+
+
+def _exit_for(a: _Arr, entry_day: int, min_hold: int, hard: int):
+    """(exit_day, exit_px, stale) for an entry, or None. Vectorized:
+    first P print in [entry+min_hold, entry+hard]; else last P print
+    on/before entry+hard (stale)."""
+    lo = entry_day + min_hold
+    hi = entry_day + hard
+    j = np.searchsorted(a.p_day, lo, side="left")
+    if j < len(a.p_day) and a.p_day[j] <= hi:
+        return int(a.p_day[j]), float(a.p_px_at[j]), False
+    k = np.searchsorted(a.p_day, hi, side="right") - 1
+    if k >= 0:
+        return hi, float(a.p_px_at[k]), True
+    return None
+
+
 def run_signal(bonds: dict[str, pd.DataFrame],
                signal_fn,
                min_hold: int = 10,
@@ -96,58 +145,44 @@ def run_signal(bonds: dict[str, pd.DataFrame],
     entry). restrict, if given, limits trading to that set of securities.
     """
     hard = MAX_HOLD if max_hold is None else max_hold
+    lo_day = None if date_lo is None else \
+        np.datetime64(date_lo, "D").astype(np.int64)
+    hi_day = None if date_hi is None else \
+        np.datetime64(date_hi, "D").astype(np.int64)
     fills: list[Fill] = []
     for six, g in bonds.items():
         if restrict is not None and six not in restrict:
             continue
-        coupon = g["coupon"].iloc[0]
-        if np.isnan(coupon):
-            coupon = 4.5  # conservative default; universe median ~4.9
         sig = signal_fn(g)
         if sig is None:
             continue
-        gate = g["eligible"].to_numpy() if use_gate else np.ones(len(g), bool)
+        a = _arr(six, g)
+        gate = a.elig if use_gate else np.ones(a.n, bool)
         idx = np.flatnonzero(sig.to_numpy() & gate)
-        last_exit: pd.Timestamp | None = None
+        last_exit_day = -10**9
         for i in idx:
-            if i + 1 >= len(g):
+            sig_day = a.day[i]
+            # entry: first S print strictly after the signal day, within 7d
+            j = np.searchsorted(a.s_day, sig_day, side="right")
+            if j >= len(a.s_day) or a.s_day[j] - sig_day > 7:
                 continue
-            # entry: next row with an S print within 7 calendar days
-            sub = g.iloc[i + 1:]
-            sub = sub[(sub["date"] - g["date"].iloc[i]).dt.days <= 7]
-            sub = sub[sub["s_px"].notna()]
-            if sub.empty:
+            entry_day = int(a.s_day[j])
+            entry_px = float(a.s_px_at[j])
+            if lo_day is not None and entry_day < lo_day:
                 continue
-            e = sub.iloc[0]
-            entry_date, entry_px = e["date"], float(e["s_px"])
-            if date_lo is not None and entry_date < date_lo:
+            if hi_day is not None and entry_day > hi_day:
                 continue
-            if date_hi is not None and entry_date > date_hi:
+            if entry_day - last_exit_day < per_bond_cooldown:
                 continue
-            if last_exit is not None and (entry_date - last_exit).days < per_bond_cooldown:
+            ex = _exit_for(a, entry_day, min_hold, hard)
+            if ex is None:
                 continue
-            # exit: first P print after min_hold, hard stop `hard`
-            after = g[(g["date"] >= entry_date + pd.Timedelta(days=min_hold))
-                      & (g["date"] <= entry_date + pd.Timedelta(days=hard))]
-            px = after[after["p_px"].notna()]
-            if len(px):
-                x = px.iloc[0]
-                fills.append(Fill(six, entry_date, entry_px,
-                                  x["date"], float(x["p_px"]),
-                                  float(coupon), False))
-                last_exit = x["date"]
-            else:
-                # stale exit: last known P print anywhere before the stop
-                hist = g[(g["date"] <= entry_date + pd.Timedelta(days=hard))
-                         & g["p_px"].notna()]
-                if hist.empty:
-                    continue
-                x = hist.iloc[-1]
-                exit_date = entry_date + pd.Timedelta(days=hard)
-                fills.append(Fill(six, entry_date, entry_px,
-                                  exit_date, float(x["p_px"]),
-                                  float(coupon), True))
-                last_exit = exit_date
+            exit_day, exit_px, stale = ex
+            fills.append(Fill(six,
+                              pd.Timestamp(entry_day, unit="D"), entry_px,
+                              pd.Timestamp(exit_day, unit="D"), exit_px,
+                              a.coupon, stale))
+            last_exit_day = exit_day
     return fills
 
 
@@ -165,39 +200,30 @@ def matched_random_control(bonds: dict[str, pd.DataFrame],
     rng = np.random.default_rng(seed)
     if not fills:
         return pd.DataFrame()
-    lo = min(f.entry_date for f in fills)
-    hi = max(f.entry_date for f in fills)
+    lo_day = np.datetime64(min(f.entry_date for f in fills), "D").astype(np.int64)
+    hi_day = np.datetime64(max(f.entry_date for f in fills), "D").astype(np.int64)
     rows = []
-    for f in fills:
+    for mi, f in enumerate(fills):
         g = bonds[f.six]
-        gate = g["eligible"] if use_gate else True
-        cand = g[gate & g["s_px"].notna()
-                 & (g["date"] >= lo) & (g["date"] <= hi)]
-        if cand.empty:
+        a = _arr(f.six, g)
+        gmask = a.elig if use_gate else np.ones(a.n, bool)
+        cmask = gmask & (~np.isnan(a.s_px)) & (a.day >= lo_day) & (a.day <= hi_day)
+        cidx = np.flatnonzero(cmask)
+        if len(cidx) == 0:
             continue
-        take = cand.sample(n=min(n_draws, len(cand)), random_state=int(
-            rng.integers(0, 2**31)))
-        for _, e in take.iterrows():
-            entry_date, entry_px = e["date"], float(e["s_px"])
-            after = g[(g["date"] >= entry_date + pd.Timedelta(days=min_hold))
-                      & (g["date"] <= entry_date + pd.Timedelta(days=hard))]
-            px = after[after["p_px"].notna()]
-            coupon = f.coupon
-            if len(px):
-                x = px.iloc[0]
-                ctl = Fill(f.six, entry_date, entry_px, x["date"],
-                           float(x["p_px"]), coupon, False)
-            else:
-                hist = g[(g["date"] <= entry_date + pd.Timedelta(days=hard))
-                         & g["p_px"].notna()]
-                if hist.empty:
-                    continue
-                x = hist.iloc[-1]
-                ctl = Fill(f.six, entry_date, entry_px,
-                           entry_date + pd.Timedelta(days=hard),
-                           float(x["p_px"]), coupon, True)
-            rows.append({"six": f.six, "ret": ctl.ret,
-                         "hold": ctl.hold_days, "match": id(f)})
+        take = cidx if len(cidx) <= n_draws else rng.choice(
+            cidx, size=n_draws, replace=False)
+        for i in take:
+            entry_day = int(a.day[i])
+            entry_px = float(a.s_px[i])
+            ex = _exit_for(a, entry_day, min_hold, hard)
+            if ex is None:
+                continue
+            exit_day, exit_px, stale = ex
+            hold = exit_day - entry_day
+            acc = f.coupon / 100.0 / 365.0 * hold * 100.0
+            ret = (exit_px - entry_px + acc) / entry_px
+            rows.append({"six": f.six, "ret": ret, "hold": hold, "match": mi})
     return pd.DataFrame(rows)
 
 

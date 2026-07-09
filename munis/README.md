@@ -75,11 +75,21 @@ Fixed before results were produced (see `research/backtest.py` docstring):
 - **Chart-endpoint granularity.** Per-trade timestamps are dates;
   same-day ordering is unknown (handled by the next-day-fill rule).
 
-## Results
+## Results — headline
 
-See `research/FINDINGS.md` (written after the OOS run — includes the
-validation verdict, IS grid, locked configs, OOS results, and the
-conclusion).
+Short-term price-action timing **fails** (the dealer spread eats every
+round trip). The strategy that **works**, validated honestly OOS:
+
+> **Deep-dislocation reversion** — buy when a bond prints ≥3 points below
+> its own trailing 60-day median (a forced-seller dislocation), hold ~1
+> year, sell into a customer bid. Full-sample 2013–2025: 1,350 trades,
+> **73% win, +4.4% mean/trade, +3.1% excess vs a matched random-entry
+> control (p<0.001)**. It loses in sustained rate selloffs (2022), so it
+> is a mean-reversion strategy, not all-weather.
+
+Full path, per-era robustness, OOS lock, and caveats in
+[`research/FINDINGS.md`](research/FINDINGS.md). Today's live screen:
+`research/current_picks.py`.
 
 ## Reproduce
 
