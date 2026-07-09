@@ -1,0 +1,31 @@
+[
+  {
+    "family": "firesale",
+    "params": {
+      "discount": 2.5,
+      "require_sell_pressure": true
+    },
+    "is_n": 1727,
+    "is_excess_vs_control": 0.0003950858945218,
+    "is_excess_p_boot": 0.378
+  },
+  {
+    "family": "momentum",
+    "params": {
+      "window_days": 60,
+      "thresh": 1.0
+    },
+    "is_n": 3707,
+    "is_excess_vs_control": -0.000124418738521,
+    "is_excess_p_boot": 0.656
+  },
+  {
+    "family": "new_issue",
+    "params": {
+      "max_age_days": 10
+    },
+    "is_n": 268,
+    "is_excess_vs_control": 0.003934341389013,
+    "is_excess_p_boot": 0.0715
+  }
+]
