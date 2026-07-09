@@ -86,7 +86,8 @@ def run_signal(bonds: dict[str, pd.DataFrame],
                date_hi: pd.Timestamp | None = None,
                per_bond_cooldown: int = 30,
                use_gate: bool = True,
-               restrict: set[str] | None = None) -> list[Fill]:
+               restrict: set[str] | None = None,
+               max_hold: int | None = None) -> list[Fill]:
     """Generic engine: signal_fn(g) -> boolean Series aligned to g.index
     (True = enter at the NEXT day's S print).
 
@@ -94,6 +95,7 @@ def run_signal(bonds: dict[str, pd.DataFrame],
     the new-issue family, which by definition has no trailing history at
     entry). restrict, if given, limits trading to that set of securities.
     """
+    hard = MAX_HOLD if max_hold is None else max_hold
     fills: list[Fill] = []
     for six, g in bonds.items():
         if restrict is not None and six not in restrict:
@@ -124,9 +126,9 @@ def run_signal(bonds: dict[str, pd.DataFrame],
                 continue
             if last_exit is not None and (entry_date - last_exit).days < per_bond_cooldown:
                 continue
-            # exit: first P print after min_hold, hard stop MAX_HOLD
+            # exit: first P print after min_hold, hard stop `hard`
             after = g[(g["date"] >= entry_date + pd.Timedelta(days=min_hold))
-                      & (g["date"] <= entry_date + pd.Timedelta(days=MAX_HOLD))]
+                      & (g["date"] <= entry_date + pd.Timedelta(days=hard))]
             px = after[after["p_px"].notna()]
             if len(px):
                 x = px.iloc[0]
@@ -136,12 +138,12 @@ def run_signal(bonds: dict[str, pd.DataFrame],
                 last_exit = x["date"]
             else:
                 # stale exit: last known P print anywhere before the stop
-                hist = g[(g["date"] <= entry_date + pd.Timedelta(days=MAX_HOLD))
+                hist = g[(g["date"] <= entry_date + pd.Timedelta(days=hard))
                          & g["p_px"].notna()]
                 if hist.empty:
                     continue
                 x = hist.iloc[-1]
-                exit_date = entry_date + pd.Timedelta(days=MAX_HOLD)
+                exit_date = entry_date + pd.Timedelta(days=hard)
                 fills.append(Fill(six, entry_date, entry_px,
                                   exit_date, float(x["p_px"]),
                                   float(coupon), True))
@@ -154,10 +156,12 @@ def matched_random_control(bonds: dict[str, pd.DataFrame],
                            n_draws: int = 20,
                            min_hold: int = 10,
                            seed: int = 11,
-                           use_gate: bool = True) -> pd.DataFrame:
+                           use_gate: bool = True,
+                           max_hold: int | None = None) -> pd.DataFrame:
     """For each real fill, draw random entry days in the same bond within the
     same evaluation window, run the identical exit logic. Candidate days
     respect the same liquidity gate as the strategy (use_gate)."""
+    hard = MAX_HOLD if max_hold is None else max_hold
     rng = np.random.default_rng(seed)
     if not fills:
         return pd.DataFrame()
@@ -176,7 +180,7 @@ def matched_random_control(bonds: dict[str, pd.DataFrame],
         for _, e in take.iterrows():
             entry_date, entry_px = e["date"], float(e["s_px"])
             after = g[(g["date"] >= entry_date + pd.Timedelta(days=min_hold))
-                      & (g["date"] <= entry_date + pd.Timedelta(days=MAX_HOLD))]
+                      & (g["date"] <= entry_date + pd.Timedelta(days=hard))]
             px = after[after["p_px"].notna()]
             coupon = f.coupon
             if len(px):
@@ -184,13 +188,13 @@ def matched_random_control(bonds: dict[str, pd.DataFrame],
                 ctl = Fill(f.six, entry_date, entry_px, x["date"],
                            float(x["p_px"]), coupon, False)
             else:
-                hist = g[(g["date"] <= entry_date + pd.Timedelta(days=MAX_HOLD))
+                hist = g[(g["date"] <= entry_date + pd.Timedelta(days=hard))
                          & g["p_px"].notna()]
                 if hist.empty:
                     continue
                 x = hist.iloc[-1]
                 ctl = Fill(f.six, entry_date, entry_px,
-                           entry_date + pd.Timedelta(days=MAX_HOLD),
+                           entry_date + pd.Timedelta(days=hard),
                            float(x["p_px"]), coupon, True)
             rows.append({"six": f.six, "ret": ctl.ret,
                          "hold": ctl.hold_days, "match": id(f)})

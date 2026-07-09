@@ -22,7 +22,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import backtest as bt  # noqa: E402
 import panel as panel_mod  # noqa: E402
-from strategies import FACTORIES, GRIDS, MIN_HOLDS  # noqa: E402
+from strategies import FACTORIES, GRIDS, MIN_HOLDS, MAX_HOLDS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCKED = Path(__file__).resolve().parent / "locked_configs.json"
@@ -34,6 +34,7 @@ IS_HI = bt.IS_END
 OOS_LO = pd.Timestamp("2023-01-01")
 OOS_HI = bt.OOS_END
 SURV_FREE_LO = pd.Timestamp("2025-07-08")
+DATA_END = pd.Timestamp("2026-07-08")   # last trade date in the panel
 
 
 def load_bonds():
@@ -62,12 +63,19 @@ def eval_config(bonds, family: str, params: dict, lo, hi,
     # starts at issuance (uncapped by EMMA's 5000-trade limit).
     use_gate = family != "new_issue"
     restrict = uncapped if family == "new_issue" else None
+    mh = MAX_HOLDS[family]
+    # Long-hold families need a full forward window; stop entries `mh` days
+    # before the data ends so every position exits on a real (non-stale)
+    # print rather than being truncated at the data boundary.
+    eff_hi = hi
+    if mh >= 180:
+        eff_hi = min(hi, DATA_END - pd.Timedelta(days=mh))
     fills = bt.run_signal(bonds, fn, min_hold=MIN_HOLDS[family],
-                          date_lo=lo, date_hi=hi, use_gate=use_gate,
-                          restrict=restrict)
+                          date_lo=lo, date_hi=eff_hi, use_gate=use_gate,
+                          restrict=restrict, max_hold=mh)
     ctl = bt.matched_random_control(bonds, fills,
                                     min_hold=MIN_HOLDS[family],
-                                    use_gate=use_gate)
+                                    use_gate=use_gate, max_hold=mh)
     row = bt.summarize(fills, f"{family} {params}", control=ctl)
     row["family"] = family
     row["params"] = json.dumps(params)

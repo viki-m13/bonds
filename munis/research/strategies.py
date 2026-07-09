@@ -69,6 +69,39 @@ def new_issue(max_age_days: int):
     return fn
 
 
+def value(ytw_cheap: float, window_days: int = 60):
+    """Own-history value / liquidity provision. Enter when the bond's
+    yield-to-worst today is at least `ytw_cheap` bp/100 above its trailing
+    `window_days` median YTW (i.e. it printed cheap relative to its own
+    recent level, typically because a customer is selling). Held long
+    (min_hold ~1y) to harvest reversion + carry rather than round-tripping
+    into the spread.
+
+    ytw_cheap is in yield POINTS (e.g. 0.15 = 15bp cheaper than trailing).
+    """
+    def fn(g: pd.DataFrame) -> pd.Series | None:
+        if "ytw" not in g:
+            return None
+        s = g.set_index("date")["ytw"]
+        med = s.rolling(f"{window_days}D", min_periods=5).median().shift(1)
+        sig = (s - med) >= ytw_cheap
+        return sig.reset_index(drop=True).fillna(False)
+    return fn
+
+
+def price_discount(discount: float, window_days: int = 60):
+    """Own-history price value. Enter when today's customer-buy price is at
+    least `discount` points below the trailing median mid. Held long."""
+    def fn(g: pd.DataFrame) -> pd.Series | None:
+        if "s_px" not in g:
+            return None
+        s = g.set_index("date")
+        med = s["mid"].rolling(f"{window_days}D", min_periods=5).median().shift(1)
+        sig = (s["s_px"] - med) <= -discount
+        return sig.reset_index(drop=True).fillna(False)
+    return fn
+
+
 def dealer_roundtrip():
     """Upper-bound diagnostic, NOT tradable by a customer: 'enter' whenever
     both sides printed (buy at P, sell at S same day would be the dealer's
@@ -81,6 +114,7 @@ def dealer_roundtrip():
 
 
 GRIDS = {
+    # short-hold timing families (round-trip into the spread; expected to fail)
     "firesale": [
         {"discount": 1.0, "require_sell_pressure": True},
         {"discount": 1.5, "require_sell_pressure": True},
@@ -95,12 +129,30 @@ GRIDS = {
         {"max_age_days": 10},
         {"max_age_days": 30},
     ],
+    # long-hold own-history value families (harvest reversion + carry)
+    "value": [
+        {"ytw_cheap": 0.10},
+        {"ytw_cheap": 0.20},
+        {"ytw_cheap": 0.35},
+        {"ytw_cheap": 0.50},
+    ],
+    "price_discount": [
+        {"discount": 1.0},
+        {"discount": 2.0},
+        {"discount": 3.0},
+    ],
 }
 
 FACTORIES = {
     "firesale": firesale,
     "momentum": momentum,
     "new_issue": new_issue,
+    "value": value,
+    "price_discount": price_discount,
 }
 
-MIN_HOLDS = {"firesale": 10, "momentum": 20, "new_issue": 30}
+# (min_hold, max_hold) in calendar days per family
+MIN_HOLDS = {"firesale": 10, "momentum": 20, "new_issue": 30,
+             "value": 365, "price_discount": 365}
+MAX_HOLDS = {"firesale": 120, "momentum": 120, "new_issue": 120,
+             "value": 455, "price_discount": 455}
