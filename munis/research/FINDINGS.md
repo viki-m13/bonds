@@ -129,6 +129,25 @@ average) nearly removes the 2022 losses and lifts full-sample excess to
 overlay, not baked into the core — filtering on the event that most
 motivated it (2022) risks curve-fitting, so we disclose both.
 
+## Equity curve vs MUB
+
+`equity_curve.py` builds an equal-weight portfolio of all open positions
+(cash when flat) and compares to MUB total return over 2013–2026
+(`equity_curve.png`):
+
+| | total | CAGR | maxDD |
+|---|--:|--:|--:|
+| Strategy | **+82.9%** | **4.62%** | −9.2% |
+| MUB (total return) | +31.8% | 2.09% | −13.7% |
+
+~$1 → ~$1.83 vs ~$1.32; relative wealth rises steadily (not one lucky
+year), with the 2022 stall visible. **Caveat:** munis don't print daily,
+so each trade's realized entry→exit return is spread geometrically across
+its ~1y hold — this smooths intra-trade volatility and **understates the
+true drawdown** (the −9.2% would be deeper under daily marks). Total
+return and CAGR are realized (real prints + coupon); the path smoothness
+is optimistic.
+
 ## Is it live right now?
 
 No — and that's the strategy working as designed. As of the last data
