@@ -66,14 +66,14 @@ def _maturity_seeds() -> list[tuple[str, str]]:
     lo_year = int(rows[0][0][:4])
     hi_year = int(rows[-1][0][:4])
     seeds = []
+    # 3-year steps with a +-2y ("2years") band => 1y overlap; fine enough
+    # that even the densest states stay under EMMA's result cap.
     y = lo_year
-    while y <= hi_year:  # 9-year steps, +-5y band => 1y overlap between tiles
-        target = f"{y}-06-30"
+    while y <= hi_year + 2:
         best = min(rows, key=lambda r: abs(
             (int(r[0][:4]) - y) * 12 + int(r[0][5:7]) - 6))
         seeds.append((best[0], best[1]))
-        y += 9
-    # make sure the long end is covered
+        y += 3
     seeds.append((rows[-1][0], rows[-1][1]))
     dedup = {}
     for m, s in seeds:
@@ -126,7 +126,7 @@ def main() -> None:
             for maturity, mseed in _maturity_seeds():
                 try:
                     res = client.find_similar(mseed, state,
-                                              maturity_band="5years")
+                                              maturity_band="2years")
                 except EmmaError as exc:
                     print(f"  {state} ~{maturity}: FAILED ({exc})", flush=True)
                     continue
