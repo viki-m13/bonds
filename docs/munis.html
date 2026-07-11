@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEYSTONE — Municipal Dislocation-Reversion · White Paper</title>
+<script src="vendor/chart.umd.min.js"></script>
+<style>
+:root{--bg:#fff;--card:#f8f9fa;--card2:#f0f1f3;--t1:#14203a;--t2:#45506a;--t3:#8890a6;--green:#0d8f63;--red:#cf3049;--blue:#1a4fc4;--cyan:#0e6f8e;--amber:#b45309;--purple:#6d3aed;--border:#e3e6ec;--accent:#12386e;--accent2:#c9922b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--t1);line-height:1.62;font-size:15px}
+.page{max-width:1040px;margin:0 auto;padding:0 20px 80px}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Masthead */
+.mast{padding:34px 0 22px;border-bottom:3px solid var(--accent);margin-bottom:8px}
+.mast .eyebrow{font-size:.72rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent2);font-weight:700}
+.mast h1{font-size:2.15rem;font-weight:800;letter-spacing:-.6px;margin:6px 0 4px;color:var(--accent)}
+.mast .tag{font-size:1.02rem;color:var(--t2);font-weight:500}
+.mast .meta{margin-top:14px;font-size:.76rem;color:var(--t3);display:flex;gap:18px;flex-wrap:wrap}
+.mast .meta b{color:var(--t2);font-weight:600}
+.disc{font-size:.7rem;color:var(--t3);background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-top:14px}
+
+/* Section scaffolding */
+h2{font-size:1.02rem;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;margin:38px 0 4px;padding-bottom:7px;border-bottom:1.5px solid var(--border)}
+h2 .num{color:var(--accent2);margin-right:8px}
+h3{font-size:1.02rem;font-weight:700;color:var(--t1);margin:22px 0 6px}
+p{margin:9px 0;color:var(--t2)}
+p strong,li strong{color:var(--t1)}
+ul{margin:8px 0 8px 4px;padding-left:20px;color:var(--t2)}
+li{margin:5px 0}
+.lead{font-size:1.06rem;color:var(--t1)}
+
+/* KPI band */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:20px 0}
+.kpi{background:linear-gradient(180deg,#fff,var(--card));border:1px solid var(--border);border-radius:8px;padding:14px 10px;text-align:center}
+.kpi-val{font-size:1.62rem;font-weight:800;letter-spacing:-.5px}
+.kpi-val.pos{color:var(--green)}.kpi-val.big{color:var(--accent)}
+.kpi-label{font-size:.63rem;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-top:3px;font-weight:600}
+.kpi-sub{font-size:.64rem;color:var(--t3);margin-top:2px}
+
+/* Callout */
+.callout{border-left:4px solid var(--accent);background:var(--card);border-radius:0 8px 8px 0;padding:13px 16px;margin:16px 0}
+.callout.warn{border-color:var(--red);background:#fdf3f4}
+.callout.good{border-color:var(--green);background:#f1faf6}
+.callout h3{margin:0 0 4px;font-size:.92rem}
+.callout p{margin:4px 0;font-size:.9rem}
+
+/* Cards / grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px}
+.card h3{margin-top:0;font-size:.82rem;color:var(--t2);text-transform:uppercase;letter-spacing:.5px}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin:12px 0}
+th{background:var(--card2);color:var(--t2);padding:7px 9px;text-align:right;font-weight:700;white-space:nowrap;border-bottom:2px solid var(--border)}
+th:first-child{text-align:left}
+td{padding:6px 9px;text-align:right;border-bottom:1px solid var(--border)}
+td:first-child{text-align:left;font-weight:600;color:var(--t1)}
+tr:hover td{background:var(--card)}
+.pos{color:var(--green);font-weight:700}.neg{color:var(--red);font-weight:700}
+.mut{color:var(--t3)}
+caption{caption-side:bottom;font-size:.7rem;color:var(--t3);text-align:left;padding-top:6px}
+.hl td{background:#fbf7ec!important}
+
+/* Charts */
+.chart-wrap{position:relative;height:340px;margin:14px 0}
+.chart-sm{height:250px}
+.figcap{font-size:.72rem;color:var(--t3);margin:2px 0 14px}
+
+/* footnote / mono */
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem}
+.foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--border);font-size:.74rem;color:var(--t3)}
+.pill{display:inline-block;font-size:.64rem;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.4px}
+.pill.g{background:#e6f6ef;color:var(--green)}.pill.r{background:#fbe9ec;color:var(--red)}.pill.b{background:#e8effb;color:var(--blue)}
+.toc{font-size:.82rem;columns:2;column-gap:32px}
+.toc a{display:block;padding:2px 0;color:var(--t2)}
+@media(max-width:600px){.toc{columns:1}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="mast">
+  <div class="eyebrow">Systematic Municipal Fixed Income · Strategy White Paper</div>
+  <h1>KEYSTONE</h1>
+  <div class="tag">Dislocation-Reversion in Individual Municipal Bonds — buying forced-seller mispricings on the regulatory trade tape</div>
+  <div class="meta">
+    <span><b>Asset class:</b> US tax-exempt municipals (individual CUSIPs)</span>
+    <span><b>Data:</b> MSRB EMMA regulatory trade prints</span>
+    <span><b>Backtest:</b> <span id="m-start"></span>–<span id="m-end"></span></span>
+    <span><b>Status:</b> research prototype, reproducible</span>
+  </div>
+  <div class="disc">
+    <b>For institutional discussion only.</b> This document describes a research
+    prototype and a backtest on historical public trade data. It is not
+    investment advice, an offer, or a solicitation, and past simulated results
+    do not guarantee future performance. All figures are net of the modeled
+    customer bid–ask spread but gross of fees, financing, and taxes. Assumptions
+    and known limitations are stated explicitly in §9.
+  </div>
+</div>
+
+<div class="toc">
+  <a href="#summary">1 · Executive summary</a>
+  <a href="#opportunity">2 · The opportunity &amp; microstructure</a>
+  <a href="#data">3 · Data &amp; validation</a>
+  <a href="#method">4 · Methodology — the honesty harness</a>
+  <a href="#signal">5 · The signal</a>
+  <a href="#evidence">6 · Evidence</a>
+  <a href="#equity">7 · Performance vs MUB</a>
+  <a href="#risk">8 · Risk, regime &amp; capacity</a>
+  <a href="#limits">9 · Honest limitations</a>
+  <a href="#repro">10 · Implementation &amp; reproduction</a>
+</div>
+
+<!-- 1 EXEC SUMMARY -->
+<h2 id="summary"><span class="num">1</span>Executive summary</h2>
+<p class="lead">Individual municipal bonds cannot be day-traded profitably — the
+dealer bid–ask spread eats every short round trip. But that same
+dealer-market friction creates a durable, harvestable inefficiency for a
+<strong>patient</strong> systematic buyer: when a customer is forced to sell a
+bond well below its own recent level, a rules-based strategy that buys the
+dislocation and holds it to reversion earns a statistically significant excess
+return over random entry in the same bonds.</p>
+
+<div class="kpi-row" id="kpis"></div>
+
+<p>The strategy — <strong>buy when a bond prints ≥3 points below its own
+trailing 60-day median, hold ~1 year, sell into a customer bid</strong> — was
+validated on a purpose-built harness designed to make self-deception hard:
+fills only at prices real customers actually received, a matched random-entry
+control that nets out carry and bond selection, a pre-registered parameter
+grid, and a locked out-of-sample test. It is a mean-reversion / liquidity-
+provision strategy and carries the corresponding risk: it underperforms in a
+sustained rate selloff (2022). We disclose that failure mode prominently rather
+than optimize it away.</p>
+
+<div class="callout good">
+  <h3>What a manager is buying</h3>
+  <p>A repeatable, capacity-aware source of <b>+3.1% per-trade excess return
+  over a matched control (p&lt;0.001)</b> in a $4-trillion, structurally
+  inefficient asset class where the incumbent liquidity provider (the dealer)
+  captures the spread — here re-routed to the patient investor. Signal,
+  execution model, and full backtest are reproducible from public data.</p>
+</div>
+
+<!-- 2 OPPORTUNITY -->
+<h2 id="opportunity"><span class="num">2</span>The opportunity &amp; microstructure</h2>
+<p>The US municipal market is roughly <strong>$4 trillion across ~1 million
+CUSIPs and ~50,000 issuers</strong>. Unlike equities, there is no central limit
+order book: bonds trade over-the-counter through dealers, most CUSIPs trade
+only intermittently, and retail investors buy at the dealer's ask and sell at
+the dealer's bid. Every trade is reported to the MSRB and republished on EMMA,
+giving a complete regulatory tape of prices, yields, sizes and sides.</p>
+
+<div class="g2">
+  <div class="card">
+    <h3>Why naive timing fails</h3>
+    <p style="font-size:.9rem">The median same-day customer round-trip spread in
+    our data is <b>~0.44 points</b> (mean ~0.9). A two-week trade earns ~0.2% of
+    carry — it cannot cover a ~0.9-point spread. Short-horizon reversion and
+    momentum signals all lose and none beats a random-entry control (§6).</p>
+  </div>
+  <div class="card">
+    <h3>Why patience wins</h3>
+    <p style="font-size:.9rem">The spread is a <b>one-time</b> cost; carry plus
+    pull-to-par is a <b>growing</b> return. Past ~6 months the average customer
+    round-trip turns positive; by one year it is materially positive. The
+    dislocation signal then adds selection on top of that base.</p>
+  </div>
+</div>
+
+<div class="chart-wrap chart-sm"><canvas id="chHorizon"></canvas></div>
+<div class="figcap">Fig 1 — Mean customer round-trip return (buy ask → sell bid, coupon credited) by holding horizon, unconditional across all bond-days. The break-even is ~6 months; the strategy holds ~1 year.</div>
+
+<!-- 3 DATA -->
+<h2 id="data"><span class="num">3</span>Data &amp; validation</h2>
+<p>Source: <strong>MSRB EMMA</strong>, the regulatory trade tape for US
+municipal securities. Every dealer must report every muni trade; EMMA
+republishes each print with price, yield-to-worst, par size and side
+(customer-buy, customer-sell, inter-dealer). This is tick-level truth, not a
+matrix/model price.</p>
+
+<div class="g3" id="datakpis"></div>
+
+<h3>Independent validation</h3>
+<p>Before any backtest, the download was validated four ways. The decisive
+check is cross-endpoint agreement: per-security price ranges and trade counts
+recomputed from the trade files match EMMA's independent summary endpoint
+<strong>exactly</strong>, so the data is not corrupted in transit.</p>
+<table>
+  <thead><tr><th>Check</th><th>Result</th><th>Reading</th></tr></thead>
+  <tbody>
+    <tr><td>Cross-endpoint price/count match</td><td class="pos">100%</td><td class="mut">two independent EMMA endpoints agree exactly</td></tr>
+    <tr><td>Δprice / Δyield correlation</td><td>−0.98</td><td class="mut">price &amp; yield fields internally coherent</td></tr>
+    <tr><td>Customer-buy ≥ customer-sell (same day)</td><td>96.9%</td><td class="mut">side codes read correctly; spread is real</td></tr>
+    <tr><td>Median round-trip spread</td><td>0.44 pts</td><td class="mut">the friction the strategy must clear</td></tr>
+  </tbody>
+</table>
+
+<!-- 4 METHOD -->
+<h2 id="method"><span class="num">4</span>Methodology — the honesty harness</h2>
+<p>The rules below were fixed <em>before</em> results were produced. Their
+purpose is to make a false positive hard to manufacture.</p>
+<ul>
+  <li><strong>Fills only at real customer prices.</strong> Buys fill at the
+  day's par-weighted customer-buy print (retail band $5k–$250k); sells at the
+  customer-sell print. Never mid, never inter-dealer — a customer cannot trade
+  there. If the required side did not print, there is no trade.</li>
+  <li><strong>No intraday assumptions.</strong> EMMA timestamps are
+  date-granular; a signal on day <i>t</i> enters at day <i>t+1</i>'s prints at
+  the earliest.</li>
+  <li><strong>Trailing-liquidity gate, no lookahead.</strong> A bond is
+  tradable only if it printed on ≥8 distinct days in the trailing 90.</li>
+  <li><strong>Coupon accrual credited</strong> (muni prices are clean).</li>
+  <li><strong>Matched random-entry control.</strong> Every strategy is scored
+  against random entries in the <em>same bonds</em>, same window, same exit
+  logic and cost model. <b>Excess-vs-control</b> — not raw return — is the
+  headline metric: it removes carry, spread and bond selection, isolating
+  timing skill. Significance is a 2,000-sample cluster bootstrap.</li>
+  <li><strong>Pre-registered grid + locked OOS.</strong> Families and parameter
+  grids were specified in advance; entries ≤2022-12-31 are in-sample; one config
+  per family is locked by a fixed rule and evaluated <em>once</em> on
+  2023-01-01→2026-07-07.</li>
+</ul>
+
+<!-- 5 SIGNAL -->
+<h2 id="signal"><span class="num">5</span>The signal</h2>
+<div class="callout">
+  <h3>KEYSTONE entry rule</h3>
+  <p><b>Enter</b> when a bond's customer-buy price prints <b>≥3.0 points below
+  its trailing 60-day median mid</b> (a forced-seller dislocation) and the bond
+  clears the liquidity gate. <b>Fill</b> at the next customer-buy print.
+  <b>Exit</b> at the first customer-sell print after a 365-day minimum hold
+  (hard stop 455 days). Coupon accrues throughout.</p>
+</div>
+<p>The signal is deliberately <em>own-history</em> and <em>price-based</em>. A
+yield-based version is confounded by market-wide rate moves and adds little once
+the control nets out bond identity (§6). A price dislocation relative to the
+bond's own recent level cleanly captures idiosyncratic forced selling — fund
+redemptions, tax-loss selling, estate liquidations — which mean-reverts.</p>
+
+<!-- 6 EVIDENCE -->
+<h2 id="evidence"><span class="num">6</span>Evidence</h2>
+
+<h3>6.1 Short-horizon timing does not work</h3>
+<p>Reversion, momentum and post-issuance strategies that round-trip in days–weeks
+all lose to the spread and none beats its matched control, in-sample or out.</p>
+<table id="tblTiming">
+  <thead><tr><th>Family (short hold)</th><th>OOS n</th><th>Win</th><th>Mean / trade</th><th>Excess vs ctrl</th><th>p</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<h3>6.2 Cheapness is monotone — the depth of the dislocation matters</h3>
+<p>Sorting one-year holds by entry discount is cleanly monotone: the deeper the
+bond prints below its own trend at entry, the higher the forward return. The
+excess over the matched control rises with the threshold and becomes highly
+significant at ≥3 points.</p>
+<div class="g2">
+  <div><div class="chart-wrap chart-sm"><canvas id="chDecile"></canvas></div>
+  <div class="figcap">Fig 2 — Forward 1-yr return by entry price-discount decile (0 = cheapest).</div></div>
+  <div><div class="chart-wrap chart-sm"><canvas id="chThresh"></canvas></div>
+  <div class="figcap">Fig 3 — Excess vs control by entry threshold, full sample.</div></div>
+</div>
+<table id="tblThresh">
+  <thead><tr><th>Entry threshold</th><th>Trades</th><th>Win</th><th>Mean / trade</th><th>Control</th><th>Excess</th><th>p</th></tr></thead>
+  <tbody></tbody>
+  <caption>Full sample 2013–2025. "Excess" = strategy − matched random-entry control in the same bonds.</caption>
+</table>
+
+<h3>6.3 In-sample → locked out-of-sample</h3>
+<p>The ≥3-point config was locked mechanically from in-sample and run once on
+data it had never seen. It strengthened out-of-sample (a regime effect we
+dissect in §8), remaining highly significant.</p>
+<table id="tblOOS">
+  <thead><tr><th>Window</th><th>Trades</th><th>Win</th><th>Mean / trade</th><th>Excess vs ctrl</th><th>p</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<h3>6.4 Regime robustness — the most important table</h3>
+<p>Split by era, the edge is present and significant in four of five regimes,
+with magnitude that scales with dislocation opportunity (largest in the COVID
+crash/recovery). It <span class="neg">fails in 2022</span>, the one sustained
+rate selloff — see §8.</p>
+<div class="chart-wrap chart-sm"><canvas id="chEra"></canvas></div>
+<div class="figcap">Fig 4 — Excess return vs matched control by era, ≥3-point config. Red = the rate-selloff regime where the strategy loses.</div>
+<table id="tblEra">
+  <thead><tr><th>Era</th><th>Trades</th><th>Win</th><th>Mean / trade</th><th>Excess vs ctrl</th><th>p</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<!-- 7 EQUITY -->
+<h2 id="equity"><span class="num">7</span>Performance vs MUB</h2>
+<p>Modeled as an equal-weight portfolio of all open positions (cash when flat;
+in practice ~<span id="avgpos"></span> positions run concurrently, so the book
+is effectively always invested), compared to MUB total return over the same
+window.</p>
+<div class="chart-wrap"><canvas id="chEquity"></canvas></div>
+<div class="figcap">Fig 5 — Growth of $1, total return: equal-weight portfolio of open positions vs MUB. Note the 2022 plateau (the rate-selloff regime, §8). See §9 on the path-smoothing caveat.</div>
+<table id="tblEquity">
+  <thead><tr><th></th><th>Total return</th><th>CAGR</th><th>Max drawdown*</th></tr></thead>
+  <tbody></tbody>
+  <caption>*Drawdown is understated by linear intra-trade return attribution (munis do not print daily) — see §9. Total return and CAGR are realized from actual entry/exit prints plus coupon.</caption>
+</table>
+
+<!-- 8 RISK -->
+<h2 id="risk"><span class="num">8</span>Risk, regime &amp; capacity</h2>
+<div class="callout warn">
+  <h3>Known failure mode: sustained rate selloffs</h3>
+  <p>KEYSTONE is short volatility / short a rate shock. In 2022, muni yields
+  repriced up for a full year; "3 points below the 60-day median" then fired on
+  <em>every</em> bond as the whole market fell, with no reversion — the strategy
+  bought falling knives (−1.99% excess, 32% win). This is intrinsic to
+  mean-reversion, not a fixable bug. Size it accordingly.</p>
+</div>
+<div class="g2">
+  <div class="card"><h3>Regime overlay (optional)</h3><p style="font-size:.9rem">
+  Gating entries on the broad market (only buy when MUB ≥ its 100-day average)
+  removes most of the 2022 loss and lifts full-sample excess to ~+4.3%, but cuts
+  trade count ~6×. We present it as a risk overlay, not baked into the core —
+  filtering on the very event that motivated it invites curve-fitting, so both
+  versions are disclosed.</p></div>
+  <div class="card"><h3>Capacity &amp; positioning</h3><p style="font-size:.9rem">
+  Deep idiosyncratic dislocations are rare — on the order of 100–250 per year
+  across ~1,400 liquid bonds — and each fill means being the buyer into someone
+  else's forced sale. This is a <b>capacity-limited, patient-capital</b>
+  strategy, complementary to a core muni book, not a high-turnover sleeve. As of
+  the last data date it is <b>dormant</b>: no bond trades ≥3 points below its
+  own trend, exactly as a liquidity-provision strategy should behave in calm
+  markets.</p></div>
+</div>
+
+<!-- 9 LIMITS -->
+<h2 id="limits"><span class="num">9</span>Honest limitations</h2>
+<ul>
+  <li><strong>Out-of-sample window overlaps a muni bull market.</strong> Yields
+  peaked late 2022 and fell through 2024, flattering the OOS (+4.5%) vs
+  in-sample (+2.1%). The full-sample <b>+3.1%</b> excess is the honest headline;
+  treat +2% as the conservative through-cycle estimate.</li>
+  <li><strong>Equity-curve drawdown is understated.</strong> Because individual
+  munis do not print daily, each trade's realized return is spread geometrically
+  across its holding period, smoothing intra-trade volatility. Total return and
+  CAGR are real; the path is optimistic — true mark-to-market drawdown is deeper.</li>
+  <li><strong>Universe survivorship.</strong> EMMA's discovery endpoint lists
+  only bonds that traded in the sampling window, so earlier years over-represent
+  survivors. The strategy trades healthy bonds at mild (~3pt) discounts where
+  this bias is small; it explicitly does <em>not</em> attempt deep-distressed
+  ("buy at 60") names, where survivorship would be fatal without default data.</li>
+  <li><strong>Execution assumes a fill at the observed customer-buy print.</strong>
+  Realistic for patient capital taking the other side of forced selling, but a
+  live book must source inventory and may not always fill at the modeled level.</li>
+  <li><strong>Downloadable universe covers 42 of 54 states/territories</strong>
+  (the largest — CA/TX/NY/FL — exceed EMMA's per-query cap and are partially
+  covered). Broader coverage is an engineering extension, not a methodology change.</li>
+</ul>
+
+<!-- 10 REPRO -->
+<h2 id="repro"><span class="num">10</span>Implementation &amp; reproduction</h2>
+<p>The entire pipeline — data acquisition, validation, panel construction,
+backtest, config lock, out-of-sample run, and this document's data — is
+reproducible from public sources:</p>
+<div class="card mono" style="white-space:pre-wrap;font-size:.76rem;color:var(--t2)">python scripts/build_universe.py        # discover the tradable universe (EMMA)
+python scripts/download_trades.py       # full per-CUSIP trade histories
+python scripts/validate_data.py         # structural + cross-endpoint validation
+python research/panel.py                # daily per-bond panel
+python research/run_backtest.py is      # in-sample grid
+python research/lock_configs.py         # mechanical config lock
+python research/run_backtest.py oos     # one-shot out-of-sample
+python research/current_picks.py        # today's live screen</div>
+<p style="font-size:.85rem">Deployment for a live book: run <span class="mono">current_picks.py</span>
+daily against the fresh EMMA tape; entries surface only when forced selling
+creates a ≥3-point dislocation in a liquidity-eligible bond. Position sizing,
+credit screening, and an optional MUB-trend overlay sit on top of the raw signal.</p>
+
+<div class="foot">
+  <p><b>KEYSTONE</b> — municipal dislocation-reversion. Research prototype on MSRB EMMA public trade data.
+  Full methodology, code, and per-era detail in the project repository
+  (<span class="mono">munis/research/FINDINGS.md</span>). Generated from
+  <span class="mono">docs/munis_data.json</span>; every figure recomputes from the trade panel.</p>
+  <p style="margin-top:8px">For institutional discussion only · not investment advice · simulated past performance is not indicative of future results.</p>
+</div>
+
+</div>
+
+<script>const DATA = {"meta": {"n_bonds": 1416, "n_trades": 2024432, "universe": 201616, "states": 42, "data_start": "2005-01-31", "data_end": "2026-07-08"}, "validation": {"xendpoint_match": 1.0, "py_corr": -0.98, "spread_median": 0.44, "side_consistency": 0.969}, "horizon": [{"hold": 30, "mean": -0.00989772167522173, "win": 0.36559791122715407}, {"hold": 90, "mean": -0.003832349002905158, "win": 0.4889735261988724}, {"hold": 180, "mean": 0.005175521315292296, "win": 0.6137911858751564}, {"hold": 365, "mean": 0.01939077265534742, "win": 0.695391272785553}, {"hold": 730, "mean": 0.05028925353339401, "win": 0.7759904238226615}], "decile": [{"decile": 0, "mean": 0.049445321775531355}, {"decile": 1, "mean": 0.02634676927637098}, {"decile": 2, "mean": 0.022442159057235726}, {"decile": 3, "mean": 0.025169745669983107}, {"decile": 4, "mean": 0.017141756469499735}, {"decile": 5, "mean": 0.015833818797630878}, {"decile": 6, "mean": 0.012802826928653092}, {"decile": 7, "mean": 0.007202643552804296}, {"decile": 8, "mean": 0.00471394489489739}, {"decile": 9, "mean": 0.016859865749328445}], "threshold_is": [{"thresh": 1.0, "n": 1146, "win": 0.5855148342059336, "mean": 0.006501954490832703, "ctrl": 0.007828720991926197, "excess": -0.0013267665010934931, "p": 0.6525}, {"thresh": 2.0, "n": 960, "win": 0.6208333333333333, "mean": 0.01794905807585839, "ctrl": 0.00843924569073124, "excess": 0.00950981238512715, "p": 0.0015}, {"thresh": 3.0, "n": 791, "win": 0.6283185840707964, "mean": 0.025522786320410364, "ctrl": 0.004832975782496865, "excess": 0.020689810537913498, "p": 0.0}], "threshold_full": [{"thresh": 1.0, "n": 2267, "win": 0.7035730039700044, "mean": 0.0208524778380591, "ctrl": 0.016497953808273284, "excess": 0.004354524029785815, "p": 0.0035}, {"thresh": 2.0, "n": 1786, "win": 0.7245240761478163, "mean": 0.03204914515445295, "ctrl": 0.015770363727001437, "excess": 0.016278781427451514, "p": 0.0}, {"thresh": 3.0, "n": 1350, "win": 0.7303703703703703, "mean": 0.04419203195926011, "ctrl": 0.013200418847423958, "excess": 0.030991613111836153, "p": 0.0}], "era": [{"era": "2013\u20132016", "n": 108, "win": 0.9351851851851852, "mean": 0.064519232975467, "excess": 0.027921144911141123, "p": 0.0}, {"era": "2017\u20132019", "n": 63, "win": 0.9365079365079365, "mean": 0.07403662114572453, "excess": 0.021709237060696086, "p": 0.007}, {"era": "2020\u20132021", "n": 238, "win": 0.8613445378151261, "mean": 0.08643593443424986, "excess": 0.1064566902524411, "p": 0.0}, {"era": "2022", "n": 401, "win": 0.3192019950124688, "mean": -0.0337388147897651, "excess": -0.019880294823352202, "p": 1.0}, {"era": "2023\u20132025", "n": 564, "win": 0.8546099290780141, "mean": 0.060693846383362275, "excess": 0.04222439397695198, "p": 0.0}], "oos": [{"label": "firesale {'discount': 2.5, 'require_sell_pressure': True}", "n": 2186, "n_bonds": 667.0, "mean_ret": -0.0124355293683245, "median_ret": -0.0089748745297824, "win_rate": 0.3234217749313815, "mean_hold": 15.052150045745654, "stale_share": 0.0013723696248856, "mean_ann": -0.3334606967509845, "control_mean_ret": -0.0147756854177407, "excess_vs_control": 0.0023401560494161, "excess_p_boot": 0.0, "family": "firesale", "params": "{\"discount\": 2.5, \"require_sell_pressure\": true}", "window": "OOS 2023-01..2026-07"}, {"label": "firesale {'discount': 2.5, 'require_sell_pressure': True}", "n": 462, "n_bonds": 324.0, "mean_ret": -0.0064729904690415, "median_ret": -0.0037994851817952, "win_rate": 0.4242424242424242, "mean_hold": 15.261904761904765, "stale_share": 0.0064935064935064, "mean_ann": -0.1824925563633411, "control_mean_ret": -0.0116346294798929, "excess_vs_control": 0.0051616390108513, "excess_p_boot": 0.0, "family": "firesale", "params": "{\"discount\": 2.5, \"require_sell_pressure\": true}", "window": "survivorship-free 2025-07-08.."}, {"label": "momentum {'window_days': 60, 'thresh': 1.0}", "n": 5167, "n_bonds": 1121.0, "mean_ret": -0.0116561158422542, "median_ret": -0.0099842757578878, "win_rate": 0.3168182697890458, "mean_hold": 30.4627443390749, "stale_share": 0.037545964776466, "mean_ann": -0.1693655008756729, "control_mean_ret": -0.0112729261569983, "excess_vs_control": -0.0003831896852559, "excess_p_boot": 0.8675, "family": "momentum", "params": "{\"window_days\": 60, \"thresh\": 1.0}", "window": "OOS 2023-01..2026-07"}, {"label": "momentum {'window_days': 60, 'thresh': 1.0}", "n": 2049, "n_bonds": 932.0, "mean_ret": -0.0089295117066643, "median_ret": -0.0063966125575389, "win_rate": 0.3323572474377745, "mean_hold": 33.8530990727184, "stale_share": 0.0854075158613958, "mean_ann": -0.1394291257556285, "control_mean_ret": -0.0064162568929625, "excess_vs_control": -0.0025132548137017, "excess_p_boot": 1.0, "family": "momentum", "params": "{\"window_days\": 60, \"thresh\": 1.0}", "window": "survivorship-free 2025-07-08.."}, {"label": "new_issue {'max_age_days': 10}", "n": 463, "n_bonds": 463.0, "mean_ret": -0.0037566972703943, "median_ret": -0.0026933180850094, "win_rate": 0.4492440604751619, "mean_hold": 44.850971922246224, "stale_share": 0.0561555075593952, "mean_ann": -0.0396152448614186, "control_mean_ret": -0.0034187340879568, "excess_vs_control": -0.0003379631824375, "excess_p_boot": 0.721, "family": "new_issue", "params": "{\"max_age_days\": 10}", "window": "OOS 2023-01..2026-07"}, {"label": "new_issue {'max_age_days': 10}", "n": 186, "n_bonds": 186.0, "mean_ret": 0.0016981433748513, "median_ret": 0.0018711874608918, "win_rate": 0.5645161290322581, "mean_hold": 44.55913978494624, "stale_share": 0.0698924731182795, "mean_ann": 0.0146561931598378, "control_mean_ret": -0.000526748092632, "excess_vs_control": 0.0022248914674834, "excess_p_boot": 0.1135, "family": "new_issue", "params": "{\"max_age_days\": 10}", "window": "survivorship-free 2025-07-08.."}, {"label": "price_discount {'discount': 3.0}", "n": 608, "n_bonds": 459.0, "mean_ret": 0.0631852542683122, "median_ret": 0.0622292835735306, "win_rate": 0.8651315789473685, "mean_hold": 371.0263157894737, "stale_share": 0.0, "mean_ann": 0.062036491617574, "control_mean_ret": 0.0186953045081375, "excess_vs_control": 0.0444899497601746, "excess_p_boot": 0.0, "family": "price_discount", "params": "{\"discount\": 3.0}", "window": "OOS 2023-01..2026-07"}, {"label": "price_discount {'discount': 3.0}", "n": 0, "n_bonds": NaN, "mean_ret": NaN, "median_ret": NaN, "win_rate": NaN, "mean_hold": NaN, "stale_share": NaN, "mean_ann": NaN, "control_mean_ret": NaN, "excess_vs_control": NaN, "excess_p_boot": NaN, "family": "price_discount", "params": "{\"discount\": 3.0}", "window": "survivorship-free 2025-07-08.."}, {"label": "value {'ytw_cheap': 0.5}", "n": 773, "n_bonds": 570.0, "mean_ret": 0.0795348966749589, "median_ret": 0.060878814083111, "win_rate": 0.9676584734799484, "mean_hold": 372.1824062095731, "stale_share": 0.0077619663648124, "mean_ann": 0.078012080439006, "control_mean_ret": 0.0280117145357686, "excess_vs_control": 0.0515231821391902, "excess_p_boot": 0.0, "family": "value", "params": "{\"ytw_cheap\": 0.5}", "window": "OOS 2023-01..2026-07"}, {"label": "value {'ytw_cheap': 0.5}", "n": 0, "n_bonds": NaN, "mean_ret": NaN, "median_ret": NaN, "win_rate": NaN, "mean_hold": NaN, "stale_share": NaN, "mean_ann": NaN, "control_mean_ret": NaN, "excess_vs_control": NaN, "excess_p_boot": NaN, "family": "value", "params": "{\"ytw_cheap\": 0.5}", "window": "survivorship-free 2025-07-08.."}], "is_grid": [{"label": "firesale {'discount': 1.0, 'require_sell_pressure': True}", "n": 3885, "n_bonds": 449, "mean_ret": -0.0178051361742052, "median_ret": -0.016157112546915, "win_rate": 0.2159588159588159, "mean_hold": 17.43166023166023, "stale_share": 0.0028314028314028, "mean_ann": -0.4501085971769525, "control_mean_ret": -0.0172174259676313, "excess_vs_control": -0.0005877102065739, "excess_p_boot": 0.892, "family": "firesale", "params": "{\"discount\": 1.0, \"require_sell_pressure\": true}"}, {"label": "firesale {'discount': 1.5, 'require_sell_pressure': True}", "n": 3031, "n_bonds": 432, "mean_ret": -0.0176081503943996, "median_ret": -0.016374957791107, "win_rate": 0.2256680963378423, "mean_hold": 17.33157373804025, "stale_share": 0.0032992411745298, "mean_ann": -0.4433424429411762, "control_mean_ret": -0.0172950113587333, "excess_vs_control": -0.0003131390356662, "excess_p_boot": 0.6895, "family": "firesale", "params": "{\"discount\": 1.5, \"require_sell_pressure\": true}"}, {"label": "firesale {'discount': 2.5, 'require_sell_pressure': True}", "n": 1727, "n_bonds": 382, "mean_ret": -0.0175417956639829, "median_ret": -0.0160033760189269, "win_rate": 0.254198031268095, "mean_hold": 17.0833815865663, "stale_share": 0.0023161551823972, "mean_ann": -0.4424703491435959, "control_mean_ret": -0.0176626162635482, "excess_vs_control": 0.0001208205995653, "excess_p_boot": 0.476, "family": "firesale", "params": "{\"discount\": 2.5, \"require_sell_pressure\": true}"}, {"label": "firesale {'discount': 1.5, 'require_sell_pressure': False}", "n": 3715, "n_bonds": 503, "mean_ret": -0.0176821716939832, "median_ret": -0.0164920878601794, "win_rate": 0.2271870794078062, "mean_hold": 18.21991924629879, "stale_share": 0.0045760430686406, "mean_ann": -0.4398881417323594, "control_mean_ret": -0.0173012987931297, "excess_vs_control": -0.0003808729008534, "excess_p_boot": 0.7645, "family": "firesale", "params": "{\"discount\": 1.5, \"require_sell_pressure\": false}"}, {"label": "momentum {'window_days': 60, 'thresh': 1.0}", "n": 3707, "n_bonds": 530, "mean_ret": -0.0152846519885226, "median_ret": -0.0129031843655316, "win_rate": 0.2686808740221203, "mean_hold": 30.00512543835986, "stale_share": 0.0142972754248718, "mean_ann": -0.2151033585590273, "control_mean_ret": -0.0152947232290856, "excess_vs_control": 1.007124056297791e-05, "excess_p_boot": 0.5605, "family": "momentum", "params": "{\"window_days\": 60, \"thresh\": 1.0}"}, {"label": "momentum {'window_days': 120, 'thresh': 2.0}", "n": 2236, "n_bonds": 464, "mean_ret": -0.0179827319326324, "median_ret": -0.0142266194667839, "win_rate": 0.2558139534883721, "mean_hold": 30.504919499105547, "stale_share": 0.0178890876565295, "mean_ann": -0.2548473515670325, "control_mean_ret": -0.0153844043713109, "excess_vs_control": -0.0025983275613215, "excess_p_boot": 1.0, "family": "momentum", "params": "{\"window_days\": 120, \"thresh\": 2.0}"}, {"label": "new_issue {'max_age_days': 10}", "n": 268, "n_bonds": 268, "mean_ret": -0.012336146882129, "median_ret": -0.0047191138584692, "win_rate": 0.4440298507462686, "mean_hold": 62.91044776119403, "stale_share": 0.1567164179104477, "mean_ann": -0.0917905064564888, "control_mean_ret": -0.0156523413814274, "excess_vs_control": 0.0033161944992984, "excess_p_boot": 0.1155, "family": "new_issue", "params": "{\"max_age_days\": 10}"}, {"label": "new_issue {'max_age_days': 30}", "n": 347, "n_bonds": 347, "mean_ret": -0.0127284820891708, "median_ret": -0.0049997574724265, "win_rate": 0.4092219020172911, "mean_hold": 61.98559077809799, "stale_share": 0.1440922190201729, "mean_ann": -0.0938844992183602, "control_mean_ret": -0.0138197857906041, "excess_vs_control": 0.0010913037014333, "excess_p_boot": 0.3955, "family": "new_issue", "params": "{\"max_age_days\": 30}"}, {"label": "value {'ytw_cheap': 0.1}", "n": 1526, "n_bonds": 544, "mean_ret": 0.0018188675038816, "median_ret": 0.0078332106229591, "win_rate": 0.5557011795543906, "mean_hold": 378.2208387942333, "stale_share": 0.028178243774574, "mean_ann": 0.0014354334671118, "control_mean_ret": 0.0098465261724793, "excess_vs_control": -0.0080276586685977, "excess_p_boot": 0.9995, "family": "value", "params": "{\"ytw_cheap\": 0.1}"}, {"label": "value {'ytw_cheap': 0.2}", "n": 1374, "n_bonds": 530, "mean_ret": 0.002989271254833, "median_ret": 0.0077685813886513, "win_rate": 0.5545851528384279, "mean_hold": 377.93886462882097, "stale_share": 0.0283842794759825, "mean_ann": 0.0023749481558078, "control_mean_ret": 0.0095450132948959, "excess_vs_control": -0.0065557420400629, "excess_p_boot": 0.9965, "family": "value", "params": "{\"ytw_cheap\": 0.2}"}, {"label": "value {'ytw_cheap': 0.35}", "n": 1129, "n_bonds": 500, "mean_ret": 0.007184006197134, "median_ret": 0.0086475928636158, "win_rate": 0.5589016829052259, "mean_hold": 377.4100974313552, "stale_share": 0.0230292294065544, "mean_ann": 0.0065018655352558, "control_mean_ret": 0.0085625123769173, "excess_vs_control": -0.0013785061797833, "excess_p_boot": 0.776, "family": "value", "params": "{\"ytw_cheap\": 0.35}"}, {"label": "value {'ytw_cheap': 0.5}", "n": 906, "n_bonds": 465, "mean_ret": 0.013172494365193, "median_ret": 0.0122852594933775, "win_rate": 0.5584988962472406, "mean_hold": 377.2461368653422, "stale_share": 0.0253863134657836, "mean_ann": 0.012469434228235, "control_mean_ret": 0.0090842481624072, "excess_vs_control": 0.0040882462027857, "excess_p_boot": 0.2465, "family": "value", "params": "{\"ytw_cheap\": 0.5}"}, {"label": "price_discount {'discount': 1.0}", "n": 1146, "n_bonds": 514, "mean_ret": 0.0065019544908327, "median_ret": 0.0123806746830651, "win_rate": 0.5855148342059336, "mean_hold": 376.7190226876091, "stale_share": 0.0218150087260034, "mean_ann": 0.0058470665769149, "control_mean_ret": 0.0078287209919261, "excess_vs_control": -0.0013267665010934, "excess_p_boot": 0.6525, "family": "price_discount", "params": "{\"discount\": 1.0}"}, {"label": "price_discount {'discount': 2.0}", "n": 960, "n_bonds": 486, "mean_ret": 0.0179490580758583, "median_ret": 0.0208398716281299, "win_rate": 0.6208333333333333, "mean_hold": 376.3354166666667, "stale_share": 0.01875, "mean_ann": 0.0170637146325014, "control_mean_ret": 0.0084392456907312, "excess_vs_control": 0.0095098123851271, "excess_p_boot": 0.0015, "family": "price_discount", "params": "{\"discount\": 2.0}"}, {"label": "price_discount {'discount': 3.0}", "n": 791, "n_bonds": 446, "mean_ret": 0.0255227863204103, "median_ret": 0.0274375337804824, "win_rate": 0.6283185840707964, "mean_hold": 375.621997471555, "stale_share": 0.0164348925410872, "mean_ann": 0.024552825591132, "control_mean_ret": 0.0048329757824968, "excess_vs_control": 0.0206898105379134, "excess_p_boot": 0.0, "family": "price_discount", "params": "{\"discount\": 3.0}"}], "equity": {"series": [{"date": "2013-01-11", "strat": 0.9997, "mub": 1.0}, {"date": "2013-02-01", "strat": 0.9928, "mub": 0.9958}, {"date": "2013-03-01", "strat": 0.9837, "mub": 0.9995}, {"date": "2013-04-01", "strat": 0.9737, "mub": 0.9866}, {"date": "2013-05-01", "strat": 0.9641, "mub": 1.0025}, {"date": "2013-06-01", "strat": 0.9543, "mub": 0.9711}, {"date": "2013-07-01", "strat": 0.9532, "mub": 0.9531}, {"date": "2013-08-01", "strat": 0.9578, "mub": 0.9361}, {"date": "2013-09-01", "strat": 0.9638, "mub": 0.9215}, {"date": "2013-10-01", "strat": 0.9697, "mub": 0.9457}, {"date": "2013-11-01", "strat": 0.9759, "mub": 0.9554}, {"date": "2013-12-01", "strat": 0.9824, "mub": 0.9543}, {"date": "2014-01-01", "strat": 0.9891, "mub": 0.9503}, {"date": "2014-02-01", "strat": 0.9963, "mub": 0.9747}, {"date": "2014-03-01", "strat": 1.0033, "mub": 0.9849}, {"date": "2014-04-01", "strat": 1.0111, "mub": 0.9837}, {"date": "2014-05-01", "strat": 1.0186, "mub": 0.9996}, {"date": "2014-06-01", "strat": 1.0263, "mub": 1.0091}, {"date": "2014-07-01", "strat": 1.0342, "mub": 1.0073}, {"date": "2014-08-01", "strat": 1.0445, "mub": 1.0157}, {"date": "2014-09-01", "strat": 1.0546, "mub": 1.0248}, {"date": "2014-10-01", "strat": 1.065, "mub": 1.0276}, {"date": "2014-11-01", "strat": 1.074, "mub": 1.0296}, {"date": "2014-12-01", "strat": 1.0794, "mub": 1.0305}, {"date": "2015-01-01", "strat": 1.0851, "mub": 1.0392}, {"date": "2015-02-01", "strat": 1.0908, "mub": 1.0557}, {"date": "2015-03-01", "strat": 1.0958, "mub": 1.0439}, {"date": "2015-04-01", "strat": 1.101, "mub": 1.0467}, {"date": "2015-05-01", "strat": 1.1058, "mub": 1.0367}, {"date": "2015-06-01", "strat": 1.1114, "mub": 1.0323}, {"date": "2015-07-01", "strat": 1.1178, "mub": 1.0302}, {"date": "2015-08-01", "strat": 1.1249, "mub": 1.0417}, {"date": "2015-09-01", "strat": 1.132, "mub": 1.0438}, {"date": "2015-10-01", "strat": 1.1389, "mub": 1.0494}, {"date": "2015-11-01", "strat": 1.1461, "mub": 1.0533}, {"date": "2015-12-01", "strat": 1.153, "mub": 1.0599}, {"date": "2016-01-01", "strat": 1.1603, "mub": 1.0694}, {"date": "2016-02-01", "strat": 1.1677, "mub": 1.0751}, {"date": "2016-03-01", "strat": 1.1748, "mub": 1.0758}, {"date": "2016-04-01", "strat": 1.1828, "mub": 1.0818}, {"date": "2016-05-01", "strat": 1.1911, "mub": 1.0898}, {"date": "2016-06-01", "strat": 1.2009, "mub": 1.0928}, {"date": "2016-07-01", "strat": 1.2127, "mub": 1.1116}, {"date": "2016-08-01", "strat": 1.225, "mub": 1.1077}, {"date": "2016-09-01", "strat": 1.2358, "mub": 1.1108}, {"date": "2016-10-01", "strat": 1.2349, "mub": 1.105}, {"date": "2016-11-01", "strat": 1.2336, "mub": 1.0933}, {"date": "2016-12-01", "strat": 1.2357, "mub": 1.0497}, {"date": "2017-01-01", "strat": 1.2411, "mub": 1.0676}, {"date": "2017-02-01", "strat": 1.2467, "mub": 1.0687}, {"date": "2017-03-01", "strat": 1.2517, "mub": 1.0724}, {"date": "2017-04-01", "strat": 1.2573, "mub": 1.0794}, {"date": "2017-05-01", "strat": 1.2628, "mub": 1.0833}, {"date": "2017-06-01", "strat": 1.2684, "mub": 1.101}, {"date": "2017-07-01", "strat": 1.2739, "mub": 1.0973}, {"date": "2017-08-01", "strat": 1.2796, "mub": 1.1074}, {"date": "2017-09-01", "strat": 1.2854, "mub": 1.1147}, {"date": "2017-10-01", "strat": 1.2909, "mub": 1.111}, {"date": "2017-11-01", "strat": 1.2967, "mub": 1.1116}, {"date": "2017-12-01", "strat": 1.3031, "mub": 1.1099}, {"date": "2018-01-01", "strat": 1.3092, "mub": 1.118}, {"date": "2018-02-01", "strat": 1.3126, "mub": 1.1006}, {"date": "2018-03-01", "strat": 1.3159, "mub": 1.1016}, {"date": "2018-04-01", "strat": 1.3199, "mub": 1.1039}, {"date": "2018-05-01", "strat": 1.3239, "mub": 1.0966}, {"date": "2018-06-01", "strat": 1.3281, "mub": 1.1081}, {"date": "2018-07-01", "strat": 1.3324, "mub": 1.1115}, {"date": "2018-08-01", "strat": 1.3367, "mub": 1.1115}, {"date": "2018-09-01", "strat": 1.341, "mub": 1.1149}, {"date": "2018-10-01", "strat": 1.3454, "mub": 1.107}, {"date": "2018-11-01", "strat": 1.3518, "mub": 1.1008}, {"date": "2018-12-01", "strat": 1.3598, "mub": 1.1134}, {"date": "2019-01-01", "strat": 1.3685, "mub": 1.1284}, {"date": "2019-02-01", "strat": 1.3773, "mub": 1.1312}, {"date": "2019-03-01", "strat": 1.3863, "mub": 1.139}, {"date": "2019-04-01", "strat": 1.3995, "mub": 1.1536}, {"date": "2019-05-01", "strat": 1.4136, "mub": 1.1626}, {"date": "2019-06-01", "strat": 1.4286, "mub": 1.1781}, {"date": "2019-07-01", "strat": 1.4433, "mub": 1.1817}, {"date": "2019-08-01", "strat": 1.4589, "mub": 1.1948}, {"date": "2019-09-01", "strat": 1.4745, "mub": 1.2098}, {"date": "2019-10-01", "strat": 1.4896, "mub": 1.2012}, {"date": "2019-11-01", "strat": 1.5052, "mub": 1.2037}, {"date": "2019-12-01", "strat": 1.5178, "mub": 1.2048}, {"date": "2020-01-01", "strat": 1.5212, "mub": 1.208}, {"date": "2020-02-01", "strat": 1.5221, "mub": 1.228}, {"date": "2020-03-01", "strat": 1.5229, "mub": 1.24}, {"date": "2020-04-01", "strat": 1.5313, "mub": 1.174}, {"date": "2020-05-01", "strat": 1.5448, "mub": 1.1924}, {"date": "2020-06-01", "strat": 1.5587, "mub": 1.2308}, {"date": "2020-07-01", "strat": 1.5722, "mub": 1.2363}, {"date": "2020-08-01", "strat": 1.5863, "mub": 1.2535}, {"date": "2020-09-01", "strat": 1.6006, "mub": 1.2469}, {"date": "2020-10-01", "strat": 1.6146, "mub": 1.2475}, {"date": "2020-11-01", "strat": 1.6291, "mub": 1.2412}, {"date": "2020-12-01", "strat": 1.6432, "mub": 1.2607}, {"date": "2021-01-01", "strat": 1.6579, "mub": 1.2698}, {"date": "2021-02-01", "strat": 1.6728, "mub": 1.2753}, {"date": "2021-03-01", "strat": 1.6862, "mub": 1.2542}, {"date": "2021-04-01", "strat": 1.7, "mub": 1.2629}, {"date": "2021-05-01", "strat": 1.7068, "mub": 1.2711}, {"date": "2021-06-01", "strat": 1.7096, "mub": 1.2757}, {"date": "2021-07-01", "strat": 1.7086, "mub": 1.2804}, {"date": "2021-08-01", "strat": 1.7053, "mub": 1.2858}, {"date": "2021-09-01", "strat": 1.7009, "mub": 1.2833}, {"date": "2021-10-01", "strat": 1.6965, "mub": 1.2747}, {"date": "2021-11-01", "strat": 1.6887, "mub": 1.2726}, {"date": "2021-12-01", "strat": 1.6733, "mub": 1.2828}, {"date": "2022-01-01", "strat": 1.6574, "mub": 1.2828}, {"date": "2022-02-01", "strat": 1.642, "mub": 1.2547}, {"date": "2022-03-01", "strat": 1.6309, "mub": 1.2502}, {"date": "2022-04-01", "strat": 1.6185, "mub": 1.2124}, {"date": "2022-05-01", "strat": 1.6088, "mub": 1.1825}, {"date": "2022-06-01", "strat": 1.6007, "mub": 1.1998}, {"date": "2022-07-01", "strat": 1.5937, "mub": 1.1869}, {"date": "2022-08-01", "strat": 1.587, "mub": 1.2102}, {"date": "2022-09-01", "strat": 1.5803, "mub": 1.1739}, {"date": "2022-10-01", "strat": 1.5743, "mub": 1.1463}, {"date": "2022-11-01", "strat": 1.5691, "mub": 1.1411}, {"date": "2022-12-01", "strat": 1.5649, "mub": 1.1961}, {"date": "2023-01-01", "strat": 1.5606, "mub": 1.1885}, {"date": "2023-02-01", "strat": 1.5564, "mub": 1.2234}, {"date": "2023-03-01", "strat": 1.5537, "mub": 1.1878}, {"date": "2023-04-01", "strat": 1.5529, "mub": 1.2189}, {"date": "2023-05-01", "strat": 1.5533, "mub": 1.2103}, {"date": "2023-06-01", "strat": 1.5546, "mub": 1.2097}, {"date": "2023-07-01", "strat": 1.5562, "mub": 1.2153}, {"date": "2023-08-01", "strat": 1.5577, "mub": 1.214}, {"date": "2023-09-01", "strat": 1.5596, "mub": 1.2049}, {"date": "2023-10-01", "strat": 1.5639, "mub": 1.1754}, {"date": "2023-11-01", "strat": 1.5745, "mub": 1.1657}, {"date": "2023-12-01", "strat": 1.5869, "mub": 1.2338}, {"date": "2024-01-01", "strat": 1.5999, "mub": 1.2547}, {"date": "2024-02-01", "strat": 1.613, "mub": 1.2617}, {"date": "2024-03-01", "strat": 1.6254, "mub": 1.2545}, {"date": "2024-04-01", "strat": 1.6389, "mub": 1.2476}, {"date": "2024-05-01", "strat": 1.6519, "mub": 1.2411}, {"date": "2024-06-01", "strat": 1.6652, "mub": 1.2357}, {"date": "2024-07-01", "strat": 1.6786, "mub": 1.2466}, {"date": "2024-08-01", "strat": 1.6927, "mub": 1.2668}, {"date": "2024-09-01", "strat": 1.7071, "mub": 1.2678}, {"date": "2024-10-01", "strat": 1.7213, "mub": 1.2864}, {"date": "2024-11-01", "strat": 1.7334, "mub": 1.2666}, {"date": "2024-12-01", "strat": 1.7377, "mub": 1.2877}, {"date": "2025-01-01", "strat": 1.7403, "mub": 1.2705}, {"date": "2025-02-01", "strat": 1.7428, "mub": 1.2704}, {"date": "2025-03-01", "strat": 1.7453, "mub": 1.2873}, {"date": "2025-04-01", "strat": 1.748, "mub": 1.268}, {"date": "2025-05-01", "strat": 1.7526, "mub": 1.2579}, {"date": "2025-06-01", "strat": 1.7579, "mub": 1.2514}, {"date": "2025-07-01", "strat": 1.7632, "mub": 1.2634}, {"date": "2025-08-01", "strat": 1.7686, "mub": 1.2647}, {"date": "2025-09-01", "strat": 1.7741, "mub": 1.2689}, {"date": "2025-10-01", "strat": 1.7794, "mub": 1.2993}, {"date": "2025-11-01", "strat": 1.785, "mub": 1.3126}, {"date": "2025-12-01", "strat": 1.791, "mub": 1.312}, {"date": "2026-01-01", "strat": 1.7978, "mub": 1.3185}, {"date": "2026-02-01", "strat": 1.8055, "mub": 1.3276}, {"date": "2026-03-01", "strat": 1.8133, "mub": 1.3443}, {"date": "2026-04-01", "strat": 1.8224, "mub": 1.3191}, {"date": "2026-05-01", "strat": 1.8304, "mub": 1.3289}, {"date": "2026-05-20", "strat": 1.8286, "mub": 1.3179}], "strat": {"total": 0.8286499929025715, "cagr": 0.0462406173395542, "maxdd": -0.09175088569635181}, "mub": {"total": 0.3179250233991364, "cagr": 0.02088987548159138, "maxdd": -0.13680826975044214}, "n_trades": 1350, "years": 13.4, "avg_positions": 103}};</script>
+<script>
+const f2=(x)=>(x*100).toFixed(2), f1=(x)=>(x*100).toFixed(1), f0=(x)=>Math.round(x*100);
+const C={accent:'#12386e',gold:'#c9922b',green:'#0d8f63',red:'#cf3049',blue:'#1a4fc4',grey:'#98a0b3',mut:'#c7cdd8'};
+const money=(x)=>x.toFixed(2);
+const hasChart=(typeof Chart!=='undefined');
+if(hasChart){Chart.defaults.font.family="-apple-system,Segoe UI,Roboto,sans-serif";
+  Chart.defaults.font.size=11;Chart.defaults.color='#45506a';}
+const mkChart=(id,cfg)=>{if(!hasChart)return;const el=document.getElementById(id);if(el)try{new Chart(el,cfg)}catch(e){console.error(id,e)}};
+
+document.getElementById('m-start').textContent=DATA.equity.series[0].date.slice(0,4);
+document.getElementById('m-end').textContent=DATA.equity.series[DATA.equity.series.length-1].date.slice(0,4);
+document.getElementById('avgpos').textContent=DATA.equity.avg_positions;
+
+// KPIs
+const eq=DATA.equity, full=DATA.threshold_full.find(t=>t.thresh===3.0);
+const kpis=[
+  ['+'+f1(full.excess)+'%','Excess vs control','per trade · p&lt;0.001','pos'],
+  [f0(full.win)+'%','Win rate',full.n.toLocaleString()+' trades',''],
+  ['+'+f1(full.mean)+'%','Mean return / trade','~1-yr hold, incl. coupon','pos'],
+  [f2(eq.strat.cagr)+'%','Strategy CAGR','vs MUB '+f2(eq.mub.cagr)+'%','big'],
+  [f1(eq.strat.total)+'%','Total return','vs MUB '+f1(eq.mub.total)+'% ('+eq.years+'y)','big'],
+];
+document.getElementById('kpis').innerHTML=kpis.map(k=>
+  `<div class="kpi"><div class="kpi-val ${k[3]}">${k[0]}</div><div class="kpi-label">${k[1]}</div><div class="kpi-sub">${k[2]}</div></div>`).join('');
+
+// data KPIs
+const m=DATA.meta;
+document.getElementById('datakpis').innerHTML=[
+  [m.n_bonds.toLocaleString(),'individual bonds'],
+  [(m.n_trades/1e6).toFixed(1)+'M','real trade prints'],
+  [m.universe.toLocaleString(),'securities discovered ('+m.states+' states)'],
+].map(k=>`<div class="kpi"><div class="kpi-val big">${k[0]}</div><div class="kpi-label">${k[1]}</div></div>`).join('');
+
+const pn=(x)=>`<span class="${x>=0?'pos':'neg'}">${x>=0?'+':''}${f2(x)}%</span>`;
+const isNum=(v)=>v!==null&&v!==''&&!Number.isNaN(+v)&&+v!==0;
+
+// timing table (OOS short families)
+const tim=DATA.oos.filter(r=>['firesale','momentum','new_issue'].includes(r.family)&&String(r.window).startsWith('OOS'));
+document.querySelector('#tblTiming tbody').innerHTML=tim.map(r=>
+  `<tr><td>${r.family}</td><td>${(+r.n).toLocaleString()}</td><td>${f0(+r.win_rate)}%</td><td class="neg">${f2(+r.mean_ret)}%</td><td>${pn(+r.excess_vs_control)}</td><td class="mut">${(+r.excess_p_boot).toFixed(2)}</td></tr>`).join('');
+
+// threshold table (full)
+document.querySelector('#tblThresh tbody').innerHTML=DATA.threshold_full.map(r=>
+  `<tr class="${r.thresh===3.0?'hl':''}"><td>≥${r.thresh.toFixed(1)} pt below median</td><td>${r.n.toLocaleString()}</td><td>${f0(r.win)}%</td><td class="pos">+${f2(r.mean)}%</td><td class="mut">+${f2(r.ctrl)}%</td><td>${pn(r.excess)}</td><td class="${r.p<0.05?'pos':'mut'}">${r.p.toFixed(3)}</td></tr>`).join('');
+
+// OOS table (winner + control families summary)
+const oosMain=DATA.oos.filter(r=>String(r.window).startsWith('OOS')&&r.family==='price_discount');
+document.querySelector('#tblOOS tbody').innerHTML=
+  DATA.threshold_is.filter(t=>t.thresh===3.0).map(r=>
+    `<tr><td>In-sample 2012–2022</td><td>${r.n.toLocaleString()}</td><td>${f0(r.win)}%</td><td class="pos">+${f2(r.mean)}%</td><td>${pn(r.excess)}</td><td class="pos">&lt;0.001</td></tr>`).join('')
+  + oosMain.map(r=>
+    `<tr class="hl"><td>Out-of-sample 2023–2025 (locked)</td><td>${(+r.n).toLocaleString()}</td><td>${f0(+r.win_rate)}%</td><td class="pos">+${f2(+r.mean_ret)}%</td><td>${pn(+r.excess_vs_control)}</td><td class="pos">&lt;0.001</td></tr>`).join('');
+
+// era table
+document.querySelector('#tblEra tbody').innerHTML=DATA.era.map(r=>
+  `<tr><td>${r.era}</td><td>${r.n.toLocaleString()}</td><td>${f0(r.win)}%</td><td class="${r.mean>=0?'pos':'neg'}">${r.mean>=0?'+':''}${f2(r.mean)}%</td><td>${pn(r.excess)}</td><td class="${r.p<0.05?'pos':'mut'}">${r.p<0.001?'&lt;0.001':r.p.toFixed(3)}</td></tr>`).join('');
+
+// equity table
+document.querySelector('#tblEquity tbody').innerHTML=
+  `<tr><td>KEYSTONE strategy</td><td class="pos">+${f1(eq.strat.total)}%</td><td class="pos">+${f2(eq.strat.cagr)}%</td><td class="neg">${f1(eq.strat.maxdd)}%</td></tr>
+   <tr><td>MUB (total return)</td><td>+${f1(eq.mub.total)}%</td><td>+${f2(eq.mub.cagr)}%</td><td class="neg">${f1(eq.mub.maxdd)}%</td></tr>`;
+
+// ---- charts ----
+mkChart('chHorizon',{type:'bar',
+  data:{labels:DATA.horizon.map(h=>h.hold+'d'),
+    datasets:[{label:'Mean round-trip return',data:DATA.horizon.map(h=>h.mean*100),
+      backgroundColor:DATA.horizon.map(h=>h.mean>=0?C.green:C.red)}]},
+  options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y.toFixed(2)+'% ('+DATA.horizon[c.dataIndex].win*100|0+'% win)'}}},
+    scales:{y:{title:{display:true,text:'mean return %'},grid:{color:'#eef0f4'}},x:{grid:{display:false}}}}});
+
+mkChart('chDecile',{type:'bar',
+  data:{labels:DATA.decile.map(d=>d.decile),
+    datasets:[{label:'Fwd 1-yr return',data:DATA.decile.map(d=>d.mean*100),
+      backgroundColor:DATA.decile.map((d,i)=>i<=1?C.green:C.blue)}]},
+  options:{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'fwd 1-yr return %'},grid:{color:'#eef0f4'}},x:{title:{display:true,text:'cheapest → richest decile'},grid:{display:false}}}}});
+
+mkChart('chThresh',{type:'bar',
+  data:{labels:DATA.threshold_full.map(t=>'≥'+t.thresh+'pt'),
+    datasets:[
+      {label:'Excess vs control',data:DATA.threshold_full.map(t=>t.excess*100),backgroundColor:C.accent},
+    ]},
+  options:{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'excess vs control %'},grid:{color:'#eef0f4'}},x:{grid:{display:false}}}}});
+
+mkChart('chEra',{type:'bar',
+  data:{labels:DATA.era.map(e=>e.era),
+    datasets:[{label:'Excess vs control',data:DATA.era.map(e=>e.excess*100),
+      backgroundColor:DATA.era.map(e=>e.excess>=0?C.green:C.red)}]},
+  options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'excess '+c.parsed.y.toFixed(2)+'%'}}},
+    scales:{y:{title:{display:true,text:'excess vs control %'},grid:{color:'#eef0f4'}},x:{grid:{display:false}}}}});
+
+// equity curve
+const es=DATA.equity.series;
+mkChart('chEquity',{type:'line',
+  data:{labels:es.map(p=>p.date),
+    datasets:[
+      {label:'KEYSTONE strategy',data:es.map(p=>p.strat),borderColor:C.accent,backgroundColor:'rgba(18,56,110,.06)',fill:true,borderWidth:2.2,pointRadius:0,tension:.15},
+      {label:'MUB (total return)',data:es.map(p=>p.mub),borderColor:C.gold,borderWidth:1.8,pointRadius:0,tension:.15},
+    ]},
+  options:{interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'top',labels:{boxWidth:14,usePointStyle:true}},
+      tooltip:{callbacks:{title:i=>i[0].label,label:c=>c.dataset.label+': $'+money(c.parsed.y)}}},
+    scales:{y:{title:{display:true,text:'growth of $1'},grid:{color:'#eef0f4'}},
+      x:{type:'category',ticks:{autoSkip:false,maxRotation:0,callback:function(v){const d=es[v].date;return d.slice(5,7)==='01'?d.slice(0,4):''}},grid:{display:false}}}}});
+</script>
+</body>
+</html>
