@@ -1,3 +1,36 @@
+# PULSE — KILLED: the sibling switch is selection bias (user caught it)
+
+**Post-mortem, added after the leave-one-out test.** The QQQ↔SMH sibling switch
+(below, preserved for the record) passed phase-, parameter-, and cost-robustness —
+but the user asked the right question: *isn't this selection bias?* It is.
+
+## The test that killed it (`scripts/tactical.py` diagnostics)
+Run the IDENTICAL relative-momentum switch with every available sibling (2006–26):
+
+- **SMH ranks 1st of 24.** Median sibling: **0.67×** — for the typical pair the
+  mechanism *destroys* value. Only 4/24 beat 1.0 (TAN 1.23, XLK 1.12, GLD 1.07 —
+  noise-level). Monthly relative momentum between correlated ETFs has no general
+  persistence edge; being out of QQQ costs more than the signal earns.
+- **No-hindsight version** (QQQ default → whichever sector the signal ranks best,
+  no human pick): **0.33×** all-siblings, 0.83× growth-flavored. The signal cannot
+  find the winning sibling ex ante.
+
+Conclusion: PULSE's 2.06–2.17× was ~all "picked the winning sub-sector knowing it
+won." Semis were chosen BECAUSE they led the sample; in 2006 (after semis' lost
+decade) nobody would have picked SMH ex ante.
+
+## Lessons folded into the validation gauntlet
+1. **Cross-sectional (leave-one-out) testing is now mandatory**: any strategy whose
+   edge lives in ONE chosen asset must beat the distribution of all its siblings,
+   not just its own benchmark. Phase/parameter/cost robustness cannot catch a
+   hindsight asset pick — every variant shares the same bet.
+2. This *strengthens* the structural theorem: even within tech, the winning vehicle
+   is not identifiable ex ante. The only return-improver that survived everything
+   (VOLT) works precisely because it picks nothing — it scales a fixed index bet.
+
+---
+# ORIGINAL WRITE-UP (superseded — kept for the record)
+
 # PULSE — tactical QQQ-core sibling switch (unleveraged): the one that passed
 
 Response to: *"a model that strategically/tactically invests in QQQ and other ETFs so we
