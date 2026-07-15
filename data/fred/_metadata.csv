@@ -10,7 +10,7 @@ DGS10,Treasury Yield 10-Year,True
 DGS20,Treasury Yield 20-Year,True
 DGS30,Treasury Yield 30-Year,True
 T10Y2Y,10-Year minus 2-Year Treasury Spread,True
-T10Y3M,10-Year minus 3-Month Treasury Spread,True
+T10Y3M,10-Year minus 3-Month Treasury Spread,False
 T10YFF,10-Year minus Fed Funds Rate,True
 BAMLC0A0CM,ICE BofA US Corporate Index OAS,True
 BAMLH0A0HYM2,ICE BofA US High Yield Index OAS,True
