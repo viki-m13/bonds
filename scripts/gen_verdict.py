@@ -392,6 +392,37 @@ drag_rows = "".join(
     f"<td class='r'>{((1-w) + w*((1-sat_shortfall)**20))*100:.0f}%</td>"
     f"<td class='r bad'>−{(1-((1-w) + w*((1-sat_shortfall)**20)))*100:.0f}%</td></tr>"
     for w in [0.05, 0.10, 0.20, 0.50])
+# growth-vs-weight curve for adding a zero-correlation, low-return diversifier
+# forward-looking inputs (stated on the page): muA=5% real (earnings-yield method),
+# sigA=17%; muB=0.5% real (no-cash-flow asset), sigB=15%, rho=0
+def _G(w, muA=0.05, sA=0.17, muB=0.005, sB=0.15, rho=0.0):
+    mu = w*muB + (1-w)*muA
+    var = (w*sB)**2 + ((1-w)*sA)**2 + 2*w*(1-w)*rho*sA*sB
+    return mu - var/2.0
+_ws = [i/100 for i in range(0, 51, 2)]
+_gs = [_G(w)*100 for w in _ws]
+def growthcurve_svg(ws, gs, W=660, H=230):
+    import math as _m
+    pad_l, pad_r, pad_t, pad_b = 46, 14, 14, 34
+    lo, hi = min(gs)-0.1, max(gs)+0.15
+    def X(w): return pad_l + (W-pad_l-pad_r)*w/ws[-1]
+    def Y(g): return pad_t + (H-pad_t-pad_b)*(1-(g-lo)/(hi-lo))
+    s2 = [f'<svg viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid meet" {MINW} role="img">']
+    for g in [2.5, 3.0, 3.5]:
+        y = Y(g)
+        s2.append(f'<line x1="{pad_l}" y1="{y:.1f}" x2="{W-pad_r}" y2="{y:.1f}" stroke="#eeeeee"/>'
+                  f'<text x="{pad_l-5}" y="{y+3:.1f}" font-size="10" fill="#9ca3af" text-anchor="end">{g:g}%</text>')
+    for w in [0, 0.1, 0.2, 0.3, 0.4, 0.5]:
+        x = X(w)
+        s2.append(f'<text x="{x:.1f}" y="{H-8}" font-size="10" fill="#6b7280" text-anchor="middle">{int(w*100)}%</text>')
+    pts = " ".join(f"{X(w):.1f},{Y(g):.1f}" for w, g in zip(ws, gs))
+    s2.append(f'<polyline points="{pts}" fill="none" stroke="#b91c1c" stroke-width="2.4"/>')
+    s2.append(f'<circle cx="{X(0):.1f}" cy="{Y(gs[0]):.1f}" r="4" fill="#111418"/>')
+    s2.append(f'<text x="{X(0)+8:.1f}" y="{Y(gs[0])-8:.1f}" font-size="10" font-weight="700" fill="#111418">maximum growth is at 0% ballast</text>')
+    s2.append(f'<text x="{(pad_l+W-pad_r)/2:.1f}" y="{H-22}" font-size="9.5" fill="#9ca3af" text-anchor="middle">weight in the zero-yield diversifier \u2192</text>')
+    s2.append("</svg>")
+    return "".join(s2)
+c_growth = growthcurve_svg(_ws, _gs)
 cmb = E["combos"]
 combo_rows = "".join(
     f"<tr><td>{r['nm']}</td><td class='r'>${r['final']:,}</td><td class='r bad'>{r['dd']}%</td></tr>"
@@ -747,7 +778,7 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li><b>The recommended default for a disciplined long-horizon contributor: 50% SPY + 50% QQQ</b> (split each contribution; rebalance with contributions). It expresses the concentration thesis at half size, is never the worst machine in any era, carries the mildest measured account drawdown of the three, always holds some of whatever leads — the property that keeps plans alive — and its regret is bounded in <i>both</i> directions. It is the allocation we can defend to a skeptic without once pointing at a past-returns chart.</li>
 <li><b>100% QQQ: permitted, never provable.</b> Take it only if you explicitly own the concentration thesis <i>and</i> pass the measured stomach test — {c2000["years_below"]} years behind, {c2000["min_ratio"]}× at the trough — without abandoning.</li>
 </ul>
-<p style="margin:8px 0 2px">And in every case, the spread between these three choices is second-order next to the two first-order errors this entire study measures: <b>leaving the machines to pick stocks, and abandoning the plan mid-drawdown.</b> Get those two right and any point on this menu wins the game most people lose.</p></div>
+<p style="margin:8px 0 2px">And in every case, the spread between these three choices is second-order next to the two first-order errors this entire study measures: <b>leaving the machines to pick stocks, and abandoning the plan mid-drawdown.</b> Get those two right and any point on this menu wins the game most people lose. (\u00a72.9 derives the stricter, menu-free answer from first principles.)</p></div>
 <h3>2.7 &nbsp;“So is there a way to qualify which ETF is best?” Yes — grade the machine, not the track record</h3>
 <p>There is a rigorous way to answer "which ETF should I DCA into," and it is <i>not</i> ranking past returns (§2.6 proved that's unqualifiable). It's this: every mechanism this study measured — skew, winner-riding, winner-keeping, rotation, hype, costs, abandonment — is a <b>structural property of the fund's rule</b>, checkable in advance without any forecast. So grade any candidate ETF on seven pass/fail tests, each earned by a section of this paper:</p>
 <div class="card"><ol style="margin:4px 0 4px 20px;font-size:13.5px">
@@ -790,6 +821,24 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li><b>Rebalance with contributions only</b>, never by selling the engine; review nothing; change nothing on red days.</li>
 </ul>
 <p class="note">Is this provably the optimal forever-combination? No — §2.6's impossibility result applies to combinations exactly as it applies to single funds. It is something better than optimal-in-hindsight: <b>every component passes the structural tests, the regret is bounded in both directions, and the whole thing requires zero forecasts forever</b> — which is the most that can be honestly engineered.</p>
+<h3>2.9 &nbsp;The zero-information derivation — what the mathematics alone selects, with no charts and no suggestions</h3>
+<p>Everything so far graded candidates someone proposed. This section does the stricter thing: <b>derive the forever allocation from first principles, using no return history and no menu</b> — then see what instruments happen to implement it. Four steps, each a known result, assembled in plain English:</p>
+<div class="card">
+<p style="margin:4px 0"><b>Step 1 — the right objective.</b> For money compounded over decades, the mathematically correct target is maximum <i>geometric</i> growth (the Kelly / growth-optimal criterion [34]): the portfolio with the highest expected log-wealth eventually beats every other strategy with probability approaching one. Its key property: growth ≈ <b>return − ½ × volatility²</b> — volatility is not just discomfort, it is a direct subtraction from compounding.</p>
+<p style="margin:4px 0"><b>Step 2 — the only zero-forecast risky portfolio.</b> Which assets? The equilibrium identity (§2.2's Sharpe logic, run forward): all investors together <i>must</i> hold the cap-weighted aggregate, so any weights other than market weights assert a forecast someone else is wrong about. With zero private information, the unique defensible risky holding is <b>the broadest investable cap-weighted equity aggregate — the world portfolio</b> (a VT-style global fund; a U.S. total-market fund is an acceptable proxy via the revenue-exposure argument of §2.4, at the cost of a mild, declared home tilt). Note what this step does <i>not</i> select: QQQ. A QQQ overweight is a <i>belief term</i> — legitimate only in proportion to genuine private conviction (the Black–Litterman principle [35]), and the zero-information investor has none. <b>The unbiased core is the world machine, full stop.</b></p>
+<p style="margin:4px 0"><b>Step 3 — why equities are the engine at all.</b> Not because of any historical chart: because common stock is the only asset class that is a <i>limited-liability residual claim on aggregate innovation</i> — downside capped at −100%, upside uncapped, with the index mechanism automatically re-pointing the claim at whatever wins next. The positive skew this paper measures everywhere (§3) is a <b>structural consequence of that contract</b>, not a lucky sample; bonds cap their upside by contract, and zero-yield stores (gold, commodities) produce nothing to compound. The engine must be the equity aggregate because it is the only self-renewing claim on the right tail.</p>
+<p style="margin:4px 0"><b>Step 4 — the mathematical gate for any second asset.</b> When does adding a diversifier B at small weight <i>raise</i> geometric growth? Differentiating the growth formula gives a clean condition: <b>add B only if its expected return exceeds the engine's minus the engine's variance</b> (for uncorrelated B: μ<sub>B</sub> &gt; μ<sub>A</sub> − σ<sub>A</sub>² ≈ μ<sub>A</sub> − 2.9 points at world-equity volatility). Now use only <i>forward-looking</i> inputs: equity expected real return by the standard yield method (earnings yield + trend growth) ≈ 4–6%; a zero-cash-flow asset's expected real return ≈ 0–1% <i>by construction</i>. The gap (~4 points) exceeds the threshold (~2.9 points): <b>gold fails the growth gate.</b> Drawn:</p></div>
+<div class="chart">{c_growth}</div>
+<div class="leg"><span>Expected geometric growth vs weight in a zero-correlation, zero-yield diversifier, computed from the formula with the forward inputs above — no historical returns used. The curve only falls: for pure growth, the optimal ballast is <b>zero</b>.</span></div>
+<p><b>So the mathematics, unprompted, pushes back on both suggestions this paper has been given:</b> it removes QQQ from the zero-information core (a belief term, default zero) <i>and</i> it removes gold from the growth engine (fails the gate). What survives is almost embarrassingly plain: <b>the world's cap-weighted equity market, automated, forever.</b></p>
+<p><b>The one term that can justify ballast — and its exact size.</b> The derivation above assumes the plan survives its owner. It doesn't: the measured first-order error is abandonment, so the true objective is growth <i>times the probability you keep the machine running</i>. That converts holdability into a constraint: choose the deepest account-drawdown D* you will genuinely hold through (§11.2), and if the all-equity machine's worst (≈ −33% for a contributor; −50%+ lump-sum) exceeds your D*, add the <i>least-growth-costly</i> uncorrelated asset at the <b>minimum weight that meets D*</b> — measured slope: roughly 3 points of drawdown relief per 10% of gold (§2.8). Gold's justification is therefore precise and narrow: <b>it is not an investment; it is a behavioral warranty, bought in the smallest size that makes you unbreakable.</b> If your D* clears −33%, the mathematically derived gold weight is zero.</p>
+<div class="card verdict"><b>The derived answer</b> (from axioms, not menus):
+<ul style="margin:8px 0 2px 20px">
+<li><b>Engine:</b> the broadest investable cap-weighted equity fund — global (VT-style) by strict derivation; U.S. total-market/SPY as the declared-home-tilt proxy. Weight: 100% − w.</li>
+<li><b>Ballast:</b> w% gold, where w is the <i>smallest</i> weight meeting your honest drawdown constraint — <b>derived value for anyone who passes the −33% stomach test: w = 0</b>; typical range otherwise 5–15%; never a growth holding.</li>
+<li><b>QQQ (or any tilt):</b> enters only as an explicitly-sized belief term. Sizing rule from §2.6's measured worst case: no larger than what you could watch trail the world machine for 8+ years without abandoning. Zero conviction ⇒ zero weight — <i>and that is the honest default.</i></li>
+</ul>
+<p style="margin:8px 0 2px">Reconciliation with §2.6 and §2.8: those sections answered <i>conditional</i> questions ("given QQQ vs SPY…", "given QQQ + gold…") and remain correct as stated. This section answers the unconditional one. The hierarchy, in decreasing strictness: <b>world machine alone → world machine + minimal behavioral ballast → the §2.6 blends as consciously-sized belief portfolios.</b> Everything below that line on the concentration dial is a bet; everything off the dial is the mistake this paper measures.</p></div>
 <h2 id="s3">3 · The market is a lottery with a few winning tickets — and the index holds them all</h2>
 <p>Here is every investable U.S. stock at mid-2016 — all {sk['n']:,} of them, including the {sk['died']} that later died — and what each returned over the following decade:</p>
 <div class="chart">{c_skew}</div>
@@ -1078,6 +1127,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li>Malkiel, B., &amp; Saha, A. (2005). “Hedge Funds: Risk and Return.” <i>Financial Analysts Journal</i> 61(6) — backfill ≈ +5%/yr, survivorship ≈ +4.4%/yr; corrected aggregate ≈ index. <a href="https://www.princeton.edu/~ceps/workingpapers/104malkiel.pdf">PDF</a>; Ibbotson &amp; Chen (2006): ≈5.7%/yr combined overstatement. <a href="https://depot.som.yale.edu/icf/papers/fileuploads/2597/original/06-10.pdf">Yale ICF</a></li>
 <li>Lack, S. (2012). <i>The Hedge Fund Mirage</i> (Wiley) — industry-lifetime investor profits vs ~$0.5T in fees; T-bill comparison. <a href="https://www.wiley.com/en-us/The+Hedge+Fund+Mirage:+The+Illusion+of+Big+Money+and+Why+It%27s+Too+Good+to+Be+True-p-9781118164310">Wiley</a></li>\n<li>Bessembinder, H., Chen, T.-F., Choi, G., &amp; Wei, K.C.J. (2019). \u201cDo Global Stocks Outperform US Treasury Bills?\u201d \u2014 64,000+ stocks, 42 countries: top 1.3% of firms = all $44.7T net global wealth creation; 61% of non-US stocks trail T-bills. <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3415739">SSRN</a></li>\n<li>Odean, T. (1998). \u201cAre Investors Reluctant to Realize Their Losses?\u201d <i>Journal of Finance</i> 53(5) \u2014 the disposition effect: winners sold ~50% more readily than losers.</li>
 <li>DeMiguel, V., Garlappi, L., &amp; Uppal, R. (2009). \u201cOptimal Versus Naive Diversification: How Inefficient Is the 1/N Portfolio Strategy?\u201d <i>Review of Financial Studies</i> 22(5) \u2014 equal-weight splits are persistently hard to beat out-of-sample.</li>
+<li>Kelly, J.L. (1956). \u201cA New Interpretation of Information Rate\u201d; Latan\u00e9, H. (1959); MacLean, Thorp &amp; Ziemba (2011), <i>The Kelly Capital Growth Investment Criterion</i> \u2014 the growth-optimal (maximum expected log-wealth) framework.</li>
+<li>Black, F., &amp; Litterman, R. (1992). \u201cGlobal Portfolio Optimization.\u201d <i>Financial Analysts Journal</i> 48(5) \u2014 deviations from market weights should be proportional to the strength of one's private views.</li>
 </ol>
 <p class="note">All statistics computed from point-in-time, delisting-inclusive U.S. market data: ~24,000 tickers including ~8,900 that no longer trade, 1990–2026; prices adjusted for splits/dividends; disappeared stocks counted at their final traded price (acquisitions exit at deal price); liquidity floor (price ≥ $3, median daily volume ≥ $2M) applied at each historical date using only that date's information. Strategy tests charge 5–20 bps per side and give the benchmark identical cash flows. Charts generated by <a href="{GH}/scripts/gen_verdict.py">gen_verdict.py</a> from <a href="{GH}/scripts/verdict_evidence.py">verdict_evidence.py</a>; underlying research records: <a href="{GH}/dca/research/strategies/ascent/FINDINGS.md">stock-selection studies</a>, <a href="{GH}/leverage_etf_dca/README.md">ETF-timing studies</a>, <a href="{GH}/dca/README.md">DCA-selection validation</a>, <a href="{GH}/dca/research/strategies/METHODOLOGY_validation.md">validation playbook</a>. External: Bessembinder, <i>Do Stocks Outperform Treasury Bills?</i> (2018); S&amp;P SPIVA scorecards; Buffett's 2008–2017 index-vs-hedge-funds bet.</p>
 <footer>Version 2.0 · data through June 2026 · U.S. markets. Research, not investment advice. Backtests are simulations; past performance does not guarantee future results.</footer>
