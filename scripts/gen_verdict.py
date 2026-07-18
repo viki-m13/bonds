@@ -307,7 +307,7 @@ FAQS_PEOPLE = [
  ("“Renaissance's Medallion fund makes 60%+ a year.”",
   "True, and instructive: Medallion is capped at roughly $10–15B (returns vanish at scale), closed to outside money for decades, and earns its returns from thousands of tiny, short-lived statistical edges executed with elite infrastructure — not from 'picking good stocks.' The same firm's funds that are <i>open</i> to outsiders have performed near the market. The existence of a closed, capacity-limited machine says nothing about what an individual can do in a brokerage account."),
  ("“Professionals with Bloomberg terminals and armies of analysts must beat it.”",
-  "The public scorecard says the opposite: S&amp;P's SPIVA reports have shown, year after year, that roughly <b>85–90%+ of professional U.S. stock funds lag their benchmark over 15 years</b> — after fees, with every resource money can buy. The minority who lead in one period are not reliably the same ones who lead in the next (persistence studies). If the professionals can't, the base case for anyone else is worse."),
+  "The public scorecard says the opposite: S&amp;P's SPIVA reports have shown, year after year, that <b>89.5% of professional U.S. large-cap funds lagged the S&amp;P 500 over the 15 years through 2024</b> [12] — after fees, with every resource money can buy. The minority who lead in one period are not reliably the same ones who lead in the next (persistence studies). If the professionals can't, the base case for anyone else is worse."),
  ("“Somebody has to be beating the market — trading is a two-sided game.”",
   "Yes — and it's worth naming who actually wins: market-makers and high-frequency firms (paid a tiny spread billions of times — a different business, not stock-picking), insiders trading their own knowledge (illegal), a small set of closed, capacity-limited quantitative funds, and the temporarily lucky. What's missing from that list is 'a person at home selecting stocks from public information.' That specific game is the one this paper measures — and it loses."),
 ]
@@ -336,6 +336,12 @@ FAQS_STRATEGY = [
   "Tested with the complete filing record: insider-cluster buying is one of the <i>better</i> signals — it lifts the odds a pick beats QQQ by ~4–6 percentage points. But the base rate is ~40%, so the best insider-informed picks still beat the index less than half the time. An edge that real, applied honestly, still wasn't enough to overcome the pond and concentration problems."),
  ("“AI changes everything — a model can find the winners now.”",
   "Modern machine learning was tested extensively on this exact question with clean, point-in-time data. The models genuinely <i>can</i> rank stocks — and still lost to QQQ, because their confident picks all cluster in the same crowded trades and fail together: measured directly, the ML's top picks landed in the following year's top performers <i>less often than randomly chosen stocks</i> (§5). Also: whatever a widely available AI knows is, by definition, available to everyone — and therefore already in prices."),
+]
+FAQS_STRATEGY += [
+ ("“Didn't monkeys throwing darts beat the index?”",
+  "The famous dart-throwing-monkey portfolios (and the studies behind them) beat <i>cap-weighted</i> indexes historically because random picking systematically over-weights small and cheap stocks — hidden extra risk that paid off in those samples. In the recent mega-cap era that same tilt was exactly what lost (§3): our 100 random portfolios — same idea, honest modern data — ended at a median 0.58× QQQ with 6% winning. The monkeys weren't skilled; they were levered to a bet that has since stopped paying."),
+ ("“What about day trading? I've seen the funded-account guys.”",
+  "The best evidence is brutal: tracking <b>every person</b> who began day-trading index futures in Brazil over three years, 97% of those who stuck with it 300+ days lost money, only 1.1% out-earned minimum wage, and performance did not improve with experience [16]. U.S. brokerage data points the same way: the most active retail traders lagged the market by 6.5 points a year [14]. Day trading is the picking problem of this paper, repeated hundreds of times a year at maximum cost."),
 ]
 FAQS_PREMISE = [
  ("“Backtests aren't real life.”",
@@ -398,6 +404,10 @@ td.r,th.r{{text-align:right;font-variant-numeric:tabular-nums}}
 .leg{{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--mut);margin:6px 0}}
 .leg i{{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}}
 .retract{{border-left:4px solid var(--bad)}} .retract b{{color:var(--bad)}}
+.lit{{border-left:4px solid #6b7280;background:#f8fafc}}
+.lit .h{{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;font-weight:800;margin-bottom:6px}}
+.lit p{{font-size:13.5px;margin:6px 0}}
+ol.refs{{margin:8px 0 8px 20px;font-size:12.5px;color:#374151}} ol.refs li{{margin:6px 0}}
 ul{{margin:8px 0 8px 20px}} li{{margin:5px 0}}
 .check li{{list-style:none;margin:7px 0;padding-left:24px;position:relative}}
 .check li:before{{content:"✓";position:absolute;left:0;color:var(--good);font-weight:800}}
@@ -424,7 +434,7 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <div class="k"><div class="v">6.2%</div><div class="l">of stocks beat QQQ over the decade</div></div>
 <div class="k"><div class="v">2,177</div><div class="l">stocks measured, incl. every death</div></div>
 <div class="k"><div class="v">250+</div><div class="l">strategies tested &amp; failed</div></div>
-<div class="k"><div class="v">~90%</div><div class="l">of professional funds lag (SPIVA)</div></div>
+<div class="k"><div class="v">89.5%</div><div class="l">of pro funds lag over 15y (SPIVA)</div></div>
 </div>
 
 <div class="card"><nav class="toc">
@@ -465,7 +475,11 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <div class="chart">{c_skew}</div>
 <div class="leg"><span><i style="background:#b91c1c"></i>lost money</span><span><i style="background:#15803d"></i>made money</span><span>each bar = number of stocks; dashed lines = QQQ (+{sk['qqq']*100:.0f}%) and the median stock</span></div>
 <div class="card big"><div class="n">6.2%</div>That's the fraction of stocks that beat QQQ over that decade — roughly <b>1 in 16</b>. A quarter lost money outright in one of the best decades markets have ever had. The <i>median</i> stock returned +{sk['median']*100:.0f}% in total while QQQ returned +{sk['qqq']*100:.0f}%.</div>
-<p>And the gains that do exist are brutally concentrated: the top 1% of stocks produced <b>~{conc['share_of_net'][3]:.0f}%</b> of all net gains; the top 10% produced <b>~{conc['share_of_net'][6]:.0f}%</b>. This mirrors the famous academic result (Bessembinder, 2018) that a few dozen companies account for most of the stock market's entire net wealth creation since 1926, and <i>most individual stocks underperform cash</i>.</p>
+<p>And the gains that do exist are brutally concentrated: the top 1% of stocks produced <b>~{conc['share_of_net'][3]:.0f}%</b> of all net gains; the top 10% produced <b>~{conc['share_of_net'][6]:.0f}%</b>. This is the same picture the canonical academic result paints (Bessembinder [1]) — a small sliver of companies accounts for most of the stock market's entire net wealth creation since 1926, and <i>most individual stocks underperform cash</i>.</p>
+<div class="card lit"><div class="h">The published record says the same thing</div>
+<p><b>Bessembinder (2018)</b>, studying every U.S. stock since 1926 (~26,000 companies): the best-performing <b>4% of companies account for the stock market's entire net gain over Treasury bills</b>; the other 96% collectively matched cash. Four out of seven stocks returned <i>less than Treasury bills</i> over their lifetime, and just five companies produced 10% of all wealth ever created [1]. His global follow-up found it's even more extreme worldwide.</p>
+<p><b>J.P. Morgan's “Agony &amp; Ecstasy” study</b> (Russell 3000, 1980–2014): <b>40% of all stocks suffered a catastrophic decline of 70%+ from which they never recovered</b>; two-thirds underperformed the index; the median stock lagged it by −54% over its lifetime [2].</p>
+<p><b>Heaton, Polson &amp; Witte, “Why Indexing Works” (2017)</b> formalized the mechanism this section shows empirically: when a few stocks drive everything, <i>any</i> subset you pick most likely misses them, so most pickers must trail the index — before costs [3].</p></div>
 <p>It's not one lucky decade. Year by year since 2000, the fraction of stocks beating QQQ over the following 12 months averaged <b>42%</b> — and the years it exceeded 50% are mostly 2000–2001, when "beating QQQ" meant falling less than an index that was crashing:</p>
 <div class="chart">{c_year}</div>
 <div class="leg"><span>% of stocks beating QQQ over the next 12 months, each year 2000–2025 (dashed line = coin flip)</span></div>
@@ -475,6 +489,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <p>The most seductive idea in investing: <i>just buy what's already winning.</i> Three measured facts kill it.</p>
 <h3>4.1 The winners list doesn't stay the winners list</h3>
 <div class="card big"><div class="n">15%</div>Of each year's top-10% performers, that's how many repeat in the top 10% the following year. <b>{pers['below_median']:.0f}%</b> fall below the <i>median</i> stock; only <b>{pers['beat_qqq_next']:.0f}%</b> beat QQQ. (Measured across 24 annual cohorts, 2001–2024.)</div>
+<div class="card lit"><div class="h">The published record</div>
+<p>The same non-persistence holds for professionals: <b>S&amp;P's Persistence Scorecard</b> finds that of funds in the top quartile in any year, almost none remain top-quartile a few years later — at rates at or below what chance predicts [4]. Momentum itself is a real, Nobel-adjacent finding (<b>Jegadeesh &amp; Titman 1993</b> [5]) — but it's a short-horizon <i>relative</i> effect that decays and periodically crashes (<b>Daniel &amp; Moskowitz 2016</b> [6]); it is not "good stocks keep being good."</p></div>
 <h3>4.2 Buying the hot list and holding is a disaster</h3>
 <p>Done literally on point-in-time data: at the start of 2015, buy the 20 hottest stocks in America (the top of the 12-month leaderboard), $1,000 each, and hold:</p>
 <div class="chart">{c_hold}</div>
@@ -497,12 +513,19 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <p>Two details worth knowing. First, the "best" stock screen's result (1.21×) exactly equals the <i>luckiest</i> of the random-picker controls — indistinguishable from chance. Second, the strongest ML models genuinely could rank stocks, yet their most confident picks landed among the next year's top performers <b>less often than randomly chosen stocks</b> (8.3% vs 10.2%) — their bold picks were all the same crowded bet in different tickers, so they failed together. Skill existed; it was the wrong shape.</p>
 <div class="card retract"><b>We retracted our own winners.</b> Three strategies from this research were themselves published as market-beaters, then independently rebuilt and audited: a machine-learning stock picker (two data flaws found — honest version lands <i>below</i> QQQ), a biweekly DCA stock-selection system (half its edge was survivorship bias and recency; honest version is a coin flip), and a leveraged-ETF timing system (data leakage; rebuilt honestly, its return came from extra risk, not skill). If we hold everyone else's claims to these audits, we hold our own to them too — <b>that is why you can trust the negative result.</b></div>
 
+<div class="card lit"><div class="h">The published record</div>
+<p><b>Sharpe's "Arithmetic of Active Management" (1991)</b> is the iron law underneath all of this: the average actively-managed dollar must earn the market return <i>before</i> costs, and less than it <i>after</i> costs — always, by accounting identity. Beating the index is a zero-sum game played against professionals, minus fees [7].</p>
+<p><b>Fama &amp; French, "Luck versus Skill" (2010)</b>: across 3,000+ mutual funds, so few beat their benchmarks net of costs that the winners are statistically indistinguishable from what luck alone would produce [8]. <b>Carhart (1997)</b> found the same decades earlier: no persistent fund skill beyond fees and momentum exposure [9].</p>
+<p><b>McLean &amp; Pontiff (2016)</b>: even <i>published academic anomalies</i> lose ~26% of their returns after their sample period ends and <b>~58% after publication</b> — edges die on contact with daylight [10]. <b>Harvey, Liu &amp; Zhu (2016)</b> showed most published factors likely aren't real at all once you correct for how many were tested — the same multiple-testing trap our audits caught [11].</p></div>
 <h2 id="s6">6 · About your market-beating friend: the luck math</h2>
 <p>A concentrated stock portfolio beats QQQ in a given year roughly 40–45% of the time (that's the measured base rate — losing more often than winning, but not by much in any single year). Now imagine 10,000 people each running one portfolio, with <b>zero skill</b>, just those coin odds:</p>
 <div class="chart">{c_luck}</div>
 <div class="leg"><span>Expected number (out of 10,000 zero-skill pickers) still holding a perfect beat-the-market streak of each length</span></div>
 <p>After five years, ~185 flawless five-year track records exist by pure chance. After ten years — three. Those people are not lying about their returns; they're real, they're confident, and they're indistinguishable from skilled until the streak ends. They post on YouTube; the 9,815 others don't. <b>Survivorship bias isn't just a data problem — it's your entire social-media feed.</b></p>
 
+<div class="card lit"><div class="h">The published record</div>
+<p><b>SPIVA (S&amp;P, year-end 2024)</b>: <b>89.5% of professional U.S. large-cap funds underperformed the S&amp;P 500 over 15 years</b> — full-time managers, with research teams, before your tax disadvantages [12]. <b>Buffett's famous 10-year bet</b> (2008–2017): a plain S&amp;P 500 index fund returned +125.8%; the hand-picked hedge-fund portfolios averaged roughly +36% — he donated the winnings and repeated the advice: index [13].</p>
+<p>And for the individual actually doing the trading: <b>Barber &amp; Odean (2000)</b>, 66,465 real brokerage households — the most active traders earned <b>11.4%/yr while the market returned 17.9%</b> [14]. <b>Morningstar's "Mind the Gap"</b>: real investors earn ~<b>1.1 percentage points per year less than the very funds they hold</b>, from timing their entries and exits [15]. A study of every Brazilian who began day-trading index futures (2013–2015): of those who persisted 300+ days, <b>97% lost money</b>, and only 1.1% earned more than minimum wage [16].</p></div>
 <h2 id="s7">7 · The market-timing myths, measured</h2>
 <p><b>"Wait for the crash, then buy."</b> Simulated directly: hold every contribution in cash until the index is at least 20% off its high, then invest it all. Since 2003:</p>
 <div class="chart">{c_dip}</div>
@@ -587,7 +610,28 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li>✗ No acting on streaks — yours or anyone's (§6: three 10-year streaks per 10,000 coin-flippers).</li>
 </ul>
 
-<h2 id="s12">Methodology &amp; sources</h2>
+<h2 id="s12">Methodology, references &amp; sources</h2>
+<h3>Published research integrated above</h3>
+<ol class="refs">
+<li>Bessembinder, H. (2018). “Do Stocks Outperform Treasury Bills?” <i>Journal of Financial Economics</i> 129(3). <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2900447">SSRN</a></li>
+<li>J.P. Morgan Private Bank, <i>Eye on the Market</i>: “The Agony and the Ecstasy: The Risks and Rewards of a Concentrated Stock Position.” Russell 3000, 1980–2014. <a href="https://privatebank.jpmorgan.com/content/dam/jpm-wm-aem/global/pb/en/insights/eye-on-the-market/eotm-the-agony-and-the-ecstasy.pdf">PDF</a></li>
+<li>Heaton, J.B., Polson, N., &amp; Witte, J. (2017). “Why Indexing Works.” <i>Applied Stochastic Models in Business and Industry</i>.</li>
+<li>S&amp;P Dow Jones Indices, <i>U.S. Persistence Scorecard</i> (annual). <a href="https://www.spglobal.com/spdji/en/spiva/article/us-persistence-scorecard/">S&amp;P</a></li>
+<li>Jegadeesh, N., &amp; Titman, S. (1993). “Returns to Buying Winners and Selling Losers.” <i>Journal of Finance</i> 48(1).</li>
+<li>Daniel, K., &amp; Moskowitz, T. (2016). “Momentum Crashes.” <i>Journal of Financial Economics</i> 122(2).</li>
+<li>Sharpe, W.F. (1991). “The Arithmetic of Active Management.” <i>Financial Analysts Journal</i> 47(1).</li>
+<li>Fama, E., &amp; French, K. (2010). “Luck versus Skill in the Cross-Section of Mutual Fund Returns.” <i>Journal of Finance</i> 65(5).</li>
+<li>Carhart, M. (1997). “On Persistence in Mutual Fund Performance.” <i>Journal of Finance</i> 52(1).</li>
+<li>McLean, R.D., &amp; Pontiff, J. (2016). “Does Academic Research Destroy Stock Return Predictability?” <i>Journal of Finance</i> 71(1).</li>
+<li>Harvey, C., Liu, Y., &amp; Zhu, H. (2016). “…and the Cross-Section of Expected Returns.” <i>Review of Financial Studies</i> 29(1).</li>
+<li>S&amp;P Dow Jones Indices, <i>SPIVA U.S. Scorecard</i>, Year-End 2024: 89.50% of large-cap funds underperformed the S&amp;P 500 over 15 years. <a href="https://www.spglobal.com/spdji/en/documents/spiva/spiva-us-year-end-2024.pdf">PDF</a></li>
+<li>Buffett–Protégé Partners wager, 2008–2017; documented in Berkshire Hathaway shareholder letters (2016, 2017).</li>
+<li>Barber, B., &amp; Odean, T. (2000). “Trading Is Hazardous to Your Wealth.” <i>Journal of Finance</i> 55(2). <a href="https://faculty.haas.berkeley.edu/odean/papers%20current%20versions/individual_investor_performance_final.pdf">PDF</a></li>
+<li>Morningstar, <i>Mind the Gap</i> (2024): 1.1 pp/yr investor-return gap, ~15% of total returns. <a href="https://www.morningstar.com/business/insights/research/mind-the-gap">Morningstar</a></li>
+<li>Chague, F., De-Losso, R., &amp; Giovannetti, B. (2020). “Day Trading for a Living?” <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3423101">SSRN</a></li>
+<li>Vanguard Research: lump-sum vs cost-averaging (~two-thirds of historical periods favor immediate investment).</li>
+<li>Grossman, S., &amp; Stiglitz, J. (1980). “On the Impossibility of Informationally Efficient Markets.” <i>American Economic Review</i> 70(3).</li>
+</ol>
 <p class="note">All statistics computed from point-in-time, delisting-inclusive U.S. market data: ~24,000 tickers including ~8,900 that no longer trade, 1990–2026; prices adjusted for splits/dividends; disappeared stocks counted at their final traded price (acquisitions exit at deal price); liquidity floor (price ≥ $3, median daily volume ≥ $2M) applied at each historical date using only that date's information. Strategy tests charge 5–20 bps per side and give the benchmark identical cash flows. Charts generated by <a href="{GH}/scripts/gen_verdict.py">gen_verdict.py</a> from <a href="{GH}/scripts/verdict_evidence.py">verdict_evidence.py</a>; underlying research records: <a href="{GH}/dca/research/strategies/ascent/FINDINGS.md">stock-selection studies</a>, <a href="{GH}/leverage_etf_dca/README.md">ETF-timing studies</a>, <a href="{GH}/dca/README.md">DCA-selection validation</a>, <a href="{GH}/dca/research/strategies/METHODOLOGY_validation.md">validation playbook</a>. External: Bessembinder, <i>Do Stocks Outperform Treasury Bills?</i> (2018); S&amp;P SPIVA scorecards; Buffett's 2008–2017 index-vs-hedge-funds bet.</p>
 <footer>Research, not investment advice. Backtests are simulations; past performance does not guarantee future results.</footer>
 </div></body></html>"""
