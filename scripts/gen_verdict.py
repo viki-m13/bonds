@@ -652,6 +652,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <div class="sub" style="margin-top:8px">Prefer it visual? <a href="verdict-story.html"><b>Read the interactive story edition &rarr;</b></a></div>
 </header>
 
+<div class="card" style="margin-top:18px"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--mut);font-weight:800;margin-bottom:6px">Abstract</div>
+<p style="font-size:14px;margin:4px 0">We ask whether any implementable strategy — stock selection, market timing, sector or fund rotation — can reliably outperform automatic periodic investment (dollar-cost averaging) into a broad cap-weighted index, taking QQQ as the benchmark. Using survivorship-free, point-in-time data on ~24,000 U.S. equities (1990–2026, including 8,900 delistings), we measure the base rates directly: 32–46% of stocks beat the index in a typical year, 6.2% over a decade, 4.6% over two; the top 10% of stocks produce 61% of all net gains. We test 250+ strategy configurations across nine research programs; every apparent winner fails at least one of five audits (random-picker nulls, lead-timing, era extension, trade-date sensitivity, survivorship), including three strategies we ourselves previously published and here retract. Results replicate against SPY, against category benchmarks, and internationally. We derive the mechanisms — return skew from limited liability, the arithmetic of active management, correlated picker errors — and, from growth-optimal first principles, a zero-information "forever" allocation. We state falsification conditions and provide all code and data.</p></div>
 <div class="card verdict" style="margin-top:18px">
 <b>The verdict:</b> on 26 years of honest data, <b>no method of picking stocks or timing markets reliably ends up with more money than automatically buying QQQ every two weeks or every month.</b> Not expert selection, not "buying the winners," not value screens, not dip-buying, not machine learning. This isn't because markets are magic. It's arithmetic: a few huge winners produce nearly all stock-market wealth, the index already owns them at full size and rides them automatically, and every act of picking makes you own less of them. The rest of this page shows the evidence, then answers every objection we could find.
 </div>
@@ -681,6 +683,21 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <a href="#s12">Methodology &amp; sources</a>
 </nav></div>
 
+<div class="card"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--mut);font-weight:800;margin-bottom:6px">The study in twelve numbers</div>
+<table style="font-size:13px"><tbody>
+<tr><td class="r" style="width:90px"><b>6.2%</b></td><td>of 2,177 investable stocks beat QQQ over the 2016–26 decade (deaths included)</td><td class="r note">§3</td></tr>
+<tr><td class="r"><b>42%</b></td><td>average chance a stock beats the index over any single year — the picker's best horizon</td><td class="r note">§3</td></tr>
+<tr><td class="r"><b>61%</b></td><td>of all net gains came from the top 10% of stocks; 250 names produced almost everything</td><td class="r note">§3</td></tr>
+<tr><td class="r"><b>15%</b></td><td>of top-decile winners repeat next year; 56% fall below the median stock</td><td class="r note">§4</td></tr>
+<tr><td class="r"><b>−87%</b></td><td>the drawdown the era's best stock inflicted on the way to +18,000% — the unholdable prize</td><td class="r note">§4</td></tr>
+<tr><td class="r"><b>0 of 250+</b></td><td>tested configurations honestly and durably beat the benchmark after five audits</td><td class="r note">§5</td></tr>
+<tr><td class="r"><b>3</b></td><td>of our own published "winners" were retracted when independently rebuilt</td><td class="r note">§5</td></tr>
+<tr><td class="r"><b>8.3% &lt; 10.2%</b></td><td>the ML's most confident picks hit the future top decile <i>less often than random</i> — errors are crowded, not independent</td><td class="r note">§5</td></tr>
+<tr><td class="r"><b>89.5%</b></td><td>of professional U.S. large-cap funds lagged the S&amp;P 500 over 15 years (SPIVA)</td><td class="r note">§6</td></tr>
+<tr><td class="r"><b>16 years</b></td><td>of live results needed to distinguish a genuinely good manager from luck</td><td class="r note">§6c</td></tr>
+<tr><td class="r"><b>0.84×</b></td><td>median random portfolio vs SPY too — the verdict survives swapping the benchmark</td><td class="r note">§2.2</td></tr>
+<tr><td class="r"><b>−81%</b></td><td>QQQ's own dot-com scar — the benchmark is a bet, and the paper says so</td><td class="r note">§9</td></tr>
+</tbody></table></div>
 <h2 id="s1">1 · The rules of the test</h2>
 <p>The question: investing a fixed amount on a fixed schedule (every two weeks or monthly — both tested, the difference is negligible), can <i>any</i> rule for choosing stocks or timing purchases end with more money than putting every contribution into QQQ?</p>
 <p>Three rules make the test honest, and they matter more than any strategy:</p>
@@ -775,7 +792,7 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <div class="card verdict"><b>The professional bottom line</b> (the direct answer, with the reasoning above as its audit trail):
 <ul style="margin:8px 0 2px 20px">
 <li><b>If you refuse all forward bets:</b> the broad machine — SPY or a total-market fund. This is the only choice that is provably unbiased, and everything in this study holds with it as the engine.</li>
-<li><b>The recommended default for a disciplined long-horizon contributor: 50% SPY + 50% QQQ</b> (split each contribution; rebalance with contributions). It expresses the concentration thesis at half size, is never the worst machine in any era, carries the mildest measured account drawdown of the three, always holds some of whatever leads — the property that keeps plans alive — and its regret is bounded in <i>both</i> directions. It is the allocation we can defend to a skeptic without once pointing at a past-returns chart.</li>
+<li><b>The recommended default <i>among the U.S. large-cap machines</i>, for a disciplined long-horizon contributor: 50% SPY + 50% QQQ</b> (split each contribution; rebalance with contributions). It expresses the concentration thesis at half size, is never the worst machine in any era, carries the mildest measured account drawdown of the three, always holds some of whatever leads — the property that keeps plans alive — and its regret is bounded in <i>both</i> directions. It is the allocation we can defend to a skeptic without once pointing at a past-returns chart.</li>
 <li><b>100% QQQ: permitted, never provable.</b> Take it only if you explicitly own the concentration thesis <i>and</i> pass the measured stomach test — {c2000["years_below"]} years behind, {c2000["min_ratio"]}× at the trough — without abandoning.</li>
 </ul>
 <p style="margin:8px 0 2px">And in every case, the spread between these three choices is second-order next to the two first-order errors this entire study measures: <b>leaving the machines to pick stocks, and abandoning the plan mid-drawdown.</b> Get those two right and any point on this menu wins the game most people lose. (\u00a72.9 derives the stricter, menu-free answer from first principles.)</p></div>
@@ -1007,8 +1024,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li><b>Only money you won't need for 10+ years goes into equities.</b> The index fell −81% once (§9) and −32% on a DCA account twice in 20 years. Money you'll need within ~5 years doesn't belong in it — being forced to sell into a crash is the one unrecoverable mistake.</li>
 </ul>
 
-<h3>11.2 &nbsp;How much goes into QQQ-DCA? All of your long-term money — if you pass the stomach test</h3>
-<p>This study's answer is simple: <b>every dollar you are investing for 10+ years goes into the automatic QQQ purchase.</b> Not because QQQ can't fall — but because every tested attempt to improve on it (picking, timing, rotating, waiting) ended with less money. There is no clever remainder to allocate; <b>the schedule IS the strategy.</b></p>
+<h3>11.2 &nbsp;How much goes into the machine? All of your long-term money — if you pass the stomach test</h3>
+<p>This study's answer is simple: <b>every dollar you are investing for 10+ years goes into the automatic purchase of the machine you chose in §2</b> — the world/total-market fund by strict derivation (§2.9), the §2.6 blends or QQQ as consciously-sized bets; QQQ-DCA is used below because it is this paper's benchmark and the numbers are its history. Not because QQQ can't fall — but because every tested attempt to improve on it (picking, timing, rotating, waiting) ended with less money. There is no clever remainder to allocate; <b>the schedule IS the strategy.</b></p>
 <p>The honest price of that answer, quantified, so you can pre-commit with open eyes:</p>
 <ul>
 <li>A steady QQQ-DCA account fell <b>−32% from its peak twice</b> in 20 years (2008–09, 2022) — and kept buying. Both times the automatic contributions bought the bottom, and the account went on to new highs. The people who lost were the ones who stopped.</li>
@@ -1094,6 +1111,12 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li><b>The era caveat is §9's:</b> 1999–2026 is one long sample dominated by U.S. large-cap tech; the anti-picking mechanisms (skew, concentration, arithmetic of active management) are era-independent, but QQQ's specific margin over broader indexes is not.</li>
 <li><b>Simulations are simulations:</b> every number here is a backtest or historical measurement, not a guarantee; the behavioral evidence [14][15][16] suggests live results for active approaches would be worse, not better.</li>
 </ul>
+<h3>Data &amp; code availability, uncertainty, and disclosure</h3>
+<ul class="note" style="font-size:12.5px">
+<li><b>Reproducibility:</b> every statistic and figure regenerates from committed data with two commands (<code>python3 scripts/verdict_evidence.py &amp;&amp; python3 scripts/gen_verdict.py</code>); the full price panel (~24k tickers incl. delistings), fundamentals, and all strategy-test code are in the public repository linked above. No number on this page exists only in prose.</li>
+<li><b>Sampling uncertainty on the headline rates:</b> the 6.2% decade beat-rate carries a 95% interval of roughly ±1.0 pp (n = 2,177); the annual 42% figure ±1 pp per cohort; the 100-portfolio simulations ±5 pp on quoted percentages. No conclusion is sensitive at these widths.</li>
+<li><b>Disclosure:</b> the authors sell nothing described here — no fund, newsletter, course, or signal — and hold no position that benefits from the conclusions beyond owning broad index funds like the ones any reader would buy from any provider. The retractions in §5 are of our own prior work.</li>
+</ul>
 <h3>Published research integrated above</h3>
 <ol class="refs">
 <li>Bessembinder, H. (2018). “Do Stocks Outperform Treasury Bills?” <i>Journal of Financial Economics</i> 129(3). <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2900447">SSRN</a></li>
@@ -1134,6 +1157,13 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <footer>Version 2.0 · data through June 2026 · U.S. markets. Research, not investment advice. Backtests are simulations; past performance does not guarantee future results.</footer>
 </div></body></html>"""
 
+import re as _re
+_fig = [0]
+def _addfig(m):
+    _fig[0] += 1
+    return m.group(1) + f'<b style="color:#111418">Figure {_fig[0]}.</b> '
+html = _re.sub(r'(<div class="leg">\s*<span>)', _addfig, html)
+html = html.replace("</footer>", f" · {_fig[0]} figures.</footer>")
 out = f"{ROOT}/docs/verdict.html"
 open(out, "w").write(html)
 print(f"written {out} ({len(html):,} bytes)")
