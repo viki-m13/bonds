@@ -281,10 +281,7 @@ lot = E["lottery"]
 c_lottery = bars_svg(["loses money", "makes 10×+", "beats QQQ", "makes 100×+"],
                      [round(lot["p_lose"]*100,1), round(lot["p_10x"]*100,1), round(lot["p_beat_qqq"]*100,1), round(lot["p_100x"]*100,2)],
                      color="#6b7280", fmt=lambda v: f"{v:g}%", H=220)
-blend_rows = "".join(
-    f"<tr><td>{r['w']}% QQQ / {100-r['w']}% bonds</td><td class='r'>${r['final']:,}</td>"
-    f"<td class='r bad'>{r['dd']}%</td><td class='r'>{r['final']/E['blends']['rows'][0]['final']*100:.0f}%</td></tr>"
-    for r in E["blends"]["rows"])
+
 sat_shortfall = 1 - (E["random_fans"]["final_median"]) ** (1/11.5)      # measured annual lag of a picked satellite
 drag_rows = "".join(
     f"<tr><td>{int(w*100)}% picks / {int((1-w)*100)}% QQQ</td>"
@@ -547,7 +544,7 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <div class="leg"><span>QQQ's distance below its own prior peak, 1999–2017 — the scar this paper refuses to hide</span></div>
 <ul>
 <li><b>It does not say markets are perfectly efficient</b> — only that the specific game of out-picking a winner-riding index using public information is stacked, measurably, against the picker.</li>
-<li><b>It does not say never own anything else.</b> Diversifying across asset classes (bonds, international, etc.) genuinely smooths the ride — in exchange for return. That's a preference, not an error.</li>
+<li><b>It does not cover other asset classes.</b> This is a study of stock strategies measured against QQQ; whether you hold anything besides stocks is a separate question it deliberately doesn't answer.</li>
 <li><b>It does not promise the next 26 years look like the last.</b> It says: whatever index you choose, no tested method of picking stocks against it has honestly beaten contributing to it on autopilot.</li>
 </ul>
 
@@ -562,16 +559,19 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li><b>Cash buffer first:</b> 3–6 months of expenses. Its job is to make sure you are never forced to sell stocks in a crash.</li>
 <li><b>Free money second:</b> any employer retirement match, always, fully.</li>
 <li><b>Tax-advantaged accounts before taxable</b> (401k/IRA equivalents): the same QQQ-DCA compounds meaningfully faster untaxed.</li>
-<li><b>Only money you won't need for 10+ years goes into equities.</b> The index fell −81% once (§9) and −32% on a DCA account twice in 20 years. Five-year money belongs in bonds/cash regardless of what any chart says.</li>
+<li><b>Only money you won't need for 10+ years goes into equities.</b> The index fell −81% once (§9) and −32% on a DCA account twice in 20 years. Money you'll need within ~5 years doesn't belong in it — being forced to sell into a crash is the one unrecoverable mistake.</li>
 </ul>
 
-<h3>11.2 &nbsp;How much into QQQ? Pick the row you can sleep through</h3>
-<p>Measured on the same $1,000/month, 2006–2026 (bonds = a total U.S. bond fund):</p>
-<table><thead><tr><th>Allocation</th><th class="r">Ends with</th><th class="r">Worst account fall</th><th class="r">vs 100% QQQ</th></tr></thead>
-<tbody>{blend_rows}</tbody></table>
-<p>Read it plainly: <b>every 20% moved to bonds bought about 4 points of shallower crash and cost about a third of final wealth.</b> The right row is not the top one — it's the one whose "worst fall" you will genuinely hold through, because the single most expensive event in investing is abandoning the plan at the bottom (real investors' behavior gap costs an estimated 1–2%/yr on its own). Two honest defaults: <b>long horizon + strong stomach → 80–100% in the index</b>; any doubt about the stomach → <b>60–80%</b> with the rest in boring bonds. If the tech concentration of QQQ specifically worries you (§9), substitute a broad-market fund at the same percentages — that choice matters far less than automating it.</p>
-<p><b>Should you "always and only" DCA into QQQ?</b> Always: automate contributions into your chosen index. Only: no — hold the cash buffer and the bond ballast above, and rebalance <i>with new contributions</i> (direct paycheck money toward whichever side is under target) rather than by selling. What the evidence says to never do is the third thing: buying individual stocks <i>as the plan</i>.</p>
-
+<h3>11.2 &nbsp;How much goes into QQQ-DCA? All of your long-term money — if you pass the stomach test</h3>
+<p>This study's answer is simple: <b>every dollar you are investing for 10+ years goes into the automatic QQQ purchase.</b> Not because QQQ can't fall — but because every tested attempt to improve on it (picking, timing, rotating, waiting) ended with less money. There is no clever remainder to allocate; <b>the schedule IS the strategy.</b></p>
+<p>The honest price of that answer, quantified, so you can pre-commit with open eyes:</p>
+<ul>
+<li>A steady QQQ-DCA account fell <b>−32% from its peak twice</b> in 20 years (2008–09, 2022) — and kept buying. Both times the automatic contributions bought the bottom, and the account went on to new highs. The people who lost were the ones who stopped.</li>
+<li>The worst case on record is worse: a lump sum at the March-2000 top fell <b>−81%</b> and took ~15 years to break even (§9). A <i>contributor</i> through that same disaster recovered far sooner and ended far ahead — steady buying through the crash is precisely what repairs it (§2's table starts at that worst possible moment and still ends at 16× the money in).</li>
+<li>So the sizing question is not a percentage — it's this <b>stomach test</b>: <i>when</i> (not if) the account shows −30%, will you keep the automation on? If yes: all long-term money, full weight. If honestly no: automate the largest amount for which the answer is yes — a plan you hold at the bottom beats a bigger plan you abandon there (the measured cost of self-inflicted timing is 1–2 points a year [15], and far worse when it happens inside a crash).</li>
+<li>Money needed within ~5 years stays out entirely (11.1). Five-to-ten-year money: partial, scaled to how certain the need is.</li>
+</ul>
+<p><b>Should you "always and only" do this?</b> Always — automate it and never override it; every override pathway was measured above and lost. Only — yes, for stock-market money: this entire study is the evidence that adding picking, timing, or rotation on top subtracts. The one sanctioned exception is the capped hobby slice in 11.4.</p>
 <h3>11.3 &nbsp;“But people made fortunes on Apple and Tesla — why can't I?”</h3>
 <p>Because you are looking at the winners of a lottery and asking why you can't buy winning tickets. The odds, measured over 21 years (every investable U.S. stock in 2005, followed to 2026, deaths included — {lot['n']:,} stocks):</p>
 <div class="chart">{c_lottery}</div>
