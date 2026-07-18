@@ -423,6 +423,28 @@ def growthcurve_svg(ws, gs, W=660, H=230):
     s2.append("</svg>")
     return "".join(s2)
 c_growth = growthcurve_svg(_ws, _gs)
+gate = E["gate"]; cand = E["candidates"]
+def beliefcurves_svg(prems, w033, w050, W=660, H=250):
+    pad_l, pad_r, pad_t, pad_b = 46, 120, 12, 34
+    ymax = 45.0
+    def X(p): return pad_l + (W-pad_l-pad_r)*p/prems[-1]
+    def Y(w): return pad_t + (H-pad_t-pad_b)*(1-w/ymax)
+    s2 = [f'<svg viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid meet" {MINW} role="img">']
+    for w in [0, 10, 20, 30, 40]:
+        y = Y(w)
+        s2.append(f'<line x1="{pad_l}" y1="{y:.1f}" x2="{W-pad_r}" y2="{y:.1f}" stroke="#eeeeee"/>'
+                  f'<text x="{pad_l-5}" y="{y+3:.1f}" font-size="10" fill="#9ca3af" text-anchor="end">{w}%</text>')
+    for p in [0, 5, 10, 15, 20]:
+        x = X(p)
+        s2.append(f'<text x="{x:.1f}" y="{H-8}" font-size="10" fill="#6b7280" text-anchor="middle">+{p}pp</text>')
+    for vals, color, lab in [(w033, "#9ca3af", "at its OLD correlation (0.33)"), (w050, "#b91c1c", "at TODAY'S correlation (0.50)")]:
+        pts = " ".join(f"{X(p):.1f},{Y(min(v,ymax)):.1f}" for p, v in zip(prems, vals))
+        s2.append(f'<polyline points="{pts}" fill="none" stroke="{color}" stroke-width="2.4"/>')
+        s2.append(f'<text x="{W-pad_r+6:.1f}" y="{Y(min(vals[-1],ymax))+4:.1f}" font-size="9.5" fill="{color}" font-weight="700">{lab}</text>')
+    s2.append(f'<text x="{(pad_l+W-pad_r)/2:.1f}" y="{H-22}" font-size="9.5" fill="#9ca3af" text-anchor="middle">extra annual return you are willing to ASSERT for Bitcoin, beyond equities \u2192</text>')
+    s2.append("</svg>")
+    return "".join(s2)
+c_belief = beliefcurves_svg(gate["prems"], gate["w033"], gate["w050"])
 cmb = E["combos"]
 combo_rows = "".join(
     f"<tr><td>{r['nm']}</td><td class='r'>${r['final']:,}</td><td class='r bad'>{r['dd']}%</td></tr>"
@@ -856,6 +878,29 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li><b>QQQ (or any tilt):</b> enters only as an explicitly-sized belief term. Sizing rule from §2.6's measured worst case: no larger than what you could watch trail the world machine for 8+ years without abandoning. Zero conviction ⇒ zero weight — <i>and that is the honest default.</i></li>
 </ul>
 <p style="margin:8px 0 2px">Reconciliation with §2.6 and §2.8: those sections answered <i>conditional</i> questions ("given QQQ vs SPY…", "given QQQ + gold…") and remain correct as stated. This section answers the unconditional one. The hierarchy, in decreasing strictness: <b>world machine alone → world machine + minimal behavioral ballast → the §2.6 blends as consciously-sized belief portfolios.</b> Everything below that line on the concentration dial is a bet; everything off the dial is the mistake this paper measures.</p></div>
+<h3>2.10 &nbsp;The definitive candidate table — Bitcoin, Ethereum, silver, oil, international, and everything else, through one formula</h3>
+<p>Finally, the question in its fullest form: of <i>everything</i> you could combine with (or substitute for) the engine — SPY, international, gold, silver, oil, Bitcoin, Ethereum, inflation bonds — what does the mathematics itself assign? One formula answers all of them. From §2.9's growth objective, the optimal small-asset weight is:</p>
+<div class="card" style="text-align:center;font-size:14.5px"><b>w* &nbsp;=&nbsp; (μ<sub>B</sub> − μ<sub>A</sub> + σ<sub>A</sub>² − ρσ<sub>A</sub>σ<sub>B</sub>) &nbsp;/&nbsp; (σ<sub>A</sub>² + σ<sub>B</sub>² − 2ρσ<sub>A</sub>σ<sub>B</sub>)</b>
+<div class="note" style="margin-top:4px">B's excess return, plus the diversification credit, divided by combined variance. Volatilities σ and correlations ρ are <b>measured</b> from two decades of our panel; forward returns μ come from each asset's <b>structure</b> (cash-flow assets: observable yields; non-yield assets: ~0–1% real by construction; crypto: an explicit belief parameter — see below). No historical performance ranking is used anywhere.</div></div>
+<div class="chart"><table style="min-width:640px"><thead><tr><th>Candidate</th><th class="r">σ (measured)</th><th class="r">ρ to engine (full → post-2020)</th><th>Forward-μ basis</th><th class="r">Derived w*</th><th>Verdict</th></tr></thead><tbody>
+<tr><td><b>SPY / U.S. broad</b></td><td class="r">15%</td><td class="r">0.91 → 0.92</td><td>same claim class</td><td class="r">—</td><td>not a diversifier; a <i>within-engine</i> weight (§2.6)</td></tr>
+<tr><td><b>International (EAFE)</b></td><td class="r">17%</td><td class="r">0.71 → 0.67</td><td>equal (same claim class)</td><td class="r good"><b>≈50%</b></td><td class="good">the formula re-derives the <b>world portfolio</b> — §2.9 confirmed independently</td></tr>
+<tr><td><b>Gold</b></td><td class="r">17%</td><td class="r">0.04 → 0.13</td><td>non-yield ≈ 0–1%</td><td class="r">0% growth / 5–10% behavioral</td><td>fails the growth gate; qualifies only as the §2.8 ballast (hedge + safe-haven confirmed in the literature [38])</td></tr>
+<tr><td><b>Silver</b></td><td class="r">32%</td><td class="r">0.23 → 0.28</td><td>non-yield ≈ 0–1%</td><td class="r bad"><b>0%</b></td><td class="bad">dominated by gold on every term: same μ, double the noise, six times the correlation — no role exists</td></tr>
+<tr><td><b>Oil (USO-style)</b></td><td class="r">38%</td><td class="r">0.25 → 0.04</td><td>investable instrument μ &lt; 0</td><td class="r bad"><b>0%</b></td><td class="bad">the fund itself destroys value: USO returned <b>0.2×</b> over 20 years while oil went sideways-to-up — futures roll costs, measured [39]</td></tr>
+<tr><td><b>Inflation bonds (TIPS)</b></td><td class="r">6%</td><td class="r">0.29 → 0.63</td><td>observable real yield ≈ 2%</td><td class="r">0% vs world engine / <b>~39%</b> vs pure-QQQ</td><td>the concentration-ballast law: the narrower your engine, the more ballast the math demands — and it prefers <i>yielding</i> ballast to gold (noted for completeness)</td></tr>
+<tr><td><b>Bitcoin</b></td><td class="r">71%</td><td class="r">0.33 → <b>0.50</b></td><td><b>a belief parameter</b> (no cash flows [36])</td><td class="r">0–5% (see curve)</td><td>weight is a pure function of an unprovable premium — priced below</td></tr>
+<tr><td><b>Ethereum / other crypto</b></td><td class="r">95%</td><td class="r">0.39 → 0.55; <b>0.74 to BTC</b></td><td>belief, junior to BTC's</td><td class="r bad"><b>≈0%</b></td><td class="bad">conditional on any Bitcoin, a 0.74-correlated asset with 35% more volatility adds nothing — crypto gets at most one slot</td></tr>
+</tbody></table></div>
+<p><b>The Bitcoin result deserves its own chart, because it settles the loudest debate without taking a side.</b> Bitcoin has no cash flows, so no yield-based forward return exists; academically, its returns ride crypto-specific momentum and attention factors, not any stock-market or macro factor [36]. So treat the premium as what it honestly is — <b>an assertion you choose</b> — and let the formula price every possible assertion:</p>
+<div class="chart">{c_belief}</div>
+<div class="leg"><span>The growth-optimal Bitcoin weight as a function of the extra return you assert for it, computed at its pre-2020 correlation (0.33, gray) and today's (0.50, red — our measurement; the IMF independently found the same jump, 0.01→0.36 vs the S&amp;P [37]).</span></div>
+<ul>
+<li><b>Assert no premium → the derived weight is exactly 0%.</b> A non-yielding asset at 71% volatility and 0.50 correlation has no diversification case left.</li>
+<li><b>Assert a bold +5 points/year forever → 4.5%.</b> Even the believer's math caps it near the "1–5% allocation" the institutional literature converged on — and note it was <b>8.6% at the old correlation</b>: institutionalization has already halved the justified weight, and every year of further correlation is a further cut.</li>
+<li>Only heroic assertions (+10pp <i>forever</i>) justify double-digit weights — and §6c's skill-detection math says you could not verify such an assertion within an investing lifetime.</li>
+</ul>
+<p><b>The definitive statement, then — precise about what is proven and what is priced:</b> the <i>structure</i> is proven: engine = the world cap-weighted machine (the formula itself re-derived it at the EAFE row); silver, oil, and second cryptos carry derived weights of zero under <i>any</i> defensible inputs; gold enters only through the behavioral constraint at 0–10%; TIPS-style ballast mathematically outranks gold if your engine is concentrated; and Bitcoin's weight is not a fact but a <b>priced belief — the formula converts any premium you're willing to own into a weight, 0% for the skeptic, ~5% at the outer edge of defensible conviction, and shrinking as adoption raises its correlation.</b> That is as definitive as an honest mathematician can be: everything that can be derived is derived; the two remaining numbers (your tilt, your crypto premium) are beliefs — and now they have exact prices.</p>
 <h2 id="s3">3 · The market is a lottery with a few winning tickets — and the index holds them all</h2>
 <p>Here is every investable U.S. stock at mid-2016 — all {sk['n']:,} of them, including the {sk['died']} that later died — and what each returned over the following decade:</p>
 <div class="chart">{c_skew}</div>
@@ -1152,6 +1197,10 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li>DeMiguel, V., Garlappi, L., &amp; Uppal, R. (2009). \u201cOptimal Versus Naive Diversification: How Inefficient Is the 1/N Portfolio Strategy?\u201d <i>Review of Financial Studies</i> 22(5) \u2014 equal-weight splits are persistently hard to beat out-of-sample.</li>
 <li>Kelly, J.L. (1956). \u201cA New Interpretation of Information Rate\u201d; Latan\u00e9, H. (1959); MacLean, Thorp &amp; Ziemba (2011), <i>The Kelly Capital Growth Investment Criterion</i> \u2014 the growth-optimal (maximum expected log-wealth) framework.</li>
 <li>Black, F., &amp; Litterman, R. (1992). \u201cGlobal Portfolio Optimization.\u201d <i>Financial Analysts Journal</i> 48(5) \u2014 deviations from market weights should be proportional to the strength of one's private views.</li>
+<li>Liu, Y., &amp; Tsyvinski, A. (2021). \u201cRisks and Returns of Cryptocurrency.\u201d <i>Review of Financial Studies</i> 34(6) \u2014 crypto returns driven by crypto-specific momentum/attention factors; no exposure to standard stock or macro factors. <a href="https://academic.oup.com/rfs/article-abstract/34/6/2689/5912024">RFS</a></li>
+<li>IMF (2022). \u201cCryptic Connections: Spillovers between Crypto and Equity Markets\u201d (Global Financial Stability Note 2022/01) \u2014 Bitcoin\u2013S&amp;P correlation rose from 0.01 (2017\u201319) to 0.36 (2020\u201321). <a href="https://www.imf.org/-/media/files/publications/gfs-notes/2022/english/gfsnea2022001.pdf">PDF</a></li>
+<li>Baur, D., &amp; Lucey, B. (2010). \u201cIs Gold a Hedge or a Safe Haven?\u201d <i>Financial Review</i> 45 \u2014 gold is both, though the safe-haven effect is short-lived; silver is weaker on both counts. <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6288.2010.00244.x">Wiley</a></li>
+<li>Bhardwaj, G., Gorton, G., &amp; Rouwenhorst, K.G. (2015). \u201cFacts and Fantasies about Commodity Futures Ten Years Later\u201d (NBER w21243) \u2014 broad collateralized futures baskets historically earned risk premia; single-commodity retail products bear the roll costs our USO measurement shows. <a href="https://www.nber.org/system/files/working_papers/w21243/w21243.pdf">NBER</a></li>
 </ol>
 <p class="note">All statistics computed from point-in-time, delisting-inclusive U.S. market data: ~24,000 tickers including ~8,900 that no longer trade, 1990–2026; prices adjusted for splits/dividends; disappeared stocks counted at their final traded price (acquisitions exit at deal price); liquidity floor (price ≥ $3, median daily volume ≥ $2M) applied at each historical date using only that date's information. Strategy tests charge 5–20 bps per side and give the benchmark identical cash flows. Charts generated by <a href="{GH}/scripts/gen_verdict.py">gen_verdict.py</a> from <a href="{GH}/scripts/verdict_evidence.py">verdict_evidence.py</a>; underlying research records: <a href="{GH}/dca/research/strategies/ascent/FINDINGS.md">stock-selection studies</a>, <a href="{GH}/leverage_etf_dca/README.md">ETF-timing studies</a>, <a href="{GH}/dca/README.md">DCA-selection validation</a>, <a href="{GH}/dca/research/strategies/METHODOLOGY_validation.md">validation playbook</a>. External: Bessembinder, <i>Do Stocks Outperform Treasury Bills?</i> (2018); S&amp;P SPIVA scorecards; Buffett's 2008–2017 index-vs-hedge-funds bet.</p>
 <footer>Version 2.0 · data through June 2026 · U.S. markets. Research, not investment advice. Backtests are simulations; past performance does not guarantee future results.</footer>
