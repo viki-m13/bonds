@@ -233,10 +233,12 @@ def hbars_svg(rows, W=660, xmax=100, fmt=lambda v: f"{v:g}%", color="#b91c1c", H
     H = len(rows)*H_row + 16
     s2 = [f'<svg viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid meet" {MINW} role="img">']
     y = 8
-    for lab, v, note in rows:
+    for row in rows:
+        lab, v, note = row[0], row[1], row[2]
+        rowcolor = row[3] if len(row) > 3 else color
         w = (W-230-70)*min(v,xmax)/xmax
         s2.append(f'<text x="224" y="{y+14}" font-size="10.5" fill="#111418" text-anchor="end">{lab}</text>')
-        s2.append(f'<rect x="230" y="{y+4}" width="{max(w,2):.1f}" height="14" fill="{color}" rx="2"/>')
+        s2.append(f'<rect x="230" y="{y+4}" width="{max(w,2):.1f}" height="14" fill="{rowcolor}" rx="2"/>')
         s2.append(f'<text x="{234+max(w,2):.1f}" y="{y+15}" font-size="10.5" font-weight="700" fill="#111418">{fmt(v)}</text>')
         if note: s2.append(f'<text x="{234+max(w,2)+46:.1f}" y="{y+15}" font-size="9" fill="#6b7280">{note}</text>')
         y += H_row
@@ -390,6 +392,11 @@ drag_rows = "".join(
     f"<td class='r'>{((1-w) + w*((1-sat_shortfall)**20))*100:.0f}%</td>"
     f"<td class='r bad'>−{(1-((1-w) + w*((1-sat_shortfall)**20)))*100:.0f}%</td></tr>"
     for w in [0.05, 0.10, 0.20, 0.50])
+menu = E["menu"]
+ef = E["eraflip"]
+_menu_rows = [(r["name"], r["final"]/1e6, f"worst fall {r['dd']}%",
+               "#111418" if r["t"] in ("QQQ", "SPY") else "#b91c1c") for r in menu["rows"]]
+c_menu = hbars_svg(_menu_rows, xmax=2.6, fmt=lambda v: f"${v:.2f}M")
 mach = E["machines"]
 _mc = mach["curves"]
 c_machines = lines_svg(_mc["dates"], [
@@ -675,9 +682,26 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li><b>International (EAFE, emerging):</b> two facts and one concession. Fact one: the two-decade record above — roughly a quarter of QQQ's outcome at equal or worse drawdowns. Fact two, the structural one: <b>you already own the world through U.S. listings</b> — the S&amp;P 500 earns roughly 40% of its revenue abroad, and the world's dominant companies overwhelmingly choose U.S. listings; meanwhile the no-view global index (VT-style) is itself ~60–65% U.S. by cap-weight, so "maximum humility" moves your weights less than it sounds. The concession: Claim A holds <i>within</i> every market (the skew is global [31]) — if you genuinely prefer world weights, automate a global cap-weighted fund and every conclusion here still applies. What's indefensible isn't the region — it's picking and timing inside it.</li>
 <li><b>Japan — the strongest warning in market history, faced directly:</b> the Nikkei's 1989 peak took about <b>three decades</b> to reclaim. That is what a single-country machine bought at bubble prices can do, and no honest study waves it away. Three replies, not one: (i) that catastrophe was a <i>lump sum at the top of one market</i> — a steady contributor kept buying Japan's bottoms for decades and recovered years earlier (the identical mechanism §11.2 shows on QQQ's own −81%); (ii) it is the case <i>for</i> broad, multi-market cap-weighting if you fear it — not for stock-picking, which §2.2 showed fails within Japan too; (iii) today's QQQ concentration is the closest modern rhyme to 1989 Tokyo — <b>which is exactly why §9 exists and why Claim B is labeled a bet, not a law.</b></li>
 <li><b>A sector fund as the core:</b> the cap-weighted index <i>already is</i> a sector rotator — over 50 years its internal weights migrated from industrials and energy to technology automatically, with what looks like perfect hindsight because it requires no foresight. Committing to one sector permanently is a pond bet plus rotation risk: §11.5 measured the fate of the reigning #1 sector — <b>below the sector median 59% of the time the following year</b>. And if your sector conviction is specifically "technology keeps leading" — that conviction <i>is</i> QQQ, expressed with 100 companies of internal diversification instead of 25.</li>
+<li><b>Small caps (Russell-2000-style):</b> the oldest "better pond" belief — small companies grew into the size premium of the old textbooks. The modern record: dead last among the diversified choices below (${menu["rows"][-2]["final"]/1e3:,.0f}k–${[r for r in menu["rows"] if r["t"]=="IWM"][0]["final"]/1e3:,.0f}k range for small caps this window), and the structural reason is decisive: <b>a small-cap index is a machine that sells its winners</b> — the moment a company succeeds, it graduates out of the small-cap index into the large-cap one. It is the exact inverse of the winner-riding machine this paper is about, holding the losers indefinitely and surrendering every Nvidia the day it becomes one. Add the published record — the size premium is among the anomalies that decayed after publication [10] — and §5's oracle result (perfect small-cap picking still lost 3 of 5 eras), and the pond is triple-condemned: structurally, empirically, and even under perfect foresight.</li>
 <li><b>Gold:</b> honesty first — over this exact window gold out-compounded every international equity fund above (a strong decade at each end), and it crashes differently than stocks ({_ms["GLD"]["dd"]}% worst here). But it is not a compounding machine and cannot be one: <b>gold has no earnings, no cash flows, and no growth engine</b> — every dollar of its rise is repricing, not production, and its multi-century real return is near zero. It captured 41% of QQQ's result in its own good era; over horizons where compounding dominates, the gap widens without bound. As crisis insurance it's a separate, legitimate question this paper doesn't cover; as the <i>engine</i>, holding gold is conceding the engine.</li>
 </ul>
 <p class="note">The pattern across all five: every alternative is either the same machine in a different wrapper (total-market, global cap-weight), a bet this study already prices (sector = pond + rotation), or a different asset class doing a different job (gold). None of them changes the verdict on picking and timing — and the one that's genuinely defensible on humility grounds (global cap-weighting) is defensible precisely because it, too, is an automatic winner-riding rule.</p>
+<h3>2.5 &nbsp;“Fine — so what IS the optimal thing to DCA into?” (answered without a thumb on the scale)</h3>
+<p>The full menu, measured — every U.S. sector fund, small caps, and the two broad machines, identical $1,000/month over the same 21 years (${menu["contrib"]/1e3:,.0f}k in):</p>
+<div class="chart">{c_menu}</div>
+<div class="leg"><span><i style="background:#111418"></i>broad cap-weighted machines&nbsp;&nbsp;<i style="background:#b91c1c"></i>single slices (sectors, small caps) · {menu["window"]}, dividends reinvested</span></div>
+<p>Read it honestly, in both directions:</p>
+<ul>
+<li><b>Yes, one slice beat QQQ:</b> the tech sector fund finished first — of course it did; this window is the tech era, and <i>the winning slice of any era beats the index that merely contains it</i>. The chart itself contains the selection trap it warns about.</li>
+<li><b>The same fund, the adjacent decade:</b> DCA into that same tech fund 1999–2009 returned <b>${ef["XLK"]["final"]/1e3:,.0f}k on ${ef["XLK"]["contrib"]/1e3:,.0f}k contributed</b> — eleven years to barely break even, −{-ef["XLK"]["dd"]}% along the way — while the era's <i>actual</i> winning sector was <b>energy (${ef["XLE"]["final"]/1e3:,.0f}k)</b>… which finished <i>dead last</i> in the window above. Sector leadership didn't just fade; it <b>fully inverted</b>. Naming the next era's winning slice in advance is the same forecasting problem as naming the next Nvidia — §11.5 measured it (the reigning #1 sector ends below the median 59% of the time).</li>
+<li><b>Also true and worth saying:</b> the defensive slices (healthcare −18%, staples −17%) delivered far gentler rides for their smaller outcomes. Someone who genuinely optimizes for shallow drawdowns is making a coherent choice — a <i>risk</i> choice, not a return-forecasting one.</li>
+</ul>
+<p><b>The unbiased answer, then, is not a ticker — it's a dial.</b> Every machine sits on a concentration spectrum:</p>
+<div class="card"><p style="margin:4px 0;text-align:center"><b>global cap-weight → total-US / SPY → QQQ → single sector → single stocks</b></p>
+<p style="margin:6px 0">Each step rightward means: a bigger payoff <i>if</i> the next era favors your slice, a worse outcome if it doesn't, and larger swings either way. What this study's data determines — and what it cannot:</p>
+<p style="margin:6px 0"><b>It cannot name the ex-ante optimal point.</b> That would require knowing the next era's leader, and the persistence and era-flip evidence above measures that as unknowable — anyone who claims otherwise is making §11.5's bet with §6c's odds.</p>
+<p style="margin:6px 0"><b>It does determine three things.</b> (1) Every point on the <i>left three positions</i> of the dial (the broad machines) beat every tested picking and timing strategy — that's Claim A, and it's the only part that isn't a bet. (2) The rightmost position (single stocks) is measurably negative (§3–§6). (3) Moving right of the broad machines is a <i>labeled era bet</i> — legitimate to make, illegitimate to mistake for skill.</p>
+<p style="margin:6px 0"><b>So the operational answer:</b> the no-forecast default is the <i>broadest</i> machine you'll actually automate (total-US or global cap-weight); QQQ is the defensible-but-concentrated bet this paper itself uses as its bar while flagging its −81% scar (§9); a single sector is that same bet with less internal diversification and measured rotation risk — including the tech fund's own lost decade above. Wherever you land: <b>the choice among broad machines matters less than never leaving the dial for picking, and never abandoning the plan mid-drawdown</b> — those two errors are the measured ones.</p></div>
 <h2 id="s3">3 · The market is a lottery with a few winning tickets — and the index holds them all</h2>
 <p>Here is every investable U.S. stock at mid-2016 — all {sk['n']:,} of them, including the {sk['died']} that later died — and what each returned over the following decade:</p>
 <div class="chart">{c_skew}</div>
