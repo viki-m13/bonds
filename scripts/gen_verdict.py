@@ -202,6 +202,7 @@ def area_dd_svg(dates, dd, W=700, H=230):
         if yr != last and int(yr) % 3 == 0:
             s.append(f'<text x="{X(i):.1f}" y="{H-5}" font-size="10" fill="#9ca3af" text-anchor="middle">{yr}</text>')
         last = yr
+    dd = [v if (v is not None and np.isfinite(v)) else 0.0 for v in dd]
     pts = " ".join(f"{X(i):.1f},{Y(v):.1f}" for i, v in enumerate(dd))
     s.append(f'<polygon points="{X(0):.1f},{Y(0):.1f} {pts} {X(n-1):.1f},{Y(0):.1f}" fill="#fee2e2"/>')
     s.append(f'<polyline points="{pts}" fill="none" stroke="#b91c1c" stroke-width="1.6"/>')
@@ -389,6 +390,16 @@ drag_rows = "".join(
     f"<td class='r'>{((1-w) + w*((1-sat_shortfall)**20))*100:.0f}%</td>"
     f"<td class='r bad'>−{(1-((1-w) + w*((1-sat_shortfall)**20)))*100:.0f}%</td></tr>"
     for w in [0.05, 0.10, 0.20, 0.50])
+fvs = E.get("fans_vs_spy", {})
+rel = E["qqq_rel_spy"]
+c_rel = lines_svg(rel["dates"], [("QQQ vs SPY", rel["rel"], "#b91c1c", 2.2, None)],
+                  logy=False, ylines=[0.5, 1.0, 1.5, 2.0], yfmt=lambda v: f"{v:g}×", yearmod=4, H=240)
+c_regret = hbars_svg([
+    ("chose the 'wrong' INDEX (26 yrs)", 48, "SPY instead of QQQ — still 8× your money"),
+    ("median 10-stock portfolio (11.5 yrs)", 58, "vs QQQ-DCA, same dollars"),
+    ("median single stock (10 yrs)", 23, "+71% vs QQQ's +638%"),
+    ("worst case, single stock", 0, "−100%: 666 of 2,177 died"),
+], xmax=100, fmt=lambda v: f"{v:g}%", color="#6b7280")
 c_audit = hbars_svg([
     ("ML stock picker (ours)", 0, "claimed 21.5%/yr -> honest 12%/yr, below index"),
     ("DCA selection system (ours)", 7, "claimed 2.2x QQQ -> honest 1.08x"),
@@ -493,7 +504,7 @@ FAQS_PREMISE = [
  ("“Backtests aren't real life.”",
   "Correct — real life is <b>worse</b> for the picker. These simulations already charge trading costs and use only information available at each decision date, but they can't charge you the behavioral tax: real investors panic-sell in crashes and chase after rallies, which studies of actual investor returns put at another 1–2%/yr of loss. Every gap between simulation and reality widens the index's lead."),
  ("“QQQ just got lucky — tech happened to win this era.”",
-  "Partly true, and the paper says so openly (§9): QQQ-DCA is a concentrated bet that suffered −81% in the dot-com crash. But the anti-picking verdict does not depend on QQQ: pickers failed against SPY too, professionals fail against every benchmark (SPIVA), and the skew/concentration math (§3) holds in every equity market ever measured. Choose a broader index if you prefer — just don't hand-pick stocks against it."),
+  "Partly true — §2.2 gives this objection a full four-step answer, and the paper concedes the era-dependence openly (§9): QQQ-DCA is a concentrated bet that suffered −81% in the dot-com crash. But the anti-picking verdict does not depend on QQQ: pickers failed against SPY too, professionals fail against every benchmark (SPIVA), and the skew/concentration math (§3) holds in every equity market ever measured. Choose a broader index if you prefer — just don't hand-pick stocks against it."),
  ("“If everyone indexes, markets break and picking will work again.”",
   "A theoretical limit that is nowhere near binding: trillions still trade actively every day, and price discovery needs remarkably little active money. If indexing ever did create big, easy mispricings, the professional funds already armed and paid to exploit them would harvest them long before a retail picker could. You don't need to volunteer to be the market's price-setter."),
  ("“Isn't QQQ itself just someone's stock picks?”",
@@ -617,8 +628,25 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <table><thead><tr><th>Period</th><th class="r">QQQ-DCA ends with</th><th class="r">SPY-DCA ends with</th><th class="r">QQQ ÷ SPY</th></tr></thead>
 <tbody>{era_rows}</tbody></table>
 <p>Three facts from that table: <b>(1)</b> QQQ-DCA finished ahead in four of five eras and in <b>{qsp['roll5_winrate']}% of all rolling 5-year windows</b>; over the full 26 years it ends with about twice the money. <b>(2)</b> The one era it lost (2000–04) is the honest reminder that it's a technology-heavy bet. <b>(3)</b> Measured on the contribution schedule, the two had essentially the <b>same worst drawdown</b> ({qsp['q_mdd']}% vs {qsp['s_mdd']}%) — a steady contributor bought right through the crashes.</p>
-<p>Why does a top-100 growth index keep beating the broader 500? Because it is a purer expression of the one force this whole paper is about: <b>letting winners run at full weight</b>. Fewer names, more of the winners, no committee judgment — just size-weighting doing the work. That said, <b>nothing in this paper depends on choosing QQQ</b>: stock-pickers lose to SPY too (and ~90% of professionals lag whatever index they're measured against). Prefer the broader bet? Take it. The mistake isn't which index — it's leaving the index to pick stocks.</p>
-
+<h3>2.1 &nbsp;Why a top-100 index keeps beating the broader 500</h3>
+<p>Mechanically, QQQ is a purer expression of the one force this whole paper documents: <b>letting winners run at full weight</b>. Fewer names means the mega-winners are a larger share; size-weighting means their weight grows automatically as they win. No judgment is involved — just less dilution of the lottery tickets that §3 shows produce everything.</p>
+<h3>2.2 &nbsp;“But choosing QQQ as the benchmark is itself hindsight — isn't this whole study circular?”</h3>
+<p>This is the sharpest objection to this paper, so it gets a full logical answer. Start by separating two claims that are usually blurred together:</p>
+<div class="card"><p style="margin:4px 0"><b>Claim A (benchmark-independent):</b> no method of selecting stocks or timing purchases reliably beats an automatic, cap-weighted index — <i>whichever</i> index you choose.</p>
+<p style="margin:4px 0"><b>Claim B (benchmark-specific):</b> QQQ has been the better index to automate this era, and choosing it going forward is a deliberate, concentrated bet.</p>
+<p style="margin:4px 0">The study's verdict rests entirely on <b>Claim A</b>. Claim B only decides <i>which machine</i> you automate — and §9 states its risk openly.</p></div>
+<p><b>Why Claim A cannot be an artifact of picking a hot benchmark — four steps:</b></p>
+<ul>
+<li><b>1. Swap the benchmark; the verdict survives.</b> If "nothing beats QQQ" were true only because QQQ ran hot, pickers would beat a cooler benchmark. They don't: the same 100 random 10-stock portfolios that ended at a median {fvs.get("vs_qqq_med","0.58")}× of QQQ-DCA <i>also lost to SPY-DCA</i> — median {fvs.get("vs_spy_med","0.84")}×, with two-thirds trailing the broader index too. And the professional scorecard (SPIVA) doesn't use QQQ at all: it measures every fund against <i>its own</i> category benchmark — value funds vs value indexes, small-cap funds vs small-cap indexes — and finds ~90% failure everywhere over 15 years [12]. A conclusion that survives substituting the benchmark is, by definition, not benchmark selection bias; the choice of QQQ changes the <i>size</i> of the picker's shortfall, not its existence.</li>
+<li><b>2. The core mechanism is an identity, not a sample.</b> For <i>any</i> index over <i>any</i> universe, the average actively-managed dollar in that universe must equal the index before costs and trail it after costs (Sharpe's arithmetic [7]) — true in 1929, true in 2000, true if technology collapses tomorrow. And the skew that makes <i>concentrated</i> picking worse than average is measured across a century of U.S. data [1] and 42 countries [31]. Neither premise mentions QQQ.</li>
+<li><b>3. Even perfect benchmark hindsight doesn't rescue picking.</b> Grant the picker our exact "bias": tell them in 2015 that U.S. mega-cap tech will win. Picking <i>inside</i> the winning pond still lost — the era's dominant giants beat QQQ only 11/40 times across four decade-cohorts; momentum strategies restricted to the index's own members died in audit; the tech-theme funds trailed (§11.5). The benchmark's era explains the benchmark's return; it does not create the picker's shortfall. The shortfall comes from skew + costs, which follow the picker into any pond.</li>
+<li><b>4. The rule predates the result.</b> QQQ is not a basket assembled after seeing what won — the Nasdaq-100 rule dates to 1985 and the ETF to 1999, before every window measured here. Contrast the actual hindsight construction people confuse it with: "the Magnificent 7" is a list <i>defined by</i> past winning, and §10b shows what buying such lists ex-ante actually did. This study never benchmarks against anything defined by the outcome.</li>
+</ul>
+<h3>2.3 &nbsp;The asymmetry that settles it: one bounded choice vs a repeated unbounded game</h3>
+<p>Finally, the logical difference between choosing an index and choosing stocks — the reason the first decision is safe to make imperfectly and the second isn't:</p>
+<div class="chart">{c_regret}</div>
+<div class="leg"><span>Worst realistic outcome of each decision, as measured in this study (relative to the alternative, horizons as labeled).</span></div>
+<p>QQQ and SPY are two <b>overlapping winner-riding machines</b>: SPY also held Apple, Microsoft and Nvidia — at somewhat smaller weights. Choose the "wrong" one and you still capture the winning tail automatically; the maximum regret over 26 years was a factor of ~2, while still multiplying your money ~8×. It is <b>one decision between two self-correcting rules, with bounded regret</b>. Stock selection is the opposite object: a <b>repeated</b> game (hundreds of decisions, each with measured sub-50% odds, costs compounding) with <b>unbounded</b> regret — the median pick captures a quarter of the index's decade and the tail outcome is zero. Choosing between trains headed the same direction is not the same kind of decision as betting you can outrun them. That is why this paper agonizes over stock-picking and treats the QQQ-vs-SPY choice as a one-paragraph preference.</p>
 <h2 id="s3">3 · The market is a lottery with a few winning tickets — and the index holds them all</h2>
 <p>Here is every investable U.S. stock at mid-2016 — all {sk['n']:,} of them, including the {sk['died']} that later died — and what each returned over the following decade:</p>
 <div class="chart">{c_skew}</div>
@@ -735,6 +763,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 </ul>
 <div class="chart">{c_scar}</div>
 <div class="leg"><span>QQQ's distance below its own prior peak, 1999–2017 — the scar this paper refuses to hide</span></div>
+<div class="chart">{c_rel}</div>
+<div class="leg"><span>Growth of QQQ ÷ growth of SPY since 1999 (above 1× = QQQ ahead). Leadership <b>rotates</b>: QQQ spent roughly a decade below the line before its era — the next rotation is §9's whole point.</span></div>
 <ul>
 <li><b>It does not say markets are perfectly efficient</b> — only that the specific game of out-picking a winner-riding index using public information is stacked, measurably, against the picker.</li>
 <li><b>It does not cover other asset classes.</b> This is a study of stock strategies measured against QQQ; whether you hold anything besides stocks is a separate question it deliberately doesn't answer.</li>
