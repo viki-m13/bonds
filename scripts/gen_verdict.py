@@ -390,6 +390,17 @@ drag_rows = "".join(
     f"<td class='r'>{((1-w) + w*((1-sat_shortfall)**20))*100:.0f}%</td>"
     f"<td class='r bad'>−{(1-((1-w) + w*((1-sat_shortfall)**20)))*100:.0f}%</td></tr>"
     for w in [0.05, 0.10, 0.20, 0.50])
+mach = E["machines"]
+_mc = mach["curves"]
+c_machines = lines_svg(_mc["dates"], [
+    ("GLD", _mc["GLD"], "#b0891b", 1.5, "4 3"),
+    ("EFA", _mc["EFA"], "#9ca3af", 1.4, None),
+    ("EWJ", _mc["EWJ"], "#6b7280", 1.4, "2 3"),
+    ("EEM", _mc["EEM"], "#d1d5db", 1.4, None),
+    ("SPY", _mc["SPY"], "#374151", 1.9, None),
+    ("QQQ", _mc["QQQ"], "#111418", 2.6, None),
+], yearmod=4, H=300)
+_ms = mach["stats"]
 fvs = E.get("fans_vs_spy", {})
 rel = E["qqq_rel_spy"]
 c_rel = lines_svg(rel["dates"], [("QQQ vs SPY", rel["rel"], "#b91c1c", 2.2, None)],
@@ -516,7 +527,7 @@ FAQS_PRACTICAL = [
  ("“Should I DCA or invest a lump sum?”",
   "If you already have a lump sum, history favors investing it immediately about two times in three (markets rise more often than not, so waiting has a cost). DCA in this paper means the thing almost everyone actually does: investing money as it's earned, every paycheck. The point is not the cadence — biweekly vs monthly was tested and is a rounding error — it's the automation: no decisions, no timing, no picks."),
  ("“What about gold, crypto, real estate, international stocks?”",
-  "Different question. Those are <i>asset-allocation</i> choices — how much risk, of which kinds, you want to hold — and diversification genuinely smooths the ride (at some cost to return). This paper is about one specific claim: that you can select <i>stocks</i> to beat a stock index. Nothing here argues against owning other assets; everything here argues against paying anyone (including yourself) to pick stocks."),
+  "Different question — and §2.4 now treats each one fully, with the measured record. In short: those are <i>asset-allocation</i> choices — how much risk, of which kinds, you want to hold — and diversification genuinely smooths the ride (at some cost to return). This paper is about one specific claim: that you can select <i>stocks</i> to beat a stock index. Nothing here argues against owning other assets; everything here argues against paying anyone (including yourself) to pick stocks."),
  ("“Can I pick a few stocks just for fun?”",
   "Yes — with a budget. Carve out a small fixed slice (say 5%), call it entertainment, and measure it honestly against what the same dollars would have done in QQQ. Expect it to lag (that's what the evidence says it will do), enjoy it like any hobby with a cost, and never let it grow into the plan. The danger isn't the 5% — it's the promotion of a lucky year into a strategy."),
  ("“What would it actually take to beat the index?”",
@@ -647,6 +658,26 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <div class="chart">{c_regret}</div>
 <div class="leg"><span>Worst realistic outcome of each decision, as measured in this study (relative to the alternative, horizons as labeled).</span></div>
 <p>QQQ and SPY are two <b>overlapping winner-riding machines</b>: SPY also held Apple, Microsoft and Nvidia — at somewhat smaller weights. Choose the "wrong" one and you still capture the winning tail automatically; the maximum regret over 26 years was a factor of ~2, while still multiplying your money ~8×. It is <b>one decision between two self-correcting rules, with bounded regret</b>. Stock selection is the opposite object: a <b>repeated</b> game (hundreds of decisions, each with measured sub-50% odds, costs compounding) with <b>unbounded</b> regret — the median pick captures a quarter of the index's decade and the tail outcome is zero. Choosing between trains headed the same direction is not the same kind of decision as betting you can outrun them. That is why this paper agonizes over stock-picking and treats the QQQ-vs-SPY choice as a one-paragraph preference.</p>
+<h3>2.4 &nbsp;Why not international (EAFE, Japan), total-market, a sector fund, or gold?</h3>
+<p>The same question, one ring further out. The record first — identical $1,000/month into each machine, 2005–2026 (${mach["contrib"]/1e3:,.0f}k contributed):</p>
+<div class="chart">{c_machines}</div>
+<div class="leg">
+<span><i style="background:#111418"></i><b>QQQ ${_ms["QQQ"]["final"]/1e6:.2f}M</b> ({_ms["QQQ"]["dd"]}%)</span>
+<span><i style="background:#374151"></i>SPY ${_ms["SPY"]["final"]/1e6:.2f}M ({_ms["SPY"]["dd"]}%)</span>
+<span><i style="background:#b0891b"></i>Gold ${_ms["GLD"]["final"]/1e3:,.0f}k ({_ms["GLD"]["dd"]}%)</span>
+<span><i style="background:#9ca3af"></i>Intl-developed ${_ms["EFA"]["final"]/1e3:,.0f}k ({_ms["EFA"]["dd"]}%)</span>
+<span><i style="background:#6b7280"></i>Japan ${_ms["EWJ"]["final"]/1e3:,.0f}k ({_ms["EWJ"]["dd"]}%)</span>
+<span><i style="background:#d1d5db"></i>Emerging ${_ms["EEM"]["final"]/1e3:,.0f}k ({_ms["EEM"]["dd"]}%)</span>
+<span>(worst account fall in parentheses; log scale)</span></div>
+<p>Now the logic, alternative by alternative — because the record alone would be recency, and §2.2's rules apply to us too:</p>
+<ul>
+<li><b>Total-market funds (VTI-style):</b> a cap-weighted total-market fund is ~85% the S&amp;P 500 by weight — the small-cap tail it adds behaved like the ponds in §5 (an <i>oracle</i> picking small-caps perfectly still lost). It is the same machine, slightly diluted; choose it or SPY interchangeably. Nothing in this study changes.</li>
+<li><b>International (EAFE, emerging):</b> two facts and one concession. Fact one: the two-decade record above — roughly a quarter of QQQ's outcome at equal or worse drawdowns. Fact two, the structural one: <b>you already own the world through U.S. listings</b> — the S&amp;P 500 earns roughly 40% of its revenue abroad, and the world's dominant companies overwhelmingly choose U.S. listings; meanwhile the no-view global index (VT-style) is itself ~60–65% U.S. by cap-weight, so "maximum humility" moves your weights less than it sounds. The concession: Claim A holds <i>within</i> every market (the skew is global [31]) — if you genuinely prefer world weights, automate a global cap-weighted fund and every conclusion here still applies. What's indefensible isn't the region — it's picking and timing inside it.</li>
+<li><b>Japan — the strongest warning in market history, faced directly:</b> the Nikkei's 1989 peak took about <b>three decades</b> to reclaim. That is what a single-country machine bought at bubble prices can do, and no honest study waves it away. Three replies, not one: (i) that catastrophe was a <i>lump sum at the top of one market</i> — a steady contributor kept buying Japan's bottoms for decades and recovered years earlier (the identical mechanism §11.2 shows on QQQ's own −81%); (ii) it is the case <i>for</i> broad, multi-market cap-weighting if you fear it — not for stock-picking, which §2.2 showed fails within Japan too; (iii) today's QQQ concentration is the closest modern rhyme to 1989 Tokyo — <b>which is exactly why §9 exists and why Claim B is labeled a bet, not a law.</b></li>
+<li><b>A sector fund as the core:</b> the cap-weighted index <i>already is</i> a sector rotator — over 50 years its internal weights migrated from industrials and energy to technology automatically, with what looks like perfect hindsight because it requires no foresight. Committing to one sector permanently is a pond bet plus rotation risk: §11.5 measured the fate of the reigning #1 sector — <b>below the sector median 59% of the time the following year</b>. And if your sector conviction is specifically "technology keeps leading" — that conviction <i>is</i> QQQ, expressed with 100 companies of internal diversification instead of 25.</li>
+<li><b>Gold:</b> honesty first — over this exact window gold out-compounded every international equity fund above (a strong decade at each end), and it crashes differently than stocks ({_ms["GLD"]["dd"]}% worst here). But it is not a compounding machine and cannot be one: <b>gold has no earnings, no cash flows, and no growth engine</b> — every dollar of its rise is repricing, not production, and its multi-century real return is near zero. It captured 41% of QQQ's result in its own good era; over horizons where compounding dominates, the gap widens without bound. As crisis insurance it's a separate, legitimate question this paper doesn't cover; as the <i>engine</i>, holding gold is conceding the engine.</li>
+</ul>
+<p class="note">The pattern across all five: every alternative is either the same machine in a different wrapper (total-market, global cap-weight), a bet this study already prices (sector = pond + rotation), or a different asset class doing a different job (gold). None of them changes the verdict on picking and timing — and the one that's genuinely defensible on humility grounds (global cap-weighting) is defensible precisely because it, too, is an automatic winner-riding rule.</p>
 <h2 id="s3">3 · The market is a lottery with a few winning tickets — and the index holds them all</h2>
 <p>Here is every investable U.S. stock at mid-2016 — all {sk['n']:,} of them, including the {sk['died']} that later died — and what each returned over the following decade:</p>
 <div class="chart">{c_skew}</div>
