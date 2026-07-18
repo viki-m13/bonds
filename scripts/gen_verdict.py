@@ -278,6 +278,12 @@ c_luck = bars_svg(["1 yr", "3 yrs", "5 yrs", "8 yrs", "10 yrs"], [lk["1"], lk["3
 pers = E["persistence"]
 conc = E["concentration"]
 lot = E["lottery"]
+td = E["topdogs"]
+td_rows = "".join(
+    f"<tr><td>{r['y']} giants</td><td>{', '.join(n for n in r['names'][:4])}…</td>"
+    f"<td class='r'>{r['med']:+d}%</td><td class='r'>{r['qqq']:+d}%</td><td class='r bad'>{r['n_beat']}/10</td></tr>"
+    for r in td)
+td_beat_total = sum(r["n_beat"] for r in td)
 c_lottery = bars_svg(["loses money", "makes 10×+", "beats QQQ", "makes 100×+"],
                      [round(lot["p_lose"]*100,1), round(lot["p_10x"]*100,1), round(lot["p_beat_qqq"]*100,1), round(lot["p_100x"]*100,2)],
                      color="#6b7280", fmt=lambda v: f"{v:g}%", H=220)
@@ -339,6 +345,24 @@ FAQS_STRATEGY += [
   "The famous dart-throwing-monkey portfolios (and the studies behind them) beat <i>cap-weighted</i> indexes historically because random picking systematically over-weights small and cheap stocks — hidden extra risk that paid off in those samples. In the recent mega-cap era that same tilt was exactly what lost (§3): our 100 random portfolios — same idea, honest modern data — ended at a median 0.58× QQQ with 6% winning. The monkeys weren't skilled; they were levered to a bet that has since stopped paying."),
  ("“What about day trading? I've seen the funded-account guys.”",
   "The best evidence is brutal: tracking <b>every person</b> who began day-trading index futures in Brazil over three years, 97% of those who stuck with it 300+ days lost money, only 1.1% out-earned minimum wage, and performance did not improve with experience [16]. U.S. brokerage data points the same way: the most active retail traders lagged the market by 6.5 points a year [14]. Day trading is the picking problem of this paper, repeated hundreds of times a year at maximum cost."),
+]
+FAQS_STRATEGY += [
+ ("“Why not just buy the Magnificent 7 / today's giants?”",
+  "Because today's giants are the previous game's winners, and the crown is heavy. We measured it directly: take the 10 most-dominant U.S. mega-caps at each of 2000, 2005, 2010 and 2015 and hold each group ten years — <b>only " + str(td_beat_total) + " of the 40 beat QQQ</b>. The 2000 giants (Cisco, Intel, Microsoft…) lost more than the crashing index; the 2005 and 2010 cohorts won 2-of-10 and 1-of-10; even the 2015 cohort — which included Meta, Netflix and Microsoft at the dawn of the mega-cap decade — went only 5-for-10. Published research finds the same 'top dog curse' in every market studied [24]. The index rode the Mag-7 up without you guessing them, and when leadership rotates, it will ride the next set too — automatically. A hand-held Mag-7 basket won't.<div class='chart' style='margin-top:8px'><table><thead><tr><th>Cohort</th><th>Names (first 4)</th><th class='r'>Median 10y</th><th class='r'>QQQ 10y</th><th class='r'>Beat QQQ</th></tr></thead><tbody>" + td_rows + "</tbody></table></div>"),
+ ("“Technical analysis works — support, resistance, moving averages, patterns.”",
+  "This is the single most-tested claim in finance, with the clearest verdict. Sullivan, Timmermann &amp; White tested <b>7,846 technical trading rules over 100 years</b> of Dow data with statistics that account for trying many rules: the apparent winners had no genuine predictive power out-of-sample, and nothing worked at all on more recent data [19]. A follow-up on <b>historical</b> claims of chart-pattern success found they dissolve once you correct for having searched thousands of rules [20]. Charts describe the past beautifully; a century of testing says they do not predict the future — and our own trend-rule tests (§7: results that flip on the trade date) are the same finding in miniature."),
+ ("“Sell in May / the January effect / seasonal patterns.”",
+  "Calendar effects were tested the same rigorous way — every seasonal rule anyone had proposed, adjusted for the fact that thousands were searched: <b>none survive</b> [21]. The seasonal patterns you read about are what randomness looks like when you sort it by month, and the famous ones stopped 'working' around the time they were published — the standard fate of published patterns (−58% after publication [10])."),
+ ("“QQQ is obviously overvalued right now — I'll wait for a better price.”",
+  "This is market timing wearing a valuation costume, and it has a measured record: valuation-based timing signals (like CAPE) have been persistently 'expensive' for most of the last two decades — a timer following them sat out most of the gains. The definitive study is titled, accurately, <i>Market Timing: Sin a Little</i> — even its sympathetic authors found valuation timing adds almost nothing beyond simply staying invested [22]. Our §7 shows the local version: waiting for the obvious discount cost ~30% of final wealth. Valuation tells you expected returns are lower than usual; it does not tell you when, or from what higher level, the repricing comes."),
+ ("“I'll buy call options / LEAPS / 0DTE for leveraged upside.”",
+  "The complete record of retail options trading is one of the most one-sided in finance: in comprehensive U.S. brokerage data, retail option <i>purchases</i> lose ~4% per trade on average, and the now-dominant same-day-expiry (0DTE) trades do several points worse [25]; an earlier study of a full brokerage's clients concluded most were, in effect, gambling and 'incurred large losses' [26]. Options add three costs stocks don't have — time decay, volatility overpricing, and wide spreads — so even a correct directional view usually loses money on the position. If §3 showed stock-picking is a lottery, bought options are the same lottery with an expiry date."),
+ ("“Fine, no stock picking — I'll buy the momentum/value factor ETF instead.”",
+  "Factor ETFs are the index-fund version of the strategies in §5, and they inherit the same fate plus fees: published factor premia decay ~58% after publication [10], most factor ETFs launched after the factor's famous decade, and none of the major U.S. factor ETFs (momentum, value, quality, low-vol) has beaten QQQ over its life. Specialized and thematic ETFs are worse — they launch at peak hype and underperform by ~6%/yr over their first five years, losing ~30% risk-adjusted [23]. An ETF wrapper changes the fees, not the arithmetic."),
+ ("“I'll use stop-losses so my downside is capped.”",
+  "A stop-loss converts a temporary decline into a permanent exit — and §4.3 showed the era's best stocks fell −67% to −87% <i>on the way to</i> their legendary gains; any stop tight enough to 'protect' you guarantees you sell every future winner during its ordinary crashes. On the index itself, stop-and-re-enter rules are just trend-timing, which failed the §7 audits (results that depend on the trade date). The honest way to cap downside is position size decided in advance (11.4), not an automated promise to sell low."),
+ ("“My newsletter/analyst has a great track record.”",
+  "The oldest result in empirical finance, from 1933: Alfred Cowles collected ~12,000 professional forecasts and asked <i>Can Stock Market Forecasters Forecast?</i> — his abstract answer: 'It is doubtful' [27]. Sixty years later, Graham &amp; Harvey graded 326 investment newsletters over 13 years: <b>no evidence of any timing ability as a group</b>, and the hot ones didn't stay hot [28]. Combine that with §6's luck math (track records arise by chance in the thousands) and the five audits (§5): a track record you're shown is marketing until it survives the audits — and in 90+ years of checking, essentially none have."),
 ]
 FAQS_PREMISE = [
  ("“Backtests aren't real life.”",
@@ -444,7 +468,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <a href="#s7">7 · Market-timing myths</a>
 <a href="#s8">8 · "Then I'll take more risk"</a>
 <a href="#s9">9 · What this does NOT say</a>
-<a href="#s10">10 · Every objection, answered</a>
+<a href="#s10">10 · The complete strategy map</a>
+<a href="#s10b">10b · Every objection, answered</a>
 <a href="#s11">11 · The playbook: what to do</a>
 <a href="#s12">Methodology &amp; sources</a>
 </nav></div>
@@ -548,7 +573,37 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li><b>It does not promise the next 26 years look like the last.</b> It says: whatever index you choose, no tested method of picking stocks against it has honestly beaten contributing to it on autopilot.</li>
 </ul>
 
-<h2 id="s10">10 · Every objection we could find, answered</h2>
+<h2 id="s10">10 · The complete map — every strategy family, where it's addressed, and the verdict</h2>
+<p>A defensible "nothing works" claim must be exhaustive. Here is every family of stock-market strategy we know of, where this study addresses it, and what the evidence says:</p>
+<table><thead><tr><th>Strategy family</th><th>Where</th><th>Verdict vs QQQ-DCA</th></tr></thead><tbody>
+<tr><td>Stock picking — fundamental / screens</td><td>§3, §5</td><td class="bad">Loses (0.26–1.21×; best = luck-level)</td></tr>
+<tr><td>Stock picking — machine learning / AI</td><td>§5, FAQ</td><td class="bad">Loses (skill real, wrong shape)</td></tr>
+<tr><td>Buy the winners / momentum stocks</td><td>§4</td><td class="bad">Loses (15% repeat; hot list $53k vs $160k)</td></tr>
+<tr><td>Buy today's giants (Mag-7 style)</td><td>FAQ</td><td class="bad">Loses (11/40 decade-beats across 4 cohorts)</td></tr>
+<tr><td>Value / buy cheap stocks</td><td>§5, FAQ</td><td class="bad">Loses (0.60×; winners never looked cheap)</td></tr>
+<tr><td>Dividend / income stocks</td><td>FAQ</td><td class="bad">Loses (total-return lag + taxes)</td></tr>
+<tr><td>Small caps / other ponds</td><td>§5, FAQ</td><td class="bad">Loses (perfect-foresight oracle loses 3/5 eras)</td></tr>
+<tr><td>IPOs / get in early</td><td>FAQ</td><td class="bad">Loses (6,599 IPOs: 8.1%/yr honest)</td></tr>
+<tr><td>Insider-filing signals</td><td>FAQ</td><td class="bad">Best signal tested; still &lt; coin flip</td></tr>
+<tr><td>Copy trading (Congress, whales, gurus)</td><td>FAQ</td><td class="bad">Loses (45-day-stale information)</td></tr>
+<tr><td>Technical analysis / charts</td><td>FAQ</td><td class="bad">Loses (7,846 rules, no OOS value [19])</td></tr>
+<tr><td>Seasonality (Sell-in-May etc.)</td><td>FAQ</td><td class="bad">Loses (none survive data-snooping [21])</td></tr>
+<tr><td>Market timing — trend/regime switches</td><td>§7</td><td class="bad">Loses (trade-day lottery 0.74–3.31×)</td></tr>
+<tr><td>Market timing — wait for the dip</td><td>§7</td><td class="bad">Loses (−30% of final wealth)</td></tr>
+<tr><td>Market timing — valuation (CAPE)</td><td>FAQ</td><td class="bad">Loses (“Sin a Little” [22])</td></tr>
+<tr><td>Stop-losses / downside rules</td><td>FAQ</td><td class="bad">Loses (sells every future winner in drawdown)</td></tr>
+<tr><td>Sector / ETF rotation</td><td>§5</td><td class="bad">Loses (0.20–0.90×)</td></tr>
+<tr><td>Factor &amp; thematic ETFs</td><td>FAQ</td><td class="bad">Loses (−6%/yr post-launch for thematic [23])</td></tr>
+<tr><td>Options — income (covered calls)</td><td>FAQ</td><td class="bad">Loses (sells the only tail that pays)</td></tr>
+<tr><td>Options — buying calls / 0DTE</td><td>FAQ</td><td class="bad">Loses (−4%/trade retail average [25])</td></tr>
+<tr><td>Day trading</td><td>FAQ</td><td class="bad">Loses (97% of persisters lose [16])</td></tr>
+<tr><td>Leverage (3× funds, margin)</td><td>§8</td><td>More money, more risk — not skill (−84%, dot-com −99.9%)</td></tr>
+<tr><td>Professional fund managers</td><td>§6</td><td class="bad">89.5% lag over 15y [12]</td></tr>
+<tr><td>Automatic QQQ-DCA (the benchmark)</td><td>all</td><td class="good">The thing nothing beat</td></tr>
+</tbody></table>
+<p class="note">If a strategy family you can name is missing from this table, the authors consider that a defect — it belongs in the next revision.</p>
+
+<h2 id="s10b">10b · Every objection we could find, answered</h2>
 {faq_html}
 
 <h2 id="s11">11 · The playbook: exactly what to do</h2>
@@ -611,6 +666,15 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 </ul>
 
 <h2 id="s12">Methodology, references &amp; sources</h2>
+<h3>Limitations &amp; robustness (stated plainly)</h3>
+<ul class="note" style="font-size:12.5px">
+<li><b>Delisting convention:</b> headline decade stats count disappeared stocks at their final traded price (acquisitions exit at deal price). Under the harshest alternative (every disappearance = −100%), the share of stocks beating QQQ moves from 6.2% to 5.9% — the conclusion is insensitive to the convention.</li>
+<li><b>Window robustness:</b> the core result was measured three independent ways — one full decade (2016–26: 6.2% beat), twenty-six annual cohorts (2000–25: average 42% beat over 12 months, majority-beat only when QQQ itself was crashing), and a 21-year lottery (2005–26: 4.6% beat). All agree.</li>
+<li><b>Granularity:</b> stock-level analysis is monthly; it cannot see intraday effects (which the day-trading literature covers, and which are worse for retail [14][16][25]).</li>
+<li><b>Scope:</b> U.S. common stocks only; QQQ measured as the actual ETF (fees included). Taxes are not modeled — omitting them <i>flatters every challenger</i>, since the challengers trade and the benchmark doesn't.</li>
+<li><b>The era caveat is §9's:</b> 1999–2026 is one long sample dominated by U.S. large-cap tech; the anti-picking mechanisms (skew, concentration, arithmetic of active management) are era-independent, but QQQ's specific margin over broader indexes is not.</li>
+<li><b>Simulations are simulations:</b> every number here is a backtest or historical measurement, not a guarantee; the behavioral evidence [14][15][16] suggests live results for active approaches would be worse, not better.</li>
+</ul>
 <h3>Published research integrated above</h3>
 <ol class="refs">
 <li>Bessembinder, H. (2018). “Do Stocks Outperform Treasury Bills?” <i>Journal of Financial Economics</i> 129(3). <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2900447">SSRN</a></li>
@@ -631,9 +695,19 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li>Chague, F., De-Losso, R., &amp; Giovannetti, B. (2020). “Day Trading for a Living?” <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3423101">SSRN</a></li>
 <li>Vanguard Research: lump-sum vs cost-averaging (~two-thirds of historical periods favor immediate investment).</li>
 <li>Grossman, S., &amp; Stiglitz, J. (1980). “On the Impossibility of Informationally Efficient Markets.” <i>American Economic Review</i> 70(3).</li>
+<li>Sullivan, R., Timmermann, A., &amp; White, H. (1999). “Data-Snooping, Technical Trading Rule Performance, and the Bootstrap.” <i>Journal of Finance</i> 54(5) — 7,846 technical rules, no out-of-sample value. <a href="https://onlinelibrary.wiley.com/doi/10.1111/0022-1082.00163">Wiley</a></li>
+<li>Bajgrowicz, P., &amp; Scaillet, O. (2012). “Technical Trading Revisited: False Discoveries, Persistence Tests, and Transaction Costs.” <i>Journal of Financial Economics</i> 106(3).</li>
+<li>Sullivan, R., Timmermann, A., &amp; White, H. (2001). “Dangers of Data Mining: The Case of Calendar Effects in Stock Returns.” <i>Journal of Econometrics</i> 105(1).</li>
+<li>Asness, C., Ilmanen, A., &amp; Maloney, T. (2017). “Market Timing: Sin a Little.” <i>Journal of Investment Management</i> 15(3).</li>
+<li>Ben-David, I., Franzoni, F., Kim, B., &amp; Moussawi, R. (2023). “Competition for Attention in the ETF Space.” <i>Review of Financial Studies</i> 36(3) — specialized ETFs −6%/yr for five years post-launch. <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3765063">SSRN</a></li>
+<li>Arnott, R., &amp; Wu, L. (2012). “The Winners Curse: Too Big to Succeed?” Research Affiliates — sector/market “top dogs” subsequently underperform, in every market studied. <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2088515">SSRN</a></li>
+<li>Bogousslavsky, V., &amp; Muravyev, D. (2024). “An Anatomy of Retail Option Trading” — retail option purchases lose ~4% per trade; 0DTE worse. <a href="https://cdn.cboe.com/resources/education/research_publications/Retail_Profitability.pdf">paper</a>; Beckmeyer, H., Branger, N., &amp; Gayda, L. (2023). “Retail Traders Love 0DTE Options… But Should They?” <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4404704">SSRN</a></li>
+<li>Bauer, R., Cosemans, M., &amp; Eichholtz, P. (2009). “Option Trading and Individual Investor Performance.” <i>Journal of Banking &amp; Finance</i> 33(4).</li>
+<li>Cowles, A. (1933). “Can Stock Market Forecasters Forecast?” <i>Econometrica</i> 1(3) — the field's founding study; ~12,000 forecasts; answer: “It is doubtful.” <a href="https://cowles.yale.edu/sites/default/files/2022-08/cowles-forecasters33.pdf">PDF</a></li>
+<li>Graham, J., &amp; Harvey, C. (1996–97). “Market Timing Ability and Volatility Implied in Investment Newsletters' Asset Allocation Recommendations.” <i>Journal of Financial Economics</i> 42; 326 newsletters, no timing ability. <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6006">SSRN</a></li>
 </ol>
 <p class="note">All statistics computed from point-in-time, delisting-inclusive U.S. market data: ~24,000 tickers including ~8,900 that no longer trade, 1990–2026; prices adjusted for splits/dividends; disappeared stocks counted at their final traded price (acquisitions exit at deal price); liquidity floor (price ≥ $3, median daily volume ≥ $2M) applied at each historical date using only that date's information. Strategy tests charge 5–20 bps per side and give the benchmark identical cash flows. Charts generated by <a href="{GH}/scripts/gen_verdict.py">gen_verdict.py</a> from <a href="{GH}/scripts/verdict_evidence.py">verdict_evidence.py</a>; underlying research records: <a href="{GH}/dca/research/strategies/ascent/FINDINGS.md">stock-selection studies</a>, <a href="{GH}/leverage_etf_dca/README.md">ETF-timing studies</a>, <a href="{GH}/dca/README.md">DCA-selection validation</a>, <a href="{GH}/dca/research/strategies/METHODOLOGY_validation.md">validation playbook</a>. External: Bessembinder, <i>Do Stocks Outperform Treasury Bills?</i> (2018); S&amp;P SPIVA scorecards; Buffett's 2008–2017 index-vs-hedge-funds bet.</p>
-<footer>Research, not investment advice. Backtests are simulations; past performance does not guarantee future results.</footer>
+<footer>Version 2.0 · data through June 2026 · U.S. markets. Research, not investment advice. Backtests are simulations; past performance does not guarantee future results.</footer>
 </div></body></html>"""
 
 out = f"{ROOT}/docs/verdict.html"
