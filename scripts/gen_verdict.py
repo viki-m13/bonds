@@ -266,6 +266,29 @@ def paired_bars_svg(items, W=680, H=250):
     s2.append("</svg>")
     return "".join(s2)
 
+def conc_svg(ks, shares, ntot, W=680, H=260):
+    import math as _m
+    pad_l, pad_r, pad_t, pad_b = 46, 14, 12, 34
+    def X(k): return pad_l + (W-pad_l-pad_r)*(_m.log10(k)-0)/(_m.log10(ntot)-0)
+    def Y(v): return pad_t + (H-pad_t-pad_b)*(1-v/100.0)
+    s2 = [f'<svg viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid meet" {MINW} role="img">']
+    for v in [25, 50, 75, 100]:
+        y = Y(v)
+        s2.append(f'<line x1="{pad_l}" y1="{y:.1f}" x2="{W-pad_r}" y2="{y:.1f}" stroke="#eeeeee"/>'
+                  f'<text x="{pad_l-5}" y="{y+3:.1f}" font-size="10" fill="#9ca3af" text-anchor="end">{v}%</text>')
+    for k, lab in [(1, "top 1"), (10, "top 10"), (100, "top 100"), (ntot, f"all {ntot:,}")]:
+        x = X(k)
+        s2.append(f'<line x1="{x:.1f}" y1="{pad_t}" x2="{x:.1f}" y2="{H-pad_b}" stroke="#f3f4f6"/>'
+                  f'<text x="{x:.1f}" y="{H-8}" font-size="9.5" fill="#6b7280" text-anchor="middle">{lab}</text>')
+    pts = [(1e-9+k, v) for k, v in zip(ks, shares)] + [(ntot, 100.0)]
+    poly = " ".join(f"{X(k):.1f},{Y(v):.1f}" for k, v in pts)
+    s2.append(f'<polyline points="{poly}" fill="none" stroke="#b91c1c" stroke-width="2.4"/>')
+    for k, v in pts[:-1]:
+        s2.append(f'<circle cx="{X(k):.1f}" cy="{Y(v):.1f}" r="3" fill="#b91c1c"/>')
+        s2.append(f'<text x="{X(k)+5:.1f}" y="{Y(v)-6:.1f}" font-size="9.5" font-weight="700" fill="#7f1d1d">{v:g}%</text>')
+    s2.append("</svg>")
+    return "".join(s2)
+
 # =======================  build charts  =======================
 sk = E["skew_hist"]
 c_skew = hist_svg(sk["labels"], sk["counts"], marker_idx=9, marker_lab=f'QQQ: +{sk["qqq"]*100:.0f}%', median_idx=6)
@@ -366,6 +389,26 @@ drag_rows = "".join(
     f"<td class='r'>{((1-w) + w*((1-sat_shortfall)**20))*100:.0f}%</td>"
     f"<td class='r bad'>−{(1-((1-w) + w*((1-sat_shortfall)**20)))*100:.0f}%</td></tr>"
     for w in [0.05, 0.10, 0.20, 0.50])
+c_audit = hbars_svg([
+    ("ML stock picker (ours)", 0, "claimed 21.5%/yr -> honest 12%/yr, below index"),
+    ("DCA selection system (ours)", 7, "claimed 2.2x QQQ -> honest 1.08x"),
+    ("Published IPO system", 0, "claimed 20.5%/yr -> honest 8.1%/yr, below index"),
+    ("Mega-cap momentum backtest", 0, "6.63x apparent -> luck-level in audits"),
+], xmax=100, fmt=lambda v: f"{v:g}%", color="#b91c1c")
+c_conc = conc_svg(conc["ks"], conc["share_of_net"], conc["n"])
+c_fate = hbars_svg([
+    ("repeats in the top 10%", pers["repeat_top_decile"], ""),
+    ("beats QQQ next year", pers["beat_qqq_next"], ""),
+    ("falls below the MEDIAN stock", pers["below_median"], "the most likely outcome"),
+])
+c_shape = hbars_svg([
+    ("random picks", 10.2, "baseline"),
+    ("the ML's most confident picks", 8.3, "worse than random - crowded bets fail together"),
+    ("a modest edge with RANDOM errors", 27.5, "simulated: what a usable edge looks like"),
+], xmax=30, color="#6b7280")
+qcurve = qsp["q_curve"]; _qs = pd.Series(qcurve)
+c_ddhist = area_dd_svg(qsp["dates"], [round(float(x)*100, 1) for x in (_qs/_qs.cummax()-1).tolist()])
+
 era_rows = "".join(f"<tr><td>{r['era']}</td><td class='r'>${r['q']:,}</td><td class='r'>${r['s']:,}</td>"
                    f"<td class='r {'good' if r['ratio']>=1 else 'bad'}'>{r['ratio']:.2f}×</td></tr>" for r in qsp["eras"])
 
@@ -445,6 +488,8 @@ FAQS_PEOPLE += [
   "Measured directly: the base rate of a pick beating QQQ over a year is ~42%; the <i>best</i> signals found in years of systematic research — insider clusters, quality screens, machine learning over 36 feature types — lift that to ~44–48%. Never past the coin flip. So the honest wage of stock research is: <b>hundreds of hours buys ~3–6 percentage points of hit rate, landing you still below 50/50 against the free alternative</b> — before costs and taxes take their share. As work, it pays negatively; as a hobby, price it like one (11.4). The exception that CAN pay is §6c's error-structure requirement: knowledge that isn't in anyone else's model — which comes from your profession, not from research tools everyone owns."),
 ]
 FAQS_PREMISE = [
+ ("\u201cIs this just a U.S. / QQQ phenomenon?\u201d",
+  "No \u2014 the lottery structure is global. Bessembinder's worldwide follow-up (64,000+ stocks across 42 countries, 1990\u20132018): the top <b>1.3% of firms produced ALL $44.7 trillion of global net wealth creation</b>; outside the U.S., <i>less than 1%</i> of firms did \u2014 and 61% of non-U.S. stocks returned less than U.S. Treasury bills [31]. SPIVA runs the professional scorecard in every region \u2014 Europe, Japan, Australia, India \u2014 with the same shape of result as the U.S. The mechanisms in this study (skew, concentration, the arithmetic of active management) are properties of equity markets, not of one country or one index."),
  ("“Backtests aren't real life.”",
   "Correct — real life is <b>worse</b> for the picker. These simulations already charge trading costs and use only information available at each decision date, but they can't charge you the behavioral tax: real investors panic-sell in crashes and chase after rallies, which studies of actual investor returns put at another 1–2%/yr of loss. Every gap between simulation and reality widens the index's lead."),
  ("“QQQ just got lucky — tech happened to win this era.”",
@@ -584,6 +629,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <p><b>Bessembinder (2018)</b>, studying every U.S. stock since 1926 (~26,000 companies): the best-performing <b>4% of companies account for the stock market's entire net gain over Treasury bills</b>; the other 96% collectively matched cash. Four out of seven stocks returned <i>less than Treasury bills</i> over their lifetime, and just five companies produced 10% of all wealth ever created [1]. His global follow-up found it's even more extreme worldwide.</p>
 <p><b>J.P. Morgan's “Agony &amp; Ecstasy” study</b> (Russell 3000, 1980–2014): <b>40% of all stocks suffered a catastrophic decline of 70%+ from which they never recovered</b>; two-thirds underperformed the index; the median stock lagged it by −54% over its lifetime [2].</p>
 <p><b>Heaton, Polson &amp; Witte, “Why Indexing Works” (2017)</b> formalized the mechanism this section shows empirically: when a few stocks drive everything, <i>any</i> subset you pick most likely misses them, so most pickers must trail the index — before costs [3].</p></div>
+<div class="chart">{c_conc}</div>
+<div class="leg"><span>Cumulative share of ALL net gains (2016–2026) produced by the top N stocks, log scale. Ten stocks — 0.4% of the market — produced 10.7% of everything; 250 stocks produced 61%.</span></div>
 <p>It's not one lucky decade. Year by year since 2000, the fraction of stocks beating QQQ over the following 12 months averaged <b>42%</b> — and the years it exceeded 50% are mostly 2000–2001, when "beating QQQ" meant falling less than an index that was crashing:</p>
 <div class="chart">{c_year}</div>
 <div class="leg"><span>% of stocks beating QQQ over the next 12 months, each year 2000–2025 (dashed line = coin flip)</span></div>
@@ -595,6 +642,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <div class="card big"><div class="n">15%</div>Of each year's top-10% performers, that's how many repeat in the top 10% the following year. <b>{pers['below_median']:.0f}%</b> fall below the <i>median</i> stock; only <b>{pers['beat_qqq_next']:.0f}%</b> beat QQQ. (Measured across 24 annual cohorts, 2001–2024.)</div>
 <div class="card lit"><div class="h">The published record</div>
 <p>The same non-persistence holds for professionals: <b>S&amp;P's Persistence Scorecard</b> finds that of funds in the top quartile in any year, almost none remain top-quartile a few years later — at rates at or below what chance predicts [4]. Momentum itself is a real, Nobel-adjacent finding (<b>Jegadeesh &amp; Titman 1993</b> [5]) — but it's a short-horizon <i>relative</i> effect that decays and periodically crashes (<b>Daniel &amp; Moskowitz 2016</b> [6]); it is not "good stocks keep being good."</p></div>
+<div class="chart">{c_fate}</div>
+<div class="leg"><span>What happens to a top-10% winner the following year (24 annual cohorts, 2001–2024).</span></div>
 <h3>4.2 Buying the hot list and holding is a disaster</h3>
 <p>Done literally on point-in-time data: at the start of 2015, buy the 20 hottest stocks in America (the top of the 12-month leaderboard), $1,000 each, and hold:</p>
 <div class="chart">{c_hold}</div>
@@ -615,7 +664,11 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <div class="chart">{c_traj}</div>
 <div class="leg"><span>The same "winning" backtests, stopped at earlier dates (lead vs QQQ-DCA). Real edges grow steadily; these leads appear suddenly, late — the signature of luck riding one hot stretch.</span></div>
 <p>Two details worth knowing. First, the "best" stock screen's result (1.21×) exactly equals the <i>luckiest</i> of the random-picker controls — indistinguishable from chance. Second, the strongest ML models genuinely could rank stocks, yet their most confident picks landed among the next year's top performers <b>less often than randomly chosen stocks</b> (8.3% vs 10.2%) — their bold picks were all the same crowded bet in different tickers, so they failed together. Skill existed; it was the wrong shape.</p>
-<div class="card retract"><b>We retracted our own winners.</b> Three strategies from this research were themselves published as market-beaters, then independently rebuilt and audited: a machine-learning stock picker (two data flaws found — honest version lands <i>below</i> QQQ), a biweekly DCA stock-selection system (half its edge was survivorship bias and recency; honest version is a coin flip), and a leveraged-ETF timing system (data leakage; rebuilt honestly, its return came from extra risk, not skill). If we hold everyone else's claims to these audits, we hold our own to them too — <b>that is why you can trust the negative result.</b></div>
+<div class="chart">{c_shape}</div>
+<div class="leg"><span>How often top picks land in the NEXT year's top 10% of stocks. The measured requirement for beating QQQ isn't more intelligence — it's <b>independent errors</b>, i.e., information not in everyone else's model.</span></div>
+<div class="card retract"><b>We retracted our own winners.</b> Three strategies from this research were themselves published as market-beaters, then independently rebuilt and audited: a machine-learning stock picker (two data flaws found — honest version lands <i>below</i> QQQ), a biweekly DCA stock-selection system (half its edge was survivorship bias and recency; honest version is a coin flip), and a leveraged-ETF timing system (data leakage; rebuilt honestly, its return came from extra risk, not skill). If we hold everyone else's claims to these audits, we hold our own to them too — <b>that is why you can trust the negative result.</b>
+<div class="chart" style="margin-top:10px">{c_audit}</div>
+<div class="leg"><span>Share of each claimed outperformance that survived independent audit. The bars are the point.</span></div></div>
 
 <div class="card lit"><div class="h">The published record</div>
 <p><b>Sharpe's "Arithmetic of Active Management" (1991)</b> is the iron law underneath all of this: the average actively-managed dollar must earn the market return <i>before</i> costs, and less than it <i>after</i> costs — always, by accounting identity. Beating the index is a zero-sum game played against professionals, minus fees [7].</p>
@@ -741,6 +794,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li>So the sizing question is not a percentage — it's this <b>stomach test</b>: <i>when</i> (not if) the account shows −30%, will you keep the automation on? If yes: all long-term money, full weight. If honestly no: automate the largest amount for which the answer is yes — a plan you hold at the bottom beats a bigger plan you abandon there (the measured cost of self-inflicted timing is 1–2 points a year [15], and far worse when it happens inside a crash).</li>
 <li>Money needed within ~5 years stays out entirely (11.1). Five-to-ten-year money: partial, scaled to how certain the need is.</li>
 </ul>
+<div class="chart">{c_ddhist}</div>
+<div class="leg"><span>The stomach test, drawn: a QQQ-DCA account's distance below its own peak, 2000–2026. Every red valley was a moment the plan felt broken; every one repaired by continued buying.</span></div>
 <p><b>Should you "always and only" do this?</b> Always — automate it and never override it; every override pathway was measured above and lost. Only — yes, for stock-market money: this entire study is the evidence that adding picking, timing, or rotation on top subtracts. The one sanctioned exception is the capped hobby slice in 11.4.</p>
 <h3>11.3 &nbsp;“But people made fortunes on Apple and Tesla — why can't I?”</h3>
 <p>Because you are looking at the winners of a lottery and asking why you can't buy winning tickets. The odds, measured over 21 years (every investable U.S. stock in 2005, followed to 2026, deaths included — {lot['n']:,} stocks):</p>
@@ -766,7 +821,7 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li><b>What to look for (measured, not vibes):</b> the only signals that tested <i>positive</i> were boring ones — sustained insider <i>cluster</i> buying (+4–6 points to the odds) and steady profitable-quality names. What tested <i>worst</i> is exactly what feels best: the 12-month leaderboard (5–17% forward odds), story stocks, and whatever is on your feed. If your pick is exciting, that's a warning, not a signal.</li>
 <li><b>Diversify the slice across 8–10 names</b> — or accept that 1–3 names is a lottery ticket (§11.3 odds) and size it like one.</li>
 <li><b>Never average down.</b> "It's cheaper now" is how 20% of stocks ride to zero. The measured fate of falling former winners: 56% land below the median stock the next year. Adding to losers is moving money in the exact opposite direction of everything §3 showed.</li>
-<li><b>Selling rules, decided in advance:</b> the QQQ core is never sold (that's the whole edge). A satellite <i>winner</i> is left alone until it outgrows your cap — then trimmed <b>into the core</b> (winner → index-of-winners; never into your losers). A satellite <i>loser</i> needs no decision: it simply never gets another dollar, and it dies or lives on its own. This preserves the let-winners-run principle at every level while capping single-stock risk.</li>
+<li><b>Selling rules, decided in advance:</b> the QQQ core is never sold (that's the whole edge). A satellite <i>winner</i> is left alone until it outgrows your cap — then trimmed <b>into the core</b> (winner → index-of-winners; never into your losers). A satellite <i>loser</i> needs no decision: it simply never gets another dollar, and it dies or lives on its own. This preserves the let-winners-run principle at every level while capping single-stock risk. (Deciding in advance matters because instinct is measurably backwards: real investors sell their winners ~50% more readily than their losers \u2014 the \u201cdisposition effect\u201d [32] \u2014 the exact opposite of what \u00a73 rewards.)</li>
 <li><b>Measure it honestly once a year</b> against what the same dollars in QQQ did. The evidence says it will lag; when it does, you'll have paid a known, capped price for the fun — and when a pick 10×'s, you'll enjoy it without having bet the plan on it.</li>
 </ul>
 
@@ -804,6 +859,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li>✗ No strategies sold on a backtest that hasn't passed the five audits (§5).</li>
 <li>✗ No acting on streaks — yours or anyone's (§6: three 10-year streaks per 10,000 coin-flippers).</li>
 </ul>
+
+<div class="card" style="border-left:4px solid var(--good)"><b>How to prove this study wrong.</b> A real study states its falsification conditions. This one is wrong if any of the following is produced: <b>(1)</b> a rule-based strategy, specified in advance, that beats QQQ-DCA on point-in-time delisting-inclusive data and passes all five audits (random-picker null, lead-timing, other eras, other trade days, honest costs); <b>(2)</b> a picker or fund, open to ordinary investors at ordinary size, with 15+ years of audited live returns above QQQ net of fees \u2014 enough to clear the skill-detection bar in \u00a76c; or <b>(3)</b> a demonstration that the base-rate measurements here (6.2%, 42%, 4.6%, 0.18%) are materially wrong on equivalent data. We checked every candidate we could find, including our own. The section stays until someone clears it \u2014 and the authors would genuinely like to see it cleared.</div>
 
 <h2 id="s12">Methodology, references &amp; sources</h2>
 <h3>Limitations &amp; robustness (stated plainly)</h3>
@@ -846,7 +903,7 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li>Cowles, A. (1933). “Can Stock Market Forecasters Forecast?” <i>Econometrica</i> 1(3) — the field's founding study; ~12,000 forecasts; answer: “It is doubtful.” <a href="https://cowles.yale.edu/sites/default/files/2022-08/cowles-forecasters33.pdf">PDF</a></li>
 <li>Graham, J., &amp; Harvey, C. (1996–97). “Market Timing Ability and Volatility Implied in Investment Newsletters' Asset Allocation Recommendations.” <i>Journal of Financial Economics</i> 42; 326 newsletters, no timing ability. <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6006">SSRN</a></li>
 <li>Malkiel, B., &amp; Saha, A. (2005). “Hedge Funds: Risk and Return.” <i>Financial Analysts Journal</i> 61(6) — backfill ≈ +5%/yr, survivorship ≈ +4.4%/yr; corrected aggregate ≈ index. <a href="https://www.princeton.edu/~ceps/workingpapers/104malkiel.pdf">PDF</a>; Ibbotson &amp; Chen (2006): ≈5.7%/yr combined overstatement. <a href="https://depot.som.yale.edu/icf/papers/fileuploads/2597/original/06-10.pdf">Yale ICF</a></li>
-<li>Lack, S. (2012). <i>The Hedge Fund Mirage</i> (Wiley) — industry-lifetime investor profits vs ~$0.5T in fees; T-bill comparison. <a href="https://www.wiley.com/en-us/The+Hedge+Fund+Mirage:+The+Illusion+of+Big+Money+and+Why+It%27s+Too+Good+to+Be+True-p-9781118164310">Wiley</a></li>
+<li>Lack, S. (2012). <i>The Hedge Fund Mirage</i> (Wiley) — industry-lifetime investor profits vs ~$0.5T in fees; T-bill comparison. <a href="https://www.wiley.com/en-us/The+Hedge+Fund+Mirage:+The+Illusion+of+Big+Money+and+Why+It%27s+Too+Good+to+Be+True-p-9781118164310">Wiley</a></li>\n<li>Bessembinder, H., Chen, T.-F., Choi, G., &amp; Wei, K.C.J. (2019). \u201cDo Global Stocks Outperform US Treasury Bills?\u201d \u2014 64,000+ stocks, 42 countries: top 1.3% of firms = all $44.7T net global wealth creation; 61% of non-US stocks trail T-bills. <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3415739">SSRN</a></li>\n<li>Odean, T. (1998). \u201cAre Investors Reluctant to Realize Their Losses?\u201d <i>Journal of Finance</i> 53(5) \u2014 the disposition effect: winners sold ~50% more readily than losers.</li>
 </ol>
 <p class="note">All statistics computed from point-in-time, delisting-inclusive U.S. market data: ~24,000 tickers including ~8,900 that no longer trade, 1990–2026; prices adjusted for splits/dividends; disappeared stocks counted at their final traded price (acquisitions exit at deal price); liquidity floor (price ≥ $3, median daily volume ≥ $2M) applied at each historical date using only that date's information. Strategy tests charge 5–20 bps per side and give the benchmark identical cash flows. Charts generated by <a href="{GH}/scripts/gen_verdict.py">gen_verdict.py</a> from <a href="{GH}/scripts/verdict_evidence.py">verdict_evidence.py</a>; underlying research records: <a href="{GH}/dca/research/strategies/ascent/FINDINGS.md">stock-selection studies</a>, <a href="{GH}/leverage_etf_dca/README.md">ETF-timing studies</a>, <a href="{GH}/dca/README.md">DCA-selection validation</a>, <a href="{GH}/dca/research/strategies/METHODOLOGY_validation.md">validation playbook</a>. External: Bessembinder, <i>Do Stocks Outperform Treasury Bills?</i> (2018); S&amp;P SPIVA scorecards; Buffett's 2008–2017 index-vs-hedge-funds bet.</p>
 <footer>Version 2.0 · data through June 2026 · U.S. markets. Research, not investment advice. Backtests are simulations; past performance does not guarantee future results.</footer>
