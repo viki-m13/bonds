@@ -21,13 +21,15 @@ import numpy as np, pandas as pd
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 A = f"{ROOT}/dca/research/strategies/ascent/scripts"
 def _load(name):
-    for p in (f"{A}/{name}", f"/tmp/{name}"):
+    for p in (os.path.join(os.environ.get("ASCENT_WORK","/tmp/ascent_work"),name), f"{A}/{name}", f"/tmp/{name}"):
         if os.path.exists(p): return pd.read_pickle(p)
     raise FileNotFoundError(f"{name}: run ascent/scripts/build_panels.py first")
 ME = _load("_me_monthly.pkl")            # monthly adjClose, stocks+ETFs
 DV = _load("_dv_monthly.pkl")            # monthly median daily $ volume
 uni = pd.read_parquet(f"{ROOT}/dca/research/data/tiingo/tiingo_universe_pit.parquet")
-stocks = set(uni[uni.assetType == "Stock"].ticker) & set(ME.columns)
+_st = uni[uni.assetType == "Stock"].ticker
+_st = _st[~_st.str.contains("-", na=False) & ~_st.str.match(r".*(?:U|W|WS|R|RT)$", na=False) | _st.isin(["QQQ","SPY"])]
+stocks = set(_st) & set(ME.columns)
 qqq = ME["QQQ"]
 OUT = {}
 rng = np.random.default_rng(7)
@@ -38,9 +40,11 @@ liq_ok = (DV.reindex(columns=S.columns) >= 2e6) & (S >= 3.0)     # ascent liquid
 # ---------- 1. skew: 10-year total returns of every eligible stock vs QQQ ----------
 start, end = pd.Timestamp("2016-06-01"), pd.Timestamp("2026-06-01")
 i0 = ME.index.get_indexer([start], method="nearest")[0]; i1 = ME.index.get_indexer([end], method="nearest")[0]
-p0, p1 = S.iloc[i0], S.iloc[i1]
+p0 = S.iloc[i0]
+last_in_win = S.iloc[i0:i1+1].ffill().iloc[-1]          # last actual traded price (acquisitions exit at deal price)
 elig = liq_ok.iloc[i0] & p0.notna()
-ret10 = (p1/p0 - 1).where(p1.notna(), -1.0)[elig[elig].index].dropna()   # delisted -> -100% (conservative floor)
+ret10 = (last_in_win/p0 - 1)[elig[elig].index].dropna()
+died = int((S.iloc[i1][elig[elig].index].isna()).sum())
 qqq10 = qqq.iloc[i1]/qqq.iloc[i0] - 1
 bins = [-1.01, -0.9, -0.75, -0.5, -0.25, 0, 0.5, 1, 2, 4, 8, 16, 1e9]
 labels = ["−100..−90%", "−90..−75%", "−75..−50%", "−50..−25%", "−25..0%", "0..+50%", "+50..100%", "+100..200%", "+200..400%", "+400..800%", "+800..1600%", ">+1600%"]
@@ -48,7 +52,7 @@ hist = pd.cut(ret10, bins=bins, labels=labels).value_counts().reindex(labels).fi
 OUT["skew_hist"] = {"labels": labels, "counts": [int(x) for x in hist.values],
                     "n": int(len(ret10)), "qqq": float(qqq10),
                     "median": float(ret10.median()), "beat": float((ret10 > qqq10).mean()),
-                    "lost_money": float((ret10 < 0).mean())}
+                    "lost_money": float((ret10 < 0).mean()), "died": died}
 
 # ---------- 2. % beating QQQ per 12m window ----------
 years = []
@@ -57,8 +61,8 @@ fwd12 = S.shift(-12)/S - 1
 for y in range(2000, 2026):
     dt = pd.Timestamp(f"{y}-06-01"); i = ME.index.get_indexer([dt], method="nearest")[0]
     el = (liq_ok.iloc[i] & S.iloc[i].notna())
-    f = fwd12.iloc[i][el[el].index]
-    f = f.where(S.shift(-12).iloc[i].notna(), -1.0).dropna()
+    lastp = S.iloc[i:i+13].ffill().iloc[-1]
+    f = (lastp/S.iloc[i] - 1)[el[el].index].dropna()
     if len(f) < 200 or not np.isfinite(fwd12_q.iloc[i]): continue
     years.append((y, float((f > fwd12_q.iloc[i]).mean()), int(len(f))))
 OUT["beat_by_year"] = {"years": [y for y, b, n in years], "beat": [round(b*100, 1) for y, b, n in years]}
@@ -103,19 +107,14 @@ i15 = i_start
 mom12 = (S.iloc[i15]/S.iloc[i15-12] - 1)
 elig15 = liq_ok.iloc[i15] & S.iloc[i15].notna()
 top20 = mom12[elig15[elig15].index].dropna().sort_values(ascending=False).head(20).index
-r20 = mretS[list(top20)].reindex(widx)
-alive = S[list(top20)].reindex(widx).notna()
-port = (r20.where(alive)).mean(axis=1).fillna(-0.05 if False else 0.0)
-# names that die: their last month return set to -50% haircut
-for t in top20:
-    a = alive[t]
-    if a.any() and not a.iloc[-1]:
-        last = a[a].index[-1]
-        port.loc[last] = port.loc[last] - 0.5/20
-hw = dca_path(port.values)
+paths = S[list(top20)].reindex(widx).ffill()
+norm = paths.div(paths.iloc[0])
+port_val = norm.mean(axis=1) * 20000.0                    # $1k in each winner, hold, real fate
+qqq_val = (qqq.reindex(widx)/qqq.reindex(widx).iloc[0]) * 20000.0
+nd = int(S[list(top20)].reindex(widx).iloc[-1].isna().sum())
 OUT["hold_winners"] = {"dates": [d.strftime("%Y-%m") for d in widx],
-    "winners": [round(float(x)) for x in hw], "qqq": [round(float(x)) for x in qpath],
-    "tickers_sample": list(map(str, top20[:8]))}
+    "winners": [round(float(x)) for x in port_val], "qqq": [round(float(x)) for x in qqq_val],
+    "tickers_sample": list(map(str, top20[:8])), "dead": nd}
 
 # ---------- 6. winner persistence: top-decile 12m winners -> next-12m outcome ----------
 reps = []; to_bottom = []; beat_next = []
@@ -123,8 +122,8 @@ for y in range(2001, 2025):
     dt = pd.Timestamp(f"{y}-06-01"); i = ME.index.get_indexer([dt], method="nearest")[0]
     el = liq_ok.iloc[i] & S.iloc[i].notna() & S.iloc[i-12].notna()
     past = (S.iloc[i]/S.iloc[i-12] - 1)[el[el].index].dropna()
-    fut = (S.shift(-12).iloc[i]/S.iloc[i] - 1).reindex(past.index)
-    fut = fut.where(S.shift(-12).iloc[i].reindex(past.index).notna(), -1.0)
+    lp = S.iloc[i:i+13].ffill().iloc[-1]
+    fut = (lp/S.iloc[i] - 1).reindex(past.index)
     if len(past) < 300: continue
     top = past >= past.quantile(0.9)
     fr = fut[top[top].index].dropna()
