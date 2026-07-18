@@ -227,6 +227,45 @@ def dd_bars_svg(items, W=700, H=230):
     s.append("</svg>")
     return "".join(s)
 
+def hbars_svg(rows, W=660, xmax=100, fmt=lambda v: f"{v:g}%", color="#b91c1c", H_row=30):
+    """rows: (label, value, note)"""
+    H = len(rows)*H_row + 16
+    s2 = [f'<svg viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid meet" {MINW} role="img">']
+    y = 8
+    for lab, v, note in rows:
+        w = (W-230-70)*min(v,xmax)/xmax
+        s2.append(f'<text x="224" y="{y+14}" font-size="10.5" fill="#111418" text-anchor="end">{lab}</text>')
+        s2.append(f'<rect x="230" y="{y+4}" width="{max(w,2):.1f}" height="14" fill="{color}" rx="2"/>')
+        s2.append(f'<text x="{234+max(w,2):.1f}" y="{y+15}" font-size="10.5" font-weight="700" fill="#111418">{fmt(v)}</text>')
+        if note: s2.append(f'<text x="{234+max(w,2)+46:.1f}" y="{y+15}" font-size="9" fill="#6b7280">{note}</text>')
+        y += H_row
+    s2.append("</svg>")
+    return "".join(s2)
+
+def paired_bars_svg(items, W=680, H=250):
+    """items: (label, v1, v2, note) — v1 red (theme), v2 black (QQQ), log-ish scaled by max"""
+    import math as _m
+    pad_l, pad_t, pad_b = 44, 26, 40
+    n = len(items); gw = (W-pad_l-10)/n
+    mx = max(max(v1, v2) for _, v1, v2, _ in items)
+    def Y(v): return pad_t + (H-pad_t-pad_b)*(1 - (_m.log10(max(v,0.1))-_m.log10(0.1))/(_m.log10(mx*1.2)-_m.log10(0.1)))
+    s2 = [f'<svg viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid meet" {MINW} role="img">']
+    for v in [1, 10]:
+        y = Y(v)
+        s2.append(f'<line x1="{pad_l}" y1="{y:.1f}" x2="{W-10}" y2="{y:.1f}" stroke="#eeeeee"/>'
+                  f'<text x="{pad_l-5}" y="{y+3:.1f}" font-size="10" fill="#9ca3af" text-anchor="end">{v}×</text>')
+    for i, (lab, v1, v2, note) in enumerate(items):
+        x = pad_l + gw*i + 8
+        bw = (gw-24)/2
+        s2.append(f'<rect x="{x:.1f}" y="{Y(v1):.1f}" width="{bw:.1f}" height="{(H-pad_b)-Y(v1):.1f}" fill="#b91c1c" rx="2"/>')
+        s2.append(f'<text x="{x+bw/2:.1f}" y="{Y(v1)-4:.1f}" font-size="9.5" font-weight="700" fill="#7f1d1d" text-anchor="middle">{v1:g}×</text>')
+        s2.append(f'<rect x="{x+bw+4:.1f}" y="{Y(v2):.1f}" width="{bw:.1f}" height="{(H-pad_b)-Y(v2):.1f}" fill="#111418" rx="2"/>')
+        s2.append(f'<text x="{x+bw+4+bw/2:.1f}" y="{Y(v2)-4:.1f}" font-size="9.5" font-weight="700" fill="#111418" text-anchor="middle">{v2:g}×</text>')
+        s2.append(f'<text x="{x+bw+2:.1f}" y="{H-24}" font-size="10.5" font-weight="700" fill="#111418" text-anchor="middle">{lab}</text>')
+        s2.append(f'<text x="{x+bw+2:.1f}" y="{H-12}" font-size="8.6" fill="#6b7280" text-anchor="middle">{note}</text>')
+    s2.append("</svg>")
+    return "".join(s2)
+
 # =======================  build charts  =======================
 sk = E["skew_hist"]
 c_skew = hist_svg(sk["labels"], sk["counts"], marker_idx=9, marker_lab=f'QQQ: +{sk["qqq"]*100:.0f}%', median_idx=6)
@@ -275,6 +314,39 @@ c_traj = traj_svg(["2017", "2019", "2021", "2023", "2025", "2026-06"], [
 lk = E["luck"]["streaks"]
 c_luck = bars_svg(["1 yr", "3 yrs", "5 yrs", "8 yrs", "10 yrs"], [lk["1"], lk["3"], lk["5"], lk["8"], lk["10"]],
                   color="#6b7280", fmt=lambda v: f"{v:,.0f}")
+sp = E["sector_persist"]
+th = E["themes"]
+sky = E["skill_years"]
+rf_final = {"p10": E["random_fans"]["p10"][-1], "p50": E["random_fans"]["p50"][-1], "p90": E["random_fans"]["p90"][-1]}
+p10x = E["lottery"]["p_10x"]
+p_any10x_8 = 1 - (1 - p10x)**8
+c_profitbeat = hbars_svg([
+    ("made money (2016–26)", round(E["skew_hist"]["lost_money"]*-100+100,1), "the bull market pays almost everyone"),
+    ("beat QQQ (2016–26)", round(E["skew_hist"]["beat"]*100,1), "the machine is the hard part"),
+], color="#6b7280")
+c_ladder = hbars_svg([
+    ("beat QQQ over 1 year", 42.0, "avg across 26 annual cohorts"),
+    ("beat QQQ over 10 years", 6.2, "2,177 stocks, deaths included"),
+    ("beat QQQ over 21 years", 4.6, "1,141 stocks"),
+    ("100× over 21 years (an 'Apple')", 0.18, "≈ 1 in 560"),
+])
+c_skillyears = hbars_svg([
+    (f"a rare true edge (IR 1.0)", 4, "years of live results needed"),
+    (f"an excellent manager (IR 0.75)", 7, ""),
+    (f"a good manager (IR 0.5)", 16, "longer than most careers"),
+    (f"a modest real edge (IR 0.25)", 64, "longer than an investing lifetime"),
+], xmax=64, fmt=lambda v: f"{v:g} yrs", color="#6b7280")
+c_hedge = hbars_svg([
+    ("index fund (Buffett's bet, 2008–17)", 125.8, "cumulative return"),
+    ("five hedge-fund portfolios (same bet)", 36.3, "average, after fees"),
+], xmax=130, fmt=lambda v: f"+{v:g}%", color="#b91c1c")
+c_sector = hbars_svg([
+    ("repeats as #1 next year", sp["repeat_no1"], ""),
+    ("stays top-3 next year", sp["stay_top3"], ""),
+    ("beats QQQ next year", sp["beat_qqq_next"], ""),
+    ("falls BELOW the sector median", sp["fall_below_median"], "the most likely outcome"),
+])
+c_themes = paired_bars_svg([(t["t"], t["mult"], t["qqq_mult"], f"since {t['since']}, fell {t['dd']}%") for t in th])
 pers = E["persistence"]
 conc = E["concentration"]
 lot = E["lottery"]
@@ -363,6 +435,14 @@ FAQS_STRATEGY += [
   "A stop-loss converts a temporary decline into a permanent exit — and §4.3 showed the era's best stocks fell −67% to −87% <i>on the way to</i> their legendary gains; any stop tight enough to 'protect' you guarantees you sell every future winner during its ordinary crashes. On the index itself, stop-and-re-enter rules are just trend-timing, which failed the §7 audits (results that depend on the trade date). The honest way to cap downside is position size decided in advance (11.4), not an automated promise to sell low."),
  ("“My newsletter/analyst has a great track record.”",
   "The oldest result in empirical finance, from 1933: Alfred Cowles collected ~12,000 professional forecasts and asked <i>Can Stock Market Forecasters Forecast?</i> — his abstract answer: 'It is doubtful' [27]. Sixty years later, Graham &amp; Harvey graded 326 investment newsletters over 13 years: <b>no evidence of any timing ability as a group</b>, and the hot ones didn't stay hot [28]. Combine that with §6's luck math (track records arise by chance in the thousands) and the five audits (§5): a track record you're shown is marketing until it survives the audits — and in 90+ years of checking, essentially none have."),
+]
+FAQS_PEOPLE += [
+ ("“People DO make money on options / 0DTE / picking — I've seen the screenshots.”",
+  "Both things are true at once, and §6c's first chart is the reconciliation: <b>75% of stocks made money</b> over the decade (a bull market pays almost everyone) while <b>6.2% beat QQQ</b> — and in options, where the average retail trade <i>loses</i> ~4% [25], a large minority of trades still win, and only the wins get screenshotted. 'Made money' is the wrong test: the test is against what the same dollars did in the automatic alternative, and screenshots never show that column. The right tail of any distribution is real, visible, and not a strategy."),
+ ("“There must be strategies out there that work. Somewhere. No?”",
+  "Yes — and they share three properties: they're <b>capacity-limited</b> (they die if too much money uses them), <b>closed or unbuyable</b> (tolls, seats, infrastructure, control, private information — §6b), and <b>never sold to you</b> (a real edge is worth more traded than sold; what's sold is the story). Everything <i>purchasable</i> — funds, newsletters, courses, signals, ETFs — has a measured record, and it's this study. Even published academic edges decay 58% on publication [10]. The strategy that works and is available to you is the one this paper is about: own the machine and don't interrupt it."),
+ ("“How often can research actually find winning stocks? Is the work worth it?”",
+  "Measured directly: the base rate of a pick beating QQQ over a year is ~42%; the <i>best</i> signals found in years of systematic research — insider clusters, quality screens, machine learning over 36 feature types — lift that to ~44–48%. Never past the coin flip. So the honest wage of stock research is: <b>hundreds of hours buys ~3–6 percentage points of hit rate, landing you still below 50/50 against the free alternative</b> — before costs and taxes take their share. As work, it pays negatively; as a hobby, price it like one (11.4). The exception that CAN pay is §6c's error-structure requirement: knowledge that isn't in anyone else's model — which comes from your profession, not from research tools everyone owns."),
 ]
 FAQS_PREMISE = [
  ("“Backtests aren't real life.”",
@@ -465,6 +545,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <a href="#s4">4 · Why buying the winners fails</a>
 <a href="#s5">5 · We tried to beat it 250+ ways</a>
 <a href="#s6">6 · Luck explains your market-beating friend</a>
+<a href="#s6b">6b · Who actually outperforms</a>
+<a href="#s6c">6c · The argument in probabilities</a>
 <a href="#s7">7 · Market-timing myths</a>
 <a href="#s8">8 · "Then I'll take more risk"</a>
 <a href="#s9">9 · What this does NOT say</a>
@@ -548,6 +630,39 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <div class="card lit"><div class="h">The published record</div>
 <p><b>SPIVA (S&amp;P, year-end 2024)</b>: <b>89.5% of professional U.S. large-cap funds underperformed the S&amp;P 500 over 15 years</b> — full-time managers, with research teams, before your tax disadvantages [12]. <b>Buffett's famous 10-year bet</b> (2008–2017): a plain S&amp;P 500 index fund returned +125.8%; the hand-picked hedge-fund portfolios averaged roughly +36% — he donated the winnings and repeated the advice: index [13].</p>
 <p>And for the individual actually doing the trading: <b>Barber &amp; Odean (2000)</b>, 66,465 real brokerage households — the most active traders earned <b>11.4%/yr while the market returned 17.9%</b> [14]. <b>Morningstar's "Mind the Gap"</b>: real investors earn ~<b>1.1 percentage points per year less than the very funds they hold</b>, from timing their entries and exits [15]. A study of every Brazilian who began day-trading index futures (2013–2015): of those who persisted 300+ days, <b>97% lost money</b>, and only 1.1% earned more than minimum wage [16].</p></div>
+<h2 id="s6b">6b · “So who actually DOES outperform — and how?”</h2>
+<p>Markets aren't unbeatable — they're unbeatable <i>from where you're sitting</i>. The honest census of who wins, and the mechanism each uses:</p>
+<ul>
+<li><b>Market-makers and high-frequency firms</b> — they don't predict anything; they <i>sell liquidity</i>, collecting a fraction of a cent on billions of trades (including yours). It's a toll booth, not a forecast, and it requires infrastructure you cannot rent.</li>
+<li><b>A handful of closed quantitative funds</b> (the famous one returns ~66%/yr gross) — thousands of tiny, fast statistical edges, capacity-capped at a few billion dollars, <b>closed to outside money for decades</b>. The same firm's funds that outsiders <i>can</i> buy have performed near the market. Capacity is the tell: real edges are small; anything sold to unlimited money isn't one.</li>
+<li><b>Activists and private equity</b> — they buy control and <i>change the company</i>. The return comes from doing, not picking.</li>
+<li><b>Corporate insiders</b> — the one real information edge, which is why trading on it is illegal (and why the legal shadow of it — cluster buying — was the best signal we measured).</li>
+<li><b>Specialists in tiny, uncrowded niches</b> — genuinely possible, capacity-limited, and a full-time job with a measured failure rate, not a strategy you buy.</li>
+<li><b>The lucky</b> — §6. By far the largest group, and indistinguishable from the skilled for about a decade (see below).</li>
+</ul>
+<h3>“Then how do hedge funds succeed?”</h3>
+<p>Mostly, <b>the manager succeeds; the investor doesn't.</b> The measured record:</p>
+<div class="chart">{c_hedge}</div>
+<div class="leg"><span>Warren Buffett's public 10-year bet: S&amp;P 500 index fund vs five hand-picked portfolios of hedge funds, 2008–2017 [13]</span></div>
+<ul>
+<li><b>Corrected for reporting tricks, aggregate hedge-fund returns roughly match the index.</b> Hedge-fund databases are self-reported: funds start reporting <i>after</i> a hot streak (backfill) and stop when they die (survivorship). Correcting both removes ~5–6 points of reported return per year [29]; corrected aggregate returns came out at 9.29%/yr vs the S&amp;P's 9.38% over the classic study window [29].</li>
+<li><b>The fee arithmetic is the business model:</b> one analysis of the industry's whole history found investors collectively earned <i>less than Treasury bills</i>, while managers collected hundreds of billions in fees — the classic "2-and-20" is paid on assets, win or lose [30].</li>
+<li><b>What institutions actually buy</b> from the good funds isn't index-beating — it's returns <i>uncorrelated</i> with their stock portfolios (a diversification service). Judged against QQQ-DCA, that's a different product, not a refutation.</li>
+<li>And the few genuinely great funds? See the census above: closed, capacity-capped, infrastructure businesses. <b>The market-beating that exists is precisely the kind you cannot buy.</b></li>
+</ul>
+
+<h2 id="s6c">6c · The whole argument in probabilities</h2>
+<p>Strip away every story and the entire debate reduces to a few measured numbers. First, the one that explains every anecdote you've ever heard:</p>
+<div class="chart">{c_profitbeat}</div>
+<div class="leg"><span>All 2,177 investable stocks, 2016–2026, deaths included. <b>“People make money picking stocks” and “almost nobody beats QQQ” are both true.</b></span></div>
+<p>Three out of four picks <i>made money</i> — a rising market pays nearly everyone, which is why every picker you know has winners to tell you about. Beating the automatic machine is a different event:</p>
+<div class="chart">{c_ladder}</div>
+<div class="leg"><span>The probability ladder, all point-in-time measurements from this study. Each step down is the same game, held longer.</span></div>
+<p>Notice the shape: the odds <i>fall</i> as the horizon grows — time compounds the index's advantage, not the picker's. "In the long run it'll come back" is backwards: the long run is where picks go to lose.</p>
+<h3>And here is why the debate never dies: skill takes decades to even detect</h3>
+<div class="chart">{c_skillyears}</div>
+<div class="leg"><span>Years of live results needed before performance is statistically distinguishable from luck (standard two-sigma test; IR = skill ratio). A "good" manager needs ~16 years — and the market a manager proved skill in no longer exists by the time it's proven.</span></div>
+<p>This is the deepest reason the industry survives its own scorecard: <b>at realistic skill levels, one investing lifetime is not long enough to tell a skilled picker from a lucky one</b> — so belief fills the gap, marketing sells the belief, and the base rates quietly collect.</p>
 <h2 id="s7">7 · The market-timing myths, measured</h2>
 <p><b>"Wait for the crash, then buy."</b> Simulated directly: hold every contribution in cash until the index is at least 20% off its high, then invest it all. Since 2003:</p>
 <div class="chart">{c_dip}</div>
@@ -655,7 +770,32 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li><b>Measure it honestly once a year</b> against what the same dollars in QQQ did. The evidence says it will lag; when it does, you'll have paid a known, capped price for the fun — and when a pick 10×'s, you'll enjoy it without having bet the plan on it.</li>
 </ul>
 
-<h3>11.5 &nbsp;The do-not list (each one measured somewhere above)</h3>
+<h3>11.5 &nbsp;“I still want to find the next Nvidia / the next big sector.” The honest protocol</h3>
+<p>No argument will stop this urge, so here is the evidence-based way to pursue it — with the odds on the table and the plan protected. First, what hunting the future actually looks like, measured:</p>
+<p><b>Chasing the winning sector.</b> Across 27 years of the nine U.S. sector funds, last year's #1 sector:</p>
+<div class="chart">{c_sector}</div>
+<div class="leg"><span>What happens to the previous year's best-performing sector, 1999–2026. The winner's most likely fate is <b>below-average</b>.</span></div>
+<p><b>Buying the future's theme.</b> The four defining theme funds of the era, versus QQQ over the same period:</p>
+<div class="chart">{c_themes}</div>
+<div class="leg"><span><i style="background:#b91c1c"></i>theme fund&nbsp;&nbsp;<i style="background:#111418"></i>QQQ, same period. </span></div>
+<p>Study that chart carefully, because it contains the whole lesson:</p>
+<ul>
+<li><b>Solar (TAN):</b> the theme was <i>completely right</i> — solar deployment grew roughly a hundred-fold — and the fund still <b>lost money over 18 years</b> while QQQ made 28×. Being right about the future is not the same trade as making money, because the future was already in the price, competition destroyed the margins, and the winners were companies that didn't exist yet.</li>
+<li><b>Innovation (ARKK):</b> the era's most famous future-picking fund: half of QQQ's return with a −75% crash.</li>
+<li><b>Biotech (XBI):</b> the genomics revolution happened; the fund made half the index.</li>
+<li><b>Semiconductors (SMH):</b> the one theme that won — and notice <i>which</i> one: not the exciting new story but the <b>boring incumbent toolmakers that every theme has to buy from</b> (and you had to hold through −52%). That's the only theme pattern with a winning record: picks-and-shovels incumbents, not frontier stories.</li>
+</ul>
+<p><b>If you're going to hunt anyway, the protocol</b> (each rule maps to a measured failure above):</p>
+<ul>
+<li><b>Keep it inside the 5–10% satellite</b> (11.4) — sized by the Kelly logic for a negative-expectancy bet: the measured edge of picking is negative, so the "optimal" aggressive size is zero and anything you allocate is priced as entertainment/tuition. The cap converts a plan-killer into a hobby with a known cost (−3% to −6% of lifetime wealth).</li>
+<li><b>Hunt where the required edge could actually exist</b> (§6c): your own professional domain — the industry you genuinely know better than analysts covering 40 companies. That is the only <i>legal</i> channel for the uncrowded, company-specific information the math requires. If your idea comes from a feed, a ranking, or a theme ETF launch, it is by definition crowded — the measured odds of those were 5–17%.</li>
+<li><b>Prefer the boring implementation of the trend</b> — the SMH pattern: incumbent suppliers with profits today, not stories with promises. Wait out the hype phase: theme funds launch at peak excitement and shed ~6%/yr for five years after [23]; the survivors are still there after the crash.</li>
+<li><b>Buy 8–10 tickets, equal-sized, and hold five-plus years.</b> Here's the striking arithmetic: with the measured 17% chance each pick 10×'s over two decades, holding 8 tickets gives you a <b>{p_any10x_8*100:.0f}% chance of owning at least one 10-bagger</b> — and still only a ~6% chance the basket beats QQQ. Both at once. You will very likely get a trophy <i>and</i> lose the race — which is exactly why everyone knows someone with a great pick and almost no one who beat the index. Decide in advance which you're playing for.</li>
+<li><b>Expectations, measured:</b> a 90/10 core-satellite (satellite performing at the measured picker median) ends a decade at ≈{(0.9+0.1*rf_final['p50'])*100:.0f}% of pure QQQ-DCA wealth; a lucky (90th-percentile) satellite gets you to ≈{(0.9+0.1*rf_final['p90'])*100:.0f}%; an unlucky one ≈{(0.9+0.1*rf_final['p10'])*100:.0f}%. The satellite decides your stories; the core decides your wealth.</li>
+<li><b>Review yearly against QQQ; feed winners' trims to the core; never feed losers.</b> (11.4's rules apply unchanged.)</li>
+</ul>
+
+<h3>11.7 &nbsp;The do-not list (each one measured somewhere above)</h3>
 <ul>
 <li>✗ No waiting in cash for crashes (§7: cost ~30% of final wealth).</li>
 <li>✗ No on/off market timing switches (§7: trade-day lottery).</li>
@@ -705,6 +845,8 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li>Bauer, R., Cosemans, M., &amp; Eichholtz, P. (2009). “Option Trading and Individual Investor Performance.” <i>Journal of Banking &amp; Finance</i> 33(4).</li>
 <li>Cowles, A. (1933). “Can Stock Market Forecasters Forecast?” <i>Econometrica</i> 1(3) — the field's founding study; ~12,000 forecasts; answer: “It is doubtful.” <a href="https://cowles.yale.edu/sites/default/files/2022-08/cowles-forecasters33.pdf">PDF</a></li>
 <li>Graham, J., &amp; Harvey, C. (1996–97). “Market Timing Ability and Volatility Implied in Investment Newsletters' Asset Allocation Recommendations.” <i>Journal of Financial Economics</i> 42; 326 newsletters, no timing ability. <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6006">SSRN</a></li>
+<li>Malkiel, B., &amp; Saha, A. (2005). “Hedge Funds: Risk and Return.” <i>Financial Analysts Journal</i> 61(6) — backfill ≈ +5%/yr, survivorship ≈ +4.4%/yr; corrected aggregate ≈ index. <a href="https://www.princeton.edu/~ceps/workingpapers/104malkiel.pdf">PDF</a>; Ibbotson &amp; Chen (2006): ≈5.7%/yr combined overstatement. <a href="https://depot.som.yale.edu/icf/papers/fileuploads/2597/original/06-10.pdf">Yale ICF</a></li>
+<li>Lack, S. (2012). <i>The Hedge Fund Mirage</i> (Wiley) — industry-lifetime investor profits vs ~$0.5T in fees; T-bill comparison. <a href="https://www.wiley.com/en-us/The+Hedge+Fund+Mirage:+The+Illusion+of+Big+Money+and+Why+It%27s+Too+Good+to+Be+True-p-9781118164310">Wiley</a></li>
 </ol>
 <p class="note">All statistics computed from point-in-time, delisting-inclusive U.S. market data: ~24,000 tickers including ~8,900 that no longer trade, 1990–2026; prices adjusted for splits/dividends; disappeared stocks counted at their final traded price (acquisitions exit at deal price); liquidity floor (price ≥ $3, median daily volume ≥ $2M) applied at each historical date using only that date's information. Strategy tests charge 5–20 bps per side and give the benchmark identical cash flows. Charts generated by <a href="{GH}/scripts/gen_verdict.py">gen_verdict.py</a> from <a href="{GH}/scripts/verdict_evidence.py">verdict_evidence.py</a>; underlying research records: <a href="{GH}/dca/research/strategies/ascent/FINDINGS.md">stock-selection studies</a>, <a href="{GH}/leverage_etf_dca/README.md">ETF-timing studies</a>, <a href="{GH}/dca/README.md">DCA-selection validation</a>, <a href="{GH}/dca/research/strategies/METHODOLOGY_validation.md">validation playbook</a>. External: Bessembinder, <i>Do Stocks Outperform Treasury Bills?</i> (2018); S&amp;P SPIVA scorecards; Buffett's 2008–2017 index-vs-hedge-funds bet.</p>
 <footer>Version 2.0 · data through June 2026 · U.S. markets. Research, not investment advice. Backtests are simulations; past performance does not guarantee future results.</footer>
