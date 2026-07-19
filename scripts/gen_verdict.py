@@ -423,6 +423,17 @@ def growthcurve_svg(ws, gs, W=660, H=230):
     s2.append("</svg>")
     return "".join(s2)
 c_growth = growthcurve_svg(_ws, _gs)
+c_excl = hbars_svg([
+    ("QQQ-ineligible (NYSE etc.) winners", 59, "TSM +2,100%, LLY +1,539%, CAT +1,531%\u2026"),
+    ("NASDAQ-listed (QQQ-eligible) winners", 41, "dominated by one ticket: NVDA +18,180%"),
+], xmax=100, fmt=lambda v: f"{v:g}%")
+c_concU = hbars_svg([
+    ("2005", 38, "the last concentration peak\u2026"),
+    ("2010", 16, ""),
+    ("2015", 11, "\u2026fully unwound within a decade"),
+    ("2020", 24, ""),
+    ("2025", 32, "back near the prior peak today"),
+], xmax=40, fmt=lambda v: f"{v:g}%", color="#6b7280")
 gate = E["gate"]; cand = E["candidates"]
 def beliefcurves_svg(prems, w033, w050, W=660, H=250):
     pad_l, pad_r, pad_t, pad_b = 46, 120, 12, 34
@@ -901,6 +912,25 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <li>Only heroic assertions (+10pp <i>forever</i>) justify double-digit weights — and §6c's skill-detection math says you could not verify such an assertion within an investing lifetime.</li>
 </ul>
 <p><b>The definitive statement, then — precise about what is proven and what is priced:</b> the <i>structure</i> is proven: engine = the world cap-weighted machine (the formula itself re-derived it at the EAFE row); silver, oil, and second cryptos carry derived weights of zero under <i>any</i> defensible inputs; gold enters only through the behavioral constraint at 0–10%; TIPS-style ballast mathematically outranks gold if your engine is concentrated; and Bitcoin's weight is not a fact but a <b>priced belief — the formula converts any premium you're willing to own into a weight, 0% for the skeptic, ~5% at the outer edge of defensible conviction, and shrinking as adoption raises its correlation.</b> That is as definitive as an honest mathematician can be: everything that can be derived is derived; the two remaining numbers (your tilt, your crypto premium) are beliefs — and now they have exact prices.</p>
+<h3 id="finalrec">2.11 &nbsp;The final recommendation — the complete mathematics, then the signature</h3>
+<p>Everything in §2 converges here. Four measured results decide the QQQ-versus-broad question; then the recommendation is stated and signed.</p>
+<p><b>Result 1 — at equal beliefs, the optimal QQQ weight is exactly zero.</b> Measured over the full common history: σ<sub>QQQ</sub> = 23%, σ<sub>SPY</sub> = 15%, correlation 0.91. Feed those into §2.10's formula with <i>equal</i> expected returns and the numerator is negative — the growth-optimal weight of the higher-volatility, 0.91-correlated machine is <b>0%</b>. Geometric compounding subtracts ½σ², so QQQ pays <b>2.6 points of variance drag per year against SPY's 1.1</b>: a standing <b>+1.5 pp/yr hurdle</b> QQQ's future return must clear before pulling ahead. Every dollar of the QQQ choice is therefore a <i>belief</i>, priced at 1.5 points a year.</p>
+<p><b>Result 2 — the exclusion audit: QQQ's rules forfeited the majority of the era's winning, even while QQQ won.</b> QQQ can never hold an NYSE listing or a financial, by rule. We measured what that excluded among large (top-500) companies over 2016–2026:</p>
+<div class="chart">{c_excl}</div>
+<div class="leg"><span>Share of total gains produced by large-cap winners, 2016–2026, by QQQ eligibility. 14 of the top 25 large winners were ineligible. QQQ beat SPY anyway — through double weight on a single ticket.</span></div>
+<p>Read plainly: <b>QQQ's victory decade was one lottery line held at double size, not a broader claim on winning</b> — the majority of large-winner gains happened outside its walls (Taiwan Semi, Eli Lilly, Caterpillar, Morgan Stanley…). And the fallback asymmetry runs one way: SPY holds every QQQ winner at cap weight; QQQ holds none of SPY's exclusive ones. Choosing 100% QQQ is betting that the <i>next</i> era's dominant ticket is again Nasdaq-listed, non-financial, and large enough alone to beat the forfeited 59% — a bet that has paid twice in three decades (Microsoft-1990s, Nvidia-2020s) and failed once (2000s).</p>
+<p><b>Result 3 — “markets have evolved” is half true, and the false half is the important half.</b> Rolling 3-year QQQ–SPY correlation: 0.89 in 2003, 0.91 today — the two machines have <i>always</i> moved together in normal months; nothing recently converged. What never converges is the rules (Result 2). Meanwhile the market's concentration really has transformed:</p>
+<div class="chart">{c_concU}</div>
+<div class="leg"><span>Top-10 share of large-cap dollar volume. Concentration has tripled since 2015 — which is exactly why 100% QQQ feels obvious today — and the one precedent of a similar peak unwound completely over the following decade.</span></div>
+<p><b>Result 4 — the contributor's asymmetry (why this is a fair bet at all).</b> For a steady contributor, being wrong about QQQ was survivable in the worst case on record: entering at the 2000 peak, the QQQ contributor fell to 0.58× of the SPY contributor, trailed for 8.4 years — and ended at 2.08× (§2.6). The bet's downside is years of relative regret, not ruin; that is what licenses taking it at all.</p>
+<div class="card verdict"><b>THE RECOMMENDATION</b> — stated as a profile table, because §2.6 proved no single answer survives the 1989/2000/2007 test; signed at the bottom.
+<div class="chart" style="margin-top:8px"><table style="min-width:600px"><thead><tr><th>Investor</th><th>Allocation</th><th>Mathematical basis</th></tr></thead><tbody>
+<tr><td><b>Zero beliefs</b> (the provable floor)</td><td><b>100% VTI or VT</b></td><td>the unique no-forecast portfolio (§2.9); Result 1 assigns QQQ 0% here</td></tr>
+<tr><td><b>This paper's signed default</b> — a disciplined, drawdown-tolerant, long-horizon contributor</td><td><b>50% QQQ + 50% SPY (or VTI)</b>, no ballast</td><td>owns every Nasdaq winner through both halves; owns the excluded-59% pool at full weight; expresses the concentration belief at half size against the 1.5 pp drag hurdle; never the worst machine in any measured era (§2.6); ballast = 0 by the owner's own stomach test (§2.9)</td></tr>
+<tr><td><b>Full conviction</b></td><td><b>100% QQQ</b> — permitted, never provable</td><td>coherent iff all three signatures hold: (1) “QQQ's forward return beats broad by ≥1.5 pp/yr indefinitely” (Result 1); (2) “the next dominant winner is again Nasdaq-listed &amp; non-financial” (Result 2, third repetition); (3) “if wrong, I accept permanently less, with no fallback” (the one-way asymmetry)</td></tr>
+<tr><td>Any profile, optional</td><td>+0–10% GLD / 0–5% BTC</td><td>gold only if the −33% stomach test fails (§2.9); Bitcoin only against a personally-signed premium, priced by §2.10's curve</td></tr>
+</tbody></table></div>
+<p style="margin:8px 0 2px"><b>Signature.</b> The 50/50 is the allocation this study can defend end-to-end without a single unproven premise: every input is measured (σ, ρ, the exclusion shares, the era outcomes), every mechanism is derived (drag, Kelly, regret bounds), and the one unprovable quantity — which machine leads next — is held at exactly the size where being wrong in either direction is a bounded, survivable regret rather than a forfeited future. SPY-vs-VTI within it is measurably indifferent (0.99 correlation, ~87% overlap). Automate it, feed it every payday, and let the machines do the only thing this entire paper found that works.</p></div>
 <h2 id="s3">3 · The market is a lottery with a few winning tickets — and the index holds them all</h2>
 <p>Here is every investable U.S. stock at mid-2016 — all {sk['n']:,} of them, including the {sk['died']} that later died — and what each returned over the following decade:</p>
 <div class="chart">{c_skew}</div>
