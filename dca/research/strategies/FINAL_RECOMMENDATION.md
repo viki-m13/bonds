@@ -44,3 +44,27 @@ permanently less, with no fallback." Sign all three → coherent owned bet.
 Full derivation chain: verdict.html §2.1–2.11 (impossibility proof → regret
 asymmetry → world menu → qualification rubric → forever-combination →
 zero-information derivation → candidate table → this recommendation).
+
+## Addendum — dip arithmetic (verdict.html §7b, provenance: scripts/verdict_dipboost.py)
+
+**The dip-boost (WORKS — extra money only):** per-dollar terminal multiples on
+QQQ 1999–2026: ordinary DCA dollar 12.1×; extra dollar added at ≥−5% dip
+16.1×; at ≥−20% **18.9× (+56% per dollar)**; at ≥−40% 21.3×. Fixed-horizon
+sweet spot: the −25…−40% band (+19.8%/yr forward-3y, 96% positive). Rule:
+tiered boost — add spare cash at −15…−20%, add more below −30%. Caveats:
+boost = ADDITIONAL money (the base plan never pauses); dip months cluster
+(half of QQQ's months were ≥20% under a peak).
+
+**The reserve control (FAILS):** withholding 25–50% of regular contributions
+to deploy at −10/−20/−30% dips loses to plain DCA in every configuration
+(−1.3% to −5.1%). Extra money at dips: always. Withheld money for dips: never.
+
+**The "sell high / too expensive" model (CATASTROPHIC):** sell on +60/80/100%
+trailing-2y run-ups, re-enter at −15/−20/−30% dips: final wealth **−58% to
+−87% versus never selling** — the largest wealth destruction of any behavior
+modeled in the study; 110–217 months spent in cash. "Expensive" is not a
+timing signal: QQQ spent most of its winning years looking expensive.
+
+**The ATH fear check:** buying at all-time highs → forward-1y mean **+17.5%,
+81% positive**, vs +13.4%/80% from all months. Highs were better-than-average
+buy points.

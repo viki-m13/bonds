@@ -423,6 +423,17 @@ def growthcurve_svg(ws, gs, W=660, H=230):
     s2.append("</svg>")
     return "".join(s2)
 c_growth = growthcurve_svg(_ws, _gs)
+c_boost = hbars_svg([
+    ("every ordinary dollar (baseline DCA)", 12.11, "", "#6b7280"),
+    ("extra $ added at \u2265 -5% dip", 16.08, "212 of 329 months qualified"),
+    ("extra $ added at \u2265 -20% dip", 18.87, "168 months \u2014 half of QQQ's history"),
+    ("extra $ added at \u2265 -40% dip", 21.32, "136 months, nearly all 2000s"),
+], xmax=22, fmt=lambda v: f"{v:g}\u00d7")
+c_seller = hbars_svg([
+    ("sell at +100% run-up, re-enter -15%", 57.9, "110 months in cash", "#b91c1c"),
+    ("sell at +80%, re-enter -15%", 73.0, "135 months in cash", "#b91c1c"),
+    ("sell at +60%, re-enter -20%", 86.6, "204 months in cash", "#b91c1c"),
+], xmax=90, fmt=lambda v: f"\u2212{v:g}%")
 c_excl = hbars_svg([
     ("QQQ-ineligible (NYSE etc.) winners", 59, "TSM +2,100%, LLY +1,539%, CAT +1,531%\u2026"),
     ("NASDAQ-listed (QQQ-eligible) winners", 41, "dominated by one ticket: NVDA +18,180%"),
@@ -708,6 +719,7 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <a href="#s6b">6b · Who actually outperforms</a>
 <a href="#s6c">6c · The argument in probabilities</a>
 <a href="#s7">7 · Market-timing myths</a>
+<a href="#s7b">7b · Dip arithmetic</a>
 <a href="#s8">8 · "Then I'll take more risk"</a>
 <a href="#s9">9 · What this does NOT say</a>
 <a href="#s10">10 · The complete strategy map</a>
@@ -1035,6 +1047,20 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <p>Waiting for the obvious bargain cost <b>~30% of final wealth</b>. Crashes are rare; cash waits for years earning nothing while the index compounds; and the "obvious" bottom is only obvious afterward. (In live crashes, the same people waiting for −20% decide at −20% to wait for −30%.)</p>
 <p><b>"Get out when it looks dangerous, back in when it's safe."</b> Every tested version of this — moving-average switches, volatility triggers, regime detectors — either lost outright or turned out to depend on <i>which day of the month</i> it happened to trade (the same rule returned anywhere from 0.74× to 3.31× depending on the trade date — a coin toss wearing a lab coat). None survived the audits.</p>
 
+<h2 id="s7b">7b · Dip arithmetic — the one add-on that works, and the "sell high" idea that destroys the most wealth of anything we modeled</h2>
+<p>Two natural instincts remain to be priced: <i>"shouldn't I add extra when the market is down?"</i> and <i>"shouldn't I sell when it's obviously expensive and buy back the dip?"</i> Same intuition — buy low, sell high — and the arithmetic splits them into the study's best add-on and its worst error. All modeled on QQQ's full monthly history, 1999–2026 (which includes the worst possible stress: half of all months sat ≥20% below a prior peak).</p>
+<h3>7b.1 &nbsp;The dip-boost: extra money added in drawdowns is the best money you will ever invest</h3>
+<div class="chart">{c_boost}</div>
+<div class="leg"><span>Terminal wealth multiple per dollar, by when the dollar went in. Baseline: $1,000/month throughout. Boost: one extra $1,000 in months at or below each drawdown threshold.</span></div>
+<p>The ladder is monotone: an extra dollar deployed at a ≥20% drawdown finished at <b>18.9× versus 12.1×</b> for an ordinary dollar — a <b>+56% lifetime advantage per dollar</b> — and dollars added below −40% finished at 21.3×. At the fixed 3-year horizon the sweet spot is the <b>−25% to −40% band (+19.8%/yr forward, 96% positive)</b>; the very deepest months (below −40%, all 2000–02) still had further to fall short-term, which is why the boost rule should be <b>tiered, not all-in</b>: add what you can spare at −15…−20%, add more below −30%, never wait for a bottom you can't identify. Two honesty notes: (i) the boost only "beats DCA" because it's <i>additional</i> money — per §7, the plan itself never pauses; (ii) drawdown months cluster — the −20% rule would have asked for extra money for a decade straight after 2000. Budget the boost as a standing rule ("any bonus/windfall goes in double when the market is ≥15% down"), not as a promise to find infinite cash.</p>
+<div class="card"><b>The control that proves the mechanism:</b> holding back part of your <i>regular</i> contribution in cash to deploy at the same dips <b>loses to plain DCA in every configuration tested</b> (−1.3% to −5.1% of final wealth; 25–50% reserves, −10/−20/−30% triggers). The dip-boost works because dip-dollars are cheap, but waiting-dollars pay cash-drag the whole time they wait — and the drag exceeds the discount. <b>Extra money at dips: yes, always. Withheld money for dips: never.</b> The two halves of "buy low" have opposite signs.</div>
+<h3>7b.2 &nbsp;"The market is too expensive — I'll sell high and buy back the dip"</h3>
+<p>Modeled fairly: sell everything whenever QQQ's trailing two-year gain exceeds a threshold ("obviously expensive"), keep contributing into cash, re-enter when price falls a chosen percentage from its subsequent peak. Every combination, 1999–2026:</p>
+<div class="chart">{c_seller}</div>
+<div class="leg"><span>Final wealth versus never selling, $1,000/month throughout. Best case tested: <b>−58%</b>. Worst: <b>−87%</b> — the single largest wealth destruction of any behavior modeled in this study.</span></div>
+<p>Why so catastrophic? The seller's rule triggers during exactly the runs that §3 showed produce everything — it systematically exits the right tail, then demands a discount that a compounding market rarely offers from the exit price: the re-entry dip usually arrives at a <i>higher</i> level than the sale, or never. Being out 110–217 months of a 27-year sample is fatal arithmetic, and no parameter choice fixes it because the flaw is the premise: <b>"expensive" is not a timing signal — QQQ spent most of its winning years looking expensive.</b></p>
+<div class="card big"><div class="n">+17.5% and 81%</div>
+The average next-12-months return, and the share of positive outcomes, when buying QQQ <b>at an all-time high</b> — versus +13.4% and 80% from all months. The scariest-feeling moment to invest has been a <i>better-than-average</i> moment. "It's at highs" is a reason the automation exists, not a reason to override it.</div>
 <h2 id="s8">8 · “Fine — then I'll just take more risk”</h2>
 <p>One thing does reliably end with more money in a rising market: <b>more exposure</b>. A 3×-leveraged version of the same index, same contributions:</p>
 <div class="chart">{c_lev}</div>
