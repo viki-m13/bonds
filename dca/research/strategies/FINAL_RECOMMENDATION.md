@@ -68,3 +68,45 @@ timing signal: QQQ spent most of its winning years looking expensive.
 **The ATH fear check:** buying at all-time highs → forward-1y mean **+17.5%,
 81% positive**, vs +13.4%/80% from all months. Highs were better-than-average
 buy points.
+
+---
+
+## Addendum 2 — "Why not just buy Apple?" (the single-stock case, argued WITHOUT volatility)
+
+Audience note: the paper's readers can already hold through pullbacks —
+drawdown/volatility arguments are real but not compelling to them. The case
+against single stocks must stand with iron hands granted. It does, five ways
+(verdict.html §4.4; provenance `scripts/verdict_singlestock.py`, all committed
+data — `data/stocks/AAPL.csv` is Tiingo daily 1981–2026):
+
+1. **Holding power fixes drawdowns, not endings.** Full delisting-inclusive
+   panel, 18,100 stocks (≥1yr history, $5+ peak): **36% no longer trade**;
+   **25% ended or stand ≥70% below peak** (8% died there — permanent).
+   JPM Agony & Ecstasy: 40% catastrophic never-recovered declines; median
+   stock −54 pts lifetime vs index. You can hold through everything except
+   an ending, and endings are common.
+2. **"It'll always go up" carries no information.** The 10 most valuable US
+   companies of March 2000, held 26 years with dividends reinvested:
+   **only 3 beat QQQ (7.38×)** — Microsoft 12.3×, Walmart 11.5×, XOM 8.2×.
+   The era's most Apple-like names all lost: GE 3.1×, Cisco 2.7×, Intel 3.9×,
+   Nokia 0.52×, Citigroup 0.75× (two lost money outright). Same argument-form
+   that selected Japan-1989 / financials-2007 (§2.6); top-dog cohorts 11/40.
+3. **Even the RIGHT company loses for longer than conviction survives.**
+   Apple (2,825× since 1981 — the best case in modern history): bought
+   September 2012 at peak obviousness (largest company in history), the buyer
+   spent **7.3 years losing to QQQ (Sep 2012 – Dec 2019, −44% at the trough)**
+   before winning (15.8× vs 11.4×) in one late burst. Earlier: 8.4 years
+   underwater 1991–99 (−81%), ~90 days from insolvency in 1997.
+4. **Variance drag is a fee courage can't waive.** g ≈ μ − ½σ². Apple's
+   calmest decade: σ 27.4% → 3.7 pp/yr drag (QQQ 1.8, SPY 1.2). Apple full
+   history: σ 43.3% → 9.4 pp/yr. A typical single stock must out-earn the
+   index by 5–10 pp/yr forever merely to tie in compound growth.
+5. **QQQ is not "instead of" Apple.** The index holds Apple at full market
+   weight (cap-weighting promoted it to the top as it won) PLUS an automatic,
+   tax-free claim on its successor — as it rode MSFT→AAPL→NVDA without anyone
+   choosing. Apple-only is a bet that succession never comes; every cohort
+   table says succession always comes. The stock holder must be right
+   forever; the index holder needs no opinion.
+
+The FAQ "I'll just buy NVIDIA / Apple / the obvious winner" now routes to
+§4.4 with this five-point summary.

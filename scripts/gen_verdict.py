@@ -300,6 +300,30 @@ c_year = bars_svg([str(y)[2:] for y in E["beat_by_year"]["years"]], E["beat_by_y
 rf = E["random_fans"]
 c_fans = band_svg(rf["dates"], rf["p10"], rf["p50"], rf["p90"])
 hw = E["hold_winners"]
+# --- 4.4: single-stock evidence (provenance: scripts/verdict_singlestock.py) ---
+_aapl = pd.read_csv(f"{ROOT}/data/stocks/AAPL.csv", parse_dates=["date"]).set_index("date")["adjClose"].dropna()
+_qd = pd.read_csv(f"{ROOT}/data/etfs/QQQ.csv", parse_dates=["Date"]).set_index("Date")
+_qs = (_qd["Adj Close"] if ("Adj Close" in _qd.columns and _qd["Adj Close"].notna().sum() > 100) else _qd["Close"]).dropna()
+_am = _aapl.resample("ME").last().dropna(); _qm = _qs.resample("ME").last().dropna()
+_ci = _am.index.intersection(_qm.index)
+_rel = (_am[_ci] / _qm[_ci]).loc["2012-09-30":]
+_rel = _rel / _rel.iloc[0]
+c_aaplrel = lines_svg([d.strftime("%Y-%m") for d in _rel.index],
+    [("AAPL/QQQ", [float(v) for v in _rel.values], "#111418", 2.4, None)],
+    logy=False, yfmt=lambda v: f"{v:g}\u00d7", ylines=[0.6, 0.8, 1.0, 1.2, 1.4], yearmod=2, H=250)
+c_giants = hbars_svg([
+    ("Microsoft", 12.33, "", "#15803d"),
+    ("Walmart", 11.54, "", "#15803d"),
+    ("ExxonMobil", 8.19, "", "#15803d"),
+    ("QQQ \u2014 the index, no picking", 7.38, "", "#111418"),
+    ("IBM", 4.85, "", "#6b7280"),
+    ("Intel", 3.92, "", "#6b7280"),
+    ("General Electric", 3.13, "the world's most valuable company in 2000", "#6b7280"),
+    ("Cisco", 2.72, "briefly #1 on earth, March 2000", "#6b7280"),
+    ("Pfizer", 2.04, "", "#6b7280"),
+    ("Citigroup", 0.75, "lost money over 26 years", "#b91c1c"),
+    ("Nokia", 0.52, "lost half its value", "#b91c1c"),
+], xmax=13, fmt=lambda v: f"{v:g}\u00d7")
 c_hold = lines_svg(hw["dates"], [("QQQ", hw["qqq"], "#111418", 2.4, None), ("winners", hw["winners"], "#b91c1c", 2.0, None)], yearmod=2, logy=True)
 c_wdd = dd_bars_svg(E["winners_dd"])
 dw = E["dip_wait"]
@@ -554,7 +578,7 @@ FAQS_PEOPLE = [
 ]
 FAQS_STRATEGY = [
  ("“I'll just buy NVIDIA / Apple / the obvious winner.”",
-  "Today's obvious winner is obvious <i>because it already won</i> — you can no longer buy the past returns. Buying today's hottest stocks and holding was tested directly on point-in-time data: the 20 hottest stocks of 2015, held to 2026, turned $20k into <b>$53k while QQQ turned it into $160k — and 10 of the 20 no longer exist</b> (§4). And spotting the next one early doesn't solve it: the historical winners fell −67% to −87% <i>on the way</i> to their gains (§4). Almost nobody holds a single stock through an −87% loss; the index made you hold, automatically."),
+  "This deserves \u2014 and gets \u2014 its own section (\u00a74.4), argued with the reader's iron hands granted, because the real case has nothing to do with volatility. In brief: (1) holding power can't fix <i>endings</i> \u2014 one in four stocks in the complete record finished 70%+ below its peak, and 36% no longer trade at all; (2) the last time 'it'll always go up' felt this certain \u2014 March 2000 \u2014 only 3 of the 10 most valuable companies in America beat QQQ over the next 26 years, and two lost money outright; (3) even the right company doesn't rescue the plan: Apple itself \u2014 while the biggest company on earth \u2014 spent 7.3 years losing to QQQ (2012\u20132019, 44% behind at the bottom); (4) a single stock's volatility drags its compound growth by 5\u201310 points a year before any of this (\u00bd\u03c3\u00b2 \u2014 an arithmetic fee, not an emotional one); and (5) buying QQQ doesn't mean giving up Apple \u2014 the index holds it at full weight and adds the one thing a single stock can't: automatic ownership of its successor."),
  ("“Momentum investing is proven by academics.”",
   "Momentum is real <i>as a relative pattern</i> — recent winners beat recent losers on average, for a while. But converting that into beating QQQ requires constant rotation, and every rotating version tested here failed the audits (luck-level results, era-dependence, trade-day sensitivity — §5), while the buy-and-hold version is a disaster (§4). QQQ is itself a free, automatic momentum machine: winners grow their own weight with zero trades and zero taxes."),
  ("“Value investing: buy good companies when they're cheap.”",
@@ -978,6 +1002,19 @@ footer{{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);font-s
 <div class="chart">{c_wdd}</div>
 <p>Each of these fell by two-thirds or more — several more than once — before delivering its legendary return. Holding one stock through an −80% loss, with headlines screaming it's over, is something almost no one does. The index held them for you: no conviction required, no decision available to get wrong. <b>The index doesn't just find the winners — it forces you to keep them.</b></p>
 
+<h3 id="s44">4.4 &nbsp;"I can hold through anything \u2014 so why not just buy Apple?" The case that has nothing to do with volatility</h3>
+<p>Fair question \u2014 and the honest answer is not "volatility." Assume you have iron hands: \u221280% costs you no sleep and you will never sell. Everything in \u00a74.3 stops mattering. Four arguments remain, each sufficient on its own, and none of them is about your stomach.</p>
+<p><b>1 \u00b7 Holding power fixes drawdowns. It does not fix endings.</b> The index's declines have always been temporary for a structural reason: it continuously replaces its failures \u2014 companies die, the index doesn't. A single company's decline can simply be its ending. Across our complete delisting-inclusive panel \u2014 18,100 stocks with at least a year of history and a real ($5+) price \u2014 <b>36% no longer trade at all</b>, and <b>one in four finished (or stands today) 70%+ below its peak</b>, including 8% that died there, permanently. J.P. Morgan's Russell-3000 study found the same: <b>40% of stocks suffered a catastrophic 70%+ decline from which they never recovered</b>, and the median stock's lifetime return lagged the index by \u221254 points [2]. "I'll hold through anything" is a real answer to a crash. It is no answer to Enron, Nokia or Citigroup: <b>you can hold a stock through everything except its ending \u2014 and endings are common.</b></p>
+<p><b>2 \u00b7 "It'll always go up" has been said before, about the same kind of company, and the sentence carries no information.</b> In March 2000 it was said \u2014 with today's exact certainty \u2014 about the ten most valuable companies in America. Here is each of them bought at that moment and held with perfect iron hands for 26 years, every dividend reinvested, every crash held through:</p>
+<div class="chart">{c_giants}</div>
+<div class="leg"><span>Total-return multiple, March 10, 2000 \u2192 July 2026, dividends reinvested (delisting-inclusive data). Green = beat QQQ over the 26 years.</span></div>
+<p><b>Three of ten beat the index; two lost money over a quarter-century of perfect holding.</b> And the era's most Apple-like names \u2014 its dominant, beloved technology companies \u2014 all lost: GE (the most valuable company on earth) returned 3.1\u00d7 against the index's 7.4\u00d7, Cisco (briefly #1 that very month) 2.7\u00d7, Intel 3.9\u00d7, Nokia half your money. Knowing today that Microsoft, Walmart and ExxonMobil were the right three doesn't help \u2014 in 2000 they looked no more inevitable than the seven that failed. This is \u00a72.6's falsification test wearing a single-stock costume: <i>the feeling that a rise is inevitable is what a peak feels like from the inside</i> \u2014 the identical sentence selected Japan in 1989 and financial stocks in 2007. Nor is one era an accident: across four separate cohorts of reigning giants (2000, 2005, 2010, 2015), only <b>11 of 40</b> beat QQQ over their following decade (\u00a710b, [24]).</p>
+<p><b>3 \u00b7 Even the RIGHT company loses to the index for longer than any conviction survives.</b> Apple is the strongest possible version of the argument \u2014 arguably the best stock of the past half-century (2,825\u00d7 since 1981). So take the moment "Apple always goes up" was most obviously true: September 2012, when it became the largest company in history. Here is that buyer's wealth <i>relative to a QQQ buyer's</i>, from that day on:</p>
+<div class="chart">{c_aaplrel}</div>
+<div class="leg"><span>Growth of $1 in Apple \u00f7 growth of $1 in QQQ, monthly, from September 2012. Below 1.0\u00d7 = losing to the index.</span></div>
+<p>The buyer at maximum obviousness was <i>right about the company</i> \u2014 revenue and profits grew superbly throughout \u2014 and still spent <b>7.3 years losing to QQQ (September 2012 \u2013 December 2019), sitting 44% behind at the bottom</b>. Apple did eventually pull ahead (15.8\u00d7 vs 11.4\u00d7 since 2012) \u2014 but the entire margin arrived in one late burst after 2019, and nothing available in year 7 distinguished the Apple that would pay off in year 8 from the Cisco that still hasn't paid off in year 26. It wasn't the first time: the same company had already spent <b>8.4 years underwater (1991\u20131999, \u221281% at the trough)</b> and passed within about 90 days of insolvency in 1997. "Always goes up" has been false for roughly a decade, twice, for the best stock in modern history \u2014 while the index rode every one of Apple's good years automatically, no conviction required.</p>
+<p><b>4 \u00b7 Volatility taxes your compound return even if it never touches your nerves.</b> This is the arithmetic point iron-stomached investors miss: long-run compound growth \u2248 average return \u2212 \u00bd\u03c3\u00b2 (\u00a72.9) \u2014 variance is subtracted from your growth rate whether or not you feel it. Apple's <i>calmest</i> decade ran at 27% volatility, a <b>3.7-points-per-year drag</b> against QQQ's 1.8; over its full history, 43% volatility \u2014 a <b>9.4-point annual drag</b>. A typical single stock (40\u201350% volatility) must therefore out-earn the index's average return by <b>5\u201310 points per year, forever, merely to tie</b> in compound growth. Courage doesn't waive this fee; only diversification does.</p>
+<div class="card"><b>5 \u00b7 The clincher: QQQ is not "instead of" Apple.</b> Apple is one of QQQ's largest holdings. Buying the index forfeits nothing of the Apple thesis \u2014 you own it at its full market weight, and cap-weighting is what promoted it to the top of the index as it won, no decision required. What the index adds is the one thing Apple-only cannot offer at any price: <b>an automatic, tax-free claim on Apple's successor, whoever that turns out to be</b> \u2014 exercised for you, exactly as the index rode Microsoft in the 1990s, Apple in the 2010s and Nvidia in the 2020s, each promoted to top weight by winning rather than by anyone's foresight. Owning only Apple is therefore not a bet that Apple is great \u2014 the index already pays you in full for that. It is a bet that <i>succession never comes</i>. Every table in this section says succession always, eventually, comes. The single-stock holder must be right forever; the index holder never needs an opinion at all.</div>
 <h2 id="s5">5 · We didn't take this on faith — we tried to beat it, 250+ ways</h2>
 <p>Over multiple independent research campaigns, 250+ strategy configurations were built and tested on the honest data: machine-learning models trained on 36 predictive features, factor screens, momentum systems, insider-filing signals, dip-buyers, sector and ETF rotators, trend switches, regime detectors. The scoreboard (each family's <b>best</b> configuration, most charitable reading):</p>
 <p class="note" style="font-weight:700;color:#111418;margin-bottom:2px">Stock-picking approaches (final wealth ÷ QQQ-DCA's final wealth)</p>
