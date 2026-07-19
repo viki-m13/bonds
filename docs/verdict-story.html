@@ -311,7 +311,7 @@ details.fhide,.faq-group.fhide{display:none}
 #cinema{position:fixed;inset:0;z-index:120;background:#000;display:none}
 #cinema.open{display:block}
 #cineCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer}
-#cineTag{position:absolute;top:16px;left:18px;font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:800;pointer-events:none}
+#cineTag{position:absolute;top:20px;left:18px;font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:800;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100vw - 84px)}
 #cineTag b{color:var(--gold)}
 #cineClose{position:absolute;top:10px;right:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer;z-index:5;transition:background .2s}
 #cineClose:hover{background:rgba(255,255,255,.2)}
@@ -402,7 +402,7 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 <nav id="chapnav" aria-label="Chapters"></nav>
 <div id="cinema" role="dialog" aria-label="The film">
   <canvas id="cineCanvas"></canvas>
-  <div id="cineTag"><b>THE MACHINE</b> · a data film · every frame computed from the study</div>
+  <div id="cineTag"><b>QQQ</b> · a data film · computed from the study</div>
   <button id="cineClose" aria-label="Close">✕</button>
   <div id="cineCap"></div>
   <button id="cineBig" aria-label="Play">▶</button>
@@ -422,7 +422,7 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
   <div class="hero-eyebrow">An interactive research story · 26 years of honest data</div>
   <h1>Can anyone beat<br>just buying <span class="q">QQQ?</span></h1>
   <p class="hero-sub">Stock-picking, market timing, machine learning, expert funds — versus one boring automatic purchase, every two weeks. Every statistic in this story was computed from <b>point-in-time market data</b>: the record as it actually looked on each historical day, dead companies included. Scroll, and watch the answer assemble itself.</p>
-  <button class="cine-cta" id="cineOpen"><span class="play-ico">▶</span><span>Watch the film<small>the whole verdict, animated · 2 min · silent</small></span></button>
+  <button class="cine-cta" id="cineOpen"><span class="play-ico">▶</span><span>Watch the film<small>the whole verdict in six acts · 6 min · silent</small></span></button>
   <div class="hero-kpis">
     <div class="hk gold"><div class="v"><span class="count" data-to="6.2" data-dec="1">0</span>%</div><div class="l">of stocks beat QQQ over the decade</div></div>
     <div class="hk"><div class="v"><span class="count" data-to="2177">0</span></div><div class="l">stocks measured, incl. every death</div></div>
@@ -1316,6 +1316,15 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 </div>
 <p class="reveal"><b>Should you "always and only" do this?</b> Always — automate it and never override it; every override pathway was measured above and lost. Only — yes, for stock-market money: this entire study is the evidence that adding picking, timing, or rotation on top subtracts. The one sanctioned exception is the capped hobby slice in 11.4.</p>
 
+<div class="card gold reveal"><h3 style="margin-top:0">"If the schedule is the strategy — why can't I point the same schedule at stocks I like?"</h3>
+<p>Because the schedule and the target do different jobs, and only one of them is doing the winning:</p>
+<ul>
+<li><b>DCA fixes <i>when</i> you buy. It cannot fix <i>what</i> you bought.</b> The schedule removes timing risk — the entries average out. It does nothing to selection risk: your dollars still land on one ticket with the Chapter 3 odds (6.2% beat the index over a decade; a quarter lost money; 666 died).</li>
+<li><b>Averaging into a dying stock averages down to zero.</b> The most dangerous property of DCA-into-a-stock is that it <i>feels</i> disciplined while doing the one thing the evidence bans: adding to a loser on a schedule. A contributor into Enron, Nokia or Citigroup executed their plan perfectly — into −100%, −48%, −25% over decades. The schedule rode the ticket down and bought more of it every month.</li>
+<li><b>The index is the only target that repairs itself.</b> QQQ-DCA survived −81% because the <i>index</i> replaced its failures while the contributions kept landing — new winners entered, dead companies left, and every crash purchase bought the next era's leaders automatically. A single stock has no such mechanism: its crash purchases buy more of the same claim, and if the company ends, the schedule ends at zero with it.</li>
+<li><b>Measured, not argued:</b> the same biweekly schedule pointed at picked stocks was tested across 250+ configurations (Chapter 5) — the best honest result was luck-level. The schedule pointed at the machine is the thing nothing beat. <b>The power was never in the cadence. It's in what the cadence buys.</b></li>
+</ul></div>
+
 <h3 class="reveal">11.3 &nbsp;"But people made fortunes on Apple and Tesla — why can't I?"</h3>
 <p class="reveal">Because you are looking at the winners of a lottery and asking why you can't buy winning tickets. The odds, measured over 21 years — every investable U.S. stock in 2005, followed to 2026, deaths included (1,141 stocks):</p>
 <div class="widget reveal">
@@ -1424,7 +1433,7 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 <div class="reveal d2"><div class="fline"></div></div>
 <div class="fsub reveal d2">A few huge winners produce nearly everything. The index already owns them at full size and never lets go. Every act of picking makes you own less of them. That's the whole story — the rest was checking.</div>
 <div class="fbtns reveal d3">
-<button class="btn" id="cineReplay">▶ Watch the 2-minute film</button>
+<button class="btn" id="cineReplay">▶ Watch the 6-minute film</button>
 <a class="btn ghost" href="verdict.html">Read the full research paper →</a>
 <a class="btn ghost" href="#hero">⌃ Back to the top</a>
 </div>
@@ -2408,6 +2417,8 @@ setTimeout(armSwipe, 800);
 
   function txt(s, x, y, px, color, weight, align, sp){
     ctx.font = (weight||800) + ' ' + px + 'px ' + FONT;
+    var need = ctx.measureText(s).width + (sp ? sp*s.length : 0);
+    if(need > W*0.94){ var k = W*0.94/need; px *= k; if(sp) sp *= k; ctx.font = (weight||800) + ' ' + px + 'px ' + FONT; }
     ctx.fillStyle = color; ctx.textAlign = align||'center'; ctx.textBaseline = 'middle';
     if(sp){ /* letterspacing: draw per char */
       ctx.textAlign = 'left';
@@ -2514,7 +2525,7 @@ setTimeout(armSwipe, 800);
     bgStars(t, 1);
     words('26 YEARS. 2,177 STOCKS.', W/2, ST.y + ST.h*0.30, Math.min(44, W*0.055), MUT, t, 0.4, 0.14);
     words('EVERY DEATH COUNTED.', W/2, ST.y + ST.h*0.42, Math.min(44, W*0.055), MUT, t, 1.6, 0.14);
-    words('CAN ANYONE BEAT THE MACHINE?', W/2, ST.y + ST.h*0.60, Math.min(58, W*0.072), INK, t, 3.0, 0.16);
+    words('CAN ANYONE BEAT QQQ?', W/2, ST.y + ST.h*0.60, Math.min(58, W*0.072), INK, t, 3.0, 0.16);
     if(t > 5.2){ ctx.globalAlpha = ease((t-5.2)/0.6);
       txt('A DATA FILM — EVERY FRAME COMPUTED FROM THE STUDY', W/2, ST.y + ST.h*0.74, Math.min(12.5, W*0.026), GOLD, 800, 'center', 2);
       ctx.globalAlpha = 1; }
@@ -2558,7 +2569,7 @@ setTimeout(armSwipe, 800);
       }
     });
     ctx.globalAlpha = 1;
-    txt('135 OF 2,177 BEAT THE MACHINE — 6.2%', W/2, ST.y - 4, Math.min(15,W*0.03), GOLD, 900, 'center', 1.5);
+    txt('135 OF 2,177 BEAT QQQ — 6.2%', W/2, ST.y + 14, Math.min(15,W*0.03), GOLD, 900, 'center', 1.5);
     if(nv > 0 && nvd){
       ctx.beginPath(); ctx.fillStyle = GOLD2; ctx.globalAlpha = 1;
       ctx.arc(nvd.gx, nvd.gy, field.r*(1.5 + nv*6), 0, 6.283); ctx.fill();
@@ -2577,7 +2588,7 @@ setTimeout(armSwipe, 800);
     for(var g=1; g<5; g++){ ctx.beginPath(); ctx.moveTo(ST.x, ST.y + ST.h*g/5); ctx.lineTo(ST.x+ST.w, ST.y + ST.h*g/5); ctx.stroke(); }
     var yr = 2000 + 26.4*p;
     txt(String(Math.floor(yr)), W/2, ST.y + 34, Math.min(46,W*0.06), 'rgba(255,255,255,.14)', 900);
-    txt('$1,000 A MONTH INTO EACH — SAME DAYS, SAME DOLLARS', W/2, ST.y - 4, Math.min(13,W*0.027), MUT, 800, 'center', 1.5);
+    txt('$1,000 A MONTH INTO EACH — SAME DAYS, SAME DOLLARS', W/2, ST.y + 14, Math.min(13,W*0.027), MUT, 800, 'center', 1.5);
     [[1,'#8b97a6',2,'SPY'],[0,INK,2.8,'QQQ']].forEach(function(cfg){
       var pts = race[cfg[0]]; if(!pts || !pts.length) return;
       ctx.strokeStyle = cfg[1]; ctx.lineWidth = cfg[2]; ctx.lineJoin='round'; ctx.beginPath();
@@ -2598,7 +2609,7 @@ setTimeout(armSwipe, 800);
     bgStars(t*0.3, 0);
     var yi = clamp(Math.floor(t/1.15), 0, 10), frac = clamp(t/1.15 - yi, 0, 1);
     var cur = Math.round(lerp(SURV[yi], SURV[clamp(yi+1,0,10)], frac));
-    txt('10,000 INVESTORS · ZERO SKILL · 45% ODDS EACH YEAR', W/2, ST.y - 4, Math.min(13,W*0.027), MUT, 800, 'center', 1.2);
+    txt('10,000 INVESTORS · ZERO SKILL · 45% ODDS EACH YEAR', W/2, ST.y + 14, Math.min(13,W*0.027), MUT, 800, 'center', 1.2);
     var maxD = 340, show = Math.max(cur > 0 ? 1 : 0, Math.round(maxD*cur/10000));
     var cols = 34, cw = ST.w*0.7/cols;
     resetRnd(12);
@@ -2621,7 +2632,7 @@ setTimeout(armSwipe, 800);
     function py(v){ return ST.y + ST.h - 10 - (ST.h-48)*(Math.log(v)-lo)/(hi-lo); }
     var zone = (idx>=9&&idx<=12) ? '−87%' : (idx>=30&&idx<=31) ? '−56%' : (idx>=40&&idx<=41) ? '−66%' : null;
     if(zone){ ctx.fillStyle = 'rgba(255,60,60,0.10)'; ctx.fillRect(0,0,W,H); }
-    txt('ONE TICKET, HELD 21 YEARS: NVDA 2005 → 2026', W/2, ST.y - 4, Math.min(13,W*0.027), MUT, 800, 'center', 1.2);
+    txt('ONE TICKET, HELD 21 YEARS: NVDA 2005 → 2026', W/2, ST.y + 14, Math.min(13,W*0.027), MUT, 800, 'center', 1.2);
     ctx.strokeStyle = GOLD; ctx.lineWidth = 2.6; ctx.lineJoin='round'; ctx.beginPath();
     for(var i=0;i<=idx;i++){ i===0 ? ctx.moveTo(px(i), py(NVDA[i])) : ctx.lineTo(px(i), py(NVDA[i])); }
     ctx.stroke();
@@ -2629,7 +2640,7 @@ setTimeout(armSwipe, 800);
     var mult = NVDA[idx];
     txt((mult<10?mult.toFixed(2):Math.round(mult).toLocaleString('en-US'))+'×', ST.x + 14, ST.y + 30, Math.min(34,W*0.05), zone?RED:INK, 900, 'left');
     if(zone){ txt(zone + ' — WOULD YOU STILL HOLD?', W/2, ST.y + ST.h*0.5, Math.min(30,W*0.055), RED, 900); }
-    if(p >= 0.999){ txt('5,812× — BUT THE INDEX HELD IT FOR YOU', W/2, ST.y + ST.h*0.32, Math.min(22,W*0.042), GOLD, 900); }
+    if(p >= 0.999){ txt('5,812× — BUT QQQ HELD IT FOR YOU', W/2, ST.y + ST.h*0.32, Math.min(22,W*0.042), GOLD, 900); }
   }
   function s6(t){
     ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
@@ -2637,8 +2648,8 @@ setTimeout(armSwipe, 800);
     function rx(v){ return ST.x + ST.w*0.62 * (Math.log10(clamp(v,0.1,10))+1)/1.3 + 0; }
     ctx.strokeStyle = GOLD; ctx.lineWidth = 2; ctx.setLineDash([6,5]);
     ctx.beginPath(); ctx.moveTo(wallX, ST.y+18); ctx.lineTo(wallX, ST.y+ST.h-6); ctx.stroke(); ctx.setLineDash([]);
-    txt('1× = THE MACHINE', wallX, ST.y + 8, Math.min(12,W*0.025), GOLD, 900, 'center', 1);
-    txt('250+ STRATEGIES, FIRED AT THE BENCHMARK', W/2, ST.y - 6, Math.min(13,W*0.027), MUT, 800, 'center', 1.2);
+    txt('1× = QQQ', wallX, ST.y + 8, Math.min(12,W*0.025), GOLD, 900, 'center', 1);
+    txt('250+ STRATEGIES, FIRED AT QQQ', W/2, ST.y + 14, Math.min(13,W*0.027), MUT, 800, 'center', 1.2);
     var launched = clamp(Math.floor(t/9*250), 0, 250);
     for(var i=0;i<launched;i++){
       var s = STRAT[i%STRAT.length], started = i/250*9, age = t - started;
@@ -2664,8 +2675,8 @@ setTimeout(armSwipe, 800);
     bgStars(t*0.3, 0);
     var p = ease(t/9), yr = Math.floor(2003 + 23*p);
     txt(String(yr), W/2, ST.y + 30, Math.min(40,W*0.055), 'rgba(255,255,255,.14)', 900);
-    txt('INVEST EVERY MONTH  vs  WAIT FOR THE −20% CRASH', W/2, ST.y - 4, Math.min(13,W*0.027), MUT, 800, 'center', 1);
-    var rows = [['THE MACHINE — NEVER WAITS', 3.25, INK, 0.92], ['THE DIP-WAITER — SITS IN CASH', 2.29, RED, 0.648]];
+    txt('QQQ EVERY MONTH  vs  WAIT FOR THE −20% CRASH', W/2, ST.y + 14, Math.min(13,W*0.027), MUT, 800, 'center', 1);
+    var rows = [['QQQ — NEVER WAITS', 3.25, INK, 0.92], ['THE DIP-WAITER — SITS IN CASH', 2.29, RED, 0.648]];
     rows.forEach(function(r, i){
       var y = ST.y + ST.h*(0.34 + i*0.3);
       txt(r[0], ST.x + 6, y - 26, Math.min(12.5,W*0.026), MUT, 800, 'left', 1);
@@ -2695,28 +2706,466 @@ setTimeout(armSwipe, 800);
     words('ONE SURVIVOR.', W/2, ST.y + ST.h*0.25, Math.min(46,W*0.06), INK, t, 0.5, 0.2);
     words('THE SCHEDULE IS THE STRATEGY.', W/2, ST.y + ST.h*0.52, Math.min(52,W*0.062), GOLD, t, 2.0, 0.18);
     if(t > 4.6){ ctx.globalAlpha = ease((t-4.6)/0.8);
-      txt('NOT PICKING. NOT TIMING. NOT WAITING. AUTOMATING.', W/2, ST.y + ST.h*0.68, Math.min(14,W*0.028), MUT, 800, 'center', 1.6);
+      txt('NOT PICKING. NOT TIMING. NOT WAITING. AUTOMATING.', W/2, ST.y + ST.h*0.66, Math.min(14,W*0.028), MUT, 800, 'center', 1.6);
+      txt('QQQ + SPY · EVERY PAYDAY · FOREVER', W/2, ST.y + ST.h*0.75, Math.min(15,W*0.03), GOLD, 900, 'center', 1.6);
       txt('SCROLL THE STORY FOR EVERY NUMBER ↓', W/2, ST.y + ST.h*0.86, Math.min(12,W*0.024), '#7c8a9a', 800, 'center', 2);
       ctx.globalAlpha = 1; }
   }
 
+  function sSt(t){
+    sampleRace();
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    var p = ease(t/12.5);
+    ctx.strokeStyle = '#1c2531'; ctx.lineWidth = 1;
+    for(var g=1; g<5; g++){ ctx.beginPath(); ctx.moveTo(ST.x, ST.y + ST.h*g/5); ctx.lineTo(ST.x+ST.w, ST.y + ST.h*g/5); ctx.stroke(); }
+    txt('THE SAME SCHEDULE — POINTED AT THREE DIFFERENT TICKETS', W/2, ST.y + 14, Math.min(13,W*0.027), MUT, 800, 'center', 1.2);
+    function drawCurve(fy, color, lw){
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineJoin='round'; ctx.beginPath();
+      var steps = 140, last = null;
+      for(var i=0;i<=steps;i++){
+        var x = i/steps; if(x > p) break;
+        var y = fy(x);
+        var cx2 = ST.x + x*ST.w, cy = ST.y + ST.h*0.10 + (1-y)*ST.h*0.84;
+        i===0 ? ctx.moveTo(cx2,cy) : ctx.lineTo(cx2,cy); last=[cx2,cy];
+      }
+      ctx.stroke(); return last;
+    }
+    /* QQQ: real curve from the page (inverted y) */
+    var lq = null;
+    if(race && race[0].length){
+      ctx.strokeStyle = INK; ctx.lineWidth = 2.8; ctx.lineJoin='round'; ctx.beginPath();
+      for(var i=0;i<race[0].length;i++){ if(race[0][i][0] > p) break;
+        var x = ST.x + race[0][i][0]*ST.w, y = ST.y + ST.h*0.10 + race[0][i][1]*ST.h*0.84;
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y); lq=[x,y]; }
+      ctx.stroke();
+    }
+    var lm = drawCurve(function(x){ return 0.04 + 0.20*x + 0.02*Math.sin(x*9); }, '#8b97a6', 2);
+    var ld = drawCurve(function(x){ return x<0.35 ? 0.05 + 0.20*(x/0.35) + 0.02*Math.sin(x*14) : Math.max(0, 0.25*(1 - (x-0.35)/0.3)); }, RED, 2);
+    if(lq && p > 0.2) txt('QQQ — SELF-RENEWING', clamp(lq[0], ST.x+90, ST.x+ST.w-92), lq[1]-16, Math.min(13,W*0.028), INK, 900);
+    if(lm && p > 0.5) txt('THE MEDIAN TICKET', clamp(lm[0], ST.x+80, ST.x+ST.w-80), lm[1]-14, Math.min(12,W*0.026), '#8b97a6', 900);
+    if(p > 0.62){ var dx = ST.x + Math.min(p,0.72)*ST.w;
+      txt('💀 DELISTED — THE SCHEDULE RODE IT TO $0', clamp(ST.x + 0.55*ST.w, ST.x+140, ST.x+ST.w-140), ST.y + ST.h*0.86, Math.min(13,W*0.028), RED, 900); }
+  }
+  var GIANTS = [['MSFT',12.33],['WMT',11.54],['XOM',8.19],['QQQ',7.38],['IBM',4.85],['INTC',3.92],['GE',3.13],['CSCO',2.72],['PFE',2.04],['C',0.75],['NOK',0.52]];
+  function sGi(t){
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    txt('THE 10 MOST VALUABLE COMPANIES OF MARCH 2000 — HELD 26 YEARS, IRON HANDS', W/2, ST.y + 14, Math.min(12.5,W*0.026), MUT, 800, 'center', 1);
+    var rowH = ST.h*0.9/GIANTS.length, maxV = 12.33, qw = 7.38/maxV;
+    var qx = ST.x + ST.w*0.16 + qw*ST.w*0.74;
+    GIANTS.forEach(function(g2, i){
+      var p = ease((t - 0.4 - i*0.55)/1.2);
+      var y = ST.y + ST.h*0.07 + i*rowH;
+      var isQ = g2[0]==='QQQ';
+      var col = isQ ? INK : (g2[1] > 7.38 ? GREEN : RED);
+      txt(g2[0], ST.x + ST.w*0.14, y + rowH*0.32, Math.min(12.5,W*0.027), isQ?GOLD:MUT, 900, 'right');
+      var w = g2[1]/maxV * ST.w*0.74 * p;
+      ctx.fillStyle = col; ctx.globalAlpha = isQ ? 1 : 0.85;
+      ctx.fillRect(ST.x + ST.w*0.16, y + rowH*0.14, Math.max(2,w), rowH*0.42);
+      ctx.globalAlpha = 1;
+      if(p > 0.95) txt(g2[1].toFixed(1)+'×', ST.x + ST.w*0.165 + w + 6, y + rowH*0.34, Math.min(11.5,W*0.024), col, 900, 'left');
+    });
+    if(t > 7.5){
+      ctx.strokeStyle = GOLD; ctx.setLineDash([5,4]); ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(qx, ST.y + ST.h*0.05); ctx.lineTo(qx, ST.y + ST.h*0.97); ctx.stroke(); ctx.setLineDash([]);
+      txt('QQQ — NO PICKING', qx, ST.y + ST.h - 10, Math.min(11,W*0.024), GOLD, 900);
+    }
+    if(t > 9.5) txt('3 OF 10 BEAT IT · 2 LOST MONEY', ST.x + ST.w - 4, ST.y + 34, Math.min(13.5,W*0.03), RED, 900, 'right');
+  }
+  var MENU = [['TECH — THE ERA’S SLICE',2.53,RED],['QQQ',2.34,INK],['SPY',1.24,INK],['CONSUMER',1.14,RED],['HEALTHCARE',0.90,RED],['SMALL CAPS',0.74,RED],['ENERGY',0.71,RED]];
+  function sMe(t){
+    bgStars(t*0.3, 0);
+    txt('EVERY MACHINE ON THE MENU · SAME $1,000/MONTH · 2005–2026', W/2, ST.y + 14, Math.min(12.5,W*0.026), MUT, 800, 'center', 1);
+    var dimAll = t > 9.5 ? 0.25 : 1;
+    var rowH = ST.h*0.86/MENU.length;
+    MENU.forEach(function(m, i){
+      var p = ease((t - 0.4 - i*0.7)/1.4);
+      var y = ST.y + ST.h*0.06 + i*rowH;
+      ctx.globalAlpha = dimAll;
+      txt(m[0], ST.x + ST.w*0.24, y + rowH*0.3, Math.min(11.5,W*0.024), m[2]===INK?GOLD:MUT, 900, 'right');
+      var w = m[1]/2.53 * ST.w*0.66 * p;
+      ctx.fillStyle = m[2]; ctx.fillRect(ST.x + ST.w*0.26, y + rowH*0.12, Math.max(2,w), rowH*0.44);
+      if(p > 0.95) txt('$'+m[1].toFixed(2)+'M', ST.x + ST.w*0.265 + w + 6, y + rowH*0.33, Math.min(11.5,W*0.024), m[2], 900, 'left');
+      ctx.globalAlpha = 1;
+    });
+    if(t > 10){
+      var a2 = ease((t-10)/0.8);
+      ctx.globalAlpha = a2;
+      words('THE WINNING SLICE FLIPS EVERY ERA.', W/2, ST.y + ST.h*0.34, Math.min(34,W*0.05), INK, t, 10.2, 0.12);
+      txt('THE SAME TECH FUND, 1999–2009: $143k ON $132k IN — ELEVEN YEARS TO BREAK EVEN', W/2, ST.y + ST.h*0.52, Math.min(13,W*0.027), RED, 800, 'center', 0.5);
+      txt('ENERGY WAS #1 THAT DECADE. IT FINISHED DEAD LAST IN THIS ONE.', W/2, ST.y + ST.h*0.62, Math.min(13,W*0.027), MUT, 800, 'center', 0.5);
+      words('ONLY THE BROAD MACHINES SURVIVE EVERY ERA.', W/2, ST.y + ST.h*0.80, Math.min(26,W*0.042), GOLD, t, 12.2, 0.12);
+      ctx.globalAlpha = 1;
+    }
+  }
+  function actCard(t, num, title){
+    bgStars(t, 1);
+    ctx.globalAlpha = ease(t/0.7);
+    txt('ACT ' + num, W/2, ST.y + ST.h*0.40, Math.min(15,W*0.032), GOLD, 900, 'center', 4);
+    ctx.globalAlpha = 1;
+    words(title, W/2, ST.y + ST.h*0.54, Math.min(40,W*0.055), INK, t, 0.5, 0.14);
+    var lw = ease((t-0.9)/0.9);
+    ctx.strokeStyle = GOLD; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(W/2 - 90*lw, ST.y + ST.h*0.66); ctx.lineTo(W/2 + 90*lw, ST.y + ST.h*0.66); ctx.stroke();
+  }
+  function sA1(t){ actCard(t,'I','THE RULES OF THE TEST'); }
+  function sA2(t){ actCard(t,'II','THE LOTTERY'); }
+  function sA3(t){ actCard(t,'III','THE ATTEMPTS'); }
+  function sA4(t){ actCard(t,'IV','TIMING & RISK'); }
+  function sA5(t){ actCard(t,'V','WHICH MACHINE?'); }
+  function sA6(t){ actCard(t,'VI','THE PLAYBOOK'); }
+
+  function sRules(t){
+    bgStars(t*0.4, 0);
+    var rules = [
+      ['RULE 1','POINT-IN-TIME DATA','every decision uses only what was known that day — no hindsight, ever'],
+      ['RULE 2','THE DEAD ARE COUNTED','666 of 2,177 stocks died — most backtests quietly delete them'],
+      ['RULE 3','SAME MONEY, SAME DATES','the benchmark gets identical contributions; strategies pay real costs']
+    ];
+    rules.forEach(function(r, i){
+      var a = ease((t - 0.5 - i*3.4)/0.8);
+      if(a <= 0) return;
+      var y = ST.y + ST.h*(0.18 + i*0.28);
+      ctx.globalAlpha = a;
+      txt(r[0], W/2, y, Math.min(12,W*0.026), GOLD, 900, 'center', 3);
+      var s = 1 + (1-a)*0.6;
+      ctx.save(); ctx.translate(W/2, y + 26); ctx.scale(s, s);
+      txt(r[1], 0, 0, Math.min(24,W*0.045), INK, 900);
+      ctx.restore();
+      txt(r[2], W/2, y + 50, Math.min(12.5,W*0.027), MUT, 650);
+      ctx.globalAlpha = 1;
+    });
+  }
+  function sWhySpy(t){
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    txt('WORST REALISTIC OUTCOME OF EACH DECISION — WHAT YOU KEEP', W/2, ST.y + 14, Math.min(12.5,W*0.026), MUT, 800, 'center', 1);
+    var rows = [['PICKED THE “WRONG” INDEX (SPY vs QQQ)',48,'#8b97a6','still 8× your money'],
+                ['MEDIAN 10-STOCK PORTFOLIO',58,RED,'vs QQQ, same dollars'],
+                ['MEDIAN SINGLE STOCK',23,RED,'+71% vs +638%'],
+                ['WORST CASE, SINGLE STOCK',0,RED,'−100% · 666 died']];
+    rows.forEach(function(r, i){
+      var p = ease((t - 0.5 - i*1.5)/1.2);
+      var y = ST.y + ST.h*(0.12 + i*0.2);
+      ctx.globalAlpha = Math.min(1, p*2);
+      txt(r[0], ST.x + 4, y, Math.min(12,W*0.026), INK, 800, 'left');
+      txt(r[3], ST.x + ST.w - 4, y, Math.min(11,W*0.023), MUT, 650, 'right');
+      ctx.fillStyle = r[2];
+      ctx.fillRect(ST.x + 4, y + 12, Math.max(3, ST.w*0.9*r[1]/100*p), 16);
+      txt(r[1] + '%', ST.x + 10 + Math.max(3, ST.w*0.9*r[1]/100*p), y + 20, Math.min(13,W*0.028), r[2]===RED?RED:INK, 900, 'left');
+      ctx.globalAlpha = 1;
+    });
+    if(t > 8) words('ONE BOUNDED CHOICE vs A REPEATED UNBOUNDED GAME', W/2, ST.y + ST.h*0.94, Math.min(17,W*0.033), GOLD, t, 8.2, 0.1);
+  }
+  function sConc(t){
+    bgStars(t*0.3, 0);
+    txt('WHO PRODUCED THE DECADE’S GAINS?', W/2, ST.y + 14, Math.min(13,W*0.027), MUT, 800, 'center', 1.4);
+    var p1 = ease((t-1)/2.5), p2 = ease((t-4.5)/2.5);
+    var bx = ST.x + ST.w*0.06, bw = ST.w*0.88, by = ST.y + ST.h*0.42, bh = 46;
+    ctx.fillStyle = '#232d3a'; ctx.fillRect(bx, by, bw, bh);
+    ctx.fillStyle = GOLD; ctx.fillRect(bx, by, bw*0.61*p1, bh);
+    ctx.fillStyle = GOLD2; ctx.fillRect(bx, by, bw*0.19*p2, bh);
+    if(p1>0.9) txt('TOP 10% OF STOCKS → 61% OF ALL NET GAINS', bx + bw*0.61/2, by + bh + 20, Math.min(13,W*0.028), GOLD, 900);
+    if(p2>0.9) txt('TOP 1% → 19%', bx + bw*0.10, by - 14, Math.min(13,W*0.028), GOLD2, 900);
+    if(t>7.4) words('EVERY ACT OF PICKING MAKES YOU OWN LESS OF THESE.', W/2, ST.y + ST.h*0.82, Math.min(20,W*0.038), INK, t, 7.6, 0.12);
+  }
+  function sPersist(t){
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    if(t < 7){
+      txt('WHAT HAPPENS TO A TOP-10% WINNER THE NEXT YEAR', W/2, ST.y + 14, Math.min(12.5,W*0.026), MUT, 800, 'center', 1);
+      var rows = [['REPEATS IN THE TOP 10%',14.8,DIMC],['BEATS QQQ NEXT YEAR',38,DIMC],['FALLS BELOW THE MEDIAN STOCK',56.2,RED]];
+      rows.forEach(function(r,i){
+        var p = ease((t-0.5-i*1.3)/1.1), y = ST.y + ST.h*(0.16 + i*0.24);
+        ctx.globalAlpha = Math.min(1,p*2);
+        txt(r[0], ST.x + 4, y, Math.min(12.5,W*0.027), INK, 800, 'left');
+        ctx.fillStyle = r[2]===RED?RED:'#3d4a5c';
+        ctx.fillRect(ST.x + 4, y + 12, Math.max(3, ST.w*0.86*r[1]/100*p), 18);
+        txt(r[1]+'%', ST.x + 12 + ST.w*0.86*r[1]/100*p, y + 21, Math.min(13.5,W*0.03), r[2]===RED?RED:MUT, 900, 'left');
+        ctx.globalAlpha = 1;
+      });
+      if(t>4.6) txt('THE WINNERS LIST DOES NOT STAY THE WINNERS LIST', W/2, ST.y + ST.h*0.88, Math.min(14,W*0.03), GOLD, 900, 'center', 1);
+    } else {
+      var lt = t - 7;
+      txt('BUY 2015’S 20 HOTTEST STOCKS · $20,000 · HOLD TEN YEARS', W/2, ST.y + 14, Math.min(12.5,W*0.026), MUT, 800, 'center', 1);
+      var p = ease(lt/3);
+      [['QQQ', 160, INK, 0.9],['THE 20 “WINNERS”', 53, RED, 0.298]].forEach(function(r,i){
+        var y = ST.y + ST.h*(0.28 + i*0.3);
+        txt(r[0], ST.x + 4, y - 16, Math.min(12.5,W*0.027), MUT, 800, 'left');
+        ctx.fillStyle = r[2];
+        ctx.fillRect(ST.x + 4, y, Math.max(3, ST.w*r[3]*p), 24);
+        txt('$'+Math.round(r[1]*p)+'k', ST.x + 12 + ST.w*r[3]*p, y + 12, Math.min(15,W*0.032), r[2], 900, 'left');
+      });
+      if(lt>3.6) txt('10 OF THE 20 NO LONGER EXIST', W/2, ST.y + ST.h*0.85, Math.min(15,W*0.032), RED, 900, 'center', 1);
+    }
+  }
+  function sApple(t){
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    txt('BUY APPLE THE DAY IT BECAME HISTORY’S BIGGEST COMPANY — SEPT 2012', W/2, ST.y + 14, Math.min(12,W*0.025), MUT, 800, 'center', 1);
+    var p = ease(t/9);
+    var y1 = ST.y + ST.h*0.5;
+    ctx.strokeStyle = '#3a4553'; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(ST.x, y1); ctx.lineTo(ST.x + ST.w, y1); ctx.stroke(); ctx.setLineDash([]);
+    txt('1.0× = QQQ', ST.x + 2, y1 - 10, Math.min(11,W*0.023), MUT, 800, 'left');
+    function rel(x){
+      if(x < 0.55) return 1 - 0.44*Math.sin(x/0.55*Math.PI*0.5+0.2)*Math.sin(x*17)*0.15 - 0.44*ease(x/0.5)*(1-0.3*Math.sin(x*23));
+      if(x < 0.78) return 0.56 + 0.44*ease((x-0.55)/0.23);
+      return 1 + 0.39*ease((x-0.78)/0.22);
+    }
+    ctx.strokeStyle = GOLD; ctx.lineWidth = 2.4; ctx.beginPath();
+    for(var i=0;i<=160;i++){
+      var x = i/160; if(x > p) break;
+      var v = rel(x);
+      var cx2 = ST.x + x*ST.w, cy = y1 - (v-1)*ST.h*0.42;
+      i===0 ? ctx.moveTo(cx2,cy) : ctx.lineTo(cx2,cy);
+    }
+    ctx.stroke();
+    if(p > 0.3 && p < 0.86){ txt('7.3 YEARS BEHIND · −44% AT THE BOTTOM', W/2, ST.y + ST.h*0.78, Math.min(14,W*0.03), RED, 900); }
+    if(p >= 0.99){ txt('RIGHT ABOUT THE COMPANY. STILL LOST TO QQQ FOR 7.3 YEARS.', W/2, ST.y + ST.h*0.16, Math.min(14,W*0.03), GOLD, 900); }
+  }
+  function sRetract(t){
+    bgStars(t*0.3, 0);
+    txt('WE PUBLISHED “WINNERS” TOO. THEN WE AUDITED OURSELVES.', W/2, ST.y + 14, Math.min(12.5,W*0.026), MUT, 800, 'center', 1);
+    var rows = [['OUR ML STOCK PICKER — CLAIMED 21.5%/yr','HONEST: 12%/yr — BELOW QQQ'],
+                ['OUR DCA SELECTOR — CLAIMED 2.2× QQQ','HONEST: 1.08× — A COIN FLIP'],
+                ['PUBLISHED IPO SYSTEM — CLAIMED 20.5%/yr','HONEST: 8.1%/yr — BELOW INDEX']];
+    rows.forEach(function(r, i){
+      var a = ease((t - 0.6 - i*2.6)/0.8);
+      if(a <= 0) return;
+      var y = ST.y + ST.h*(0.18 + i*0.24);
+      ctx.globalAlpha = a;
+      txt(r[0], W/2, y, Math.min(14,W*0.03), INK, 800);
+      txt(r[1], W/2, y + 22, Math.min(12.5,W*0.027), MUT, 650);
+      var sa = ease((t - 1.6 - i*2.6)/0.4);
+      if(sa > 0){
+        ctx.save(); ctx.translate(W/2, y + 10); ctx.rotate(-0.08); ctx.scale(1 + (1-sa)*1.6, 1 + (1-sa)*1.6);
+        ctx.globalAlpha = sa*0.95;
+        ctx.strokeStyle = RED; ctx.lineWidth = 2;
+        ctx.strokeRect(-84, -16, 168, 32);
+        txt('RETRACTED', 0, 1, 17, RED, 900, 'center', 2);
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+    });
+    if(t > 9) txt('IF WE AUDIT EVERYONE ELSE, WE AUDIT OURSELVES. THAT IS WHY YOU CAN TRUST THE “NO.”', W/2, ST.y + ST.h*0.92, Math.min(12.5,W*0.027), GOLD, 800);
+  }
+  function sWho(t){
+    bgStars(t*0.3, 0);
+    txt('WHO ACTUALLY BEATS MARKETS?', W/2, ST.y + 14, Math.min(13,W*0.028), MUT, 800, 'center', 1.4);
+    var rows = [['MARKET MAKERS','sell liquidity — a toll booth, not a forecast'],
+                ['CLOSED QUANT FUNDS','capacity-capped, shut to your money for decades'],
+                ['ACTIVISTS & PRIVATE EQUITY','buy control and change the company'],
+                ['CORPORATE INSIDERS','the one real edge — and it’s illegal'],
+                ['THE LUCKY','the largest group. they post. the rest don’t.']];
+    rows.forEach(function(r, i){
+      var a = ease((t - 0.5 - i*1.7)/0.7);
+      if(a <= 0) return;
+      var y = ST.y + ST.h*(0.12 + i*0.14);
+      ctx.globalAlpha = a;
+      txt(r[0], W/2, y, Math.min(16,W*0.034), INK, 900);
+      txt(r[1], W/2, y + 19, Math.min(12,W*0.026), MUT, 650);
+      ctx.globalAlpha = 1;
+    });
+    if(t > 10) words('MISSING FROM THE LIST: ANYONE PICKING STOCKS FROM PUBLIC INFORMATION.', W/2, ST.y + ST.h*0.90, Math.min(17,W*0.034), GOLD, t, 10.2, 0.1);
+  }
+  function sLadder(t){
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    txt('THE ODDS OF BEATING QQQ — SAME GAME, HELD LONGER', W/2, ST.y + 14, Math.min(12.5,W*0.026), MUT, 800, 'center', 1);
+    var rows = [['1 YEAR',42],['10 YEARS',6.2],['21 YEARS',4.6],['100× — AN “APPLE”',0.18]];
+    rows.forEach(function(r, i){
+      var p = ease((t - 0.5 - i*1.4)/1.1), y = ST.y + ST.h*(0.12 + i*0.17);
+      ctx.globalAlpha = Math.min(1, p*2);
+      txt(r[0], ST.x + 4, y, Math.min(12.5,W*0.027), INK, 800, 'left');
+      ctx.fillStyle = GOLD;
+      ctx.fillRect(ST.x + 4, y + 12, Math.max(2.5, ST.w*0.86*r[1]/42*p), 17);
+      txt(r[1] + '%', ST.x + 12 + Math.max(2.5, ST.w*0.86*r[1]/42*p), y + 20, Math.min(13.5,W*0.03), GOLD, 900, 'left');
+      ctx.globalAlpha = 1;
+    });
+    if(t > 7){
+      txt('AND PROVING SKILL EVEN EXISTS?', W/2, ST.y + ST.h*0.83, Math.min(13,W*0.028), MUT, 800, 'center', 1);
+      words('A “GOOD” MANAGER NEEDS 16 YEARS OF LIVE RESULTS.', W/2, ST.y + ST.h*0.92, Math.min(18,W*0.036), INK, t, 7.4, 0.1);
+    }
+  }
+  function sDipBoost(t){
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    if(t < 7.5){
+      txt('TERMINAL WEALTH PER DOLLAR — BY WHEN THE DOLLAR WENT IN', W/2, ST.y + 14, Math.min(12.5,W*0.026), MUT, 800, 'center', 1);
+      var rows = [['ORDINARY DCA DOLLAR',12.11,'#3d4a5c'],['EXTRA $ AT −5% DIP',16.08,GREEN],['EXTRA $ AT −20% DIP',18.87,GREEN],['EXTRA $ AT −40% DIP',21.32,GREEN]];
+      rows.forEach(function(r,i){
+        var p = ease((t-0.5-i*1.2)/1.1), y = ST.y + ST.h*(0.12 + i*0.18);
+        ctx.globalAlpha = Math.min(1,p*2);
+        txt(r[0], ST.x + 4, y, Math.min(12,W*0.026), INK, 800, 'left');
+        ctx.fillStyle = r[2];
+        ctx.fillRect(ST.x + 4, y + 11, Math.max(3, ST.w*0.82*r[1]/21.32*p), 17);
+        txt(r[1].toFixed(1)+'×', ST.x + 12 + ST.w*0.82*r[1]/21.32*p, y + 19, Math.min(13,W*0.028), r[2]===GREEN?GREEN:MUT, 900, 'left');
+        ctx.globalAlpha = 1;
+      });
+      if(t>5.4) txt('EXTRA MONEY AT DIPS: ALWAYS. WITHHELD MONEY FOR DIPS: NEVER.', W/2, ST.y + ST.h*0.9, Math.min(13,W*0.028), GOLD, 900);
+    } else {
+      var lt = t - 7.5;
+      words('AND “SELL HIGH, REBUY THE DIP”?', W/2, ST.y + ST.h*0.24, Math.min(24,W*0.045), INK, t, 7.7, 0.12);
+      if(lt > 1.6){
+        txt('EVERY VERSION TESTED, 1999–2026:', W/2, ST.y + ST.h*0.42, Math.min(12.5,W*0.027), MUT, 800);
+        words('−58% TO −87% vs NEVER SELLING.', W/2, ST.y + ST.h*0.55, Math.min(30,W*0.055), RED, t, 9.3, 0.12);
+        txt('THE SINGLE MOST DESTRUCTIVE BEHAVIOR WE MODELED', W/2, ST.y + ST.h*0.68, Math.min(12.5,W*0.027), MUT, 800);
+      }
+      if(lt > 3.8) txt('MEANWHILE: BUYING AT ALL-TIME HIGHS AVERAGED +17.5% THE NEXT YEAR — BETTER THAN AVERAGE', W/2, ST.y + ST.h*0.86, Math.min(12.5,W*0.027), GREEN, 800);
+    }
+  }
+  function sLev(t){
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    txt('“FINE — I’LL JUST TAKE MORE RISK.” 3× LEVERAGE, SAME SCHEDULE', W/2, ST.y + 14, Math.min(12.5,W*0.026), MUT, 800, 'center', 1);
+    var p = ease(t/7);
+    function lev(x){
+      if(x < 0.35) return 0.15 + 0.5*ease(x/0.35);
+      if(x < 0.5) return 0.65 - 0.55*ease((x-0.35)/0.15);
+      return 0.10 + 0.88*ease((x-0.5)/0.5);
+    }
+    ctx.strokeStyle = RED; ctx.lineWidth = 2.6; ctx.beginPath();
+    for(var i=0;i<=140;i++){
+      var x = i/140; if(x > p) break;
+      var cx2 = ST.x + x*ST.w, cy = ST.y + ST.h*0.92 - lev(x)*ST.h*0.8;
+      i===0 ? ctx.moveTo(cx2,cy) : ctx.lineTo(cx2,cy);
+    }
+    ctx.stroke();
+    if(p > 0.37 && p < 0.75) txt('−84%', ST.x + ST.w*0.45, ST.y + ST.h*0.55, Math.min(40,W*0.08), RED, 900);
+    if(p > 0.8) txt('IT ENDS HIGHEST — THROUGH −84%. STARTED IN 1999: −99.9%, NEVER RECOVERS.', W/2, ST.y + ST.h*0.16, Math.min(12.5,W*0.027), INK, 800);
+    if(p >= 0.99) txt('MORE RISK IS A CHOICE. IT IS NOT SKILL.', W/2, ST.y + ST.h*0.28, Math.min(15,W*0.032), GOLD, 900);
+  }
+  function sAlt(t){
+    bgStars(t*0.3, 0);
+    txt('EVERYTHING ELSE ON THE SHELF, GRADED BY ITS RULE', W/2, ST.y + 14, Math.min(12.5,W*0.026), MUT, 800, 'center', 1.2);
+    var rows = [['GOLD','no earnings, no engine — insurance at best, 0–10%'],
+                ['SMALL-CAP INDEX','ejects every winner the moment it succeeds'],
+                ['DIVIDEND / EQUAL-WEIGHT / THEMES','trim winners, chase hype — fail the mechanism'],
+                ['A SINGLE SECTOR','one era’s bet — the #1 sector finishes below median 59% of the time'],
+                ['INTERNATIONAL','same machine class — and the winners list in the U.S.'],
+                ['JAPAN 1989','the warning: one country, bubble-priced — 30 years underwater']];
+    rows.forEach(function(r, i){
+      var a = ease((t - 0.4 - i*1.5)/0.7);
+      if(a <= 0) return;
+      var y = ST.y + ST.h*(0.10 + i*0.125);
+      ctx.globalAlpha = a;
+      txt(r[0], W/2, y, Math.min(15,W*0.032), INK, 900);
+      txt(r[1], W/2, y + 18, Math.min(11.5,W*0.025), MUT, 650);
+      ctx.globalAlpha = 1;
+    });
+    if(t > 10.2) words('SEVEN STRUCTURAL TESTS. ONLY BROAD CAP-WEIGHT PASSES ALL SEVEN.', W/2, ST.y + ST.h*0.93, Math.min(17,W*0.034), GOLD, t, 10.4, 0.1);
+  }
+  function sScar(t){
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    txt('WHAT THIS FILM DOES NOT SAY: THAT QQQ IS SAFE', W/2, ST.y + 14, Math.min(12.5,W*0.027), MUT, 800, 'center', 1.2);
+    var p = ease(t/7);
+    function dd(x){
+      if(x < 0.08) return 0;
+      if(x < 0.3) return -0.81*ease((x-0.08)/0.22);
+      if(x < 0.85) return -0.81 + 0.81*ease((x-0.3)/0.55);
+      return 0;
+    }
+    ctx.beginPath(); ctx.moveTo(ST.x, ST.y + ST.h*0.2);
+    for(var i=0;i<=160;i++){
+      var x = i/160; if(x > p) break;
+      ctx.lineTo(ST.x + x*ST.w, ST.y + ST.h*0.2 - dd(x)*ST.h*0.66);
+    }
+    ctx.strokeStyle = RED; ctx.lineWidth = 2.4; ctx.stroke();
+    if(p > 0.32) txt('−81%', ST.x + ST.w*0.3, ST.y + ST.h*0.62, Math.min(42,W*0.085), RED, 900);
+    if(p > 0.5) txt('15 YEARS UNDERWATER ON A LUMP SUM', W/2, ST.y + ST.h*0.9, Math.min(13,W*0.028), MUT, 800);
+    if(p >= 0.99){
+      txt('THE CONTRIBUTOR — BUYING EVERY MONTH — RECOVERED YEARS SOONER.', W/2, ST.y + ST.h*0.05, Math.min(12.5,W*0.027), GREEN, 800);
+      txt('QQQ ALSO TRAILED SPY FOR A FULL DECADE BEFORE ITS ERA. THIS IS A BET — LABELED.', W/2, ST.y + ST.h*0.13, Math.min(12.5,W*0.027), GOLD, 800);
+    }
+  }
+  function sRec(t){
+    bgStars(t*0.4, 0);
+    var lines = [
+      [0.5,'AT EQUAL BELIEFS, THE GROWTH MATH GIVES QQQ EXACTLY 0%.', INK, 0.11],
+      [2.6,'EVERY QQQ DOLLAR IS A BELIEF — PRICED AT 1.5pp OF DRAG PER YEAR.', MUT, 0.20],
+      [4.7,'AND 59% OF THE ERA’S BIG WINS HAPPENED OUTSIDE ITS WALLS.', MUT, 0.29],
+    ];
+    lines.forEach(function(l){
+      var a = ease((t - l[0])/0.8);
+      if(a <= 0) return;
+      ctx.globalAlpha = a;
+      txt(l[1], W/2, ST.y + ST.h*l[3], Math.min(13.5,W*0.029), l[2], 800);
+      ctx.globalAlpha = 1;
+    });
+    var ba = ease((t - 7)/0.9);
+    if(ba > 0){
+      ctx.save(); ctx.translate(W/2, ST.y + ST.h*0.52); ctx.scale(1 + (1-ba)*0.25, 1 + (1-ba)*0.25);
+      ctx.globalAlpha = ba;
+      ctx.strokeStyle = GOLD; ctx.lineWidth = 2;
+      var bw2 = Math.min(ST.w*0.86, 560);
+      ctx.strokeRect(-bw2/2, -44, bw2, 88);
+      txt('THE SIGNED DEFAULT', 0, -20, Math.min(12,W*0.026), GOLD, 900, 'center', 2.5);
+      txt('50% QQQ + 50% SPY', 0, 10, Math.min(30,W*0.058), INK, 900);
+      ctx.restore(); ctx.globalAlpha = 1;
+    }
+    if(t > 9){
+      txt('NEVER THE WORST MACHINE IN ANY MEASURED ERA · REGRET BOUNDED BOTH WAYS', W/2, ST.y + ST.h*0.72, Math.min(12,W*0.026), MUT, 800);
+      txt('GOLD 0–10% ONLY IF YOUR STOMACH NEEDS IT · BITCOIN 0–5% ONLY AS A PRICED BELIEF', W/2, ST.y + ST.h*0.81, Math.min(12,W*0.026), MUT, 800);
+    }
+  }
+  function sPlay(t){
+    bgStars(t*0.3, 0);
+    txt('THE PLAYBOOK — EVERYTHING THE EVIDENCE SUPPORTS', W/2, ST.y + 14, Math.min(12.5,W*0.026), MUT, 800, 'center', 1.2);
+    var dos = ['CASH BUFFER FIRST — 3–6 MONTHS','TAKE EVERY EMPLOYER MATCH','TAX-SHELTERED ACCOUNTS FIRST','ONLY 10-YEAR MONEY GOES IN','AUTOMATE EVERY PAYDAY','PRE-COMMIT TO HOLDING −30%','HOBBY PICKS CAPPED AT 5–10%'];
+    dos.forEach(function(d, i){
+      var a = ease((t - 0.4 - i*1.1)/0.6);
+      if(a <= 0) return;
+      var y = ST.y + ST.h*(0.09 + i*0.085);
+      ctx.globalAlpha = a;
+      txt('✓', ST.x + ST.w*0.10, y, Math.min(14,W*0.03), GREEN, 900, 'left');
+      txt(d, ST.x + ST.w*0.16, y, Math.min(13,W*0.028), INK, 800, 'left');
+      ctx.globalAlpha = 1;
+    });
+    var nots = ['NO WAITING IN CASH FOR CRASHES','NO ON/OFF SWITCHES','NO UNPRICED LEVERAGE','NO AVERAGING DOWN, EVER'];
+    nots.forEach(function(d, i){
+      var a = ease((t - 8.6 - i*0.9)/0.6);
+      if(a <= 0) return;
+      var y = ST.y + ST.h*(0.72 + i*0.075);
+      ctx.globalAlpha = a;
+      txt('✗', ST.x + ST.w*0.10, y, Math.min(14,W*0.03), RED, 900, 'left');
+      txt(d, ST.x + ST.w*0.16, y, Math.min(13,W*0.028), MUT, 800, 'left');
+      ctx.globalAlpha = 1;
+    });
+  }
   var SCENES = [
-    { d:8,  draw:s0, caps:[[0.5,3.6,'This film was rendered from the study’s own data. No stock footage. No opinions.'],[4,7.6,'One question, 26 years of evidence.']] },
+    { d:9,  draw:s0, caps:[[0.5,3.6,'This film was rendered from the study’s own data. No stock footage. No opinions.'],[4,8.6,'One question. 26 years of evidence. Six acts.']] },
+    { d:4,  draw:sA1, caps:[] },
+    { d:12, draw:sRules, caps:[[0.6,11.6,'Three rules make the test honest — and they matter more than any strategy.']] },
+    { d:16, draw:s3, caps:[[0.5,5,'The benchmark: $1,000 into QQQ every month. No opinions, no exceptions.'],[6,10,'It bought straight through 2008 while everyone else was leaving.'],[11,15.6,'26 years later: <b>$3.99M</b> — from $317k contributed. SPY, the wider machine: $1.91M.']] },
+    { d:12, draw:sWhySpy, caps:[[0.5,5.5,'Why obsess over stocks but shrug at QQQ-vs-SPY? Because the downsides differ in kind.'],[6,11.6,'Pick the “wrong” <b>index</b> and you still ride every winner. Pick the wrong <b>stock</b> and there’s no floor.']] },
+    { d:4,  draw:sA2, caps:[] },
     { d:16, draw:s1, caps:[[0.5,5,'Every investable U.S. stock, mid-2016. Each dot is a real company.'],[6,10.5,'A quarter of them <b>lost money</b> — in one of the best decades markets have ever had.'],[11,15.6,'And 666 didn’t survive it at all. Most backtests quietly delete these.']] },
-    { d:12, draw:s2, caps:[[0.5,5,'Ten years later: only <b>135 of 2,177</b> beat the index — 1 in 16.'],[6,11.6,'One of them returned <b>5,812×</b>. The machine held it automatically, at full weight.']] },
-    { d:16, draw:s3, caps:[[0.5,5,'The machine’s whole trick: $1,000 a month, every month, no opinions.'],[6,10,'It bought straight through 2008 while everyone else was leaving.'],[11,15.6,'26 years later: <b>$3.99M</b> — from $317k contributed.']] },
-    { d:13, draw:s4, caps:[[0.5,5,'So why does everyone know someone who beats the market?'],[5.5,9,'Give 10,000 people pure coin-flip odds…'],[9.5,12.6,'…and three still hold a perfect 10-year streak. <b>They’re the ones who post.</b>']] },
-    { d:13, draw:s5, caps:[[0.5,4.5,'Could you have just picked the winner? Here is what holding it felt like.'],[5,9,'Three crashes of 56–87%. Headlines said it was over, every time.'],[9.5,12.6,'Almost nobody holds through this. <b>The index doesn’t need to be brave.</b>']] },
+    { d:12, draw:s2, caps:[[0.5,5,'Ten years later: only <b>135 of 2,177</b> beat QQQ — 1 in 16.'],[6,11.6,'One of them returned <b>5,812×</b>. QQQ held it automatically, at full weight.']] },
+    { d:10, draw:sConc, caps:[[0.5,4.5,'The gains aren’t spread around. They are brutally concentrated.'],[5,9.6,'The index owns every one of these at full size — and never hands a ticket back.']] },
+    { d:15, draw:sSt, caps:[[0.5,4.5,'“If the schedule is the strategy — why not DCA straight into stocks I like?”'],[5,9,'Because the schedule fixes <b>when</b> you buy. It cannot fix <b>what</b> you bought.'],[9.5,14.6,'Averaging into a dying ticket averages down to zero. <b>Only the index replaces its failures.</b>']] },
+    { d:13, draw:sPersist, caps:[[0.5,6,'“Then I’ll DCA into whatever is winning.” The winners list won’t hold still.'],[7.5,12.6,'Done literally — the hot list turned $20k into $53k while QQQ made $160k.']] },
+    { d:13, draw:s5, caps:[[0.5,4.5,'Could you have just picked the winner? Here is what holding it felt like.'],[5,9,'Three crashes of 56–87%. Headlines said it was over, every time.'],[9.5,12.6,'Almost nobody holds through this. <b>QQQ doesn’t need to be brave.</b>']] },
+    { d:14, draw:sGi, caps:[[0.5,4.5,'“Fine — I’ll DCA into obviously great companies.” 2000’s ten giants, held 26 years:'],[5.5,9.4,'Iron hands the whole way. Every dividend reinvested. No panic, ever.'],[10,13.6,'<b>3 of 10 beat QQQ. Two lost money.</b> “Obvious” is what a peak feels like from inside.']] },
+    { d:12, draw:sApple, caps:[[0.5,5,'Even the century’s best company punished its most confident buyers.'],[6,11.6,'And QQQ held Apple the whole time anyway — at full weight. <b>You forfeit nothing by indexing it.</b>']] },
+    { d:4,  draw:sA3, caps:[] },
     { d:13, draw:s6, caps:[[0.5,5,'We spent years trying to beat it: screens, models, machine learning, rotation…'],[5.5,9.5,'250+ configurations. The few that landed past the line…'],[10,12.6,'…died in audit. Luck, leakage, or hidden risk. <b>Every one.</b>']] },
-    { d:12, draw:s7, caps:[[0.5,4.5,'“I’ll just wait for the crash, then buy.” Simulated directly:'],[5,8.5,'Crashes are rare. Cash waits years, earning nothing.'],[9,11.6,'The waiter ends <b>30% poorer</b> than the machine that never waited.']] },
-    { d:12, draw:s8, caps:[[5,11.6,'26 years. 2,177 stocks. 250+ strategies. 40 objections. One survivor.']] }
+    { d:12, draw:sRetract, caps:[[0.5,11.6,'Including three of our own. Published as winners. Rebuilt honestly. Retracted.']] },
+    { d:13, draw:s4, caps:[[0.5,5,'So why does everyone know someone who beats the market?'],[5.5,9,'Give 10,000 people pure coin-flip odds…'],[9.5,12.6,'…and three still hold a perfect 10-year streak. <b>They’re the ones who post.</b>']] },
+    { d:14, draw:sWho, caps:[[0.5,9.5,'Markets aren’t unbeatable. They’re unbeatable <b>from where you’re sitting.</b>'],[10,13.6,'Every real winner is a business you can’t buy, a seat you can’t rent, or a crime.']] },
+    { d:12, draw:sLadder, caps:[[0.5,6,'Strip every story away and this ladder is the whole debate.'],[7,11.6,'One investing lifetime isn’t long enough to tell skill from luck. <b>Belief fills the gap.</b>']] },
+    { d:4,  draw:sA4, caps:[] },
+    { d:12, draw:s7, caps:[[0.5,4.5,'“I’ll just wait for the crash, then buy.” Simulated directly:'],[5,8.5,'Crashes are rare. Cash waits years, earning nothing.'],[9,11.6,'The waiter ends <b>30% poorer</b> than the schedule that never waited.']] },
+    { d:13, draw:sDipBoost, caps:[[0.5,7,'One timing idea DOES work: <b>extra</b> money added inside drawdowns.'],[7.5,12.6,'Its evil twin — selling “expensive” to rebuy the dip — is the most destructive idea we tested.']] },
+    { d:10, draw:sLev, caps:[[0.5,9.6,'Every backtest line that ends above QQQ is hiding this somewhere. Find the risk.']] },
+    { d:4,  draw:sA5, caps:[] },
+    { d:16, draw:sMe, caps:[[0.5,4.5,'“Then why QQQ and SPY — and not some better fund?” We measured the whole menu.'],[5,9.3,'One slice beat QQQ — tech, of course. This is the tech era. That’s the trap.'],[10,15.6,'Sectors bet on one era. Small caps expel their winners. <b>Only broad cap-weight rides whatever wins next.</b>']] },
+    { d:14, draw:sAlt, caps:[[0.5,9.5,'Every alternative fails a structural test you can check <b>before</b> buying — no forecast needed.'],[10,13.6,'QQQ and SPY aren’t a preference. They’re what’s left when everything else is disqualified.']] },
+    { d:12, draw:sScar, caps:[[0.5,6,'An honest film shows its scar. Here is QQQ’s.'],[7,11.6,'The study calls QQQ what it is: <b>a declared bet on concentration</b> — survivable for a contributor.']] },
+    { d:14, draw:sRec, caps:[[0.5,6.4,'So the study’s final recommendation is not a slogan. It is derived, priced, and signed.'],[7,13.6,'Half the neutral machine, half the declared bet — never the worst, regret bounded both ways.']] },
+    { d:4,  draw:sA6, caps:[] },
+    { d:15, draw:sPlay, caps:[[0.5,7.5,'Everything the evidence supports, in one list.'],[8.6,14.6,'And everything it measured as self-harm, banned in advance.']] },
+    { d:14, draw:s8, caps:[[5,13.6,'26 years. 2,177 stocks. 250+ strategies. 40 objections. One survivor.']] }
   ];
   var TOTAL = SCENES.reduce(function(a,s){ return a + s.d; }, 0);
   var starts = []; SCENES.reduce(function(a,s){ starts.push(a); return a + s.d; }, 0);
 
   /* timeline markers */
-  starts.forEach(function(st){
-    if(st === 0) return;
+  starts.forEach(function(st, i){
+    if(st === 0 || SCENES[i].d !== 4) return;
     var m = document.createElement('div'); m.className = 'mark';
     m.style.left = (st/TOTAL*100) + '%';
     trackEl.appendChild(m);
