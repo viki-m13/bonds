@@ -307,6 +307,32 @@ details.fhide,.faq-group.fhide{display:none}
 .btn.ghost{background:none;border:1px solid var(--line2);color:var(--ink)}
 .btn.ghost:hover{box-shadow:none;border-color:var(--gold);color:var(--gold)}
 
+/* ================= THE FILM (cinema mode) ================= */
+#cinema{position:fixed;inset:0;z-index:120;background:#000;display:none}
+#cinema.open{display:block}
+#cineCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer}
+#cineTag{position:absolute;top:16px;left:18px;font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:800;pointer-events:none}
+#cineTag b{color:var(--gold)}
+#cineClose{position:absolute;top:10px;right:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer;z-index:5;transition:background .2s}
+#cineClose:hover{background:rgba(255,255,255,.2)}
+#cineCap{position:absolute;left:50%;transform:translateX(-50%);bottom:92px;text-align:center;font-size:clamp(15px,2.4vw,21px);color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.9),0 0 4px rgba(0,0,0,.9);max-width:86vw;font-weight:650;letter-spacing:.2px;line-height:1.45;pointer-events:none;transition:opacity .35s}
+#cineCap b{color:var(--gold)}
+#cineBar{position:absolute;left:0;right:0;bottom:0;padding:16px 18px 20px;display:flex;align-items:center;gap:14px;background:linear-gradient(transparent,rgba(0,0,0,.88) 60%);z-index:4}
+.cbtn{background:none;border:none;color:#fff;font-size:19px;cursor:pointer;padding:4px 6px;opacity:.92;font-family:inherit;line-height:1}
+.cbtn:hover{opacity:1;transform:scale(1.08)}
+#cineTrack{flex:1;height:26px;display:flex;align-items:center;cursor:pointer;position:relative;touch-action:none}
+#cineTrack .rail{height:4px;width:100%;background:rgba(255,255,255,.22);border-radius:2px;position:relative;overflow:hidden}
+#cineTrack .cfill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--gold)}
+#cineTrack .mark{position:absolute;top:50%;width:2px;height:9px;background:rgba(255,255,255,.45);transform:translateY(-50%);pointer-events:none}
+#cineTime{font-size:12px;color:#c8cfd8;font-variant-numeric:tabular-nums;min-width:78px;text-align:right}
+#cineBig{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:88px;height:88px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.7);color:#fff;font-size:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;transition:transform .2s,opacity .3s;padding-left:6px}
+#cineBig:hover{transform:translate(-50%,-50%) scale(1.07)}
+#cineBig.hide{opacity:0;pointer-events:none}
+.cine-cta{display:inline-flex;align-items:center;gap:10px;margin-top:30px;background:linear-gradient(135deg,#f0b429,#e09c12);color:#1c1302;font-weight:900;font-size:15px;border:none;border-radius:14px;padding:14px 22px;cursor:pointer;font-family:inherit;box-shadow:0 10px 34px rgba(240,178,41,.28);transition:transform .2s,box-shadow .2s}
+.cine-cta:hover{transform:translateY(-2px);box-shadow:0 14px 44px rgba(240,178,41,.4)}
+.cine-cta .play-ico{width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.18);display:inline-flex;align-items:center;justify-content:center;font-size:14px}
+.cine-cta small{display:block;font-weight:600;font-size:11px;opacity:.75;letter-spacing:.4px}
+
 /* ================= INTERACTIVE LAYER ================= */
 /* fx canvas + shake */
 #fx{position:fixed;inset:0;z-index:96;pointer-events:none}
@@ -374,6 +400,20 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 <canvas id="fx" aria-hidden="true"></canvas>
 <div id="chapPill" aria-hidden="true"></div>
 <nav id="chapnav" aria-label="Chapters"></nav>
+<div id="cinema" role="dialog" aria-label="The film">
+  <canvas id="cineCanvas"></canvas>
+  <div id="cineTag"><b>THE MACHINE</b> · a data film · every frame computed from the study</div>
+  <button id="cineClose" aria-label="Close">✕</button>
+  <div id="cineCap"></div>
+  <button id="cineBig" aria-label="Play">▶</button>
+  <div id="cineBar">
+    <button class="cbtn" id="cinePlay" aria-label="Play/pause">⏸</button>
+    <button class="cbtn" id="cinePrev" aria-label="Previous scene" style="font-size:15px">⏮</button>
+    <button class="cbtn" id="cineNext" aria-label="Next scene" style="font-size:15px">⏭</button>
+    <div id="cineTrack"><div class="rail"><div class="cfill"></div></div></div>
+    <div id="cineTime">0:00 / 2:00</div>
+  </div>
+</div>
 
 <!-- ================= HERO ================= -->
 <section id="hero">
@@ -382,6 +422,7 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
   <div class="hero-eyebrow">An interactive research story · 26 years of honest data</div>
   <h1>Can anyone beat<br>just buying <span class="q">QQQ?</span></h1>
   <p class="hero-sub">Stock-picking, market timing, machine learning, expert funds — versus one boring automatic purchase, every two weeks. Every statistic in this story was computed from <b>point-in-time market data</b>: the record as it actually looked on each historical day, dead companies included. Scroll, and watch the answer assemble itself.</p>
+  <button class="cine-cta" id="cineOpen"><span class="play-ico">▶</span><span>Watch the film<small>the whole verdict, animated · 2 min · silent</small></span></button>
   <div class="hero-kpis">
     <div class="hk gold"><div class="v"><span class="count" data-to="6.2" data-dec="1">0</span>%</div><div class="l">of stocks beat QQQ over the decade</div></div>
     <div class="hk"><div class="v"><span class="count" data-to="2177">0</span></div><div class="l">stocks measured, incl. every death</div></div>
@@ -862,6 +903,38 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 </div>
 <p class="reveal">Holding one stock through an −80% loss, with headlines screaming it's over, is something almost no one does. The index held them for you: no conviction required, no decision available to get wrong.</p>
 <div class="pull reveal">The index doesn't just find the winners — <span class="hl">it forces you to keep them.</span></div>
+
+<h3 class="reveal">"I can hold through anything — so why not just buy Apple?" The case that has nothing to do with volatility</h3>
+<p class="reveal">Fair question — and the honest answer is not "volatility." Assume you have iron hands: −80% costs you no sleep and you will never sell. Everything above stops mattering. Four arguments remain, each sufficient on its own, and none of them is about your stomach.</p>
+<p class="reveal"><b>1 · Holding power fixes drawdowns. It does not fix endings.</b> The index's declines have always been temporary for a structural reason: it continuously replaces its failures — companies die, the index doesn't. A single company's decline can simply be its ending. Across our complete delisting-inclusive panel — 18,100 stocks with at least a year of history and a real ($5+) price — <b>36% no longer trade at all</b>, and <b>one in four finished (or stands today) 70%+ below its peak</b>, including 8% that died there, permanently. J.P. Morgan's Russell-3000 study found the same: <b>40% of stocks suffered a catastrophic 70%+ decline from which they never recovered</b> [2]. "I'll hold through anything" is a real answer to a crash. It is no answer to Enron, Nokia or Citigroup: <b>you can hold a stock through everything except its ending — and endings are common.</b></p>
+<p class="reveal"><b>2 · "It'll always go up" has been said before, about the same kind of company — and the sentence carries no information.</b> In March 2000 it was said — with today's exact certainty — about the ten most valuable companies in America. Here is each of them bought at that moment and held with perfect iron hands for 26 years, every dividend reinvested, every crash held through:</p>
+<div class="widget reveal">
+<div class="wt">The ten most valuable companies of March 2000, held 26 years with iron hands</div>
+<div class="ws">Total-return multiple, March 10, 2000 → July 2026, dividends reinvested, delisting-inclusive. <b style="color:var(--green)">Green</b> = beat the index.</div>
+<div class="bars">
+  <div class="brow"><div class="bl"><b>Microsoft</b></div><div class="btrack"><div class="bfill green" data-w="90"><span class="bval">12.33×</span></div></div></div>
+  <div class="brow"><div class="bl"><b>Walmart</b></div><div class="btrack"><div class="bfill green" data-w="84.2"><span class="bval">11.54×</span></div></div></div>
+  <div class="brow"><div class="bl"><b>ExxonMobil</b></div><div class="btrack"><div class="bfill green" data-w="59.8"><span class="bval">8.19×</span></div></div></div>
+  <div class="brow"><div class="bl"><b>QQQ — the index, no picking</b></div><div class="btrack"><div class="bfill ink" data-w="53.9"><span class="bval">7.38×</span></div></div></div>
+  <div class="brow"><div class="bl"><b>IBM</b></div><div class="btrack"><div class="bfill red" data-w="35.4"><span class="bval">4.85×</span></div></div></div>
+  <div class="brow"><div class="bl"><b>Intel</b></div><div class="btrack"><div class="bfill red" data-w="28.6"><span class="bval">3.92×</span></div></div></div>
+  <div class="brow"><div class="bl"><b>General Electric</b><small>the world's most valuable company in 2000</small></div><div class="btrack"><div class="bfill red" data-w="22.8"><span class="bval">3.13×</span></div></div></div>
+  <div class="brow"><div class="bl"><b>Cisco</b><small>briefly #1 on earth, March 2000</small></div><div class="btrack"><div class="bfill red" data-w="19.9"><span class="bval">2.72×</span></div></div></div>
+  <div class="brow"><div class="bl"><b>Pfizer</b></div><div class="btrack"><div class="bfill red" data-w="14.9"><span class="bval">2.04×</span></div></div></div>
+  <div class="brow"><div class="bl"><b>Citigroup</b><small>lost money over 26 years</small></div><div class="btrack"><div class="bfill red" data-w="5.5"><span class="bval">0.75×</span></div></div></div>
+  <div class="brow"><div class="bl"><b>Nokia</b><small>lost half its value</small></div><div class="btrack"><div class="bfill red" data-w="3.8"><span class="bval">0.52×</span></div></div></div>
+</div>
+</div>
+<p class="reveal"><b>Three of ten beat the index; two lost money over a quarter-century of perfect holding.</b> And the era's most Apple-like names — its dominant, beloved technology companies — all lost: GE returned 3.1× against the index's 7.4×, Cisco 2.7×, Intel 3.9×, Nokia half your money. Knowing today that Microsoft, Walmart and ExxonMobil were the right three doesn't help — in 2000 they looked no more inevitable than the seven that failed. <i>The feeling that a rise is inevitable is what a peak feels like from the inside</i> — the identical sentence selected Japan in 1989 and financial stocks in 2007. Nor is one era an accident: across four separate cohorts of reigning giants (2000, 2005, 2010, 2015), only <b>11 of 40</b> beat QQQ over their following decade [24].</p>
+<p class="reveal"><b>3 · Even the RIGHT company loses to the index for longer than any conviction survives.</b> Apple is the strongest possible version of the argument — arguably the best stock of the past half-century (2,825× since 1981). So take the moment "Apple always goes up" was most obviously true: September 2012, when it became the largest company in history. Here is that buyer's wealth <i>relative to a QQQ buyer's</i>, from that day on:</p>
+<div class="chart-frame reveal">
+<div class="ct">Growth of $1 in Apple ÷ growth of $1 in QQQ, monthly, from September 2012</div>
+<div class="cs">Below 1.0× = losing to the index.</div>
+<div class="chart"><svg viewBox="0 0 700 250" preserveAspectRatio="xMidYMid meet" style="width:100%;min-width:560px;height:auto" role="img"><line x1="52" y1="225.1" x2="692" y2="225.1" stroke="#212c38"/><text x="47" y="228.1" font-size="10" fill="#5d6a79" text-anchor="end">0.6×</text><line x1="52" y1="185.0" x2="692" y2="185.0" stroke="#212c38"/><text x="47" y="188.0" font-size="10" fill="#5d6a79" text-anchor="end">0.8×</text><line x1="52" y1="145.0" x2="692" y2="145.0" stroke="#212c38"/><text x="47" y="148.0" font-size="10" fill="#5d6a79" text-anchor="end">1×</text><line x1="52" y1="105.0" x2="692" y2="105.0" stroke="#212c38"/><text x="47" y="108.0" font-size="10" fill="#5d6a79" text-anchor="end">1.2×</text><line x1="52" y1="65.0" x2="692" y2="65.0" stroke="#212c38"/><text x="47" y="68.0" font-size="10" fill="#5d6a79" text-anchor="end">1.4×</text><polyline points="52.0,145.0 55.9,156.6 59.7,161.3 63.6,177.2 67.4,205.1 71.3,209.2 75.1,212.8 79.0,216.0 82.8,217.7 86.7,230.0 90.6,221.5 94.4,210.7 98.3,219.6 102.1,214.0 106.0,209.6 109.8,212.3 113.7,224.3 117.5,223.6 121.4,217.7 125.3,204.6 129.1,200.0 133.0,200.5 136.8,198.1 140.7,194.3 144.5,195.7 148.4,189.1 152.2,180.1 156.1,188.4 160.0,175.3 163.8,170.7 167.7,172.1 171.5,174.4 175.4,170.6 179.2,172.8 183.1,185.8 186.9,185.4 190.8,185.9 194.7,189.7 198.5,191.5 202.4,206.3 206.2,207.2 210.1,205.2 213.9,197.5 217.8,214.0 221.6,210.4 225.5,213.2 229.3,210.9 233.2,209.1 237.1,203.4 240.9,200.7 244.8,204.4 248.6,199.3 252.5,199.8 256.3,187.3 260.2,182.9 264.0,187.2 267.9,182.8 271.8,188.5 275.6,189.6 279.5,176.5 283.3,186.2 287.2,178.5 291.0,178.4 294.9,181.9 298.7,196.6 302.6,184.4 306.5,187.3 310.3,190.5 314.2,179.0 318.0,182.4 321.9,182.4 325.7,160.5 329.6,161.5 333.4,150.4 337.3,185.2 341.2,190.5 345.0,195.5 348.9,193.3 352.7,184.9 356.6,184.6 360.4,192.0 364.3,184.2 368.1,175.9 372.0,175.4 375.9,164.7 379.7,153.1 383.6,146.3 387.4,134.9 391.3,130.0 395.1,142.4 399.0,141.7 402.8,140.7 406.7,137.1 410.6,120.6 414.4,101.4 418.3,77.8 422.1,90.5 426.0,98.3 429.8,102.0 433.7,86.8 437.5,88.9 441.4,109.0 445.3,111.3 449.1,107.5 453.0,116.8 456.8,108.9 460.7,100.6 464.5,100.5 468.4,103.4 472.2,107.9 476.1,88.1 480.0,72.2 483.8,50.7 487.7,53.6 491.5,50.6 495.4,37.3 499.2,49.4 503.1,46.9 506.9,30.2 510.8,23.5 514.7,29.1 518.5,8.0 522.4,36.3 526.2,47.2 530.1,46.1 533.9,38.0 537.8,31.4 541.6,23.9 545.5,33.7 549.3,24.5 553.2,32.5 557.1,41.2 560.9,53.3 564.8,48.0 568.6,46.5 572.5,58.4 576.3,75.4 580.2,93.7 584.0,109.6 587.9,100.5 591.8,84.7 595.6,77.1 599.5,57.7 603.3,51.7 607.2,54.2 611.0,60.6 614.9,61.0 618.7,46.7 622.6,69.9 626.5,54.9 630.3,56.7 634.2,73.0 638.0,109.2 641.9,118.6 645.7,121.4 649.6,97.0 653.4,86.8 657.3,83.4 661.2,70.6 665.0,75.7 668.9,91.1 672.7,80.0 676.6,77.5 680.4,97.8 684.3,87.6 688.1,105.8 692.0,59.8" fill="none" stroke="#e8eef5" stroke-width="2.4"/></svg></div>
+</div>
+<p class="reveal">The buyer at maximum obviousness was <i>right about the company</i> — revenue and profits grew superbly throughout — and still spent <b>7.3 years losing to QQQ (September 2012 – December 2019), sitting 44% behind at the bottom</b>. Apple did eventually pull ahead (15.8× vs 11.4× since 2012) — but the entire margin arrived in one late burst after 2019, and nothing available in year 7 distinguished the Apple that would pay off in year 8 from the Cisco that still hasn't paid off in year 26. It wasn't the first time: the same company had already spent <b>8.4 years underwater (1991–1999, −81% at the trough)</b> and passed within about 90 days of insolvency in 1997. "Always goes up" has been false for roughly a decade, twice, for the best stock in modern history — while the index rode every one of Apple's good years automatically, no conviction required.</p>
+<p class="reveal"><b>4 · Volatility taxes your compound return even if it never touches your nerves.</b> This is the arithmetic point iron-stomached investors miss: long-run compound growth ≈ average return − ½σ² — variance is subtracted from your growth rate whether or not you feel it. Apple's <i>calmest</i> decade ran at 27% volatility, a <b>3.7-points-per-year drag</b> against QQQ's 1.8; over its full history, 43% volatility — a <b>9.4-point annual drag</b>. A typical single stock (40–50% volatility) must therefore out-earn the index's average return by <b>5–10 points per year, forever, merely to tie</b> in compound growth. Courage doesn't waive this fee; only diversification does.</p>
+<div class="card gold reveal"><b>5 · The clincher: QQQ is not "instead of" Apple.</b> Apple is one of QQQ's largest holdings. Buying the index forfeits nothing of the Apple thesis — you own it at its full market weight, and cap-weighting is what promoted it to the top of the index as it won, no decision required. What the index adds is the one thing Apple-only cannot offer at any price: <b>an automatic, tax-free claim on Apple's successor, whoever that turns out to be</b> — exercised for you, exactly as the index rode Microsoft in the 1990s, Apple in the 2010s and Nvidia in the 2020s. Owning only Apple is therefore not a bet that Apple is great — the index already pays you in full for that. It is a bet that <i>succession never comes</i>. Every table in this section says succession always, eventually, comes. <b>The single-stock holder must be right forever; the index holder never needs an opinion at all.</b></div>
 <div class="sep"></div>
 </div></section>
 
@@ -1201,7 +1274,7 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 <div class="faq-search reveal"><span aria-hidden="true">🔎</span><input id="faqSearch" type="search" placeholder="Search your objection… (Buffett, options, AI, dip, Japan…)" aria-label="Search objections"><span class="fs-count" id="faqCount">40 objections</span></div>
 <div id="faqList">
 
-<div class="faq-group">“But people do beat the market…”</div><details><summary>“My friend / a guy on YouTube beats the market every year.”</summary><div class='fa'>Given how many people pick stocks, thousands of market-beaters <i>must</i> exist by pure chance. A single concentrated portfolio beats QQQ in a given year roughly 40–45% of the time (measured, Ch. 3). Start 10,000 people flipping that coin and after 5 years about 185 of them have a perfect streak — after 10 years, 3 still do — <b>with zero skill involved</b> (chart in Ch. 6). The lucky ones post; the other 9,800 don't. You only ever hear from the right tail.</div></details><details><summary>“Warren Buffett beat the market for decades.”</summary><div class='fa'>He did — mostly in the 1950s–1990s, buying tiny neglected companies and whole private businesses, using cheap insurance-float leverage: a game a retail stock-picker cannot play. Over roughly the last two decades Berkshire has performed about in line with the S&amp;P 500. Buffett himself won a famous 10-year, million-dollar bet that an index fund would beat a hand-picked group of hedge funds — and his standing advice for ordinary investors is a low-cost index fund.</div></details><details><summary>“Renaissance's Medallion fund makes 60%+ a year.”</summary><div class='fa'>True, and instructive: Medallion is capped at roughly $10–15B (returns vanish at scale), closed to outside money for decades, and earns its returns from thousands of tiny, short-lived statistical edges executed with elite infrastructure — not from 'picking good stocks.' The same firm's funds that are <i>open</i> to outsiders have performed near the market. The existence of a closed, capacity-limited machine says nothing about what an individual can do in a brokerage account.</div></details><details><summary>“Professionals with Bloomberg terminals and armies of analysts must beat it.”</summary><div class='fa'>The public scorecard says the opposite: S&amp;P's SPIVA reports have shown, year after year, that <b>89.5% of professional U.S. large-cap funds lagged the S&amp;P 500 over the 15 years through 2024</b> [12] — after fees, with every resource money can buy. The minority who lead in one period are not reliably the same ones who lead in the next (persistence studies). If the professionals can't, the base case for anyone else is worse.</div></details><details><summary>“Somebody has to be beating the market — trading is a two-sided game.”</summary><div class='fa'>Yes — and it's worth naming who actually wins: market-makers and high-frequency firms (paid a tiny spread billions of times — a different business, not stock-picking), insiders trading their own knowledge (illegal), a small set of closed, capacity-limited quantitative funds, and the temporarily lucky. What's missing from that list is 'a person at home selecting stocks from public information.' That specific game is the one this paper measures — and it loses.</div></details><details><summary>“People DO make money on options / 0DTE / picking — I've seen the screenshots.”</summary><div class='fa'>Both things are true at once, and Ch. 6c's first chart is the reconciliation: <b>75% of stocks made money</b> over the decade (a bull market pays almost everyone) while <b>6.2% beat QQQ</b> — and in options, where the average retail trade <i>loses</i> ~4% [25], a large minority of trades still win, and only the wins get screenshotted. 'Made money' is the wrong test: the test is against what the same dollars did in the automatic alternative, and screenshots never show that column. The right tail of any distribution is real, visible, and not a strategy.</div></details><details><summary>“There must be strategies out there that work. Somewhere. No?”</summary><div class='fa'>Yes — and they share three properties: they're <b>capacity-limited</b> (they die if too much money uses them), <b>closed or unbuyable</b> (tolls, seats, infrastructure, control, private information — Ch. 6b), and <b>never sold to you</b> (a real edge is worth more traded than sold; what's sold is the story). Everything <i>purchasable</i> — funds, newsletters, courses, signals, ETFs — has a measured record, and it's this study. Even published academic edges decay 58% on publication [10]. The strategy that works and is available to you is the one this paper is about: own the machine and don't interrupt it.</div></details><details><summary>“How often can research actually find winning stocks? Is the work worth it?”</summary><div class='fa'>Measured directly: the base rate of a pick beating QQQ over a year is ~42%; the <i>best</i> signals found in years of systematic research — insider clusters, quality screens, machine learning over 36 feature types — lift that to ~44–48%. Never past the coin flip. So the honest wage of stock research is: <b>hundreds of hours buys ~3–6 percentage points of hit rate, landing you still below 50/50 against the free alternative</b> — before costs and taxes take their share. As work, it pays negatively; as a hobby, price it like one (11.4). The exception that CAN pay is Ch. 6c's error-structure requirement: knowledge that isn't in anyone else's model — which comes from your profession, not from research tools everyone owns.</div></details><div class="faq-group">“But my approach would work…”</div><details><summary>“I'll just buy NVIDIA / Apple / the obvious winner.”</summary><div class='fa'>Today's obvious winner is obvious <i>because it already won</i> — you can no longer buy the past returns. Buying today's hottest stocks and holding was tested directly on point-in-time data: the 20 hottest stocks of 2015, held to 2026, turned $20k into <b>$53k while QQQ turned it into $160k — and 10 of the 20 no longer exist</b> (Ch. 4). And spotting the next one early doesn't solve it: the historical winners fell −67% to −87% <i>on the way</i> to their gains (Ch. 4). Almost nobody holds a single stock through an −87% loss; the index made you hold, automatically.</div></details><details><summary>“Momentum investing is proven by academics.”</summary><div class='fa'>Momentum is real <i>as a relative pattern</i> — recent winners beat recent losers on average, for a while. But converting that into beating QQQ requires constant rotation, and every rotating version tested here failed the audits (luck-level results, era-dependence, trade-day sensitivity — Ch. 5), while the buy-and-hold version is a disaster (Ch. 4). QQQ is itself a free, automatic momentum machine: winners grow their own weight with zero trades and zero taxes.</div></details><details><summary>“Value investing: buy good companies when they're cheap.”</summary><div class='fa'>Tested as a systematic rule (buy statistically cheap/quality names), it produced 0.60× QQQ's result. The deep problem: for the last two decades the market's gains came overwhelmingly from stocks that <i>never looked cheap</i> — a value discipline would have kept you out of almost every big winner the whole way up. Value works as a risk story across a century of data; it has not been a way to beat a winner-riding index in this one.</div></details><details><summary>“Buy the dip — it always comes back.”</summary><div class='fa'>Two versions tested. Buying beaten-down <i>stocks</i>: the fallen names as a group keep underperforming (their −50%+ dips are often on the way to −100%; a quarter of all stocks lost money over a decade in which the index made +638%). Waiting in cash to buy <i>the index</i> after a big dip: measured directly — waiting for −20% crashes before investing ended 30% poorer than just investing every month (Ch. 7). Dips feel buyable in hindsight because the ones that recovered are the ones you remember.</div></details><details><summary>“Dividend stocks pay you to wait — that's the safe way to win.”</summary><div class='fa'>Dividends are not extra return — the share price drops by the dividend on payment; you're taxed on it annually; and dividend-screened portfolios concentrate in slow-growth sectors that structurally lagged this index. Fine as a preference for income; not a mechanism for beating a growth index, and none of the income-tilted configurations tested came close.</div></details><details><summary>“Small caps outperform over time — I'll fish in that pond.”</summary><div class='fa'>The most important negative result in the research: an <b>all-knowing oracle</b> — allowed to pick, with perfect foresight, the future best 5 stocks from the small/mid-cap pond — <i>still lost to QQQ-DCA in 3 of 5 eras</i>, because the pond as a whole lagged so badly that even its best swimmers couldn't compensate at portfolio scale. If perfection loses in that pond, no signal wins in it.</div></details><details><summary>“Equal-weighting or rebalancing my picks reduces risk and adds return.”</summary><div class='fa'>Every act of trimming winners and topping up losers moves money <i>from</i> the stocks driving all the gains <i>into</i> the ones that aren't. In a market where the top 1% of stocks produce ~19% of all net gains and the top 10% produce ~61% (Ch. 3), owning less of the winners is usually fatal. Tested: equal-weight and profit-taking variants underperformed both their let-it-ride versions and the index.</div></details><details><summary>“Sell covered calls / puts for extra income.”</summary><div class='fa'>Stock returns are extremely right-skewed: nearly all the money is in a few huge upward runs (Ch. 3). A covered call sells exactly that upside — for a small premium. It converts the one part of the distribution that pays into income today, which is why long-run covered-call indices lag their underlying. Income strategies feel good monthly and cost you the decade.</div></details><details><summary>“I'll copy Congress members / famous investors / whale trackers.”</summary><div class='fa'>Disclosures arrive with a lag (up to 45 days for both Congress and 13F filings), the copied portfolios are stale by the time you see them, and the copy-trackers' live results — where honestly measured — fail the same audits (era-dependence, luck-range results). The information you can copy is, by construction, information the market has already had weeks to price.</div></details><details><summary>“Buy IPOs — get in on the ground floor of the next Amazon.”</summary><div class='fa'>Measured on 6,599 IPOs including every failure: a published IPO system advertising 20.5%/yr delivered 8.1%/yr when rebuilt on honest data — below the index. Most IPOs underperform for years after listing; the ground floor is, on average, above fair value because insiders choose when to sell to you.</div></details><details><summary>“Follow the insiders — executives buying their own stock.”</summary><div class='fa'>Tested with the complete filing record: insider-cluster buying is one of the <i>better</i> signals — it lifts the odds a pick beats QQQ by ~4–6 percentage points. But the base rate is ~40%, so the best insider-informed picks still beat the index less than half the time. An edge that real, applied honestly, still wasn't enough to overcome the pond and concentration problems.</div></details><details><summary>“AI changes everything — a model can find the winners now.”</summary><div class='fa'>Modern machine learning was tested extensively on this exact question with clean, point-in-time data. The models genuinely <i>can</i> rank stocks — and still lost to QQQ, because their confident picks all cluster in the same crowded trades and fail together: measured directly, the ML's top picks landed in the following year's top performers <i>less often than randomly chosen stocks</i> (Ch. 5). Also: whatever a widely available AI knows is, by definition, available to everyone — and therefore already in prices.</div></details><details><summary>“Didn't monkeys throwing darts beat the index?”</summary><div class='fa'>The famous dart-throwing-monkey portfolios (and the studies behind them) beat <i>cap-weighted</i> indexes historically because random picking systematically over-weights small and cheap stocks — hidden extra risk that paid off in those samples. In the recent mega-cap era that same tilt was exactly what lost (Ch. 3): our 100 random portfolios — same idea, honest modern data — ended at a median 0.58× QQQ with 6% winning. The monkeys weren't skilled; they were levered to a bet that has since stopped paying.</div></details><details><summary>“What about day trading? I've seen the funded-account guys.”</summary><div class='fa'>The best evidence is brutal: tracking <b>every person</b> who began day-trading index futures in Brazil over three years, 97% of those who stuck with it 300+ days lost money, only 1.1% out-earned minimum wage, and performance did not improve with experience [16]. U.S. brokerage data points the same way: the most active retail traders lagged the market by 6.5 points a year [14]. Day trading is the picking problem of this paper, repeated hundreds of times a year at maximum cost.</div></details><details><summary>“Why not just buy the Magnificent 7 / today's giants?”</summary><div class='fa'>Because today's giants are the previous game's winners, and the crown is heavy. We measured it directly: take the 10 most-dominant U.S. mega-caps at each of 2000, 2005, 2010 and 2015 and hold each group ten years — <b>only 11 of the 40 beat QQQ</b>. The 2000 giants (Cisco, Intel, Microsoft…) lost more than the crashing index; the 2005 and 2010 cohorts won 2-of-10 and 1-of-10; even the 2015 cohort — which included Meta, Netflix and Microsoft at the dawn of the mega-cap decade — went only 5-for-10. Published research finds the same 'top dog curse' in every market studied [24]. The index rode the Mag-7 up without you guessing them, and when leadership rotates, it will ride the next set too — automatically. A hand-held Mag-7 basket won't.<div class='chart' style='margin-top:8px'><table><thead><tr><th>Cohort</th><th>Names (first 4)</th><th class='r'>Median 10y</th><th class='r'>QQQ 10y</th><th class='r'>Beat QQQ</th></tr></thead><tbody><tr><td>2000 giants</td><td>LVLT, CSCO, INTC, MSFT…</td><td class='r'>-72%</td><td class='r'>-53%</td><td class='r bad'>3/10</td></tr><tr><td>2005 giants</td><td>GOOGL, MSFT, INTC, BB…</td><td class='r'>+71%</td><td class='r'>+214%</td><td class='r bad'>2/10</td></tr><tr><td>2010 giants</td><td>GOOGL, C, MSFT, BP…</td><td class='r'>+130%</td><td class='r'>+543%</td><td class='r bad'>1/10</td></tr><tr><td>2015 giants</td><td>META, NFLX, MSFT, BABA…</td><td class='r'>+344%</td><td class='r'>+456%</td><td class='r bad'>5/10</td></tr></tbody></table></div></div></details><details><summary>“Technical analysis works — support, resistance, moving averages, patterns.”</summary><div class='fa'>This is the single most-tested claim in finance, with the clearest verdict. Sullivan, Timmermann &amp; White tested <b>7,846 technical trading rules over 100 years</b> of Dow data with statistics that account for trying many rules: the apparent winners had no genuine predictive power out-of-sample, and nothing worked at all on more recent data [19]. A follow-up on <b>historical</b> claims of chart-pattern success found they dissolve once you correct for having searched thousands of rules [20]. Charts describe the past beautifully; a century of testing says they do not predict the future — and our own trend-rule tests (Ch. 7: results that flip on the trade date) are the same finding in miniature.</div></details><details><summary>“Sell in May / the January effect / seasonal patterns.”</summary><div class='fa'>Calendar effects were tested the same rigorous way — every seasonal rule anyone had proposed, adjusted for the fact that thousands were searched: <b>none survive</b> [21]. The seasonal patterns you read about are what randomness looks like when you sort it by month, and the famous ones stopped 'working' around the time they were published — the standard fate of published patterns (−58% after publication [10]).</div></details><details><summary>“QQQ is obviously overvalued right now — I'll wait for a better price.”</summary><div class='fa'>This is market timing wearing a valuation costume, and it has a measured record: valuation-based timing signals (like CAPE) have been persistently 'expensive' for most of the last two decades — a timer following them sat out most of the gains. The definitive study is titled, accurately, <i>Market Timing: Sin a Little</i> — even its sympathetic authors found valuation timing adds almost nothing beyond simply staying invested [22]. Our Ch. 7 shows the local version: waiting for the obvious discount cost ~30% of final wealth. Valuation tells you expected returns are lower than usual; it does not tell you when, or from what higher level, the repricing comes.</div></details><details><summary>“I'll buy call options / LEAPS / 0DTE for leveraged upside.”</summary><div class='fa'>The complete record of retail options trading is one of the most one-sided in finance: in comprehensive U.S. brokerage data, retail option <i>purchases</i> lose ~4% per trade on average, and the now-dominant same-day-expiry (0DTE) trades do several points worse [25]; an earlier study of a full brokerage's clients concluded most were, in effect, gambling and 'incurred large losses' [26]. Options add three costs stocks don't have — time decay, volatility overpricing, and wide spreads — so even a correct directional view usually loses money on the position. If Ch. 3 showed stock-picking is a lottery, bought options are the same lottery with an expiry date.</div></details><details><summary>“Fine, no stock picking — I'll buy the momentum/value factor ETF instead.”</summary><div class='fa'>Factor ETFs are the index-fund version of the strategies in Ch. 5, and they inherit the same fate plus fees: published factor premia decay ~58% after publication [10], most factor ETFs launched after the factor's famous decade, and none of the major U.S. factor ETFs (momentum, value, quality, low-vol) has beaten QQQ over its life. Specialized and thematic ETFs are worse — they launch at peak hype and underperform by ~6%/yr over their first five years, losing ~30% risk-adjusted [23]. An ETF wrapper changes the fees, not the arithmetic.</div></details><details><summary>“I'll use stop-losses so my downside is capped.”</summary><div class='fa'>A stop-loss converts a temporary decline into a permanent exit — and Ch. 4.3 showed the era's best stocks fell −67% to −87% <i>on the way to</i> their legendary gains; any stop tight enough to 'protect' you guarantees you sell every future winner during its ordinary crashes. On the index itself, stop-and-re-enter rules are just trend-timing, which failed the Ch. 7 audits (results that depend on the trade date). The honest way to cap downside is position size decided in advance (11.4), not an automated promise to sell low.</div></details><details><summary>“My newsletter/analyst has a great track record.”</summary><div class='fa'>The oldest result in empirical finance, from 1933: Alfred Cowles collected ~12,000 professional forecasts and asked <i>Can Stock Market Forecasters Forecast?</i> — his abstract answer: 'It is doubtful' [27]. Sixty years later, Graham &amp; Harvey graded 326 investment newsletters over 13 years: <b>no evidence of any timing ability as a group</b>, and the hot ones didn't stay hot [28]. Combine that with Ch. 6's luck math (track records arise by chance in the thousands) and the five audits (Ch. 5): a track record you're shown is marketing until it survives the audits — and in 90+ years of checking, essentially none have.</div></details><div class="faq-group">“But the test itself is flawed…”</div><details><summary>“Is this just a U.S. / QQQ phenomenon?”</summary><div class='fa'>No — the lottery structure is global. Bessembinder's worldwide follow-up (64,000+ stocks across 42 countries, 1990–2018): the top <b>1.3% of firms produced ALL $44.7 trillion of global net wealth creation</b>; outside the U.S., <i>less than 1%</i> of firms did — and 61% of non-U.S. stocks returned less than U.S. Treasury bills [31]. SPIVA runs the professional scorecard in every region — Europe, Japan, Australia, India — with the same shape of result as the U.S. The mechanisms in this study (skew, concentration, the arithmetic of active management) are properties of equity markets, not of one country or one index.</div></details><details><summary>“Backtests aren't real life.”</summary><div class='fa'>Correct — real life is <b>worse</b> for the picker. These simulations already charge trading costs and use only information available at each decision date, but they can't charge you the behavioral tax: real investors panic-sell in crashes and chase after rallies, which studies of actual investor returns put at another 1–2%/yr of loss. Every gap between simulation and reality widens the index's lead.</div></details><details><summary>“QQQ just got lucky — tech happened to win this era.”</summary><div class='fa'>Partly true — Ch. 2.2 gives this objection a full four-step answer, and the paper concedes the era-dependence openly (Ch. 9): QQQ-DCA is a concentrated bet that suffered −81% in the dot-com crash. But the anti-picking verdict does not depend on QQQ: pickers failed against SPY too, professionals fail against every benchmark (SPIVA), and the skew/concentration math (Ch. 3) holds in every equity market ever measured. Choose a broader index if you prefer — just don't hand-pick stocks against it.</div></details><details><summary>“If everyone indexes, markets break and picking will work again.”</summary><div class='fa'>A theoretical limit that is nowhere near binding: trillions still trade actively every day, and price discovery needs remarkably little active money. If indexing ever did create big, easy mispricings, the professional funds already armed and paid to exploit them would harvest them long before a retail picker could. You don't need to volunteer to be the market's price-setter.</div></details><details><summary>“Isn't QQQ itself just someone's stock picks?”</summary><div class='fa'>It's a <i>rule</i>, not a judgment: the 100 largest non-financial Nasdaq companies, weighted by size, membership refreshed mechanically. Nobody decides 'this company will win'; the weighting means whatever wins automatically becomes a bigger holding, and whatever dies falls out on its own. That mechanical winner-riding — free, tax-deferred, emotionless — is precisely the thing discretionary picking keeps failing to replicate.</div></details><details><summary>“A 10-year backtest window is cherry-picked.”</summary><div class='fa'>The core statistics were measured across <i>every</i> era in 26 years of data, including both crashes: the fraction of stocks beating QQQ was computed for each year 2000–2025 (average 42%, Ch. 3), the winner-persistence numbers span 24 annual cohorts, and the strategy tests were run and re-run across eras, both halves of the sample, and dozens of start dates. The conclusion is the same in every honest slice — with one telling exception: most stocks 'beat QQQ' in 2000–2001, when QQQ itself was collapsing. Beating the index is easiest when the index is losing.</div></details><div class="faq-group">Practical questions</div><details><summary>“Should I DCA or invest a lump sum?”</summary><div class='fa'>If you already have a lump sum, history favors investing it immediately about two times in three (markets rise more often than not, so waiting has a cost). DCA in this paper means the thing almost everyone actually does: investing money as it's earned, every paycheck. The point is not the cadence — biweekly vs monthly was tested and is a rounding error — it's the automation: no decisions, no timing, no picks.</div></details><details><summary>“What about gold, crypto, real estate, international stocks?”</summary><div class='fa'>Different question — and Ch. 2.4 now treats each one fully, with the measured record. In short: those are <i>asset-allocation</i> choices — how much risk, of which kinds, you want to hold — and diversification genuinely smooths the ride (at some cost to return). This paper is about one specific claim: that you can select <i>stocks</i> to beat a stock index. Nothing here argues against owning other assets; everything here argues against paying anyone (including yourself) to pick stocks.</div></details><details><summary>“Can I pick a few stocks just for fun?”</summary><div class='fa'>Yes — with a budget. Carve out a small fixed slice (say 5%), call it entertainment, and measure it honestly against what the same dollars would have done in QQQ. Expect it to lag (that's what the evidence says it will do), enjoy it like any hobby with a cost, and never let it grow into the plan. The danger isn't the 5% — it's the promotion of a lucky year into a strategy.</div></details><details><summary>“What would it actually take to beat the index?”</summary><div class='fa'>The research measured this precisely: surprisingly little skill — <i>if</i> the errors are independent. A simulated picker with only a slight, honest edge whose mistakes were random beat QQQ in every era. What no tested signal achieved is that error-independence: every public-data signal's bold picks are the same crowded bet in different tickers, so they fail together. Genuinely independent edges come from information about individual companies that others don't have — which, for a private individual trading public information, is either unavailable or illegal to use.</div></details>
+<div class="faq-group">“But people do beat the market…”</div><details><summary>“My friend / a guy on YouTube beats the market every year.”</summary><div class='fa'>Given how many people pick stocks, thousands of market-beaters <i>must</i> exist by pure chance. A single concentrated portfolio beats QQQ in a given year roughly 40–45% of the time (measured, Ch. 3). Start 10,000 people flipping that coin and after 5 years about 185 of them have a perfect streak — after 10 years, 3 still do — <b>with zero skill involved</b> (chart in Ch. 6). The lucky ones post; the other 9,800 don't. You only ever hear from the right tail.</div></details><details><summary>“Warren Buffett beat the market for decades.”</summary><div class='fa'>He did — mostly in the 1950s–1990s, buying tiny neglected companies and whole private businesses, using cheap insurance-float leverage: a game a retail stock-picker cannot play. Over roughly the last two decades Berkshire has performed about in line with the S&amp;P 500. Buffett himself won a famous 10-year, million-dollar bet that an index fund would beat a hand-picked group of hedge funds — and his standing advice for ordinary investors is a low-cost index fund.</div></details><details><summary>“Renaissance's Medallion fund makes 60%+ a year.”</summary><div class='fa'>True, and instructive: Medallion is capped at roughly $10–15B (returns vanish at scale), closed to outside money for decades, and earns its returns from thousands of tiny, short-lived statistical edges executed with elite infrastructure — not from 'picking good stocks.' The same firm's funds that are <i>open</i> to outsiders have performed near the market. The existence of a closed, capacity-limited machine says nothing about what an individual can do in a brokerage account.</div></details><details><summary>“Professionals with Bloomberg terminals and armies of analysts must beat it.”</summary><div class='fa'>The public scorecard says the opposite: S&amp;P's SPIVA reports have shown, year after year, that <b>89.5% of professional U.S. large-cap funds lagged the S&amp;P 500 over the 15 years through 2024</b> [12] — after fees, with every resource money can buy. The minority who lead in one period are not reliably the same ones who lead in the next (persistence studies). If the professionals can't, the base case for anyone else is worse.</div></details><details><summary>“Somebody has to be beating the market — trading is a two-sided game.”</summary><div class='fa'>Yes — and it's worth naming who actually wins: market-makers and high-frequency firms (paid a tiny spread billions of times — a different business, not stock-picking), insiders trading their own knowledge (illegal), a small set of closed, capacity-limited quantitative funds, and the temporarily lucky. What's missing from that list is 'a person at home selecting stocks from public information.' That specific game is the one this paper measures — and it loses.</div></details><details><summary>“People DO make money on options / 0DTE / picking — I've seen the screenshots.”</summary><div class='fa'>Both things are true at once, and Ch. 6c's first chart is the reconciliation: <b>75% of stocks made money</b> over the decade (a bull market pays almost everyone) while <b>6.2% beat QQQ</b> — and in options, where the average retail trade <i>loses</i> ~4% [25], a large minority of trades still win, and only the wins get screenshotted. 'Made money' is the wrong test: the test is against what the same dollars did in the automatic alternative, and screenshots never show that column. The right tail of any distribution is real, visible, and not a strategy.</div></details><details><summary>“There must be strategies out there that work. Somewhere. No?”</summary><div class='fa'>Yes — and they share three properties: they're <b>capacity-limited</b> (they die if too much money uses them), <b>closed or unbuyable</b> (tolls, seats, infrastructure, control, private information — Ch. 6b), and <b>never sold to you</b> (a real edge is worth more traded than sold; what's sold is the story). Everything <i>purchasable</i> — funds, newsletters, courses, signals, ETFs — has a measured record, and it's this study. Even published academic edges decay 58% on publication [10]. The strategy that works and is available to you is the one this paper is about: own the machine and don't interrupt it.</div></details><details><summary>“How often can research actually find winning stocks? Is the work worth it?”</summary><div class='fa'>Measured directly: the base rate of a pick beating QQQ over a year is ~42%; the <i>best</i> signals found in years of systematic research — insider clusters, quality screens, machine learning over 36 feature types — lift that to ~44–48%. Never past the coin flip. So the honest wage of stock research is: <b>hundreds of hours buys ~3–6 percentage points of hit rate, landing you still below 50/50 against the free alternative</b> — before costs and taxes take their share. As work, it pays negatively; as a hobby, price it like one (11.4). The exception that CAN pay is Ch. 6c's error-structure requirement: knowledge that isn't in anyone else's model — which comes from your profession, not from research tools everyone owns.</div></details><div class="faq-group">“But my approach would work…”</div><details><summary>“I'll just buy NVIDIA / Apple / the obvious winner.”</summary><div class='fa'>This deserves — and gets — its own section (Ch. 4.4), argued with the reader's iron hands granted, because the real case has nothing to do with volatility. In brief: (1) holding power can't fix <i>endings</i> — one in four stocks in the complete record finished 70%+ below its peak, and 36% no longer trade at all; (2) the last time 'it'll always go up' felt this certain — March 2000 — only 3 of the 10 most valuable companies in America beat QQQ over the next 26 years, and two lost money outright; (3) even the right company doesn't rescue the plan: Apple itself — while the biggest company on earth — spent 7.3 years losing to QQQ (2012–2019, 44% behind at the bottom); (4) a single stock's volatility drags its compound growth by 5–10 points a year before any of this (½σ² — an arithmetic fee, not an emotional one); and (5) buying QQQ doesn't mean giving up Apple — the index holds it at full weight and adds the one thing a single stock can't: automatic ownership of its successor.</div></details><details><summary>“Momentum investing is proven by academics.”</summary><div class='fa'>Momentum is real <i>as a relative pattern</i> — recent winners beat recent losers on average, for a while. But converting that into beating QQQ requires constant rotation, and every rotating version tested here failed the audits (luck-level results, era-dependence, trade-day sensitivity — Ch. 5), while the buy-and-hold version is a disaster (Ch. 4). QQQ is itself a free, automatic momentum machine: winners grow their own weight with zero trades and zero taxes.</div></details><details><summary>“Value investing: buy good companies when they're cheap.”</summary><div class='fa'>Tested as a systematic rule (buy statistically cheap/quality names), it produced 0.60× QQQ's result. The deep problem: for the last two decades the market's gains came overwhelmingly from stocks that <i>never looked cheap</i> — a value discipline would have kept you out of almost every big winner the whole way up. Value works as a risk story across a century of data; it has not been a way to beat a winner-riding index in this one.</div></details><details><summary>“Buy the dip — it always comes back.”</summary><div class='fa'>Two versions tested. Buying beaten-down <i>stocks</i>: the fallen names as a group keep underperforming (their −50%+ dips are often on the way to −100%; a quarter of all stocks lost money over a decade in which the index made +638%). Waiting in cash to buy <i>the index</i> after a big dip: measured directly — waiting for −20% crashes before investing ended 30% poorer than just investing every month (Ch. 7). Dips feel buyable in hindsight because the ones that recovered are the ones you remember.</div></details><details><summary>“Dividend stocks pay you to wait — that's the safe way to win.”</summary><div class='fa'>Dividends are not extra return — the share price drops by the dividend on payment; you're taxed on it annually; and dividend-screened portfolios concentrate in slow-growth sectors that structurally lagged this index. Fine as a preference for income; not a mechanism for beating a growth index, and none of the income-tilted configurations tested came close.</div></details><details><summary>“Small caps outperform over time — I'll fish in that pond.”</summary><div class='fa'>The most important negative result in the research: an <b>all-knowing oracle</b> — allowed to pick, with perfect foresight, the future best 5 stocks from the small/mid-cap pond — <i>still lost to QQQ-DCA in 3 of 5 eras</i>, because the pond as a whole lagged so badly that even its best swimmers couldn't compensate at portfolio scale. If perfection loses in that pond, no signal wins in it.</div></details><details><summary>“Equal-weighting or rebalancing my picks reduces risk and adds return.”</summary><div class='fa'>Every act of trimming winners and topping up losers moves money <i>from</i> the stocks driving all the gains <i>into</i> the ones that aren't. In a market where the top 1% of stocks produce ~19% of all net gains and the top 10% produce ~61% (Ch. 3), owning less of the winners is usually fatal. Tested: equal-weight and profit-taking variants underperformed both their let-it-ride versions and the index.</div></details><details><summary>“Sell covered calls / puts for extra income.”</summary><div class='fa'>Stock returns are extremely right-skewed: nearly all the money is in a few huge upward runs (Ch. 3). A covered call sells exactly that upside — for a small premium. It converts the one part of the distribution that pays into income today, which is why long-run covered-call indices lag their underlying. Income strategies feel good monthly and cost you the decade.</div></details><details><summary>“I'll copy Congress members / famous investors / whale trackers.”</summary><div class='fa'>Disclosures arrive with a lag (up to 45 days for both Congress and 13F filings), the copied portfolios are stale by the time you see them, and the copy-trackers' live results — where honestly measured — fail the same audits (era-dependence, luck-range results). The information you can copy is, by construction, information the market has already had weeks to price.</div></details><details><summary>“Buy IPOs — get in on the ground floor of the next Amazon.”</summary><div class='fa'>Measured on 6,599 IPOs including every failure: a published IPO system advertising 20.5%/yr delivered 8.1%/yr when rebuilt on honest data — below the index. Most IPOs underperform for years after listing; the ground floor is, on average, above fair value because insiders choose when to sell to you.</div></details><details><summary>“Follow the insiders — executives buying their own stock.”</summary><div class='fa'>Tested with the complete filing record: insider-cluster buying is one of the <i>better</i> signals — it lifts the odds a pick beats QQQ by ~4–6 percentage points. But the base rate is ~40%, so the best insider-informed picks still beat the index less than half the time. An edge that real, applied honestly, still wasn't enough to overcome the pond and concentration problems.</div></details><details><summary>“AI changes everything — a model can find the winners now.”</summary><div class='fa'>Modern machine learning was tested extensively on this exact question with clean, point-in-time data. The models genuinely <i>can</i> rank stocks — and still lost to QQQ, because their confident picks all cluster in the same crowded trades and fail together: measured directly, the ML's top picks landed in the following year's top performers <i>less often than randomly chosen stocks</i> (Ch. 5). Also: whatever a widely available AI knows is, by definition, available to everyone — and therefore already in prices.</div></details><details><summary>“Didn't monkeys throwing darts beat the index?”</summary><div class='fa'>The famous dart-throwing-monkey portfolios (and the studies behind them) beat <i>cap-weighted</i> indexes historically because random picking systematically over-weights small and cheap stocks — hidden extra risk that paid off in those samples. In the recent mega-cap era that same tilt was exactly what lost (Ch. 3): our 100 random portfolios — same idea, honest modern data — ended at a median 0.58× QQQ with 6% winning. The monkeys weren't skilled; they were levered to a bet that has since stopped paying.</div></details><details><summary>“What about day trading? I've seen the funded-account guys.”</summary><div class='fa'>The best evidence is brutal: tracking <b>every person</b> who began day-trading index futures in Brazil over three years, 97% of those who stuck with it 300+ days lost money, only 1.1% out-earned minimum wage, and performance did not improve with experience [16]. U.S. brokerage data points the same way: the most active retail traders lagged the market by 6.5 points a year [14]. Day trading is the picking problem of this paper, repeated hundreds of times a year at maximum cost.</div></details><details><summary>“Why not just buy the Magnificent 7 / today's giants?”</summary><div class='fa'>Because today's giants are the previous game's winners, and the crown is heavy. We measured it directly: take the 10 most-dominant U.S. mega-caps at each of 2000, 2005, 2010 and 2015 and hold each group ten years — <b>only 11 of the 40 beat QQQ</b>. The 2000 giants (Cisco, Intel, Microsoft…) lost more than the crashing index; the 2005 and 2010 cohorts won 2-of-10 and 1-of-10; even the 2015 cohort — which included Meta, Netflix and Microsoft at the dawn of the mega-cap decade — went only 5-for-10. Published research finds the same 'top dog curse' in every market studied [24]. The index rode the Mag-7 up without you guessing them, and when leadership rotates, it will ride the next set too — automatically. A hand-held Mag-7 basket won't.<div class='chart' style='margin-top:8px'><table><thead><tr><th>Cohort</th><th>Names (first 4)</th><th class='r'>Median 10y</th><th class='r'>QQQ 10y</th><th class='r'>Beat QQQ</th></tr></thead><tbody><tr><td>2000 giants</td><td>LVLT, CSCO, INTC, MSFT…</td><td class='r'>-72%</td><td class='r'>-53%</td><td class='r bad'>3/10</td></tr><tr><td>2005 giants</td><td>GOOGL, MSFT, INTC, BB…</td><td class='r'>+71%</td><td class='r'>+214%</td><td class='r bad'>2/10</td></tr><tr><td>2010 giants</td><td>GOOGL, C, MSFT, BP…</td><td class='r'>+130%</td><td class='r'>+543%</td><td class='r bad'>1/10</td></tr><tr><td>2015 giants</td><td>META, NFLX, MSFT, BABA…</td><td class='r'>+344%</td><td class='r'>+456%</td><td class='r bad'>5/10</td></tr></tbody></table></div></div></details><details><summary>“Technical analysis works — support, resistance, moving averages, patterns.”</summary><div class='fa'>This is the single most-tested claim in finance, with the clearest verdict. Sullivan, Timmermann &amp; White tested <b>7,846 technical trading rules over 100 years</b> of Dow data with statistics that account for trying many rules: the apparent winners had no genuine predictive power out-of-sample, and nothing worked at all on more recent data [19]. A follow-up on <b>historical</b> claims of chart-pattern success found they dissolve once you correct for having searched thousands of rules [20]. Charts describe the past beautifully; a century of testing says they do not predict the future — and our own trend-rule tests (Ch. 7: results that flip on the trade date) are the same finding in miniature.</div></details><details><summary>“Sell in May / the January effect / seasonal patterns.”</summary><div class='fa'>Calendar effects were tested the same rigorous way — every seasonal rule anyone had proposed, adjusted for the fact that thousands were searched: <b>none survive</b> [21]. The seasonal patterns you read about are what randomness looks like when you sort it by month, and the famous ones stopped 'working' around the time they were published — the standard fate of published patterns (−58% after publication [10]).</div></details><details><summary>“QQQ is obviously overvalued right now — I'll wait for a better price.”</summary><div class='fa'>This is market timing wearing a valuation costume, and it has a measured record: valuation-based timing signals (like CAPE) have been persistently 'expensive' for most of the last two decades — a timer following them sat out most of the gains. The definitive study is titled, accurately, <i>Market Timing: Sin a Little</i> — even its sympathetic authors found valuation timing adds almost nothing beyond simply staying invested [22]. Our Ch. 7 shows the local version: waiting for the obvious discount cost ~30% of final wealth. Valuation tells you expected returns are lower than usual; it does not tell you when, or from what higher level, the repricing comes.</div></details><details><summary>“I'll buy call options / LEAPS / 0DTE for leveraged upside.”</summary><div class='fa'>The complete record of retail options trading is one of the most one-sided in finance: in comprehensive U.S. brokerage data, retail option <i>purchases</i> lose ~4% per trade on average, and the now-dominant same-day-expiry (0DTE) trades do several points worse [25]; an earlier study of a full brokerage's clients concluded most were, in effect, gambling and 'incurred large losses' [26]. Options add three costs stocks don't have — time decay, volatility overpricing, and wide spreads — so even a correct directional view usually loses money on the position. If Ch. 3 showed stock-picking is a lottery, bought options are the same lottery with an expiry date.</div></details><details><summary>“Fine, no stock picking — I'll buy the momentum/value factor ETF instead.”</summary><div class='fa'>Factor ETFs are the index-fund version of the strategies in Ch. 5, and they inherit the same fate plus fees: published factor premia decay ~58% after publication [10], most factor ETFs launched after the factor's famous decade, and none of the major U.S. factor ETFs (momentum, value, quality, low-vol) has beaten QQQ over its life. Specialized and thematic ETFs are worse — they launch at peak hype and underperform by ~6%/yr over their first five years, losing ~30% risk-adjusted [23]. An ETF wrapper changes the fees, not the arithmetic.</div></details><details><summary>“I'll use stop-losses so my downside is capped.”</summary><div class='fa'>A stop-loss converts a temporary decline into a permanent exit — and Ch. 4.3 showed the era's best stocks fell −67% to −87% <i>on the way to</i> their legendary gains; any stop tight enough to 'protect' you guarantees you sell every future winner during its ordinary crashes. On the index itself, stop-and-re-enter rules are just trend-timing, which failed the Ch. 7 audits (results that depend on the trade date). The honest way to cap downside is position size decided in advance (11.4), not an automated promise to sell low.</div></details><details><summary>“My newsletter/analyst has a great track record.”</summary><div class='fa'>The oldest result in empirical finance, from 1933: Alfred Cowles collected ~12,000 professional forecasts and asked <i>Can Stock Market Forecasters Forecast?</i> — his abstract answer: 'It is doubtful' [27]. Sixty years later, Graham &amp; Harvey graded 326 investment newsletters over 13 years: <b>no evidence of any timing ability as a group</b>, and the hot ones didn't stay hot [28]. Combine that with Ch. 6's luck math (track records arise by chance in the thousands) and the five audits (Ch. 5): a track record you're shown is marketing until it survives the audits — and in 90+ years of checking, essentially none have.</div></details><div class="faq-group">“But the test itself is flawed…”</div><details><summary>“Is this just a U.S. / QQQ phenomenon?”</summary><div class='fa'>No — the lottery structure is global. Bessembinder's worldwide follow-up (64,000+ stocks across 42 countries, 1990–2018): the top <b>1.3% of firms produced ALL $44.7 trillion of global net wealth creation</b>; outside the U.S., <i>less than 1%</i> of firms did — and 61% of non-U.S. stocks returned less than U.S. Treasury bills [31]. SPIVA runs the professional scorecard in every region — Europe, Japan, Australia, India — with the same shape of result as the U.S. The mechanisms in this study (skew, concentration, the arithmetic of active management) are properties of equity markets, not of one country or one index.</div></details><details><summary>“Backtests aren't real life.”</summary><div class='fa'>Correct — real life is <b>worse</b> for the picker. These simulations already charge trading costs and use only information available at each decision date, but they can't charge you the behavioral tax: real investors panic-sell in crashes and chase after rallies, which studies of actual investor returns put at another 1–2%/yr of loss. Every gap between simulation and reality widens the index's lead.</div></details><details><summary>“QQQ just got lucky — tech happened to win this era.”</summary><div class='fa'>Partly true — Ch. 2.2 gives this objection a full four-step answer, and the paper concedes the era-dependence openly (Ch. 9): QQQ-DCA is a concentrated bet that suffered −81% in the dot-com crash. But the anti-picking verdict does not depend on QQQ: pickers failed against SPY too, professionals fail against every benchmark (SPIVA), and the skew/concentration math (Ch. 3) holds in every equity market ever measured. Choose a broader index if you prefer — just don't hand-pick stocks against it.</div></details><details><summary>“If everyone indexes, markets break and picking will work again.”</summary><div class='fa'>A theoretical limit that is nowhere near binding: trillions still trade actively every day, and price discovery needs remarkably little active money. If indexing ever did create big, easy mispricings, the professional funds already armed and paid to exploit them would harvest them long before a retail picker could. You don't need to volunteer to be the market's price-setter.</div></details><details><summary>“Isn't QQQ itself just someone's stock picks?”</summary><div class='fa'>It's a <i>rule</i>, not a judgment: the 100 largest non-financial Nasdaq companies, weighted by size, membership refreshed mechanically. Nobody decides 'this company will win'; the weighting means whatever wins automatically becomes a bigger holding, and whatever dies falls out on its own. That mechanical winner-riding — free, tax-deferred, emotionless — is precisely the thing discretionary picking keeps failing to replicate.</div></details><details><summary>“A 10-year backtest window is cherry-picked.”</summary><div class='fa'>The core statistics were measured across <i>every</i> era in 26 years of data, including both crashes: the fraction of stocks beating QQQ was computed for each year 2000–2025 (average 42%, Ch. 3), the winner-persistence numbers span 24 annual cohorts, and the strategy tests were run and re-run across eras, both halves of the sample, and dozens of start dates. The conclusion is the same in every honest slice — with one telling exception: most stocks 'beat QQQ' in 2000–2001, when QQQ itself was collapsing. Beating the index is easiest when the index is losing.</div></details><div class="faq-group">Practical questions</div><details><summary>“Should I DCA or invest a lump sum?”</summary><div class='fa'>If you already have a lump sum, history favors investing it immediately about two times in three (markets rise more often than not, so waiting has a cost). DCA in this paper means the thing almost everyone actually does: investing money as it's earned, every paycheck. The point is not the cadence — biweekly vs monthly was tested and is a rounding error — it's the automation: no decisions, no timing, no picks.</div></details><details><summary>“What about gold, crypto, real estate, international stocks?”</summary><div class='fa'>Different question — and Ch. 2.4 now treats each one fully, with the measured record. In short: those are <i>asset-allocation</i> choices — how much risk, of which kinds, you want to hold — and diversification genuinely smooths the ride (at some cost to return). This paper is about one specific claim: that you can select <i>stocks</i> to beat a stock index. Nothing here argues against owning other assets; everything here argues against paying anyone (including yourself) to pick stocks.</div></details><details><summary>“Can I pick a few stocks just for fun?”</summary><div class='fa'>Yes — with a budget. Carve out a small fixed slice (say 5%), call it entertainment, and measure it honestly against what the same dollars would have done in QQQ. Expect it to lag (that's what the evidence says it will do), enjoy it like any hobby with a cost, and never let it grow into the plan. The danger isn't the 5% — it's the promotion of a lucky year into a strategy.</div></details><details><summary>“What would it actually take to beat the index?”</summary><div class='fa'>The research measured this precisely: surprisingly little skill — <i>if</i> the errors are independent. A simulated picker with only a slight, honest edge whose mistakes were random beat QQQ in every era. What no tested signal achieved is that error-independence: every public-data signal's bold picks are the same crowded bet in different tickers, so they fail together. Genuinely independent edges come from information about individual companies that others don't have — which, for a private individual trading public information, is either unavailable or illegal to use.</div></details>
 
 
 </div>
@@ -1351,7 +1424,8 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 <div class="reveal d2"><div class="fline"></div></div>
 <div class="fsub reveal d2">A few huge winners produce nearly everything. The index already owns them at full size and never lets go. Every act of picking makes you own less of them. That's the whole story — the rest was checking.</div>
 <div class="fbtns reveal d3">
-<a class="btn" href="verdict.html">Read the full research paper →</a>
+<button class="btn" id="cineReplay">▶ Watch the 2-minute film</button>
+<a class="btn ghost" href="verdict.html">Read the full research paper →</a>
 <a class="btn ghost" href="#hero">⌃ Back to the top</a>
 </div>
 </section>
@@ -2294,6 +2368,439 @@ setTimeout(armSwipe, 800);
       if(cards.every(function(x){ return x.classList.contains('open'); })) punch.classList.add('show');
     });
   });
+})();
+
+/* ================= THE FILM: a 2-minute data documentary ================= */
+(function(){
+  var openBtn = document.getElementById('cineOpen'); if(!openBtn) return;
+  var root = document.getElementById('cinema'), cv = document.getElementById('cineCanvas'),
+      capEl = document.getElementById('cineCap'), fillEl = root.querySelector('.cfill'),
+      trackEl = document.getElementById('cineTrack'), timeEl = document.getElementById('cineTime'),
+      playBtn = document.getElementById('cinePlay'), bigBtn = document.getElementById('cineBig');
+  var ctx = cv.getContext('2d'), W = 0, H = 0, ST = {x:0,y:0,w:0,h:0};
+  var T = 0, playing = false, raf = null, lastTs = 0, opened = false, ended = false;
+  var FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
+  var GOLD='#f0b429', GOLD2='#ffd977', INK='#eef3f9', MUT='#9aa7b5', RED='#ff6b6b', GREEN='#2fd6a3', DIMC='#2a3547';
+
+  /* seeded rng */
+  var seed = 777;
+  function rnd(){ seed = (seed*1664525 + 1013904223) % 4294967296; return seed/4294967296; }
+  function resetRnd(s){ seed = s; }
+  function ease(t){ return t<0?0:t>1?1:1-Math.pow(1-t,3); }
+  function clamp(v,a,b){ return v<a?a:v>b?b:v; }
+  function lerp(a,b,t){ return a+(b-a)*t; }
+
+  function size(){
+    var dpr = Math.min(2, devicePixelRatio||1);
+    W = innerWidth; H = innerHeight;
+    cv.width = W*dpr; cv.height = H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    var sw, sh;
+    if(W < H){ /* portrait: vertical-video stage */
+      sw = W - 16; sh = Math.min(H - 170, sw * 1.45);
+    } else {
+      sw = Math.min(W - 24, (H - 150) * 16/9); sh = sw * 9/16;
+      if(sh > H - 150){ sh = H - 150; sw = sh*16/9; }
+    }
+    ST = { x:(W-sw)/2, y:(H-110-sh)/2 + 10, w:sw, h:sh };
+    grad = null;
+  }
+
+  function txt(s, x, y, px, color, weight, align, sp){
+    ctx.font = (weight||800) + ' ' + px + 'px ' + FONT;
+    ctx.fillStyle = color; ctx.textAlign = align||'center'; ctx.textBaseline = 'middle';
+    if(sp){ /* letterspacing: draw per char */
+      ctx.textAlign = 'left';
+      var tot = 0, i;
+      for(i=0;i<s.length;i++) tot += ctx.measureText(s[i]).width + sp;
+      var cx = (align==='left') ? x : (align==='right') ? x - tot : x - tot/2;
+      for(i=0;i<s.length;i++){ ctx.fillText(s[i], cx, y); cx += ctx.measureText(s[i]).width + sp; }
+    } else ctx.fillText(s, x, y);
+  }
+  function words(line, x, y, px, color, t, t0, stagger){
+    ctx.font = '900 ' + px + 'px ' + FONT; ctx.textBaseline='middle';
+    var ws = line.split(' '), widths = ws.map(function(w){ return ctx.measureText(w+' ').width; });
+    var tot = widths.reduce(function(a,b){return a+b;},0);
+    if(tot > W*0.92){ px = px * W*0.92/tot; ctx.font = '900 ' + px + 'px ' + FONT;
+      widths = ws.map(function(w){ return ctx.measureText(w+' ').width; });
+      tot = widths.reduce(function(a,b){return a+b;},0); }
+    var cx = x - tot/2;
+    ws.forEach(function(w,i){
+      var a = ease((t - t0 - i*stagger)/0.45);
+      ctx.globalAlpha = a; ctx.fillStyle = color; ctx.textAlign='left';
+      ctx.fillText(w+' ', cx, y + (1-a)*14);
+      cx += widths[i];
+    });
+    ctx.globalAlpha = 1;
+  }
+  function fmt$(v){ return v>=9.95e5 ? '$'+(v/1e6).toFixed(2)+'M' : '$'+Math.round(v/1000)+'k'; }
+
+  /* stars + grain + vignette */
+  var stars = []; resetRnd(41);
+  for(var i=0;i<130;i++) stars.push([rnd(), rnd(), rnd()]);
+  var noise = document.createElement('canvas'); noise.width = noise.height = 160;
+  (function(){ var nc = noise.getContext('2d'), id = nc.createImageData(160,160);
+    for(var i=0;i<id.data.length;i+=4){ var v = Math.random()*255; id.data[i]=id.data[i+1]=id.data[i+2]=v; id.data[i+3]=26; }
+    nc.putImageData(id,0,0); })();
+  var grad = null;
+  function post(){
+    ctx.globalAlpha = 0.05;
+    ctx.drawImage(noise, Math.random()*-40, Math.random()*-40, W+80, H+80);
+    ctx.globalAlpha = 1;
+    if(!grad){ grad = ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.35,W/2,H/2,Math.max(W,H)*0.75);
+      grad.addColorStop(0,'rgba(0,0,0,0)'); grad.addColorStop(1,'rgba(0,0,0,0.55)'); }
+    ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+  }
+  function bgStars(t, drift){
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    stars.forEach(function(s,i){
+      var a = 0.15 + 0.3*Math.abs(Math.sin(t/2.6 + i));
+      ctx.globalAlpha = a; ctx.fillStyle = i%13===0 ? GOLD : '#8fa0b5';
+      ctx.beginPath(); ctx.arc(((s[0] + (drift||0)*t*0.004)%1)*W, s[1]*H, s[2]*1.6+0.4, 0, 6.283); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---- data ---- */
+  var BUCKC = [73,72,103,137,174,401,274,350,322,176,64,31];
+  var NVDA = [1,1.15,1.4,1.8,2.4,3.1,4.2,5.6,8.0,5.6,3.1,1.6,1.04,1.5,2.1,2.6,3.2,2.8,3.5,4.2,3.6,4.4,5.2,6.1,5.4,7.5,10,14,19,26,15.5,11.4,18,26,38,55,78,110,150,190,92,64,130,260,520,900,1500,2600,3900,5812];
+  var SURV = [10000,4500,2025,911,410,185,83,37,17,8,3];
+  var STRAT = []; resetRnd(99);
+  [0.71,0.60,0.26,0.58,0.20,0.90,0.45,0.49,0.74].forEach(function(v){ STRAT.push([v,false]); });
+  [[1.21,true],[2.05,true],[6.63,true],[1.08,true],[3.31,true]].forEach(function(p){ STRAT.push(p); });
+  for(var i=STRAT.length;i<250;i++) STRAT.push([0.15 + Math.pow(rnd(),1.4)*0.95, false]);
+  resetRnd(7); STRAT.sort(function(){ return rnd()-0.5; });
+  var race = null;
+  function sampleRace(){
+    if(race) return;
+    try{
+      var svg = document.querySelector('#c2 .chart-frame svg');
+      var polys = [].slice.call(svg.querySelectorAll('polyline')).filter(function(p){ return !p.getAttribute('stroke-dasharray'); }).slice(0,2);
+      race = polys.map(function(p){
+        return p.getAttribute('points').trim().split(/\s+/).map(function(s){ var a=s.split(','); return [parseFloat(a[0]), parseFloat(a[1])]; });
+      });
+      var all = race[0].concat(race[1]);
+      var x0 = race[0][0][0], x1 = race[0][race[0].length-1][0];
+      var ys = all.map(function(p){return p[1];}), y0 = Math.min.apply(null,ys), y1 = Math.max.apply(null,ys);
+      race = race.map(function(pts){ return pts.map(function(p){ return [(p[0]-x0)/(x1-x0), (p[1]-y0)/(y1-y0)]; }); });
+    }catch(e){ race = [[],[]]; }
+  }
+
+  /* dot field layout (shared by scenes 1-2) */
+  var field = null;
+  function makeField(){
+    var n = 2177, cols = Math.ceil(Math.sqrt(n * ST.w/ST.h)), rows = Math.ceil(n/cols);
+    var cw = ST.w/cols, chh = ST.h/rows, r = Math.min(cw,chh)*0.32;
+    var dots = []; resetRnd(20160630);
+    var order = [];
+    for(var i=0;i<n;i++) order.push(i);
+    for(i=n-1;i>0;i--){ var j = Math.floor(rnd()*(i+1)), tmp = order[i]; order[i]=order[j]; order[j]=tmp; }
+    var deadPer = [73,72,103,137,174,90,17,0,0,0,0,0];
+    var flags = [];
+    BUCKC.forEach(function(c,bi){ for(var k=0;k<c;k++) flags.push({b:bi, dead:k<deadPer[bi], beat:(bi===11)||(bi===10)||(bi===9&&k>=136)}); });
+    resetRnd(5150);
+    for(i=flags.length-1;i>0;i--){ j = Math.floor(rnd()*(i+1)); tmp = flags[i]; flags[i]=flags[j]; flags[j]=tmp; }
+    resetRnd(31337);
+    for(i=0;i<n;i++){
+      dots.push({ gx: ST.x + (i%cols+0.5)*cw, gy: ST.y + (Math.floor(i/cols)+0.5)*chh,
+                  rx: ST.x + rnd()*ST.w, ry: ST.y - H*0.6*rnd() - 40,
+                  ord: order[i]/n, f: flags[i] });
+    }
+    field = { dots: dots, r: r };
+  }
+
+  /* ---------------- scenes ---------------- */
+  function s0(t){
+    bgStars(t, 1);
+    words('26 YEARS. 2,177 STOCKS.', W/2, ST.y + ST.h*0.30, Math.min(44, W*0.055), MUT, t, 0.4, 0.14);
+    words('EVERY DEATH COUNTED.', W/2, ST.y + ST.h*0.42, Math.min(44, W*0.055), MUT, t, 1.6, 0.14);
+    words('CAN ANYONE BEAT THE MACHINE?', W/2, ST.y + ST.h*0.60, Math.min(58, W*0.072), INK, t, 3.0, 0.16);
+    if(t > 5.2){ ctx.globalAlpha = ease((t-5.2)/0.6);
+      txt('A DATA FILM — EVERY FRAME COMPUTED FROM THE STUDY', W/2, ST.y + ST.h*0.74, Math.min(12.5, W*0.026), GOLD, 800, 'center', 2);
+      ctx.globalAlpha = 1; }
+  }
+  function s1(t){
+    if(!field) makeField();
+    bgStars(t*0.4, 0);
+    var loseP = ease((t-6)/4), deadP = ease((t-11)/4);
+    field.dots.forEach(function(d){
+      var p = ease((t - d.ord*2.2)/1.6);
+      if(p <= 0) return;
+      var x = lerp(d.rx, d.gx, p), y = lerp(d.ry, d.gy, p);
+      var isLose = d.f.b < 5, isDead = d.f.dead;
+      var col = '#46536a', ring = false;
+      if(isLose && d.ord < loseP) col = RED;
+      if(isDead && d.ord < deadP){ col = '#ff8f8f'; ring = true; }
+      ctx.globalAlpha = 0.92;
+      ctx.beginPath();
+      if(ring){ ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.arc(x, y, field.r, 0, 6.283); ctx.stroke(); }
+      else { ctx.fillStyle = col; ctx.arc(x, y, field.r, 0, 6.283); ctx.fill(); }
+    });
+    ctx.globalAlpha = 1;
+    if(t > 6.4){ txt(Math.round(559*loseP) + ' LOSE MONEY', ST.x + ST.w - 8, ST.y + 16, Math.min(15,W*0.03), RED, 900, 'right', 1.5); }
+    if(t > 11.4){ txt(Math.round(666*deadP) + ' DEAD BY 2026', ST.x + ST.w - 8, ST.y + 40, Math.min(15,W*0.03), '#ff8f8f', 900, 'right', 1.5); }
+  }
+  function s2(t){
+    if(!field) makeField();
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    var goldP = ease(t/4.5), nv = ease((t-6)/1.6);
+    var nvd = null;
+    field.dots.forEach(function(d){
+      var gold = d.f.beat;
+      if(gold && d.f.b===11 && !nvd) nvd = d;
+      ctx.beginPath();
+      if(gold && d.ord < goldP){
+        ctx.globalAlpha = 1; ctx.fillStyle = GOLD;
+        ctx.arc(d.gx, d.gy, field.r*1.5*(1+0.12*Math.sin(t*3+d.ord*20)), 0, 6.283); ctx.fill();
+      } else {
+        ctx.globalAlpha = 0.5; ctx.fillStyle = DIMC;
+        ctx.arc(d.gx, d.gy, field.r*0.9, 0, 6.283); ctx.fill();
+      }
+    });
+    ctx.globalAlpha = 1;
+    txt('135 OF 2,177 BEAT THE MACHINE — 6.2%', W/2, ST.y - 4, Math.min(15,W*0.03), GOLD, 900, 'center', 1.5);
+    if(nv > 0 && nvd){
+      ctx.beginPath(); ctx.fillStyle = GOLD2; ctx.globalAlpha = 1;
+      ctx.arc(nvd.gx, nvd.gy, field.r*(1.5 + nv*6), 0, 6.283); ctx.fill();
+      ctx.globalAlpha = nv;
+      var lx = clamp(nvd.gx, ST.x+110, ST.x+ST.w-110), ly = nvd.gy > ST.y+ST.h/2 ? nvd.gy-52 : nvd.gy+52;
+      ctx.strokeStyle = GOLD2; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(nvd.gx, nvd.gy); ctx.lineTo(lx, ly); ctx.stroke();
+      txt('NVDA — 5,812×', lx, ly + (ly<nvd.gy?-12:12), Math.min(22,W*0.045), GOLD2, 900);
+      ctx.globalAlpha = 1;
+    }
+  }
+  function s3(t){
+    sampleRace();
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    var p = ease(t/15)*0.999 + 0.001;
+    ctx.strokeStyle = '#1c2531'; ctx.lineWidth = 1;
+    for(var g=1; g<5; g++){ ctx.beginPath(); ctx.moveTo(ST.x, ST.y + ST.h*g/5); ctx.lineTo(ST.x+ST.w, ST.y + ST.h*g/5); ctx.stroke(); }
+    var yr = 2000 + 26.4*p;
+    txt(String(Math.floor(yr)), W/2, ST.y + 34, Math.min(46,W*0.06), 'rgba(255,255,255,.14)', 900);
+    txt('$1,000 A MONTH INTO EACH — SAME DAYS, SAME DOLLARS', W/2, ST.y - 4, Math.min(13,W*0.027), MUT, 800, 'center', 1.5);
+    [[1,'#8b97a6',2,'SPY'],[0,INK,2.8,'QQQ']].forEach(function(cfg){
+      var pts = race[cfg[0]]; if(!pts || !pts.length) return;
+      ctx.strokeStyle = cfg[1]; ctx.lineWidth = cfg[2]; ctx.lineJoin='round'; ctx.beginPath();
+      var last = null;
+      for(var i=0;i<pts.length;i++){
+        if(pts[i][0] > p) break;
+        var x = ST.x + pts[i][0]*ST.w, y = ST.y + ST.h*0.12 + pts[i][1]*ST.h*0.84;
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y); last = [x,y];
+      }
+      ctx.stroke();
+      if(last){
+        ctx.beginPath(); ctx.fillStyle = cfg[1]; ctx.arc(last[0], last[1], 4, 0, 6.283); ctx.fill();
+        if(p > 0.97){ txt(cfg[3]+'  '+(cfg[0]===0?'$3.99M':'$1.91M'), clamp(last[0], ST.x+80, ST.x+ST.w-80), last[1] - 18, Math.min(17,W*0.034), cfg[1], 900); }
+      }
+    });
+  }
+  function s4(t){
+    bgStars(t*0.3, 0);
+    var yi = clamp(Math.floor(t/1.15), 0, 10), frac = clamp(t/1.15 - yi, 0, 1);
+    var cur = Math.round(lerp(SURV[yi], SURV[clamp(yi+1,0,10)], frac));
+    txt('10,000 INVESTORS · ZERO SKILL · 45% ODDS EACH YEAR', W/2, ST.y - 4, Math.min(13,W*0.027), MUT, 800, 'center', 1.2);
+    var maxD = 340, show = Math.max(cur > 0 ? 1 : 0, Math.round(maxD*cur/10000));
+    var cols = 34, cw = ST.w*0.7/cols;
+    resetRnd(12);
+    for(var i=0;i<maxD;i++){
+      var alive = i < show;
+      var x = ST.x + ST.w*0.15 + (i%cols + 0.5)*cw, y = ST.y + ST.h*0.24 + Math.floor(i/cols)*cw;
+      ctx.globalAlpha = alive ? 0.95 : 0.1;
+      ctx.fillStyle = alive ? GOLD : '#26303e';
+      ctx.beginPath(); ctx.arc(x, y, Math.min(4.5, cw*0.3), 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    txt(cur.toLocaleString('en-US'), W/2, ST.y + ST.h*0.80, Math.min(58,W*0.09), cur<20?RED:INK, 900);
+    txt('STILL HOLD A PERFECT STREAK · YEAR ' + Math.min(10, Math.ceil(t/1.15)), W/2, ST.y + ST.h*0.92, Math.min(12.5,W*0.026), MUT, 800, 'center', 1.4);
+  }
+  function s5(t){
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    var p = ease(t/12), n = NVDA.length, idx = Math.min(n-1, Math.floor(p*(n-1)));
+    var lo = Math.log(0.8), hi = Math.log(7000);
+    function px(i){ return ST.x + ST.w*i/(n-1); }
+    function py(v){ return ST.y + ST.h - 10 - (ST.h-48)*(Math.log(v)-lo)/(hi-lo); }
+    var zone = (idx>=9&&idx<=12) ? '−87%' : (idx>=30&&idx<=31) ? '−56%' : (idx>=40&&idx<=41) ? '−66%' : null;
+    if(zone){ ctx.fillStyle = 'rgba(255,60,60,0.10)'; ctx.fillRect(0,0,W,H); }
+    txt('ONE TICKET, HELD 21 YEARS: NVDA 2005 → 2026', W/2, ST.y - 4, Math.min(13,W*0.027), MUT, 800, 'center', 1.2);
+    ctx.strokeStyle = GOLD; ctx.lineWidth = 2.6; ctx.lineJoin='round'; ctx.beginPath();
+    for(var i=0;i<=idx;i++){ i===0 ? ctx.moveTo(px(i), py(NVDA[i])) : ctx.lineTo(px(i), py(NVDA[i])); }
+    ctx.stroke();
+    ctx.beginPath(); ctx.fillStyle = GOLD2; ctx.arc(px(idx), py(NVDA[idx]), 5, 0, 6.283); ctx.fill();
+    var mult = NVDA[idx];
+    txt((mult<10?mult.toFixed(2):Math.round(mult).toLocaleString('en-US'))+'×', ST.x + 14, ST.y + 30, Math.min(34,W*0.05), zone?RED:INK, 900, 'left');
+    if(zone){ txt(zone + ' — WOULD YOU STILL HOLD?', W/2, ST.y + ST.h*0.5, Math.min(30,W*0.055), RED, 900); }
+    if(p >= 0.999){ txt('5,812× — BUT THE INDEX HELD IT FOR YOU', W/2, ST.y + ST.h*0.32, Math.min(22,W*0.042), GOLD, 900); }
+  }
+  function s6(t){
+    ctx.fillStyle = '#05070b'; ctx.fillRect(0,0,W,H);
+    var wallX = ST.x + ST.w*0.62;
+    function rx(v){ return ST.x + ST.w*0.62 * (Math.log10(clamp(v,0.1,10))+1)/1.3 + 0; }
+    ctx.strokeStyle = GOLD; ctx.lineWidth = 2; ctx.setLineDash([6,5]);
+    ctx.beginPath(); ctx.moveTo(wallX, ST.y+18); ctx.lineTo(wallX, ST.y+ST.h-6); ctx.stroke(); ctx.setLineDash([]);
+    txt('1× = THE MACHINE', wallX, ST.y + 8, Math.min(12,W*0.025), GOLD, 900, 'center', 1);
+    txt('250+ STRATEGIES, FIRED AT THE BENCHMARK', W/2, ST.y - 6, Math.min(13,W*0.027), MUT, 800, 'center', 1.2);
+    var launched = clamp(Math.floor(t/9*250), 0, 250);
+    for(var i=0;i<launched;i++){
+      var s = STRAT[i%STRAT.length], started = i/250*9, age = t - started;
+      var target = rx(s[0]);
+      var trav = ease(age/1.1);
+      var x = lerp(ST.x, target, trav);
+      var y = ST.y + 26 + (i*7919 % 997)/997 * (ST.h - 52);
+      if(trav < 1){ ctx.strokeStyle = 'rgba(255,140,120,0.5)'; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(Math.max(ST.x, x-26), y); ctx.lineTo(x, y); ctx.stroke(); }
+      else {
+        var died = s[1] && age > 2.0;
+        ctx.globalAlpha = died ? 0.25 : 0.85;
+        ctx.fillStyle = s[1] ? (died ? '#5b6673' : GOLD2) : RED;
+        ctx.beginPath(); ctx.arc(x, y, 2.6, 0, 6.283); ctx.fill();
+        if(s[1] && age > 2.0 && age < 3.0){ ctx.globalAlpha = 1; txt('AUDIT', x, y-10, 9, '#93a0af', 900, 'center', 1); }
+        ctx.globalAlpha = 1;
+      }
+    }
+    txt(launched + ' TESTED', ST.x + 6, ST.y + ST.h - 14, Math.min(14,W*0.03), MUT, 900, 'left');
+    if(t > 10.5) txt('0 SURVIVED THE AUDITS', ST.x + ST.w - 6, ST.y + ST.h - 14, Math.min(15,W*0.032), RED, 900, 'right');
+  }
+  function s7(t){
+    bgStars(t*0.3, 0);
+    var p = ease(t/9), yr = Math.floor(2003 + 23*p);
+    txt(String(yr), W/2, ST.y + 30, Math.min(40,W*0.055), 'rgba(255,255,255,.14)', 900);
+    txt('INVEST EVERY MONTH  vs  WAIT FOR THE −20% CRASH', W/2, ST.y - 4, Math.min(13,W*0.027), MUT, 800, 'center', 1);
+    var rows = [['THE MACHINE — NEVER WAITS', 3.25, INK, 0.92], ['THE DIP-WAITER — SITS IN CASH', 2.29, RED, 0.648]];
+    rows.forEach(function(r, i){
+      var y = ST.y + ST.h*(0.34 + i*0.3);
+      txt(r[0], ST.x + 6, y - 26, Math.min(12.5,W*0.026), MUT, 800, 'left', 1);
+      var w = ST.w * r[3] * p;
+      var g2 = ctx.createLinearGradient(ST.x, 0, ST.x + w, 0);
+      g2.addColorStop(0, i===0?'#8b97a6':'#8a4040'); g2.addColorStop(1, r[2]);
+      ctx.fillStyle = g2;
+      ctx.beginPath();
+      if(ctx.roundRect) ctx.roundRect(ST.x, y - 14, Math.max(4,w), 28, 8); else ctx.rect(ST.x, y - 14, Math.max(4,w), 28);
+      ctx.fill();
+      txt(fmt$(r[1]*1e6*p), ST.x + Math.max(4,w) + 10, y, Math.min(17,W*0.034), r[2], 900, 'left');
+    });
+    if(p > 0.98){ txt('WAITING FOR THE OBVIOUS BARGAIN COST 30% OF FINAL WEALTH', W/2, ST.y + ST.h*0.88, Math.min(15,W*0.03), RED, 900); }
+  }
+  function s8(t){
+    bgStars(t*0.5, 1);
+    resetRnd(64);
+    for(var i=0;i<40;i++){
+      var yy = (rnd() + t*0.02*(0.4+rnd()))%1;
+      ctx.globalAlpha = 0.35; ctx.fillStyle = GOLD;
+      ctx.beginPath(); ctx.arc(ST.x + rnd()*ST.w, ST.y + ST.h*(1-yy), 1.6, 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    var lw = ease((t-0.3)/1.4);
+    ctx.strokeStyle = GOLD; ctx.lineWidth = 3; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(W/2 - 130*lw, ST.y + ST.h*0.36); ctx.lineTo(W/2 + 130*lw, ST.y + ST.h*0.36); ctx.stroke();
+    words('ONE SURVIVOR.', W/2, ST.y + ST.h*0.25, Math.min(46,W*0.06), INK, t, 0.5, 0.2);
+    words('THE SCHEDULE IS THE STRATEGY.', W/2, ST.y + ST.h*0.52, Math.min(52,W*0.062), GOLD, t, 2.0, 0.18);
+    if(t > 4.6){ ctx.globalAlpha = ease((t-4.6)/0.8);
+      txt('NOT PICKING. NOT TIMING. NOT WAITING. AUTOMATING.', W/2, ST.y + ST.h*0.68, Math.min(14,W*0.028), MUT, 800, 'center', 1.6);
+      txt('SCROLL THE STORY FOR EVERY NUMBER ↓', W/2, ST.y + ST.h*0.86, Math.min(12,W*0.024), '#7c8a9a', 800, 'center', 2);
+      ctx.globalAlpha = 1; }
+  }
+
+  var SCENES = [
+    { d:8,  draw:s0, caps:[[0.5,3.6,'This film was rendered from the study’s own data. No stock footage. No opinions.'],[4,7.6,'One question, 26 years of evidence.']] },
+    { d:16, draw:s1, caps:[[0.5,5,'Every investable U.S. stock, mid-2016. Each dot is a real company.'],[6,10.5,'A quarter of them <b>lost money</b> — in one of the best decades markets have ever had.'],[11,15.6,'And 666 didn’t survive it at all. Most backtests quietly delete these.']] },
+    { d:12, draw:s2, caps:[[0.5,5,'Ten years later: only <b>135 of 2,177</b> beat the index — 1 in 16.'],[6,11.6,'One of them returned <b>5,812×</b>. The machine held it automatically, at full weight.']] },
+    { d:16, draw:s3, caps:[[0.5,5,'The machine’s whole trick: $1,000 a month, every month, no opinions.'],[6,10,'It bought straight through 2008 while everyone else was leaving.'],[11,15.6,'26 years later: <b>$3.99M</b> — from $317k contributed.']] },
+    { d:13, draw:s4, caps:[[0.5,5,'So why does everyone know someone who beats the market?'],[5.5,9,'Give 10,000 people pure coin-flip odds…'],[9.5,12.6,'…and three still hold a perfect 10-year streak. <b>They’re the ones who post.</b>']] },
+    { d:13, draw:s5, caps:[[0.5,4.5,'Could you have just picked the winner? Here is what holding it felt like.'],[5,9,'Three crashes of 56–87%. Headlines said it was over, every time.'],[9.5,12.6,'Almost nobody holds through this. <b>The index doesn’t need to be brave.</b>']] },
+    { d:13, draw:s6, caps:[[0.5,5,'We spent years trying to beat it: screens, models, machine learning, rotation…'],[5.5,9.5,'250+ configurations. The few that landed past the line…'],[10,12.6,'…died in audit. Luck, leakage, or hidden risk. <b>Every one.</b>']] },
+    { d:12, draw:s7, caps:[[0.5,4.5,'“I’ll just wait for the crash, then buy.” Simulated directly:'],[5,8.5,'Crashes are rare. Cash waits years, earning nothing.'],[9,11.6,'The waiter ends <b>30% poorer</b> than the machine that never waited.']] },
+    { d:12, draw:s8, caps:[[5,11.6,'26 years. 2,177 stocks. 250+ strategies. 40 objections. One survivor.']] }
+  ];
+  var TOTAL = SCENES.reduce(function(a,s){ return a + s.d; }, 0);
+  var starts = []; SCENES.reduce(function(a,s){ starts.push(a); return a + s.d; }, 0);
+
+  /* timeline markers */
+  starts.forEach(function(st){
+    if(st === 0) return;
+    var m = document.createElement('div'); m.className = 'mark';
+    m.style.left = (st/TOTAL*100) + '%';
+    trackEl.appendChild(m);
+  });
+
+  function fmtT(s){ s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + ('0'+(s%60)).slice(-2); }
+
+  function render(){
+    var idx = 0;
+    for(var i=0;i<SCENES.length;i++){ if(T >= starts[i]) idx = i; }
+    var lt = T - starts[idx];
+    ctx.clearRect(0,0,W,H);
+    SCENES[idx].draw(lt);
+    /* letterbox */
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0,0,W,ST.y-6); ctx.fillRect(0,ST.y+ST.h+6,W,H-(ST.y+ST.h+6));
+    post();
+    var c = '';
+    (SCENES[idx].caps||[]).forEach(function(cc){ if(lt >= cc[0] && lt <= cc[1]) c = cc[2]; });
+    if(capEl.dataset.c !== c){ capEl.dataset.c = c; capEl.innerHTML = c; }
+    fillEl.style.width = (T/TOTAL*100) + '%';
+    timeEl.textContent = fmtT(T) + ' / ' + fmtT(TOTAL);
+  }
+  function loop(ts){
+    raf = requestAnimationFrame(loop);
+    var dt = lastTs ? Math.min(0.05, (ts-lastTs)/1000) : 0;
+    lastTs = ts;
+    if(playing){
+      T += dt;
+      if(T >= TOTAL){ T = TOTAL; playing = false; ended = true; playBtn.textContent = '↺'; bigBtn.textContent = '↺'; bigBtn.classList.remove('hide'); }
+    }
+    render();
+  }
+  function setPlaying(p){
+    playing = p; ended = false;
+    playBtn.textContent = p ? '⏸' : '▶';
+    bigBtn.classList.toggle('hide', p);
+    bigBtn.textContent = '▶';
+  }
+  function seek(t){ T = clamp(t, 0, TOTAL-0.01); ended = false; if(field && (T < starts[1] || T > starts[3])) {} render(); }
+  function open(){
+    root.classList.add('open');
+    document.documentElement.style.overflow = 'hidden';
+    size(); field = null; sampleRace();
+    T = 0; lastTs = 0; setPlaying(true);
+    if(!raf) raf = requestAnimationFrame(loop);
+    opened = true;
+  }
+  function close(){
+    root.classList.remove('open');
+    document.documentElement.style.overflow = '';
+    if(raf){ cancelAnimationFrame(raf); raf = null; }
+    playing = false;
+  }
+  openBtn.addEventListener('click', open);
+  var replayBtn = document.getElementById('cineReplay');
+  if(replayBtn) replayBtn.addEventListener('click', open);
+  document.getElementById('cineClose').addEventListener('click', close);
+  playBtn.addEventListener('click', function(){ if(ended){ T = 0; setPlaying(true); } else setPlaying(!playing); });
+  bigBtn.addEventListener('click', function(){ if(ended){ T = 0; } setPlaying(true); });
+  cv.addEventListener('click', function(){ if(ended){ T = 0; setPlaying(true); } else setPlaying(!playing); });
+  document.getElementById('cinePrev').addEventListener('click', function(){
+    for(var i=SCENES.length-1;i>=0;i--){ if(starts[i] < T - 1){ seek(starts[i]); return; } } seek(0);
+  });
+  document.getElementById('cineNext').addEventListener('click', function(){
+    for(var i=0;i<SCENES.length;i++){ if(starts[i] > T + 0.2){ seek(starts[i]); return; } }
+  });
+  function trackSeek(ev){
+    var r = trackEl.getBoundingClientRect();
+    seek((ev.clientX - r.left)/r.width * TOTAL);
+  }
+  var dragging = false;
+  trackEl.addEventListener('pointerdown', function(e){ dragging = true; trackSeek(e); try{ trackEl.setPointerCapture(e.pointerId); }catch(err){} });
+  trackEl.addEventListener('pointermove', function(e){ if(dragging) trackSeek(e); });
+  trackEl.addEventListener('pointerup', function(){ dragging = false; });
+  addEventListener('keydown', function(e){
+    if(!root.classList.contains('open')) return;
+    if(e.key === 'Escape') close();
+    if(e.key === ' '){ e.preventDefault(); setPlaying(!playing); }
+    if(e.key === 'ArrowRight') seek(T + 5);
+    if(e.key === 'ArrowLeft') seek(T - 5);
+  });
+  addEventListener('resize', function(){ if(root.classList.contains('open')){ size(); field = null; } });
+  document.addEventListener('visibilitychange', function(){ if(document.hidden && root.classList.contains('open')) setPlaying(false); });
 })();
 })();
 </script>
