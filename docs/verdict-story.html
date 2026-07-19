@@ -32,7 +32,14 @@ i{color:inherit}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
 section.ch{padding:90px 0 40px;position:relative}
 .kicker{font-size:12px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.kicker:before{content:"";display:inline-block;width:0;height:2px;background:var(--gold);border-radius:1px;margin-right:0;vertical-align:middle;transition:width .8s cubic-bezier(.2,.7,.2,1) .25s,margin-right .8s cubic-bezier(.2,.7,.2,1) .25s}
+.kicker.on:before{width:26px;margin-right:12px}
 .kicker .kn{color:var(--dim);margin-right:10px}
+@media(max-width:700px){
+  section.ch{padding:54px 0 22px}
+  .sep{margin:32px 0 0}
+  .bridge{min-height:44svh;padding:52px 22px}
+}
 h2.cht{font-size:clamp(26px,4.6vw,40px);font-weight:800;letter-spacing:-1px;line-height:1.12;margin-bottom:14px}
 .lede{font-size:clamp(16px,2.2vw,19px);color:var(--mut);max-width:680px}
 .lede b{color:var(--ink)}
@@ -41,33 +48,46 @@ p b{color:var(--ink)}
 h3{font-size:17px;margin:30px 0 6px;color:var(--ink)}
 ul{margin:10px 0 10px 22px;color:var(--mut)}li{margin:7px 0}
 .note{font-size:13px;color:var(--dim)}
-.sep{height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);margin:50px 0 0}
+.sep{height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);margin:50px 0 0;transform:scaleX(.1);opacity:.3;transition:transform 1.3s cubic-bezier(.2,.7,.2,1),opacity 1.3s}
+.sep.on{transform:scaleX(1);opacity:1}
 
 /* ---------- reveal animations ---------- */
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.6,.2,1),transform .7s cubic-bezier(.2,.6,.2,1)}
 .reveal.on{opacity:1;transform:none}
 .reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}.reveal.d4{transition-delay:.32s}
-@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+.chart-frame.reveal{transform:translateY(30px) scale(.985)}
+.chart-frame.reveal.on{transform:none}
+.bridge h2.reveal,.finale h2.reveal{filter:blur(10px);transition:opacity .9s cubic-bezier(.2,.6,.2,1),transform .9s cubic-bezier(.2,.6,.2,1),filter .9s cubic-bezier(.2,.6,.2,1)}
+.bridge h2.reveal.on,.finale h2.reveal.on{filter:blur(0)}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;filter:none}.sep{transform:none;opacity:1}}
 
 /* ---------- hero ---------- */
 #hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
 #heroCanvas{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
-.hero-inner{position:relative;z-index:2;max-width:var(--maxw);margin:0 auto;padding:40px 20px}
+.hero-inner{position:relative;z-index:2;max-width:var(--maxw);width:100%;min-width:0;margin:0 auto;padding:40px 20px;box-sizing:border-box}
 .hero-eyebrow{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:18px}
 h1{font-size:clamp(38px,7.5vw,74px);font-weight:900;letter-spacing:-2.5px;line-height:1.03}
-h1 .q{color:var(--gold)}
+h1 .q{background:linear-gradient(100deg,#f0b429 20%,#ffe9a8 50%,#f0b429 80%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 4.5s ease-in-out infinite}
+@keyframes shimmer{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+@media(prefers-reduced-motion:reduce){h1 .q{animation:none;color:var(--gold);background:none;-webkit-background-clip:initial}}
 .hero-sub{margin-top:20px;font-size:clamp(16px,2.2vw,20px);color:var(--mut);max-width:640px}
 .hero-kpis{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
 .hk{background:rgba(18,26,35,.8);backdrop-filter:blur(4px);border:1px solid var(--line);border-radius:14px;padding:14px 18px;min-width:150px}
 .hk .v{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-1px}
 .hk .l{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;margin-top:3px;line-height:1.35}
 .hk.gold .v{color:var(--gold)}.hk.red .v{color:var(--red)}.hk.green .v{color:var(--green)}
-.scrollcue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;color:var(--dim);font-size:12px;letter-spacing:2px;text-transform:uppercase;text-align:center;animation:cue 2.2s ease-in-out infinite}
+.scrollcue{margin:44px auto 0;color:var(--dim);font-size:12px;letter-spacing:2px;text-transform:uppercase;text-align:center;animation:cue 2.2s ease-in-out infinite;position:relative;z-index:2}
 .scrollcue:after{content:"";display:block;width:1px;height:34px;background:linear-gradient(var(--dim),transparent);margin:8px auto 0}
-@keyframes cue{0%,100%{opacity:.5;transform:translateX(-50%) translateY(0)}50%{opacity:1;transform:translateX(-50%) translateY(6px)}}
-.hero-index{margin-top:40px;display:flex;flex-wrap:wrap;gap:8px}
-.hero-index a{font-size:12px;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:5px 12px;transition:all .2s}
+@keyframes cue{0%,100%{opacity:.5;transform:translateY(0)}50%{opacity:1;transform:translateY(6px)}}
+.hero-index{margin-top:36px;display:flex;flex-wrap:wrap;gap:8px}
+.hero-index a{font-size:12px;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:5px 12px;transition:all .2s;white-space:nowrap;flex:none}
 .hero-index a:hover{border-color:var(--gold);color:var(--gold);text-decoration:none}
+@media(max-width:700px){
+  .hero-index{flex-wrap:nowrap;overflow-x:auto;margin-left:-20px;margin-right:-20px;padding:2px 20px 10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .hero-index::-webkit-scrollbar{display:none}
+  .hero-inner{padding-top:70px;padding-bottom:20px}
+  #hero{min-height:auto}
+}
 
 /* ---------- cards ---------- */
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:18px 0}
@@ -256,7 +276,6 @@ input[type=range]{width:100%;accent-color:var(--gold);margin:12px 0 6px}
 .scrub-out.on{opacity:1}
 .scrub-out .yr{font-weight:900;color:var(--gold);letter-spacing:.5px}
 .scrub-out i{display:inline-block;width:10px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
-.chart svg{touch-action:pan-y}
 
 /* ---------- strategy-map stagger ---------- */
 .smgrid .sm-card{opacity:0;transform:translateY(16px);transition:opacity .55s cubic-bezier(.2,.6,.2,1),transform .55s cubic-bezier(.2,.6,.2,1),border-color .2s}
@@ -288,6 +307,63 @@ details.fhide,.faq-group.fhide{display:none}
 .btn.ghost{background:none;border:1px solid var(--line2);color:var(--ink)}
 .btn.ghost:hover{box-shadow:none;border-color:var(--gold);color:var(--gold)}
 
+/* ================= INTERACTIVE LAYER ================= */
+/* fx canvas + shake */
+#fx{position:fixed;inset:0;z-index:96;pointer-events:none}
+@keyframes shakeX{0%,100%{transform:translate(0,0)}10%{transform:translate(-7px,2px)}20%{transform:translate(6px,-3px)}30%{transform:translate(-5px,-2px)}40%{transform:translate(5px,3px)}50%{transform:translate(-4px,1px)}60%{transform:translate(4px,-2px)}70%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}90%{transform:translate(-1px,1px)}}
+body.shaking{animation:shakeX .55s linear}
+@keyframes redpulse{0%,100%{box-shadow:inset 0 0 0 rgba(255,80,80,0)}50%{box-shadow:inset 0 0 90px rgba(255,60,60,.35)}}
+
+/* lottery game */
+.game{background:linear-gradient(160deg,#141d28,#0f151d);border:1px solid rgba(240,178,41,.45);border-radius:20px;padding:22px;margin:26px 0;position:relative;overflow:hidden}
+.game:before{content:"";position:absolute;inset:-40%;background:radial-gradient(closest-side,rgba(240,178,41,.07),transparent 70%);pointer-events:none}
+.game .gk{font-size:10px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
+.game h3{margin:4px 0 4px;font-size:clamp(19px,3vw,24px)}
+.game .gsub{font-size:13px;color:var(--mut);max-width:640px}
+.tixrow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 6px;position:relative}
+@media(max-width:560px){.tixrow{gap:6px}}
+.ticket{perspective:700px;aspect-ratio:5/7;min-width:0}
+.ticket .tin{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,.7,.3,1)}
+.ticket.flip .tin{transform:rotateY(180deg)}
+.tface{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px;text-align:center}
+.tfront{background:repeating-linear-gradient(45deg,#1b2530,#1b2530 8px,#18212b 8px,#18212b 16px);border:1px dashed var(--line2);color:var(--dim);font-size:22px}
+.tfront small{font-size:9px;letter-spacing:1.5px;text-transform:uppercase}
+.tback{transform:rotateY(180deg);border:1px solid var(--line2);background:var(--card2)}
+.tback .tr{font-size:clamp(13px,2.6vw,18px);font-weight:900;font-variant-numeric:tabular-nums}
+.tback .tv{font-size:clamp(10px,1.8vw,12px);color:var(--mut);font-variant-numeric:tabular-nums}
+.tback .td2{font-size:9.5px;color:var(--dim)}
+.tback.win{border-color:rgba(47,214,163,.6)}.tback.win .tr{color:var(--green)}
+.tback.lose{border-color:rgba(255,107,107,.5)}.tback.lose .tr{color:var(--red)}
+.tback.jack{border-color:var(--gold);box-shadow:0 0 18px rgba(240,178,41,.25)}.tback.jack .tr{color:var(--gold)}
+.machinebox{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px 16px;margin:10px 0}
+.machinebox .mv{font-size:20px;font-weight:900;color:var(--ink);font-variant-numeric:tabular-nums}
+.gresult{min-height:54px;display:flex;align-items:center;gap:14px;margin:8px 0;font-size:15px;color:var(--mut)}
+.gresult b{color:var(--ink)}
+.gresult .rswin{color:var(--green);font-weight:900;font-size:17px}
+.gresult .rslose{color:var(--red);font-weight:900;font-size:17px}
+.gtally{font-size:11.5px;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;font-weight:700}
+.gtally b{color:var(--gold)}
+
+/* hold test */
+.holdgame{background:linear-gradient(160deg,#141d28,#0f151d);border:1px solid rgba(255,107,107,.4);border-radius:20px;padding:22px;margin:26px 0;position:relative;overflow:hidden}
+.holdgame.crashing{animation:redpulse 1s infinite}
+.holdgame .gk{color:var(--red-soft);font-size:10px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase}
+.holdgame h3{margin:4px 0}
+#holdCanvasWrap{position:relative;margin:14px 0 10px}
+#holdCanvas{width:100%;height:230px;display:block;border-radius:12px;background:var(--bg2)}
+#holdStat{position:absolute;top:10px;left:14px;font-variant-numeric:tabular-nums;font-size:13px;color:var(--mut)}
+#holdStat b{font-size:20px;color:var(--ink)}
+#holdStat .dd{color:var(--red);font-weight:800}
+.headline{position:absolute;background:#f5eee1;color:#1a1a1a;font-family:Georgia,serif;font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:3px;box-shadow:0 8px 22px rgba(0,0,0,.5);transform:rotate(-2deg);opacity:0;transition:opacity .3s,transform .3s;max-width:66%;pointer-events:none}
+.headline.on{opacity:1;transform:rotate(-2deg) translateY(0)}
+.headline small{display:block;font-size:9px;font-weight:400;color:#666;letter-spacing:1px;text-transform:uppercase}
+#holdBtn{width:100%;padding:16px;font-size:16px;border-radius:14px;background:var(--green);color:#06251b;font-weight:900;border:none;cursor:pointer;font-family:inherit;letter-spacing:.5px;touch-action:none;user-select:none;-webkit-user-select:none;transition:background .2s,transform .1s}
+#holdBtn:active{transform:scale(.985)}
+#holdBtn.arm{background:var(--gold);color:#241a02}
+#holdBtn.dead{background:var(--card2);color:var(--dim);cursor:default}
+#holdMsg{min-height:46px;margin-top:10px;font-size:14.5px;color:var(--mut)}
+#holdMsg b{color:var(--ink)}
+
 /* refs */
 ol.refs{margin:14px 0 8px 22px;font-size:13px;color:var(--mut)}ol.refs li{margin:7px 0}
 footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--dim)}
@@ -295,6 +371,7 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 </style></head><body>
 
 <div id="progress"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
 <div id="chapPill" aria-hidden="true"></div>
 <nav id="chapnav" aria-label="Chapters"></nav>
 
@@ -314,9 +391,9 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
   <div class="hero-index">
     <a href="#c1">1 · The rules</a><a href="#c2">2 · Why QQQ</a><a href="#c2b">2b · Which machine</a><a href="#c3">3 · The lottery</a><a href="#c4">4 · Buying winners</a><a href="#c5">5 · 250 attempts</a><a href="#c6">6 · Luck</a><a href="#c6b">6b · Who wins</a><a href="#c6c">6c · The odds</a><a href="#c7">7 · Timing myths</a><a href="#c7b">7b · Dip arithmetic</a><a href="#c8">8 · More risk</a><a href="#c9">9 · Honest limits</a><a href="#c10">10 · The map</a><a href="#c10b">10b · Objections</a><a href="#c11">11 · The playbook</a><a href="#c12">Methodology</a>
   </div>
-  <p class="backlink" style="margin-top:26px">Prefer the plain research paper? <a href="verdict.html">Read the text version →</a></p>
+  <p class="backlink" style="margin-top:22px">Prefer the plain research paper? <a href="verdict.html">Read the text version →</a></p>
+  <div class="scrollcue">Scroll</div>
 </div>
-<div class="scrollcue">Scroll</div>
 </section>
 
 <!-- ================= CH 1 : RULES ================= -->
@@ -685,6 +762,20 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 <section class="ch" style="padding-top:30px"><div class="wrap">
 <div class="bignum reveal"><div class="n gold"><span class="count" data-to="6.2" data-dec="1">0</span>%</div><div class="cap">of stocks beat QQQ over that decade — roughly <b>1 in 16</b>. A quarter lost money outright. The <i>median</i> stock returned +71% while QQQ returned +638%.</div></div>
 
+<div class="game reveal" id="lotteryGame">
+<div class="gk">▶ Playable evidence</div>
+<h3>Beat the Machine</h3>
+<p class="gsub">You get <b>$10,000</b> and five tickets drawn from the <b>real 2016 return distribution</b> — all 2,177 stocks, deaths included, decade returns. The machine puts the same $10,000 into QQQ and goes to sleep. Draw.</p>
+<div class="machinebox"><span>🤖 The machine's one ticket: <b>QQQ, +638%</b></span><span class="mv">$73,800</span></div>
+<div class="tixrow" id="tixRow"></div>
+<div class="gresult" id="gResult"><span class="note">Your five tickets are face down. The odds are printed on this page — feel them anyway.</span></div>
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+<button class="btn" id="drawBtn">🎟️ Draw 5 tickets</button>
+<span class="gtally" id="gTally"></span>
+</div>
+<p class="note" style="margin-top:10px">Fair casino: tickets are sampled from the measured bucket counts (73 stocks at −100…−90%, … 31 stocks above +1600%), with the real per-bucket death rates. A 5-ticket basket beats the machine roughly as often as the study measured — <b>rarely</b>.</p>
+</div>
+
 <div class="chart-frame reveal">
 <div class="ct">The same 2,177 stocks, sorted into return buckets</div>
 <div class="cs">Each bar = number of stocks · dashed lines mark QQQ (+638%) and the median stock</div>
@@ -754,6 +845,21 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
   <div class="gcard" data-end="14×"><div class="t">MSFT</div><div class="fall">−67%</div><div class="fl">worst fall en route</div><div class="gbar"><i data-w="67"></i></div><div class="revealed"><div class="end">ended 14×</div></div><div class="tapcue">tap — what did holders get?</div></div>
 </div>
 <div class="gpunch" id="gpunch"><b style="color:var(--gold)">You just revealed all five.</b> <span style="color:var(--mut)">Now notice what you needed to collect those endings: nothing. No conviction through −87%, no ignoring the headlines, no decision at all. The index held all five for you — through every crash on this screen — and its holders got every one of those endings automatically.</span></div>
+
+<div class="holdgame reveal" id="holdGame">
+<div class="gk">▶ Playable evidence · the hardest game in finance</div>
+<h3>The Hold Test: ride NVDA from 2005 to 2026</h3>
+<p class="gsub" style="color:var(--mut);font-size:13px">You bought $1,000 of Nvidia in 2005. <b style="color:var(--ink)">Press and HOLD the button to stay invested.</b> Release for even a moment and you've sold — at whatever the price is when your nerve breaks. The path is stylized; the endpoints and every crash depth are real.</p>
+<div id="holdCanvasWrap">
+<canvas id="holdCanvas"></canvas>
+<div id="holdStat"></div>
+<div class="headline" id="hl0" style="top:18%;right:6%"><small>Business · 2008</small>GPU GLUT: NVIDIA COLLAPSES 87% — "THE COMPANY MAY NOT SURVIVE"</div>
+<div class="headline" id="hl1" style="top:30%;right:10%"><small>Markets · 2018</small>CRYPTO BUST VAPORIZES NVIDIA: −56% IN WEEKS</div>
+<div class="headline" id="hl2" style="top:12%;right:16%"><small>Tech · 2022</small>GROWTH IS DEAD: NVIDIA DOWN 66%, ANALYSTS FLEE</div>
+</div>
+<button id="holdBtn">🖐️ PRESS AND HOLD TO STAY INVESTED</button>
+<div id="holdMsg"></div>
+</div>
 <p class="reveal">Holding one stock through an −80% loss, with headlines screaming it's over, is something almost no one does. The index held them for you: no conviction required, no decision available to get wrong.</p>
 <div class="pull reveal">The index doesn't just find the winners — <span class="hl">it forces you to keep them.</span></div>
 <div class="sep"></div>
@@ -1366,11 +1472,50 @@ var navObs = new IntersectionObserver(function(es){
 },{rootMargin:'-40% 0px -55% 0px'});
 chapters.forEach(function(c){var el=document.getElementById(c[0]); if(el) navObs.observe(el);});
 
+/* ================= FX CORE (confetti + shake) ================= */
+var G = (function(){
+  /* --- confetti --- */
+  var fx = document.getElementById('fx'), fctx = fx.getContext('2d'), parts = [], fxRun = false;
+  function fxSize(){ var d = Math.min(2, devicePixelRatio||1); fx.width = innerWidth*d; fx.height = innerHeight*d; fctx.setTransform(d,0,0,d,0,0); }
+  fxSize(); addEventListener('resize', fxSize);
+  var FCOL = ['#f0b429','#ffd977','#2fd6a3','#e8eef5','#ff6b6b'];
+  function confetti(n, x, y){
+    if(reduced) return;
+    x = x===undefined ? innerWidth/2 : x; y = y===undefined ? innerHeight*0.35 : y;
+    for(var i=0;i<(n||90);i++){
+      var a = Math.random()*6.283, v = 3+Math.random()*7;
+      parts.push({x:x, y:y, vx:Math.cos(a)*v, vy:Math.sin(a)*v-4, r:2+Math.random()*3.5,
+                  c:FCOL[i%FCOL.length], life:70+Math.random()*40, rot:Math.random()*6.283, vr:(Math.random()-.5)*.3});
+    }
+    if(!fxRun){ fxRun = true; requestAnimationFrame(fxTick); }
+  }
+  function fxTick(){
+    fctx.clearRect(0,0,innerWidth,innerHeight);
+    parts = parts.filter(function(p){ return p.life > 0; });
+    parts.forEach(function(p){
+      p.x += p.vx; p.y += p.vy; p.vy += 0.22; p.vx *= 0.99; p.life--; p.rot += p.vr;
+      fctx.save(); fctx.translate(p.x, p.y); fctx.rotate(p.rot);
+      fctx.globalAlpha = Math.min(1, p.life/30);
+      fctx.fillStyle = p.c; fctx.fillRect(-p.r, -p.r/2, p.r*2, p.r);
+      fctx.restore();
+    });
+    if(parts.length){ requestAnimationFrame(fxTick); } else { fxRun = false; fctx.clearRect(0,0,innerWidth,innerHeight); }
+  }
+
+  /* --- shake --- */
+  function shake(){
+    if(reduced) return;
+    document.body.classList.remove('shaking'); void document.body.offsetWidth;
+    document.body.classList.add('shaking');
+  }
+  return { confetti: confetti, shake: shake };
+})();
+
 /* ---------- reveal ---------- */
 var revObs = new IntersectionObserver(function(es){
   es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('on'); revObs.unobserve(e.target);} });
 },{threshold:0.12, rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.reveal').forEach(function(el){revObs.observe(el);});
+document.querySelectorAll('.reveal, .sep').forEach(function(el){revObs.observe(el);});
 
 /* ---------- counters ---------- */
 function animCount(el){
@@ -1788,11 +1933,12 @@ document.querySelectorAll('.sm-card').forEach(function(c){
 /* ---------- chapter pill ---------- */
 (function(){
   var pill = document.getElementById('chapPill'); if(!pill) return;
-  var labels = {};
+  var labels = {}, confettiDone = false;
   chapters.forEach(function(c){ labels[c[0]] = c[1]; });
   var pillObs = new IntersectionObserver(function(es){
     es.forEach(function(e){
       if(!e.isIntersecting) return;
+      if(e.target.id === 'finale' && !confettiDone){ confettiDone = true; G.confetti(110); }
       if(e.target.id === 'hero' || e.target.id === 'finale'){ pill.classList.remove('show'); }
       else {
         var l = labels[e.target.id] || '';
@@ -1803,6 +1949,171 @@ document.querySelectorAll('.sm-card').forEach(function(c){
   },{rootMargin:'-30% 0px -60% 0px'});
   chapters.forEach(function(c){ var el = document.getElementById(c[0]); if(el) pillObs.observe(el); });
   var fin = document.getElementById('finale'); if(fin) pillObs.observe(fin);
+})();
+
+/* ---------- GAME: Beat the Machine (real 2016 distribution) ---------- */
+(function(){
+  var row = document.getElementById('tixRow'); if(!row) return;
+  // [lo%, hi%, count, deadCount] — measured decade buckets, 2,177 stocks
+  var BUCK = [[-100,-90,73,73],[-90,-75,72,72],[-75,-50,103,103],[-50,-25,137,137],[-25,0,174,174],
+              [0,50,401,90],[50,100,274,17],[100,200,350,0],[200,400,322,0],[400,800,176,0],[800,1600,64,0],[1600,5700,31,0]];
+  var TOTAL = 2177, MACHINE = 73800;
+  var tally = {p:0, w:0};
+  try{ tally = JSON.parse(localStorage.getItem('vs_lot')||'{"p":0,"w":0}'); }catch(e){}
+  var tallyEl = document.getElementById('gTally'), resEl = document.getElementById('gResult'), btn = document.getElementById('drawBtn');
+  function fmt$(v){ return '$' + Math.round(v).toLocaleString('en-US'); }
+  function showTally(){
+    tallyEl.innerHTML = tally.p ? 'Your record: <b>' + tally.w + '</b> win' + (tally.w===1?'':'s') + ' in <b>' + tally.p + '</b> draws · measured 5-ticket odds: ~6%' : '';
+  }
+  showTally();
+  function drawTicket(){
+    var r = Math.floor(Math.random()*TOTAL), acc = 0, b = BUCK[0];
+    for(var i=0;i<BUCK.length;i++){ acc += BUCK[i][2]; if(r < acc){ b = BUCK[i]; break; } }
+    var ret;
+    if(b[0] >= 1600){ ret = Math.exp(Math.log(1600) + Math.random()*(Math.log(5700)-Math.log(1600))); }
+    else { ret = b[0] + Math.random()*(b[1]-b[0]); }
+    return { ret: ret, dead: Math.random() < b[3]/b[2], val: 2000*(1+ret/100) };
+  }
+  var busy = false;
+  btn.addEventListener('click', function(){
+    if(busy) return; busy = true;
+    btn.textContent = '🎰 Drawing…';
+    var tix = [0,1,2,3,4].map(drawTicket);
+    row.innerHTML = tix.map(function(t){
+      var cls = t.ret > 638 ? 'jack' : t.ret > 0 ? 'win' : 'lose';
+      return '<div class="ticket"><div class="tin">' +
+        '<div class="tface tfront">🎟️<small>stock #' + (1+Math.floor(Math.random()*2177)) + '</small></div>' +
+        '<div class="tface tback ' + cls + '"><div class="tr">' + (t.ret>=0?'+':'') + Math.round(t.ret) + '%</div>' +
+        '<div class="tv">' + fmt$(t.val) + '</div>' +
+        '<div class="td2">' + (t.dead ? '💀 delisted' : (t.ret > 638 ? '✦ beat QQQ' : '10 yrs held')) + '</div></div></div></div>';
+    }).join('');
+    resEl.innerHTML = '<span class="note">Flipping…</span>';
+    var cards = [].slice.call(row.children);
+    cards.forEach(function(c, i){
+      setTimeout(function(){ c.classList.add('flip'); }, 350 + i*420);
+    });
+    setTimeout(function(){
+      var total = tix.reduce(function(s,t){ return s + t.val; }, 0);
+      var win = total > MACHINE;
+      tally.p++; if(win) tally.w++;
+      try{ localStorage.setItem('vs_lot', JSON.stringify(tally)); }catch(e){}
+      showTally();
+      if(win){
+        resEl.innerHTML = '<span class="rswin">YOU BEAT THE MACHINE.</span><span>Your $10,000 → <b>' + fmt$(total) + '</b> vs its $73,800. Savor it — this is the ~6% event. Now ask: would you have held these five for ten years?</span>';
+        G.confetti(140);
+      } else {
+        var pct = Math.round(total/MACHINE*100);
+        resEl.innerHTML = '<span class="rslose">THE MACHINE WINS.</span><span>Your $10,000 → <b>' + fmt$(total) + '</b> — ' + pct + '% of the machine\'s $73,800. Not bad luck: the median draw does roughly this.</span>';
+        if(total < 30000) G.shake();
+      }
+      btn.textContent = '🎟️ Draw 5 new tickets';
+      busy = false;
+    }, 350 + 5*420 + 500);
+  });
+})();
+
+/* ---------- GAME: The Hold Test (NVDA 2005–2026) ---------- */
+(function(){
+  var cv = document.getElementById('holdCanvas'); if(!cv) return;
+  var wrap = document.getElementById('holdCanvasWrap'), stat = document.getElementById('holdStat'),
+      btn = document.getElementById('holdBtn'), msg = document.getElementById('holdMsg'),
+      game = document.getElementById('holdGame');
+  // stylized NVDA multiple path, 2005→2026; real endpoints & crash depths (−87%, −56%, −66%)
+  var PATH = [1,1.15,1.4,1.8,2.4,3.1,4.2,5.6,8.0,
+              5.6,3.1,1.6,1.04,
+              1.5,2.1,2.6,3.2,2.8,3.5,4.2,3.6,4.4,5.2,6.1,5.4,
+              7.5,10,14,19,26,
+              15.5,11.4,
+              18,26,38,55,78,110,150,190,
+              92,64,
+              130,260,520,900,1500,2600,3900,5812];
+  var ZONES = [{a:9,b:12,hl:'hl0'},{a:30,b:31,hl:'hl1'},{a:40,b:41,hl:'hl2'}];
+  var YEAR0 = 2005, YEARS = 21;
+  var ctx = cv.getContext('2d'), W, H, dpr;
+  function size(){
+    dpr = Math.min(2, devicePixelRatio||1);
+    W = wrap.clientWidth; H = 230;
+    cv.width = W*dpr; cv.height = H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  size(); addEventListener('resize', function(){ size(); draw(); });
+  var lo = Math.log(0.8), hi = Math.log(7000);
+  function px(i){ return 14 + (W-28) * i/(PATH.length-1); }
+  function py(v){ return H - 16 - (H-34) * (Math.log(v)-lo)/(hi-lo); }
+  var idx = 0, playing = false, done = false, holding = false, peak = 1, timer = null;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle = '#1f2933'; ctx.lineWidth = 1;
+    [1,10,100,1000].forEach(function(v){
+      ctx.beginPath(); ctx.moveTo(0, py(v)); ctx.lineTo(W, py(v)); ctx.stroke();
+      ctx.fillStyle = '#5d6a79'; ctx.font = '10px sans-serif'; ctx.fillText(v + '×', 4, py(v)-4);
+    });
+    ctx.beginPath();
+    for(var i=0; i<=idx; i++){ i===0 ? ctx.moveTo(px(i), py(PATH[i])) : ctx.lineTo(px(i), py(PATH[i])); }
+    ctx.strokeStyle = '#f0b429'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.stroke();
+    if(idx > 0 || playing){
+      ctx.beginPath(); ctx.fillStyle = '#ffd977';
+      ctx.arc(px(idx), py(PATH[idx]), 5, 0, 6.283); ctx.fill();
+    }
+    var dd = Math.round((PATH[idx]/peak - 1)*100);
+    var yr = YEAR0 + Math.round(YEARS * idx/(PATH.length-1));
+    stat.innerHTML = '<b>' + (PATH[idx] < 10 ? PATH[idx].toFixed(2) : Math.round(PATH[idx]).toLocaleString('en-US')) + '×</b> · ' + yr +
+      (dd < -1 ? ' · <span class="dd">' + dd + '% from peak</span>' : '');
+  }
+  draw();
+  function inZone(i){ return ZONES.filter(function(z){ return i >= z.a && i <= z.b; })[0]; }
+  function step(){
+    if(!playing || done) return;
+    if(holding && idx < PATH.length-1){
+      idx++; peak = Math.max(peak, PATH[idx]);
+      var z = inZone(idx);
+      ZONES.forEach(function(zz){ document.getElementById(zz.hl).classList.toggle('on', z === zz); });
+      game.classList.toggle('crashing', !!z);
+      if(z && idx === z.a){ G.shake(); }
+      draw();
+      if(idx === PATH.length-1) end(true);
+    }
+  }
+  function end(won){
+    done = true; playing = false; clearInterval(timer);
+    game.classList.remove('crashing');
+    ZONES.forEach(function(z){ document.getElementById(z.hl).classList.remove('on'); });
+    if(won){
+      btn.classList.remove('arm'); btn.classList.add('dead');
+      btn.textContent = '💎 RIDE COMPLETE — 2005 → 2026';
+      msg.innerHTML = '<b style="color:var(--green)">You held. $1,000 → $5,812,000.</b> Now be honest: you knew it ended well and it still felt long. Real holders had no chart preview, real money, and real headlines — for 21 years. <b>The index required none of this:</b> it held NVDA automatically, at full weight, through every crash you just white-knuckled.';
+      G.confetti(160);
+    } else {
+      var m = PATH[idx], dd = Math.round((m/peak - 1)*100);
+      btn.classList.remove('arm');
+      btn.textContent = '🖐️ TRY AGAIN — PRESS AND HOLD';
+      msg.innerHTML = '<b style="color:var(--red)">You sold at ' + (m < 10 ? m.toFixed(2) : Math.round(m).toLocaleString('en-US')) + '×</b>' +
+        (dd < -1 ? ' (' + dd + '% below the peak — exactly when everyone sells)' : '') +
+        '. Holding to 2026 paid <b>5,812×</b>. Don\'t feel bad: this is the measured outcome — almost no human passes this test. <b>That is why the machine exists.</b>';
+
+    }
+  }
+  function start(){
+    idx = 0; peak = 1; done = false; playing = true;
+    msg.textContent = ''; draw();
+    clearInterval(timer); timer = setInterval(step, 150);
+  }
+  btn.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  btn.addEventListener('pointerdown', function(e){
+    e.preventDefault();
+    if(done || !playing) start();
+    holding = true;
+    btn.classList.add('arm');
+    btn.textContent = '✊ HOLDING — DO NOT LET GO';
+    try{ btn.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  function release(){
+    if(!holding) return;
+    holding = false;
+    if(playing && !done && idx > 0) end(false);
+    else if(playing && !done){ playing = false; clearInterval(timer); btn.classList.remove('arm'); btn.textContent = '🖐️ PRESS AND HOLD TO STAY INVESTED'; }
+  }
+  btn.addEventListener('pointerup', release);
+  btn.addEventListener('pointercancel', release);
 })();
 
 /* ---------- swipe hint + edge fade on scrollable charts ---------- */
@@ -1925,6 +2236,9 @@ setTimeout(armSwipe, 800);
       marks.forEach(function(m){ m.style.display = 'none'; });
       out.classList.remove('on');
     }
+    var chartBox = svg.closest('.chart');
+    function setTA(){ svg.style.touchAction = (chartBox && chartBox.scrollWidth > chartBox.clientWidth + 8) ? 'auto' : 'pan-y'; }
+    setTA(); addEventListener('resize', setTA);
     svg.addEventListener('pointermove', move);
     svg.addEventListener('pointerdown', move);
     svg.addEventListener('pointerleave', leave);
