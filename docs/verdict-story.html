@@ -32,7 +32,14 @@ i{color:inherit}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
 section.ch{padding:90px 0 40px;position:relative}
 .kicker{font-size:12px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.kicker:before{content:"";display:inline-block;width:0;height:2px;background:var(--gold);border-radius:1px;margin-right:0;vertical-align:middle;transition:width .8s cubic-bezier(.2,.7,.2,1) .25s,margin-right .8s cubic-bezier(.2,.7,.2,1) .25s}
+.kicker.on:before{width:26px;margin-right:12px}
 .kicker .kn{color:var(--dim);margin-right:10px}
+@media(max-width:700px){
+  section.ch{padding:54px 0 22px}
+  .sep{margin:32px 0 0}
+  .bridge{min-height:44svh;padding:52px 22px}
+}
 h2.cht{font-size:clamp(26px,4.6vw,40px);font-weight:800;letter-spacing:-1px;line-height:1.12;margin-bottom:14px}
 .lede{font-size:clamp(16px,2.2vw,19px);color:var(--mut);max-width:680px}
 .lede b{color:var(--ink)}
@@ -41,33 +48,46 @@ p b{color:var(--ink)}
 h3{font-size:17px;margin:30px 0 6px;color:var(--ink)}
 ul{margin:10px 0 10px 22px;color:var(--mut)}li{margin:7px 0}
 .note{font-size:13px;color:var(--dim)}
-.sep{height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);margin:50px 0 0}
+.sep{height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);margin:50px 0 0;transform:scaleX(.1);opacity:.3;transition:transform 1.3s cubic-bezier(.2,.7,.2,1),opacity 1.3s}
+.sep.on{transform:scaleX(1);opacity:1}
 
 /* ---------- reveal animations ---------- */
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.6,.2,1),transform .7s cubic-bezier(.2,.6,.2,1)}
 .reveal.on{opacity:1;transform:none}
 .reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}.reveal.d4{transition-delay:.32s}
-@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+.chart-frame.reveal{transform:translateY(30px) scale(.985)}
+.chart-frame.reveal.on{transform:none}
+.bridge h2.reveal,.finale h2.reveal{filter:blur(10px);transition:opacity .9s cubic-bezier(.2,.6,.2,1),transform .9s cubic-bezier(.2,.6,.2,1),filter .9s cubic-bezier(.2,.6,.2,1)}
+.bridge h2.reveal.on,.finale h2.reveal.on{filter:blur(0)}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;filter:none}.sep{transform:none;opacity:1}}
 
 /* ---------- hero ---------- */
 #hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
 #heroCanvas{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
-.hero-inner{position:relative;z-index:2;max-width:var(--maxw);margin:0 auto;padding:40px 20px}
+.hero-inner{position:relative;z-index:2;max-width:var(--maxw);width:100%;min-width:0;margin:0 auto;padding:40px 20px;box-sizing:border-box}
 .hero-eyebrow{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:18px}
 h1{font-size:clamp(38px,7.5vw,74px);font-weight:900;letter-spacing:-2.5px;line-height:1.03}
-h1 .q{color:var(--gold)}
+h1 .q{background:linear-gradient(100deg,#f0b429 20%,#ffe9a8 50%,#f0b429 80%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 4.5s ease-in-out infinite}
+@keyframes shimmer{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+@media(prefers-reduced-motion:reduce){h1 .q{animation:none;color:var(--gold);background:none;-webkit-background-clip:initial}}
 .hero-sub{margin-top:20px;font-size:clamp(16px,2.2vw,20px);color:var(--mut);max-width:640px}
 .hero-kpis{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
 .hk{background:rgba(18,26,35,.8);backdrop-filter:blur(4px);border:1px solid var(--line);border-radius:14px;padding:14px 18px;min-width:150px}
 .hk .v{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-1px}
 .hk .l{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;margin-top:3px;line-height:1.35}
 .hk.gold .v{color:var(--gold)}.hk.red .v{color:var(--red)}.hk.green .v{color:var(--green)}
-.scrollcue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;color:var(--dim);font-size:12px;letter-spacing:2px;text-transform:uppercase;text-align:center;animation:cue 2.2s ease-in-out infinite}
+.scrollcue{margin:44px auto 0;color:var(--dim);font-size:12px;letter-spacing:2px;text-transform:uppercase;text-align:center;animation:cue 2.2s ease-in-out infinite;position:relative;z-index:2}
 .scrollcue:after{content:"";display:block;width:1px;height:34px;background:linear-gradient(var(--dim),transparent);margin:8px auto 0}
-@keyframes cue{0%,100%{opacity:.5;transform:translateX(-50%) translateY(0)}50%{opacity:1;transform:translateX(-50%) translateY(6px)}}
-.hero-index{margin-top:40px;display:flex;flex-wrap:wrap;gap:8px}
-.hero-index a{font-size:12px;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:5px 12px;transition:all .2s}
+@keyframes cue{0%,100%{opacity:.5;transform:translateY(0)}50%{opacity:1;transform:translateY(6px)}}
+.hero-index{margin-top:36px;display:flex;flex-wrap:wrap;gap:8px}
+.hero-index a{font-size:12px;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:5px 12px;transition:all .2s;white-space:nowrap;flex:none}
 .hero-index a:hover{border-color:var(--gold);color:var(--gold);text-decoration:none}
+@media(max-width:700px){
+  .hero-index{flex-wrap:nowrap;overflow-x:auto;margin-left:-20px;margin-right:-20px;padding:2px 20px 10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .hero-index::-webkit-scrollbar{display:none}
+  .hero-inner{padding-top:70px;padding-bottom:20px}
+  #hero{min-height:auto}
+}
 
 /* ---------- cards ---------- */
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:18px 0}
@@ -256,7 +276,6 @@ input[type=range]{width:100%;accent-color:var(--gold);margin:12px 0 6px}
 .scrub-out.on{opacity:1}
 .scrub-out .yr{font-weight:900;color:var(--gold);letter-spacing:.5px}
 .scrub-out i{display:inline-block;width:10px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
-.chart svg{touch-action:pan-y}
 
 /* ---------- strategy-map stagger ---------- */
 .smgrid .sm-card{opacity:0;transform:translateY(16px);transition:opacity .55s cubic-bezier(.2,.6,.2,1),transform .55s cubic-bezier(.2,.6,.2,1),border-color .2s}
@@ -288,45 +307,7 @@ details.fhide,.faq-group.fhide{display:none}
 .btn.ghost{background:none;border:1px solid var(--line2);color:var(--ink)}
 .btn.ghost:hover{box-shadow:none;border-color:var(--gold);color:var(--gold)}
 
-/* ================= GAME LAYER ================= */
-/* HUD */
-#hud{position:fixed;top:8px;left:10px;right:10px;z-index:97;display:flex;align-items:center;gap:8px;pointer-events:none}
-.hudchip{pointer-events:auto;background:rgba(13,18,25,.97);backdrop-filter:blur(10px);border:1px solid var(--line2);border-radius:999px;padding:6px 13px;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);display:flex;align-items:center;gap:8px;box-shadow:0 4px 18px rgba(0,0,0,.45);transition:transform .35s,opacity .35s;transform:translateY(-52px);opacity:0;white-space:nowrap;font-weight:700;cursor:default}
-#hud.show .hudchip{transform:none;opacity:1}
-#hudLevel b{color:var(--gold);font-weight:900}
-#hudLevel .lvname{max-width:34vw;overflow:hidden;text-overflow:ellipsis}
-#xpbar{width:56px;height:5px;background:#232d3a;border-radius:3px;overflow:hidden;flex:none}
-#xpfill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--green));transition:width .25s}
-#badgeBtn{margin-left:auto;cursor:pointer}
-#badgeBtn:hover,#sfxBtn:hover{border-color:var(--gold)}
-#badgeBtn b{color:var(--gold)}
-#sfxBtn{cursor:pointer;padding:6px 10px}
-@media(max-width:560px){#hudLevel .lvname{display:none}#xpbar{width:40px}}
-
-/* achievement toast */
-#toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,120px);z-index:99;background:linear-gradient(135deg,#1a2330,#121a23);border:1px solid var(--gold);border-radius:14px;padding:12px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,.6),0 0 24px rgba(240,178,41,.15);transition:transform .45s cubic-bezier(.2,.8,.25,1.1);max-width:92vw}
-#toast.show{transform:translate(-50%,0)}
-#toast .ticon{font-size:26px}
-#toast .tk{font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:900}
-#toast .tn{font-size:14.5px;font-weight:800;color:var(--ink)}
-#toast .td{font-size:11.5px;color:var(--mut)}
-
-/* badge tray */
-#tray{position:fixed;inset:0;z-index:98;background:rgba(4,7,11,.82);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
-#tray.open{display:flex}
-.tray-card{background:var(--card);border:1px solid var(--line2);border-radius:20px;padding:24px;max-width:560px;width:100%;max-height:82svh;overflow-y:auto}
-.tray-card h3{margin:0 0 4px;font-size:18px}
-.tray-card .tsub{font-size:12px;color:var(--dim);margin-bottom:16px}
-.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.badge{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;transition:transform .2s}
-.badge .bi{font-size:28px}
-.badge .bn{font-size:12px;font-weight:800;color:var(--ink);margin-top:4px}
-.badge .bd{font-size:10.5px;color:var(--dim);margin-top:2px;line-height:1.35}
-.badge.locked{opacity:.35;filter:grayscale(1)}
-.badge.unlocked{border-color:rgba(240,178,41,.5)}
-.badge.unlocked:hover{transform:translateY(-2px)}
-.tray-close{margin-top:16px;width:100%}
-
+/* ================= INTERACTIVE LAYER ================= */
 /* fx canvas + shake */
 #fx{position:fixed;inset:0;z-index:96;pointer-events:none}
 @keyframes shakeX{0%,100%{transform:translate(0,0)}10%{transform:translate(-7px,2px)}20%{transform:translate(6px,-3px)}30%{transform:translate(-5px,-2px)}40%{transform:translate(5px,3px)}50%{transform:translate(-4px,1px)}60%{transform:translate(4px,-2px)}70%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}90%{transform:translate(-1px,1px)}}
@@ -391,20 +372,7 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 
 <div id="progress"></div>
 <canvas id="fx" aria-hidden="true"></canvas>
-<div id="hud" aria-hidden="false">
-  <div class="hudchip" id="hudLevel"><span>LV <b id="lvNum">1</b></span><span class="lvname" id="lvName">The rules</span><span id="xpbar"><span id="xpfill" style="display:block"></span></span></div>
-  <div class="hudchip" id="badgeBtn" role="button" tabindex="0" aria-label="Achievements">🏅 <b id="badgeCount">0</b>/<span id="badgeTotal">10</span></div>
-  <div class="hudchip" id="sfxBtn" role="button" tabindex="0" aria-label="Toggle sound">🔇</div>
-</div>
-<div id="toast" aria-live="polite"><span class="ticon" id="toastIcon">🏅</span><div><div class="tk">Achievement unlocked</div><div class="tn" id="toastName"></div><div class="td" id="toastDesc"></div></div></div>
-<div id="tray" role="dialog" aria-label="Achievements">
-  <div class="tray-card">
-    <h3>🏅 Achievements</h3>
-    <div class="tsub">Earned by playing the evidence, not just reading it. Stored on your device.</div>
-    <div class="badges" id="badgeGrid"></div>
-    <button class="btn tray-close" id="trayClose">Close</button>
-  </div>
-</div>
+<div id="chapPill" aria-hidden="true"></div>
 <nav id="chapnav" aria-label="Chapters"></nav>
 
 <!-- ================= HERO ================= -->
@@ -423,9 +391,9 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
   <div class="hero-index">
     <a href="#c1">1 · The rules</a><a href="#c2">2 · Why QQQ</a><a href="#c2b">2b · Which machine</a><a href="#c3">3 · The lottery</a><a href="#c4">4 · Buying winners</a><a href="#c5">5 · 250 attempts</a><a href="#c6">6 · Luck</a><a href="#c6b">6b · Who wins</a><a href="#c6c">6c · The odds</a><a href="#c7">7 · Timing myths</a><a href="#c7b">7b · Dip arithmetic</a><a href="#c8">8 · More risk</a><a href="#c9">9 · Honest limits</a><a href="#c10">10 · The map</a><a href="#c10b">10b · Objections</a><a href="#c11">11 · The playbook</a><a href="#c12">Methodology</a>
   </div>
-  <p class="backlink" style="margin-top:26px">Prefer the plain research paper? <a href="verdict.html">Read the text version →</a></p>
+  <p class="backlink" style="margin-top:22px">Prefer the plain research paper? <a href="verdict.html">Read the text version →</a></p>
+  <div class="scrollcue">Scroll</div>
 </div>
-<div class="scrollcue">▶ Press start — scroll</div>
 </section>
 
 <!-- ================= CH 1 : RULES ================= -->
@@ -795,7 +763,7 @@ footer{margin:70px 0 40px;padding-top:18px;border-top:1px solid var(--line);font
 <div class="bignum reveal"><div class="n gold"><span class="count" data-to="6.2" data-dec="1">0</span>%</div><div class="cap">of stocks beat QQQ over that decade — roughly <b>1 in 16</b>. A quarter lost money outright. The <i>median</i> stock returned +71% while QQQ returned +638%.</div></div>
 
 <div class="game reveal" id="lotteryGame">
-<div class="gk">▶ Playable evidence · level up by losing honestly</div>
+<div class="gk">▶ Playable evidence</div>
 <h3>Beat the Machine</h3>
 <p class="gsub">You get <b>$10,000</b> and five tickets drawn from the <b>real 2016 return distribution</b> — all 2,177 stocks, deaths included, decade returns. The machine puts the same $10,000 into QQQ and goes to sleep. Draw.</p>
 <div class="machinebox"><span>🤖 The machine's one ticket: <b>QQQ, +638%</b></span><span class="mv">$73,800</span></div>
@@ -1504,58 +1472,8 @@ var navObs = new IntersectionObserver(function(es){
 },{rootMargin:'-40% 0px -55% 0px'});
 chapters.forEach(function(c){var el=document.getElementById(c[0]); if(el) navObs.observe(el);});
 
-/* ================= GAME CORE ================= */
+/* ================= FX CORE (confetti + shake) ================= */
 var G = (function(){
-  var BADGES = [
-    ['start','🎬','Press Start','Began the story'],
-    ['lottery_play','🎟️','Ticket Holder','Played Beat the Machine'],
-    ['lottery_win','🏆','Machine Breaker','Beat the machine — the ~6% event'],
-    ['hold_win','💎','Diamond Hands','Held NVDA 2005→2026 to 5,812×'],
-    ['hold_sell','🧻','Paper Hands','Sold on the way down — nearly everyone does'],
-    ['luck','🎲','Luck Laundromat','Ran 10,000 zero-skill investors'],
-    ['map5','🗺️','Cartographer','Flipped five strategy-map verdicts'],
-    ['search','🔎',"Devil's Advocate",'Searched the objection files'],
-    ['nvda','🌟','Needle, Haystack','Found the NVDA dot among 2,177'],
-    ['finale','🏁','The Long Game','Reached the verdict']
-  ];
-  var owned = {};
-  try{ owned = JSON.parse(localStorage.getItem('vs_badges')||'{}'); }catch(e){}
-  function save(){ try{ localStorage.setItem('vs_badges', JSON.stringify(owned)); }catch(e){} }
-
-  /* --- sfx (WebAudio, off by default) --- */
-  var sfxOn = false;
-  try{ sfxOn = localStorage.getItem('vs_sfx') === '1'; }catch(e){}
-  var actx = null;
-  function beep(freqs, dur, type, gain){
-    if(!sfxOn) return;
-    try{
-      actx = actx || new (window.AudioContext||window.webkitAudioContext)();
-      freqs.forEach(function(f, i){
-        var o = actx.createOscillator(), g = actx.createGain();
-        o.type = type || 'sine'; o.frequency.value = f;
-        g.gain.setValueAtTime(0, actx.currentTime + i*0.09);
-        g.gain.linearRampToValueAtTime(gain||0.07, actx.currentTime + i*0.09 + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + i*0.09 + (dur||0.18));
-        o.connect(g); g.connect(actx.destination);
-        o.start(actx.currentTime + i*0.09); o.stop(actx.currentTime + i*0.09 + (dur||0.18) + 0.05);
-      });
-    }catch(e){}
-  }
-  var sfx = {
-    click: function(){ beep([420], 0.08, 'triangle', 0.05); },
-    unlock: function(){ beep([660, 990], 0.22, 'sine', 0.08); },
-    win: function(){ beep([523, 659, 784, 1047], 0.3, 'triangle', 0.08); },
-    lose: function(){ beep([220, 165], 0.3, 'sawtooth', 0.05); },
-    crash: function(){ beep([110, 82], 0.4, 'sawtooth', 0.07); }
-  };
-  var sfxBtn = document.getElementById('sfxBtn');
-  function sfxIcon(){ sfxBtn.textContent = sfxOn ? '🔊' : '🔇'; }
-  sfxIcon();
-  sfxBtn.addEventListener('click', function(){
-    sfxOn = !sfxOn; sfxIcon(); try{ localStorage.setItem('vs_sfx', sfxOn?'1':'0'); }catch(e){}
-    if(sfxOn) sfx.unlock();
-  });
-
   /* --- confetti --- */
   var fx = document.getElementById('fx'), fctx = fx.getContext('2d'), parts = [], fxRun = false;
   function fxSize(){ var d = Math.min(2, devicePixelRatio||1); fx.width = innerWidth*d; fx.height = innerHeight*d; fctx.setTransform(d,0,0,d,0,0); }
@@ -1590,53 +1508,14 @@ var G = (function(){
     document.body.classList.remove('shaking'); void document.body.offsetWidth;
     document.body.classList.add('shaking');
   }
-
-  /* --- toast queue --- */
-  var toast = document.getElementById('toast'), tq = [], tShowing = false;
-  function toastNext(){
-    if(!tq.length){ tShowing = false; return; }
-    tShowing = true;
-    var b = tq.shift();
-    document.getElementById('toastIcon').textContent = b[1];
-    document.getElementById('toastName').textContent = b[2];
-    document.getElementById('toastDesc').textContent = b[3];
-    toast.classList.add('show');
-    sfx.unlock();
-    setTimeout(function(){ toast.classList.remove('show'); setTimeout(toastNext, 420); }, 2600);
-  }
-
-  /* --- badge tray --- */
-  var grid = document.getElementById('badgeGrid');
-  function renderTray(){
-    grid.innerHTML = BADGES.map(function(b){
-      var has = owned[b[0]];
-      return '<div class="badge '+(has?'unlocked':'locked')+'"><div class="bi">'+b[1]+'</div><div class="bn">'+b[2]+'</div><div class="bd">'+(has?b[3]:'???')+'</div></div>';
-    }).join('');
-    document.getElementById('badgeCount').textContent = Object.keys(owned).length;
-    document.getElementById('badgeTotal').textContent = BADGES.length;
-  }
-  renderTray();
-  var tray = document.getElementById('tray');
-  document.getElementById('badgeBtn').addEventListener('click', function(){ tray.classList.add('open'); });
-  document.getElementById('trayClose').addEventListener('click', function(){ tray.classList.remove('open'); });
-  tray.addEventListener('click', function(e){ if(e.target === tray) tray.classList.remove('open'); });
-
-  function award(id){
-    if(owned[id]) return false;
-    var b = BADGES.filter(function(x){ return x[0] === id; })[0];
-    if(!b) return false;
-    owned[id] = 1; save(); renderTray();
-    tq.push(b); if(!tShowing) toastNext();
-    return true;
-  }
-  return { award: award, confetti: confetti, shake: shake, sfx: sfx };
+  return { confetti: confetti, shake: shake };
 })();
 
 /* ---------- reveal ---------- */
 var revObs = new IntersectionObserver(function(es){
   es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('on'); revObs.unobserve(e.target);} });
 },{threshold:0.12, rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.reveal').forEach(function(el){revObs.observe(el);});
+document.querySelectorAll('.reveal, .sep').forEach(function(el){revObs.observe(el);});
 
 /* ---------- counters ---------- */
 function animCount(el){
@@ -1788,12 +1667,8 @@ var gObs = new IntersectionObserver(function(es){
   });
 },{threshold:0.3});
 document.querySelectorAll('.gauntlet').forEach(function(el){gObs.observe(el);});
-var smSeen = 0;
 document.querySelectorAll('.sm-card').forEach(function(c){
-  c.addEventListener('click', function(){
-    c.classList.toggle('open');
-    if(!c.dataset.seen){ c.dataset.seen = '1'; if(++smSeen >= 5) G.award('map5'); }
-  });
+  c.addEventListener('click', function(){ c.classList.toggle('open'); });
 });
 
 /* ---------- luck simulator ---------- */
@@ -1827,7 +1702,6 @@ document.querySelectorAll('.sm-card').forEach(function(c){
   },{threshold:0.4});
   simObs.observe(wrap);
   document.getElementById('luckBtn').addEventListener('click', function(){
-    G.award('luck'); G.sfx.click();
     wrap.querySelectorAll('.bfill[data-year]').forEach(function(f){f.style.width='1%';});
     setTimeout(function(){ widths(simulate()); }, 250);
   });
@@ -2046,7 +1920,6 @@ document.querySelectorAll('.sm-card').forEach(function(c){
     var idx = row*COLS + col;
     hover = (idx>=0 && idx<dots.length) ? dots[idx] : null;
     if(hover){
-      if(hover.nvda && curStep === 6) G.award('nvda');
       var b = BUCKETS[hover.b];
       tip.innerHTML = 'one of <b>' + b.n + '</b> stocks · returned ' + b.lab +
         (hover.dead ? ' · <span style="color:#ff8f8f">no longer trades</span>' : '') +
@@ -2057,39 +1930,25 @@ document.querySelectorAll('.sm-card').forEach(function(c){
   cv.addEventListener('pointerleave', function(){ hover=null; tip.style.opacity=0; });
 })();
 
-/* ---------- HUD: levels + XP ---------- */
+/* ---------- chapter pill ---------- */
 (function(){
-  var hud = document.getElementById('hud'); if(!hud) return;
-  var lvNum = document.getElementById('lvNum'), lvName = document.getElementById('lvName'), xp = document.getElementById('xpfill');
-  var curEl = null;
-  var hudObs = new IntersectionObserver(function(es){
+  var pill = document.getElementById('chapPill'); if(!pill) return;
+  var labels = {}, confettiDone = false;
+  chapters.forEach(function(c){ labels[c[0]] = c[1]; });
+  var pillObs = new IntersectionObserver(function(es){
     es.forEach(function(e){
       if(!e.isIntersecting) return;
-      var id = e.target.id;
-      if(id === 'hero'){ hud.classList.remove('show'); curEl = null; return; }
-      hud.classList.add('show');
-      if(id === 'finale'){
-        lvNum.textContent = '★'; lvName.textContent = 'The verdict'; curEl = e.target;
-        if(G.award('finale')) G.confetti(120);
-        return;
+      if(e.target.id === 'finale' && !confettiDone){ confettiDone = true; G.confetti(110); }
+      if(e.target.id === 'hero' || e.target.id === 'finale'){ pill.classList.remove('show'); }
+      else {
+        var l = labels[e.target.id] || '';
+        pill.innerHTML = l.indexOf(' · ') > -1 ? 'Chapter <b>' + l.replace(' · ', '</b> · ') : '<b>' + l + '</b>';
+        pill.classList.add('show');
       }
-      var idx = -1, label = '';
-      chapters.forEach(function(c, i){ if(c[0] === id){ idx = i; label = c[1]; } });
-      if(idx < 1) return;
-      lvNum.textContent = idx;
-      lvName.textContent = label.indexOf(' · ') > -1 ? label.split(' · ')[1] : label;
-      curEl = e.target;
-      G.award('start');
     });
   },{rootMargin:'-30% 0px -60% 0px'});
-  chapters.forEach(function(c){ var el = document.getElementById(c[0]); if(el) hudObs.observe(el); });
-  var fin = document.getElementById('finale'); if(fin) hudObs.observe(fin);
-  addEventListener('scroll', function(){
-    if(!curEl){ xp.style.width = '0%'; return; }
-    var r = curEl.getBoundingClientRect();
-    var p = Math.min(1, Math.max(0, (innerHeight*0.6 - r.top) / Math.max(1, r.height)));
-    xp.style.width = (p*100).toFixed(1) + '%';
-  }, {passive:true});
+  chapters.forEach(function(c){ var el = document.getElementById(c[0]); if(el) pillObs.observe(el); });
+  var fin = document.getElementById('finale'); if(fin) pillObs.observe(fin);
 })();
 
 /* ---------- GAME: Beat the Machine (real 2016 distribution) ---------- */
@@ -2131,7 +1990,7 @@ document.querySelectorAll('.sm-card').forEach(function(c){
     resEl.innerHTML = '<span class="note">Flipping…</span>';
     var cards = [].slice.call(row.children);
     cards.forEach(function(c, i){
-      setTimeout(function(){ c.classList.add('flip'); G.sfx.click(); }, 350 + i*420);
+      setTimeout(function(){ c.classList.add('flip'); }, 350 + i*420);
     });
     setTimeout(function(){
       var total = tix.reduce(function(s,t){ return s + t.val; }, 0);
@@ -2139,14 +1998,13 @@ document.querySelectorAll('.sm-card').forEach(function(c){
       tally.p++; if(win) tally.w++;
       try{ localStorage.setItem('vs_lot', JSON.stringify(tally)); }catch(e){}
       showTally();
-      G.award('lottery_play');
       if(win){
         resEl.innerHTML = '<span class="rswin">YOU BEAT THE MACHINE.</span><span>Your $10,000 → <b>' + fmt$(total) + '</b> vs its $73,800. Savor it — this is the ~6% event. Now ask: would you have held these five for ten years?</span>';
-        G.confetti(140); G.sfx.win(); G.award('lottery_win');
+        G.confetti(140);
       } else {
         var pct = Math.round(total/MACHINE*100);
         resEl.innerHTML = '<span class="rslose">THE MACHINE WINS.</span><span>Your $10,000 → <b>' + fmt$(total) + '</b> — ' + pct + '% of the machine\'s $73,800. Not bad luck: the median draw does roughly this.</span>';
-        G.sfx.lose(); if(total < 30000) G.shake();
+        if(total < 30000) G.shake();
       }
       btn.textContent = '🎟️ Draw 5 new tickets';
       busy = false;
@@ -2210,7 +2068,7 @@ document.querySelectorAll('.sm-card').forEach(function(c){
       var z = inZone(idx);
       ZONES.forEach(function(zz){ document.getElementById(zz.hl).classList.toggle('on', z === zz); });
       game.classList.toggle('crashing', !!z);
-      if(z && idx === z.a){ G.shake(); G.sfx.crash(); }
+      if(z && idx === z.a){ G.shake(); }
       draw();
       if(idx === PATH.length-1) end(true);
     }
@@ -2223,7 +2081,7 @@ document.querySelectorAll('.sm-card').forEach(function(c){
       btn.classList.remove('arm'); btn.classList.add('dead');
       btn.textContent = '💎 RIDE COMPLETE — 2005 → 2026';
       msg.innerHTML = '<b style="color:var(--green)">You held. $1,000 → $5,812,000.</b> Now be honest: you knew it ended well and it still felt long. Real holders had no chart preview, real money, and real headlines — for 21 years. <b>The index required none of this:</b> it held NVDA automatically, at full weight, through every crash you just white-knuckled.';
-      G.confetti(160); G.sfx.win(); G.award('hold_win');
+      G.confetti(160);
     } else {
       var m = PATH[idx], dd = Math.round((m/peak - 1)*100);
       btn.classList.remove('arm');
@@ -2231,7 +2089,7 @@ document.querySelectorAll('.sm-card').forEach(function(c){
       msg.innerHTML = '<b style="color:var(--red)">You sold at ' + (m < 10 ? m.toFixed(2) : Math.round(m).toLocaleString('en-US')) + '×</b>' +
         (dd < -1 ? ' (' + dd + '% below the peak — exactly when everyone sells)' : '') +
         '. Holding to 2026 paid <b>5,812×</b>. Don\'t feel bad: this is the measured outcome — almost no human passes this test. <b>That is why the machine exists.</b>';
-      G.sfx.lose(); G.award('hold_sell');
+
     }
   }
   function start(){
@@ -2378,6 +2236,9 @@ setTimeout(armSwipe, 800);
       marks.forEach(function(m){ m.style.display = 'none'; });
       out.classList.remove('on');
     }
+    var chartBox = svg.closest('.chart');
+    function setTA(){ svg.style.touchAction = (chartBox && chartBox.scrollWidth > chartBox.clientWidth + 8) ? 'auto' : 'pan-y'; }
+    setTA(); addEventListener('resize', setTA);
     svg.addEventListener('pointermove', move);
     svg.addEventListener('pointerdown', move);
     svg.addEventListener('pointerleave', leave);
@@ -2394,7 +2255,6 @@ setTimeout(armSwipe, 800);
   cnt.textContent = items.length + ' objections';
   fs.addEventListener('input', function(){
     var q = fs.value.trim().toLowerCase(), n = 0;
-    if(q.length > 2) G.award('search');
     items.forEach(function(d){
       var hit = !q || d.textContent.toLowerCase().indexOf(q) >= 0;
       d.classList.toggle('fhide', !hit);
