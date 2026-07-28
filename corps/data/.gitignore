@@ -1,3 +1,6 @@
 trades/
 universe/_*
 _cookies.txt
+panel_osbap.parquet
+_daycounts.pkl
+*.zip
