@@ -22,6 +22,8 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT.parent / "munis" / "research"))
 import backtest as bt          # noqa: E402
+sys.path.insert(0, str(ROOT / 'research'))
+from panel_io import load_full  # noqa: E402
 from strategies import FACTORIES  # noqa: E402
 
 PANEL = ROOT / "data" / "panel_osbap_full.parquet"
@@ -32,7 +34,8 @@ DATA_END = pd.Timestamp("2025-03-31")
 
 def load():
     print("loading full panel ...", flush=True)
-    p = pd.read_parquet(PANEL, columns=["six", "date", "mid", "s_px", "p_px", "ytw"])
+    cols=['six', 'date', 'mid', 's_px', 'p_px', 'ytw']
+    p = load_full(columns=cols)
     coup = p.groupby("six")["ytw"].median().clip(1, 12)
     print(f"{p['six'].nunique()} bonds, {len(p):,} bond-days; preparing ...", flush=True)
     return bt.prepare(p, coup)
