@@ -51,15 +51,16 @@ def equity(bonds, disc):
     if len(days) - 1 not in mon:
         mon.append(len(days) - 1)
     lqd = (pd.read_csv(ROOT / "data" / "etf" / "LQD.csv.gz", parse_dates=["date"])
-           .set_index("date")["adjclose"].reindex(days).ffill())
+           .set_index("date")["adjclose"].reindex(days).ffill().bfill())
     lqd_eq = (lqd / lqd.iloc[0]).to_numpy()
+    mask = ~np.isnan(lqd_eq)
     return {
         "series": [{"date": days[i].strftime("%Y-%m-%d"),
                     "strat": round(float(eq[i]), 4),
                     "lqd": round(float(lqd_eq[i]), 4) if not np.isnan(lqd_eq[i]) else None}
                    for i in mon],
-        "strat": st(eq, days), "lqd": st(lqd_eq[~np.isnan(lqd_eq)],
-                                         days[~np.isnan(lqd_eq)]),
+        "strat": st(eq, days),
+        "lqd": st(lqd_eq[mask], days[mask]) if mask.any() else None,
         "n_trades": len(fills), "years": round((days[-1] - days[0]).days / 365.25, 1),
         "avg_positions": int(cnt[cnt > 0].mean()),
     }
