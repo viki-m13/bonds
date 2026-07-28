@@ -11,10 +11,19 @@ data.
 
 ## Status
 
-**Code complete and wired; needs a (free) FINRA data credential to pull the
-trade tape.** The pipeline is verified end-to-end on synthetic data
-(`pipeline.py selftest`) and the HTTP/auth plumbing is verified against
-FINRA's public API (`finra_client.py`).
+**Per-bond framework complete and wired; blocked on data tier.** A tested
+FINRA credential revealed the constraint: a **basic** FINRA Data credential
+does not include trade-level TRACE (`traceCorporateBondDetail` → 403). It
+grants only market-level **aggregates**. See **[`CORP_FINDINGS.md`](CORP_FINDINGS.md)**
+for the full credential-access map and an honest analysis showing that the
+accessible aggregates **do not** yield a corporate strategy beating
+buy-and-hold on the available (~3-year, one-regime) history.
+
+The per-bond dislocation strategy — the one that works on munis — needs
+trade-level TRACE (an upgraded FINRA credential or a licensed feed). The code
+runs unchanged the moment that access exists; verified end-to-end on synthetic
+data (`pipeline.py selftest`) and against FINRA's live API (`finra_client.py`,
+`download_aggregates.py`).
 
 ## Data — FINRA TRACE (the corporate analogue of MSRB EMMA)
 
