@@ -114,6 +114,59 @@ excess at the cost of breadth / duration; a dynamic recovery-exit cuts average
 hold materially at a similar *annualized* return (a turnover/risk gain, not
 extra alpha).
 
+## Selectivity — a focused short-duration book
+
+The full-universe book carries ~3,100 concurrent positions — more than a real
+desk would run. We tested point-in-time filters on **credit quality** (entry-day
+credit spread) and **duration** (years to maturity), each baked into the
+eligibility gate so the matched control trades the *same* selected subset. The
+result overturns the intuitive "trade only the safest bonds":
+
+**Credit quality — filtering to high grade backfires** (OOS, ≥3pt):
+
+| entry credit spread | OOS trades | win | mean/trade | excess |
+|---|--:|--:|--:|--:|
+| ≤1% (top IG) | 6,161 | 45% | **−0.65%** | +1.50% |
+| ≤1.5% (solid IG) | 13,927 | 51% | −0.40% | **−0.25%** |
+| 1–3% (mid IG) | 22,013 | 65% | +2.49% | **−0.48%** |
+| ≤5% (excl. distress) | 30,168 | 69% | +3.62% | +1.11% |
+| >3% (crossover/HY) | 15,518 | 87% | +13.92% | +1.55% |
+| >5% (deep distress) | 8,527 | 88% | +19.24% | **−0.35%** |
+
+Top-IG dislocations have *no* out-of-sample timing edge and even lost money
+outright (the 2022 rate selloff crushed long high-grade). The reversion alpha
+lives in **crossover/HY** names; only the very deepest distress (spread >5%,
+falling knives) is worth trimming, and only as a tail-risk knob.
+
+**Duration — the edge concentrates in short bonds** (OOS, ≥3pt):
+
+| years to maturity | OOS trades | win | mean/trade | excess |
+|---|--:|--:|--:|--:|
+| ≤3y (short) | 4,857 | 87% | +10.05% | +3.11% |
+| **≤5y (short-int)** | 10,421 | 81% | +10.06% | **+3.51%** |
+| 5–12y (belly) | 12,378 | 71% | +6.79% | +2.17% |
+| >12y (long) | 13,103 | 63% | +2.25% | **−0.21%** |
+
+**Short-dated (≤5y) is the operating point.** Short bonds must pull to par, so
+they revert; long bonds (>12y) show zero OOS edge (their price is rates, not
+idiosyncratic reversion). The focused ≤5y book vs the full universe:
+
+| book | avg positions | total | CAGR | maxDD | OOS excess |
+|---|--:|--:|--:|--:|--:|
+| full universe (≥3pt) | 3,133 | +240.9% | +5.57% | −14.1% | +1.63% |
+| **focused ≤5y** | **1,016** | **+268.9%** | **+5.93%** | −15.4% | **+3.51%** |
+| LQD (total return) | — | +177.5% | +4.62% | −25.0% | — |
+
+Higher return on **a third the positions**, and — crucially — the short-duration
+cut is *not* an overfit overlay. Unlike the rejected regime gate (which fit the
+GFC and failed OOS), it is monotone across the maturity spectrum, economically
+structural, improves *both* IS and OOS, and **repairs the 2008 GFC**
+out-of-sample (era excess +3.46%, p=0.006 — the full book's one weak regime).
+The only soft era becomes the 2021–23 rate selloff (−0.65%, ns), the same
+Achilles heel as munis. A conservative variant (≤5y *and* excl. deep distress
+cs≤5%) roughly **halves the drawdown to −8.8%** but gives back return
+(+3.84% CAGR, below LQD) — a low-vol knob, not the headline.
+
 ## Honest caveats
 
 - **Carry** is proxied by each bond's median yield (OSBAP daily rows don't

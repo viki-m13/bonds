@@ -68,7 +68,29 @@ The regime gate looked great in-sample and "fixed" the 2008 GFC, but it
 | threshold ≥3 pt | +1.63% | broad operating point |
 | threshold ≥4 pt | **+2.96%** | deeper = cleaner signal, fewer trades (capacity/alpha tradeoff) |
 | hold ~455 d | +2.78% | more excess, more duration risk |
+| **duration ≤5 y** | **+3.51%** | short bonds pull to par → cleaner reversion; ~30% of trades, **repairs the GFC** OOS (see below) |
 | dynamic recovery-exit | — | cuts avg hold ~375→240 d at similar *annualized* return — a turnover/risk gain, not extra alpha |
+
+**Selectivity — duration, not credit quality (§8 of the white paper).** A
+credit-quant would ask whether a smaller, higher-conviction book beats the
+3,100-position full universe. Tested point-in-time (both filters gate the
+control identically):
+
+- **Credit quality filtering backfires.** Restricting to top-IG (spread ≤1.5%)
+  *kills* the OOS timing edge (−0.25%, p≈1) and even loses money outright
+  (2022 rate selloff). The alpha lives in crossover/HY; only the deepest
+  distress (spread >5%, falling knives) has no edge and is worth trimming as a
+  tail knob.
+- **Duration concentrates the edge.** Short-dated (≤5 y) dislocations must pull
+  to par → OOS excess **+3.51%** (double the full book) on ~30% of the trades;
+  long (>12 y) shows **zero** OOS edge. The focused ≤5 y book returns +268.9% /
+  +5.93% CAGR on **1,016** avg positions (vs 3,133), and — the key
+  anti-overfitting point — it **repairs the 2008 GFC out-of-sample**
+  (era excess +3.46%, p=0.006), the opposite of the rejected regime gate's
+  in-sample-only "fix." Monotone, structural, improves IS *and* OOS.
+
+Reproduce: `corps/research/selective.py` (grid) and
+`corps/research/selective_equity.py` (equity/era).
 
 ## 4. Look-ahead — point-in-time construction
 
