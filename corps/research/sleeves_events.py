@@ -298,6 +298,7 @@ def _end_fill(b, i, day, ytw, rf, base_spread, s_day, s_px, p_day, p_px, lo, hi)
 
 
 def main():
+    from combine import save_fills
     want = set(sys.argv[1:]) or {"coil", "flow", "end"}
     bonds = e2.load_cache()
     for six, b in bonds.items():
@@ -310,6 +311,7 @@ def main():
         print("\n[COILSPRING] IS 2003-2015 + widening monotonicity:", flush=True)
         f, c = run_coilspring(bonds, glob, IS_LO, IS_HI)
         out["coilspring"] = report("base", f, c, bonds)
+        save_fills(f, ROOT / "research" / "fills_coilspring_is.json")
         for extra, tag in [(0.005, "+50bp deeper"), (0.010, "+100bp deeper")]:
             f2, c2 = run_coilspring(bonds, glob, IS_LO, IS_HI, widen_extra=extra)
             out[f"coilspring_{tag}"] = report(tag, f2, c2, bonds)
@@ -317,6 +319,7 @@ def main():
         print("\n[FLOWBACK-S] IS 2003-2015 + knob monotonicity:", flush=True)
         f, c = run_flowback(bonds, imap, IS_LO, IS_HI)
         out["flowback"] = report("base 4x/1.25", f, c, bonds)
+        save_fills(f, ROOT / "research" / "fills_flowback_is.json")
         for vm, dr, tag in [(3.0, 1.0, "3x/1.0"), (6.0, 2.0, "6x/2.0")]:
             f2, c2 = run_flowback(bonds, imap, IS_LO, IS_HI, vol_mult=vm, drop=dr)
             out[f"flowback_{tag}"] = report(tag, f2, c2, bonds)
@@ -324,6 +327,7 @@ def main():
         print("\n[ENDGAME] IS 2003-2015:", flush=True)
         f, c = run_endgame(bonds, IS_LO, IS_HI)
         out["endgame"] = report("base", f, c, bonds)
+        save_fills(f, ROOT / "research" / "fills_endgame_is.json")
     p = ROOT / "research" / "sleeves_is.json"
     old = json.loads(p.read_text()) if p.exists() else {}
     old.update(out)

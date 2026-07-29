@@ -347,6 +347,7 @@ def run_angel(bonds, lo, hi, use_cap=True):
 
 
 def main():
+    from combine import save_fills
     want = set(sys.argv[1:]) or {"twins", "debut", "angel"}
     bonds = e2.load_cache()
     for six, b in bonds.items():
@@ -358,14 +359,17 @@ def main():
         print("\n[TWINS-R] IS 2003-2015:", flush=True)
         f, c = run_twins(bonds, imap, IS_LO, IS_HI)
         out["twins_r"] = report("base", f, c, bonds)
+        save_fills(f, ROOT / "research" / "fills_twins_is.json")
     if "debut" in want:
         print("\n[DEBUT] IS 2007-2015 (calibration quarantine):", flush=True)
         f, c = run_debut(bonds, imap, e2.D("2007-01-01"), IS_HI)
         out["debut"] = report("base", f, c, bonds)
+        save_fills(f, ROOT / "research" / "fills_debut_is.json")
     if "angel" in want:
         print("\n[ANGELFALL-M] IS 2003-2015 (with and without wave cap):", flush=True)
         f, c = run_angel(bonds, IS_LO, IS_HI, use_cap=True)
         out["angelfall_cap"] = report("with cap", f, c, bonds)
+        save_fills(f, ROOT / "research" / "fills_angelfall_is.json")
         f2, c2 = run_angel(bonds, IS_LO, IS_HI, use_cap=False)
         out["angelfall_nocap"] = report("no cap", f2, c2, bonds)
     p = ROOT / "research" / "sleeves_is.json"

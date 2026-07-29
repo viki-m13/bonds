@@ -84,12 +84,14 @@ def make_score_crest(bonds):
 
 
 def run(name, bonds, score_fn, gate, top_n, hold_rank):
+    from combine import save_fills
     print(f"\n[{name}] IS 2003-2015 top_n={top_n}", flush=True)
     closed = pf.run_portfolio(bonds, score_fn, IS_LO, IS_HI, top_n=top_n,
                               hold_until_rank=hold_rank, extra_gate=gate)
     fills = pf.positions_to_fills(closed)
     if not fills:
         print("  no fills", flush=True); return None
+    save_fills(fills, ROOT / "research" / f"fills_{name.lower().replace('-','')}_is.json")
     days, nav, daily = e2.mtm_nav(bonds, fills)
     ps = e2.perf_stats(days, nav, daily)
     ps["n_roundtrips"] = len(fills)
