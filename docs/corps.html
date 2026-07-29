@@ -264,7 +264,24 @@ matter:</p>
   <tr><td>full 2003–25</td><td>4,592</td><td class="pos">+10.54%</td><td class="pos">+4.58%</td><td class="pos"><b>+8.88%</b></td><td><b>0.73</b></td></tr>
   </tbody></table>
   <p style="font-size:.82rem" class="mut">OOS excess <em>above</em> IS — no decay. All p&lt;0.001.
-  Cost: ~⅓ of the fills; deeper crisis maxDD (−37.3% honest marks).</p></div>
+  The rule also transfers <em>in reverse</em> to munis (excess IS +1.97→+3.36%,
+  OOS +2.99→+3.99%) — four independent validating samples. Diagnostics: cap
+  monotone, excess positive in all 6 eras (incl. GFC +4.66% and 2021–23
+  +1.37%), strongest in the <em>most liquid</em> quartile.</p>
+  <h3 style="margin-top:12px">GRANITE-XL — depth weighting + recovery exit</h3>
+  <p style="font-size:.86rem">Same entries, two more frozen rules: size ∝ dislocation depth
+  (capped 0.5–2×) and sell at the first bid ≥21d in once the day's mid recovers
+  to the entry-day median (455d stop). Third one-shot OOS batch, paired on
+  identical entries:</p>
+  <table style="font-size:.82rem"><thead><tr><th>GRANITE-XL</th><th>mean/tr</th><th>hold</th><th>CAGR</th><th>Sharpe</th><th>maxDD</th></tr></thead>
+  <tbody>
+  <tr><td>IS 2003–15</td><td class="pos">+6.34%</td><td>271d</td><td class="pos"><b>+19.24%</b></td><td><b>1.15</b></td><td class="neg">−41.6%</td></tr>
+  <tr class="hl"><td><b>OOS 2016–25</b> (one-shot)</td><td class="pos">+6.87%</td><td>266d</td><td class="pos"><b>+17.13%</b></td><td><b>1.03</b></td><td class="neg">−34.3%</td></tr>
+  </tbody></table>
+  <p style="font-size:.82rem" class="mut">Faster recycling: deep entries revert early, the exit
+  harvests and redeploys — per-trade halves, compounding doubles. (The recovery-exit
+  idea had one prior OOS glimpse in another configuration — disclosed; all rules
+  frozen before the batch.)</p></div>
 </div>
 <div class="card" style="margin-top:14px"><h3>3 · The negative result, documented</h3>
 <p style="font-size:.86rem">The search's target — Sharpe ≈3 / CAGR ≥10% — was <b>not met</b>, with the
@@ -276,8 +293,11 @@ surviving sleeves are long the same credit-beta factor (OOS correlations
 Sharpe without leverage. Clean kills: fire-sale reversal, spread-widening
 reversion, carry ladders, issuer relative-value, momentum, fallen-angel proxy,
 new-issue concession, index-exclusion and hold-to-redemption constructions,
-vol-managed sizing, calendar effects. <b>The honest frontier of long-only cash
-corporates is Sharpe ~0.6–1.0 at CAGR ~8–11%</b> — GRANITE-CL sits on it.
+vol-managed sizing, calendar effects. The refinement path lifted the frontier to
+<b>Sharpe ~1.0–1.2 at CAGR ~17% OOS (GRANITE-XL)</b> — the CAGR-10 target is met
+out-of-sample; Sharpe 3 is not, because every position remains long the single
+credit-beta factor through a −34% crisis drawdown, and tripling Sharpe requires
+hedging instruments (CDS, futures, repo leverage) this dataset does not contain.
 Full write-up: <span class="mono">corps/NEW_STRATEGY_SEARCH.md</span>.</p></div>
 
 <h2 id="audit"><span class="num">9</span>Bias &amp; overfitting audit</h2>

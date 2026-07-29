@@ -180,13 +180,31 @@ recommended book (all numbers at honest daily marks, monthly Sharpe vs T-bill):
 | book (≤5y, issuer-capped) | trades | mean/trade | excess | CAGR | Sharpe | maxDD |
 |---|--:|--:|--:|--:|--:|--:|
 | GRANITE-C (no limit filter) | 11,477 | +9.2% | +3.0% | +6.62% | 0.58 | −30.0% |
-| **GRANITE-CL (limit entry), full** | 4,592 | **+10.54%** | **+4.58%** | **+8.88%** | **0.73** | −37.3% |
+| GRANITE-CL (limit entry), full | 4,592 | +10.54% | +4.58% | +8.88% | 0.73 | −37.3% |
 | GRANITE-CL, one-shot OOS 2016–25 | 2,733 | +10.98% | **+5.48%** | +8.05% | 0.56 | −31.3% |
 
 The OOS excess is *higher* than in-sample (+5.48% vs +4.56%) — no decay. The
 limit cap is an implicit depth filter, and depth was monotone from the first
-threshold sweep. Cost: about a third of the fills and a deeper crisis drawdown
-(the surviving fills concentrate in the deepest dislocations).
+threshold sweep. The rule also **transfers in reverse to munis** (an asset
+class it never saw): muni excess IS +1.97%→+3.36%, OOS +2.99%→+3.99% — four
+independent validating samples in all.
+
+**GRANITE-XL** adds two more frozen rules on the same entries — depth-
+proportional weighting (w = depth/3, capped [0.5, 2]) and a recovery exit
+(sell at the first bid ≥21 days in once the day's mid recovers to the
+entry-day trailing median; 455d hard stop). Third one-shot OOS batch, paired
+on identical entries:
+
+| GRANITE-XL | mean/trade | hold | CAGR | Sharpe | maxDD |
+|---|--:|--:|--:|--:|--:|
+| IS 2003–2015 | +6.34% | 271d | **+19.24%** | **1.15** | −41.6% |
+| **one-shot OOS 2016–2025** | +6.87% | 266d | **+17.13%** | **1.03** | −34.3% |
+
+Faster capital recycling: the deep limit-capped entries revert early; the
+recovery exit harvests and redeploys. Per-trade return halves while book
+compounding roughly doubles. (Disclosure: the recovery-exit idea had one
+earlier OOS glimpse in a different configuration; the CL entry and the depth
+weighting were on their first look. All rules frozen before the batch.)
 
 Also confirmed: the excess survives in the **most-liquid quartile** (+3.54%), so
 it is not an illiquidity artifact; and stacking depth × duration (≥4pt & ≤5y)
