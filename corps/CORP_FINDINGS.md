@@ -172,9 +172,12 @@ cs≤5%) roughly **halves the drawdown to −8.8%** but gives back return
 - **Carry** is proxied by each bond's median yield (OSBAP daily rows don't
   carry the coupon); the excess-vs-control metric nets it out since both legs
   hold the same bond for the same period.
-- **Equity-curve drawdown** uses linear intra-trade attribution (as in munis),
-  so the −14.1% is somewhat smoothed vs a daily mark; total return and CAGR are
-  realized from bid/ask fills.
+- **Equity-curve drawdown was understated — corrected.** The −14.1% above comes
+  from linear intra-trade attribution. Re-marking daily at actual mid prints
+  gives **−32.7%** (full book) / **−31.3%** (focused ≤5y), with monthly Sharpe
+  vs T-bill of **0.41 / 0.46**. Total return and CAGR are unchanged (always
+  realized from bid/ask fills) — only the path was smoothed. See
+  [`CORP_AUDIT.md`](CORP_AUDIT.md) §5.
 - **Data** is OSBAP's cleaned daily VWAP + bid/ask (a reputable academic
   pipeline), not raw ticks.
 - **Capacity**: the full-universe number includes illiquid names; a live book

@@ -107,9 +107,22 @@ Reproduce: `corps/research/selective.py` (grid) and
 - **Coupon carry** is proxied by each bond's median yield (OSBAP daily rows omit
   the coupon); the excess-vs-control metric nets it out (both legs hold the same
   bond for the same period).
-- **Equity-curve drawdown** uses linear intra-trade attribution, so it is
-  somewhat smoothed vs a daily mark; total return / CAGR are realized from
-  bid/ask fills.
+- **Equity-curve drawdown was materially understated** (corrected). The
+  published −14.1% came from linear intra-trade attribution. Re-marking every
+  position daily at its **actual mid prints** (engine `corps/research/engine2.py`,
+  stale marks held flat) gives the honest figures:
+
+  | book | published maxDD | **honest mark-to-market maxDD** | monthly Sharpe vs T-bill |
+  |---|--:|--:|--:|
+  | full universe ≥3pt | −14.1% | **−32.7%** | 0.41 |
+  | focused ≤5y | −15.4% | **−31.3%** | 0.46 |
+  | ≥4pt | −18.4% | **−37.2%** | 0.38 |
+  | focused ≤5y, 1 position/issuer | — | **−30.0%** | **0.58** |
+
+  Total return and CAGR are unaffected — they were always realized from
+  bid/ask fills. Only the *path* was smoothed. The strategy's risk is roughly
+  **twice** what the attribution curve implied, and its risk-adjusted return is
+  ordinary (Sharpe ~0.4–0.6), not exceptional.
 - **Capacity**: the full-universe number includes illiquid names; a live book
   would tier by liquidity, trading fewer, larger positions. Deeper-threshold
   operating points (≥4 pt) concentrate the alpha but reduce breadth.
