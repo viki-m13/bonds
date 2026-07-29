@@ -50,9 +50,12 @@ def recover(b, min_mat):
     if ok.sum() < 5:
         return None, None
     y = y[ok]; T = T[ok]; P = P[ok]
-    c0 = _invert(P, y, T)                    # pass 1 (clean price)
-    c0 = np.clip(c0, 0.0, 20.0)
-    c1 = _invert(P + c0 / 4.0, y, T)         # pass 2 (AI-corrected price)
+    # v3: NO accrued-interest add-back. Empirical par anchor decided this:
+    # clean quotes already remove the accrual sawtooth (that is their
+    # definition), and the identity is exact at par with clean P (v1 par
+    # error 0.05); adding c/4 overcorrected it to 0.24 (v2). Residual off-par
+    # bias is second-order in (c - y) and disclosed.
+    c1 = _invert(P, y, T)
     c1 = c1[np.isfinite(c1)]
     if len(c1) < 5:
         return None, None
