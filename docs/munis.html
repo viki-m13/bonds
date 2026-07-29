@@ -112,6 +112,7 @@ caption{caption-side:bottom;font-size:.7rem;color:var(--t3);text-align:left;padd
   <a href="#signal">5 · The signal</a>
   <a href="#evidence">6 · Evidence</a>
   <a href="#equity">7 · Performance vs MUB</a>
+  <a href="#kxl">7.5 · KEYSTONE-XL refinements</a>
   <a href="#risk">8 · Risk, regime &amp; capacity</a>
   <a href="#limits">9 · Honest limitations</a>
   <a href="#repro">10 · Implementation &amp; reproduction</a>
@@ -306,6 +307,30 @@ window.</p>
   <tbody></tbody>
   <caption>*Drawdown is understated by linear intra-trade return attribution (munis do not print daily) — see §9. Total return and CAGR are realized from actual entry/exit prints plus coupon.</caption>
 </table>
+
+<h2 id="kxl"><span class="num">7.5</span>KEYSTONE-XL — the transferred refinement stack</h2>
+<p>The corporate research program (<a href="granite_xl.html">GRANITE-XL</a>) developed three
+execution rules on corporates and validated them bidirectionally. Applied <b>verbatim</b> to
+this muni strategy — <b>limit entry</b> (fill only if the customer-buy price &le; latest prior
+mid + 0.25), <b>one position per issuer</b>, and a <b>recovery exit</b> (sell at the first
+customer-sell print &ge;21 days in once the day's mid recovers to the entry-day trailing
+median; 455-day stop) — each step improves the book in <em>both</em> windows:</p>
+<table>
+  <thead><tr><th>Book</th><th>Trades</th><th>Win</th><th>Mean/trade</th><th>Excess vs ctrl</th><th>CAGR</th><th>MaxDD*</th></tr></thead>
+  <tbody>
+    <tr><td>base (locked config), IS 2012–22</td><td>1,701</td><td>63%</td><td class="pos">+2.56%</td><td class="pos">+1.48%</td><td class="pos">+3.66%</td><td class="neg">−9.1%</td></tr>
+    <tr class="hl"><td><b>KEYSTONE-XL, IS 2012–22</b></td><td>484</td><td>73%</td><td class="pos">+5.50%</td><td class="pos"><b>+3.77%</b></td><td class="pos"><b>+7.98%</b></td><td class="neg"><b>−4.7%</b></td></tr>
+    <tr><td>base, OOS 2023–26</td><td>2,274</td><td>91%</td><td class="pos">+6.64%</td><td class="pos">+2.10%</td><td class="pos">+5.69%</td><td class="neg">−0.0%</td></tr>
+    <tr class="hl"><td><b>KEYSTONE-XL, OOS 2023–26</b></td><td>573</td><td>98%</td><td class="pos">+6.92%</td><td class="pos">+2.34%</td><td class="pos"><b>+9.44%</b></td><td class="neg">0.0%</td></tr>
+  </tbody>
+  <caption>*Linear intra-trade attribution (munis do not print daily); understates crisis paths — see §9. All excess figures vs matched random-entry controls facing the same fill cap; all p&lt;0.001. The 2023–26 OOS window was a benign muni tape (near-zero drawdown for all variants).</caption>
+</table>
+<p style="font-size:.88rem">In-sample the stack roughly <b>doubles CAGR (+3.66%&rarr;+7.98%) while halving drawdown</b>;
+out-of-sample it adds <b>+3.75pp of CAGR</b> at a 98% win rate on a quarter of the trades. The
+same mechanism as corporates: the limit cap keeps only fills where the dislocation is still
+fully available, and the recovery exit harvests the reversion and recycles capital
+(holds ~380&rarr;234 days). Full validation trail: <span class="mono">munis/research/results/keystone_xl.json</span>
+and <span class="mono">corps/NEW_STRATEGY_SEARCH.md</span>.</p>
 
 <!-- 8 RISK -->
 <h2 id="risk"><span class="num">8</span>Risk, regime &amp; capacity</h2>
