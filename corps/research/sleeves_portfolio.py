@@ -65,6 +65,7 @@ def make_score_crest(bonds):
         return float(np.median(vals)) if vals else None
 
     cache = {}
+    cache_t = [None]
 
     def score(b, t, i):
         cs = float(b["cs"][i])
@@ -73,13 +74,14 @@ def make_score_crest(bonds):
         if not (2 <= int(b["mat"][i]) <= 10):
             return None
         iss = b["_six"][:6]
-        key = (iss, t)
-        if key not in cache:
+        if cache_t[0] != t:          # only one month-end is ever live (bounded memory)
+            cache.clear()
+            cache_t[0] = t
+        if iss not in cache:
             recent = issuer_med_cs(iss, 21, 42, t)
             old = issuer_med_cs(iss, 126, 168, t)
-            cache[key] = (old - recent) if (recent is not None and old is not None) else None
-        v = cache[key]
-        return v   # spread TIGHTENING = positive score
+            cache[iss] = (old - recent) if (recent is not None and old is not None) else None
+        return cache[iss]   # spread TIGHTENING = positive score
     return score
 
 
