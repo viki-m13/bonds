@@ -325,6 +325,45 @@ rather than strictly gating between them (the IS mean/trade gate did pass,
 +10.47% vs +7.25%); (ii) this evaluation window (entry years 2016–2024) sits
 inside the batch-3 OOS window already spent on XL.
 
+### 9.4.4 Round four — the response-curve atlas, and why the stock playbook half-ports
+
+**The atlas** (IS, forward mid+accrual returns, excess vs matched baseline —
+the empirical physics of this market in one table):
+
+| condition | 5d | 21d | 63d | 126d | 252d | 365d |
+|---|--:|--:|--:|--:|--:|--:|
+| drop ≥1pt | +0.23 | +0.19 | +0.61 | +0.97 | +2.87 | +4.25 |
+| drop ≥2pt | +0.40 | +0.47 | +1.32 | +2.21 | +6.16 | +8.97 |
+| drop ≥3pt | +0.44 | +0.59 | +1.98 | +3.46 | +9.51 | +13.83 |
+| drop ≥5pt | +0.56 | +0.65 | +2.62 | +5.04 | +14.88 | **+22.24** |
+| volume ≥5× alone | −0.02 | −0.06 | +0.00 | +0.14 | +0.46 | +0.46 |
+| at 250d high | −0.60 | −0.66 | −0.79 | −0.85 | −1.23 | **−1.62** |
+
+Three laws fall out: (1) **dislocation reversion is monotone in depth and
+slow** — most excess accrues between 63 and 365 days, which is why every
+short-horizon sleeve died and why ~1y holds with recycling win; (2) **volume
+alone carries no signal** — it matters only with price displacement; (3)
+**momentum is inverted in bonds** — bonds at their 250d high *underperform* at
+every horizon. The par ceiling plus call risk caps the upside, so the equity
+momentum leg structurally cannot port. This one row predicted, in advance,
+the deaths of both remaining stock-style screens below.
+
+**Four equity-style screens, all dead by their gates:**
+- *Pyramiding* (2nd unit at ≥5pt while first open): add-units earn
+  +22.5%/trade (the atlas's depth law confirmed per-trade) but the book's
+  Sharpe falls (0.77→0.71) and maxDD balloons (−40%→−46%) — adds concentrate
+  in crises. Return concentration, not risk-adjusted improvement.
+- *OBV accumulation divergence* (signed customer-flow line vs flat price):
+  excess +0.16% (p<0.001, n=62k) — statistically real, economically dead
+  (−0.23%/trade after the spread). The flow information already lives in the
+  ML features, where it belongs.
+- *Breakout-carry* (250d-high strength × fat spread): Sharpe 0.08 — as the
+  atlas's inverted-momentum row dictates.
+- *Bond-level 6-1 HY momentum*: Sharpe 0.20 — same cause. With CREST
+  (issuer-level) also dead, momentum in this market is now triply refuted.
+
+No round-4 candidate was admitted to an OOS batch — nothing passed IS.
+
 ### 9.5 Final verdict on the Sharpe-3 / CAGR-10 target
 
 **CAGR ≥10%: MET out-of-sample.** GRANITE-XL delivers **+17.13% OOS CAGR
