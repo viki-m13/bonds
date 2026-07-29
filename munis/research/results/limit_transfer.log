@@ -1,0 +1,10 @@
+loading muni panel ...
+3085 muni bonds prepared
+
+[TRANSFER] muni price_discount 3.0, hold ~1y:
+  IS 2012-2022 base      n= 1701 win= 63% mean= +2.56% excess=+1.97% p=0.000
+  IS 2012-2022 +limit cap n=  484 win= 70% mean= +5.14% excess=+3.36% p=0.000
+  OOS 2023-2026 base     n= 2274 win= 91% mean= +6.64% excess=+2.99% p=0.000
+  OOS 2023-2026 +limit cap n=  574 win= 97% mean= +8.58% excess=+3.99% p=0.000
+
+wrote munis/research/results/limit_transfer.json

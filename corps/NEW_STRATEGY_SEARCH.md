@@ -239,6 +239,32 @@ GRANITE-C's +6.6% CAGR / 0.58 Sharpe. Cost: fewer fills (a third of the book)
 and a deeper crisis drawdown (−37.3% at honest marks; the limit book
 concentrates in the deepest dislocations).
 
+### 9.4.1 GRANITE-CL interrogated — five more checks, all passed
+
+- **Cap monotonicity**: per-trade mean rises smoothly as the cap tightens
+  (+9.37% → +10.47% → +11.49% → +12.62% → +13.57% for none/1.0/0.5/0.25/0.0) —
+  the rule is a depth filter, not a lucky knob; +0.25 is the Sharpe/breadth
+  sweet spot (0.99 vs 0.97 at 0.0 with a quarter fewer trades).
+- **Era robustness** (full sample): positive excess in **all six eras**,
+  significant in five — including the 2008 GFC (+4.66%, p=0.048) *and* the
+  2021–23 rate selloff (+1.37%, p=0.014), the base strategy's two soft spots.
+- **Capacity**: excess in every liquidity quartile; the **most liquid quartile
+  is the strongest** (+7.54% excess, +17.07% mean).
+- **Mechanism check**: accepted fills arrive fast (median 2 days after signal)
+  and deep (median effective depth 4.3 pts vs the 3-pt trigger) — the cap
+  keeps exactly the fills where the dislocation is still fully available.
+- **REVERSE TRANSFER (the decisive test)**: the frozen rule applied verbatim
+  to the **muni** strategy it was never designed on:
+
+  | munis (price_discount 3.0) | excess base | **excess + limit cap** | mean/trade |
+  |---|--:|--:|--:|
+  | IS 2012–2022 | +1.97% | **+3.36%** | +2.56% → +5.14% |
+  | OOS 2023–2026 | +2.99% | **+3.99%** | +6.64% → +8.58% |
+
+  The rule improves an independent asset class in both of its windows. It is
+  now validated in **four independent samples** (corps IS/OOS, muni IS/OOS) —
+  the same bidirectional-transfer standard that anchors the GRANITE audit.
+
 ### 9.5 Final verdict on the Sharpe-3 / CAGR-10 target — unchanged
 
 GRANITE-CL clears **CAGR 10% in-sample** (+11.45%) and lands at **+8.05% OOS**

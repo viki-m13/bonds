@@ -285,8 +285,8 @@ def mtm_nav(bonds, fills, rf_in_cash=True, weights=None):
             tot = (mks[k] + acc * gap) / mks[k - 1] - 1.0
             dr = (1.0 + tot) ** (1.0 / gap) - 1.0
             a = mds[k - 1] + 1 - d0; z = mds[k] + 1 - d0
-            sret[a:z] += dr
-            cnt[a:z] += 1
+            sret[a:z] += w * dr
+            cnt[a:z] += w
     rf = load_rf(days) if rf_in_cash else np.zeros(n)
     daily = np.where(cnt > 0, sret / np.where(cnt > 0, cnt, 1), rf / 365.0)
     nav = np.cumprod(1.0 + daily)
