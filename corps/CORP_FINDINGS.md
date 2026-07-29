@@ -167,6 +167,40 @@ Achilles heel as munis. A conservative variant (≤5y *and* excl. deep distress
 cs≤5%) roughly **halves the drawdown to −8.8%** but gives back return
 (+3.84% CAGR, below LQD) — a low-vol knob, not the headline.
 
+## Recommended operating point: add an issuer concentration cap
+
+Capping the book at **one concurrent position per issuer** is the single best
+risk-adjusted improvement found (full sample, honest daily marks):
+
+| book | trades | CAGR | maxDD | Sharpe |
+|---|--:|--:|--:|--:|
+| focused ≤5y | 21,872 | +5.88% | −31.3% | 0.46 |
+| **focused ≤5y + 1 position/issuer** | 11,477 | **+6.62%** | **−30.0%** | **0.58** |
+
+Out-of-sample (2016–2025) it delivers **+2.65% excess vs control (p<0.001),
+CAGR +7.24%, Sharpe 0.51**. Diversification across issuers beats raw breadth —
+half the trades, better returns, better risk.
+
+Also confirmed: the excess survives in the **most-liquid quartile** (+3.54%), so
+it is not an illiquidity artifact; and stacking depth × duration (≥4pt & ≤5y)
+gives the best CAGR (+6.33%, OOS excess +3.92%) at the cost of a deeper −38.9%
+drawdown.
+
+## A separate search for a higher-Sharpe strategy failed
+
+A full independent search for a novel strategy targeting Sharpe ≈3 / CAGR ≥10%
+was run: 24 specs from six trading-lens agents, 9 strategy families screened
+in-sample with pre-registered kill gates, then a one-shot out-of-sample test.
+**The target was not met.** Seven families died in-sample; the one live
+candidate (a volume-confirmed fire-sale reversal) had a significant *and*
+monotone in-sample edge and still **failed out-of-sample** (+0.07%, p=0.25).
+Combination could not help — the sleeves are all long credit beta and their
+correlations *rose* out-of-sample (0.69–0.85).
+
+Full write-up, including the mechanism (bid-ask paid twice, a single tradable
+risk factor, vol-targeting trading CAGR for Sharpe):
+[`NEW_STRATEGY_SEARCH.md`](NEW_STRATEGY_SEARCH.md).
+
 ## Honest caveats
 
 - **Carry** is proxied by each bond's median yield (OSBAP daily rows don't
