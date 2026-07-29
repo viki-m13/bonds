@@ -109,20 +109,23 @@ def main():
                   mtm=(tag == "full"))
         out[f"stack_{tag}"] = s
 
-    print("\n[B] Liquidity tiers within focused <=5y >=3pt (trailing qv90 tier):", flush=True)
-    # per-entry trailing volume: tier by qv90 at the signal day
-    qv_cuts = [0, 50, 250, 1000, 10**9]   # $000s/day avg
-    tier_names = ["<50k", "50-250k", "250k-1M", ">1M"]
-    tiers = {t: [] for t in tier_names}
+    print("\n[B] Liquidity tiers within focused <=5y >=3pt (trailing qv90 quartile):", flush=True)
+    # per-entry trailing volume; tier by QUARTILE of qv90 across entries
+    # (absolute units of qvolume are vendor-specific — quartiles are robust)
+    qvals = []
     for f in fills5:
         b = bonds[f.six]
-        i = np.searchsorted(b["day"], f.entry_day)
-        i = min(max(i, 0), len(b["day"]) - 1)
-        q = float(b["qv90"][i])
-        for t, lo_c, hi_c in zip(tier_names, qv_cuts[:-1], qv_cuts[1:]):
-            if lo_c <= q < hi_c:
-                tiers[t].append(f)
-                break
+        i = min(max(np.searchsorted(b["day"], f.entry_day), 0), len(b["day"]) - 1)
+        qvals.append(float(b["qv90"][i]))
+    qvals = np.array(qvals)
+    qs = np.nanquantile(qvals, [0.25, 0.5, 0.75])
+    print(f"  qv90 quartile cuts: {qs.round(1).tolist()} "
+          f"(median entry {np.nanmedian(qvals):.1f})", flush=True)
+    tier_names = ["Q1 least liquid", "Q2", "Q3", "Q4 most liquid"]
+    tiers = {t: [] for t in tier_names}
+    for f, q in zip(fills5, qvals):
+        k = int(np.searchsorted(qs, q, side="right"))
+        tiers[tier_names[k]].append(f)
     out["liquidity"] = {}
     for t in tier_names:
         fl = tiers[t]
@@ -132,11 +135,11 @@ def main():
                                  extra_gate=gate_mat5)
         s = e2.summarize(fl, control=ctl)
         avg_qv = np.mean([float(bonds[f.six]["qv90"][min(np.searchsorted(bonds[f.six]['day'], f.entry_day), len(bonds[f.six]['day'])-1)]) for f in fl])
-        s["avg_qv90_k"] = float(avg_qv)
+        s["avg_qv90"] = float(avg_qv)
         out["liquidity"][t] = s
-        print(f"  tier {t:9} n={s['n']:6} win={s['win_rate']*100:3.0f}% "
+        print(f"  tier {t:15} n={s['n']:6} win={s['win_rate']*100:3.0f}% "
               f"mean={s['mean_ret']*100:+6.2f}% excess={s.get('excess_vs_control',0)*100:+5.2f}% "
-              f"p={s.get('excess_p_boot',1):.3f} avg_dailyvol={avg_qv:,.0f}k", flush=True)
+              f"p={s.get('excess_p_boot',1):.3f} avg_qv90={avg_qv:,.0f}", flush=True)
 
     print("\n[C] Issuer concentration cap (max 1 concurrent per issuer), <=5y >=3pt:", flush=True)
     capped = issuer_cap_filter(fills5, cap=1)

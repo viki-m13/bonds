@@ -181,8 +181,7 @@ def matched_control(bonds, fills, min_hold=365, max_hold=455, n_draws=15,
         cand = np.flatnonzero(gate & (day >= lo - 30) & (day <= hi + 30))
         if not len(cand):
             continue
-        picks = rng.choice(cand, size=min(len(cand), n_draws * len(fl)),
-                           replace=len(cand) < n_draws * len(fl))
+        picks = rng.choice(cand, size=n_draws * len(fl), replace=True)
         for i in picks:
             sd = day[i]
             j = np.searchsorted(s_day, sd, side="right")
@@ -198,7 +197,7 @@ def matched_control(bonds, fills, min_hold=365, max_hold=455, n_draws=15,
                 if k2 < 0:
                     continue
                 xd, xp = hi2, float(p_px[k2])
-            acc = bonds[six]["coupon"] / 100.0 / 365.0 * (xd - ed)
+            acc = bonds[six]["coupon"] / 100.0 / 365.0 * (xd - ed) * 100.0
             rets.append((xp - ep + acc) / ep)
     return np.array(rets)
 
