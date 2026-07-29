@@ -8,3 +8,4 @@ trades/
 universe/_*
 _cookies.txt
 cache_bonds.pkl
+cache_global.pkl

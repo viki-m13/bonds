@@ -135,7 +135,7 @@ def build_issuer_map(bonds):
 
 def run_flowback(bonds, imap, lo, hi, vol_mult=4.0, drop=1.25):
     fills, ctl = [], []
-    QV_ABS = 1000.0   # ~$1mm par in qvolume units ($000s)
+    QV_ABS = 1.0   # ~$1mm par (qvolume is in $MM — see liquidity-quartile diag)
     for six, b in bonds.items():
         day = b["day"]; mid = b["mid"]; qv = b["qv"]
         med15 = b.get("med15"); qvmed = b.get("qvmed90"); spr60 = b.get("spr60")

@@ -180,7 +180,7 @@ def run_debut(bonds, imap, lo, hi, sample_start=None):
         j5 = np.searchsorted(day, t0 + 5, side="right")
         if j5 < 3:
             continue
-        if np.nansum(b["qv"][:j5]) < 25000:
+        if np.nansum(b["qv"][:j5]) < 25.0:      # >=$25mm cumulative ($MM units)
             continue
         s_day, s_px, p_day, p_px = _prints(b)
         # concession gate on t in [t0+3, t0+15]

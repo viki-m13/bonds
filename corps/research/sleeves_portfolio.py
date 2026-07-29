@@ -36,7 +36,7 @@ def gate_ballast(b):
     knife = (mid >= med60 - 2.0) & (mid >= np.nan_to_num(b["med15"], nan=-1e9) - 1.0)
     return ((b["mat"] >= 1) & (b["mat"] <= 4) & (b["cs"] >= 0.015) & (b["cs"] <= 0.05)
             & (mid >= 85) & (mid <= 100.5)
-            & (np.nan_to_num(b["qvmed90"]) * 60 >= 1000)     # ~$1mm/90d proxy
+            & (np.nan_to_num(b["qvmed90"]) * np.maximum(b["act90"], 1) >= 1.0)  # >=$1mm traded/90d ($MM units)
             & (b["ytw"] >= rf + 2.0) & knife)
 
 
