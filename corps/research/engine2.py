@@ -250,19 +250,23 @@ def load_rf(days):
     return v[idx]
 
 
-def mtm_nav(bonds, fills, rf_in_cash=True):
-    """Daily NAV from real mid marks. Equal-weight daily across open positions.
-    Position return on day t = (mark_t + accrual) / mark_{t-1} - 1, where marks
-    only change on the bond's actual print days (stale = flat). Entry basis is
-    the ask fill; final mark is the bid fill (spread honestly paid).
+def mtm_nav(bonds, fills, rf_in_cash=True, weights=None):
+    """Daily NAV from real mid marks. Weight-averaged daily across open
+    positions (weights=None => equal weight; else one weight per fill,
+    renormalized daily over the open set). Position return on day t =
+    (mark_t + accrual) / mark_{t-1} - 1, where marks only change on the
+    bond's actual print days (stale = flat). Entry basis is the ask fill;
+    final mark is the bid fill (spread honestly paid).
     Returns (days, nav, daily_ret)."""
     if not fills:
         return None
+    if weights is None:
+        weights = [1.0] * len(fills)
     d0 = min(f.entry_day for f in fills); d1 = max(f.exit_day for f in fills)
     days = np.arange(d0, d1 + 1)
     n = len(days)
     sret = np.zeros(n); cnt = np.zeros(n)
-    for f in fills:
+    for f, w in zip(fills, weights):
         b = bonds[f.six]
         day = b["day"]; mid = b["mid"]
         i0 = np.searchsorted(day, f.entry_day, side="right")
