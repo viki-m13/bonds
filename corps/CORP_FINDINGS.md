@@ -227,8 +227,16 @@ without leverage. Notable clean kills: hold-to-redemption constructions
 repackaged beta), vol-managed sizing, calendar effects, momentum, issuer RV,
 new-issue concession as alpha.
 
-The search *did* deliver GRANITE-CL (above), a validated coupon-recovery method
-for the panel's missing field, and the honest mark-to-market risk correction.
+The search *did* deliver GRANITE-CL/XL (above), a validated coupon-recovery
+method for the panel's missing field, the honest mark-to-market risk
+correction, and — in a third round adapting equity-quant methods — two
+order-flow findings from the two-sided customer tape (**bond-specific
+dislocations beat issuer-wide, +7.32% vs +4.45%**; sell-heavy tape +1.9pp) and
+a **walk-forward ML entry ranker** whose per-trade discrimination survives
+out-of-sample (top-half +10.05%/trade, 92% win vs bottom +2.76%/72%; Ridge
+confirms). Honest book-level verdict: the ranker does **not** raise book
+CAGR/Sharpe (the fully-deployed NAV washes it out) — its value is capacity
+allocation when a live book cannot take every signal.
 **The honest frontier of long-only cash corporates: Sharpe ~0.6–1.0 at CAGR
 ~8–11%.** Full write-up: [`NEW_STRATEGY_SEARCH.md`](NEW_STRATEGY_SEARCH.md).
 

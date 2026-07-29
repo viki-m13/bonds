@@ -290,6 +290,41 @@ OOS look, in a new configuration where its effect is much larger. The depth
 weighting and the CL entry rule are on their first look. All rules frozen
 before the batch ran.
 
+### 9.4.3 Round three — order-flow features and a walk-forward ML ranker
+
+Adapting equity-quant method classes to the XL book (all point-in-time):
+
+**Order-flow (novel use of the two-sided customer tape).** The panel separates
+customer-buy from customer-sell prints — an order-flow signal untouched until
+now. IS univariate splits on XL entries: **bond-specific dislocations (no
+same-issuer sibling dislocated) return +7.32% vs +4.45% for issuer-wide** —
+flow-driven beats news-driven, the microstructure thesis confirmed; sell-heavy
+10-day tape adds ~+1.9pp; calm-period entries (few signals firing market-wide)
+are rare but golden (+24% on n=47).
+
+**Walk-forward ML ranker.** HistGradientBoosting on 16 features, trained
+expanding-window on *completed trades only* (label embargo), threshold =
+training-set median prediction, frozen hyperparameters, Ridge as robustness.
+Per-trade discrimination survives the walk-forward wall out-of-sample:
+
+| OOS 2016–2024 | n | mean/trade | win |
+|---|--:|--:|--:|
+| all XL trades | 2,578 | +6.14% | 82% |
+| **GBM top-half** | 1,194 | **+10.05%** | **92%** |
+| GBM bottom-half | 1,384 | +2.76% | 72% |
+| Ridge top-half (robustness) | 1,071 | +11.51% | 94% |
+
+**But the honest book-level verdict is null**: at real mid-print marks the
+top-half book's OOS CAGR (+13.51%, Sharpe 0.90) is indistinguishable from the
+full book (+13.50%, 0.95). The equal-weight NAV is always fully deployed, so
+per-trade selection washes out at the book level. The ranker's real value is
+**capacity allocation**: when a live book cannot take every signal, taking the
+top-ranked half nearly quadruples the per-trade edge of the marginal dollar.
+Two process disclosures: (i) the script evaluated IS and OOS in one pass
+rather than strictly gating between them (the IS mean/trade gate did pass,
++10.47% vs +7.25%); (ii) this evaluation window (entry years 2016–2024) sits
+inside the batch-3 OOS window already spent on XL.
+
 ### 9.5 Final verdict on the Sharpe-3 / CAGR-10 target
 
 **CAGR ≥10%: MET out-of-sample.** GRANITE-XL delivers **+17.13% OOS CAGR
