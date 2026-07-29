@@ -167,7 +167,86 @@ Two supporting findings, also OOS-confirmed:
 - **Capacity is real**: the excess survives in the *most liquid* quartile
   (+3.54%), so it is not an illiquidity artifact.
 
-## 9. Reproduce
+## 9. Round two — creative extensions, and the one that survived
+
+A second experimental round attacked the constraints of §7 directly. Everything
+below was IS-designed with pre-registered kill gates, red-teamed by an
+adversarial agent before implementation, and (for the survivor) given exactly
+one OOS look — the program's second, disclosed as such.
+
+### 9.1 Coupon recovery — fixing the dataset's missing field
+
+The panel omits coupons; the median-yield proxy distorted any pull-to-par
+accounting (§4). Every (clean price, yield, maturity) triple embeds the coupon
+via the bond identity `P = c·A + 100(1+y)^-T`, so we inverted it per bond-day
+(qualifying days: mat ≥ 3, price 70–130, y < 25%) and took per-bond medians.
+Validation: on near-par bonds — where the identity is exact — recovered coupon
+matches yield to **0.049**; premium bonds have c > y in 99.95% of cases,
+discount bonds c < y in 100.00%; within-bond daily IQR median 0.09. An
+adversarially-proposed accrued-interest correction was tested and **rejected by
+the par-anchor test** (it tripled the error — clean prices already remove the
+accrual sawtooth). Residual disclosed bias: premium callables carry
+yield-to-worst, understating income (conservative). 53,265 of 55,545 bonds
+recovered; the rest keep the legacy proxy.
+
+### 9.2 MAGNET — killed by its own pre-registered gates
+
+The most attractive structural idea: graft the proven dislocation *entry* onto
+a hold-to-redemption *exit* (spread paid once, no exit-timing decision). The
+red-team demanded — and got — a patched redemption classifier (no par credit at
+the sample edge or for early-faded tapes), dual controls (same-bond
+random-timing; random-bond matched-month for adverse selection), a same-entries
+GRANITE-exit benchmark, and bracket invariance. Results:
+
+- **Depth gate FAILED**: excess vs the adverse-selection control is +3%
+  (p<0.001) but *flat* across 1/2/3/4-pt depth (+3.38/+3.34/+3.11/+3.05) —
+  whatever it is, it is not dislocation alpha.
+- **Maturity gradient RISING** (+0.15/+1.15/+1.60% annualized for ≤1/≤2/≤3y) —
+  the pre-registered artifact signature: repackaged carry/credit beta.
+- **Benchmark decisive**: on *identical entries*, the ordinary GRANITE 1-year
+  bid-sale exit beat hold-to-redemption (+5.37% vs +3.58% annualized, Sharpe
+  0.92, maxDD −11.8%). The redemption exit adds nothing. Killed.
+
+### 9.3 Two more clean kills
+
+- **Vol-managed sizing** (Moreira-Muir, frozen rule): Sharpe 0.86 → 0.69.
+  Vol-timing de-levers exactly before the recovery months that pay for the
+  crisis losses. Dead.
+- **Calendar concentration** (two pre-registered hypotheses only): December
+  t=+0.68, quarter-end t=−0.92. Both null. Closed.
+
+### 9.4 GRANITE-CL — the survivor: limit-entry discipline
+
+One frozen parameter, transparent economics: after the ≥3-pt dislocation
+signal, accept the fill **only if the ask is ≤ the latest prior mid + 0.25** —
+never chase a price that has already bounced. The matched control faces the
+same fill cap (the FLOWBACK lesson). On the issuer-capped ≤5y book:
+
+| window | trades | win | mean/trade | excess vs control | p | CAGR | Sharpe | maxDD |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|
+| IS 2003–2015 | 2,018 | 82% | +12.62% | +4.56% | <0.001 | +11.45% | 0.99 | −37.6% |
+| **OOS 2016–2025 (one-shot)** | 2,733 | 79% | **+10.98%** | **+5.48%** | **<0.001** | **+8.05%** | 0.56 | −31.3% |
+| full 2003–2025 | 4,592 | 80% | +10.54% | +4.58% | <0.001 | **+8.88%** | **0.73** | −37.3% |
+
+**The OOS excess is *higher* than in-sample** — no decay, unlike FLOWBACK-S.
+The mechanism is coherent with everything else in this program: the limit cap
+is an implicit depth filter (it keeps only fills where the dislocation is still
+fully available), and depth is the one knob that was monotone from the start.
+
+GRANITE-CL is now the best honest operating point: **+10.5% per trade, +4.6%
+excess (p<0.001), CAGR +8.9%, Sharpe 0.73, on ~200 trades/yr** — versus
+GRANITE-C's +6.6% CAGR / 0.58 Sharpe. Cost: fewer fills (a third of the book)
+and a deeper crisis drawdown (−37.3% at honest marks; the limit book
+concentrates in the deepest dislocations).
+
+### 9.5 Final verdict on the Sharpe-3 / CAGR-10 target — unchanged
+
+GRANITE-CL clears **CAGR 10% in-sample** (+11.45%) and lands at **+8.05% OOS**
+with Sharpe 0.56. The §7 mechanism stands: without leverage, shorting, or
+derivatives, Sharpe ~0.6–1.0 at CAGR ~8–11% is the honest frontier of this
+instrument set, and this program's best point sits on it.
+
+## 10. Reproduce
 
 ```bash
 python corps/research/engine2.py build       # compact cache
@@ -181,4 +260,9 @@ python corps/research/sleeves_wave3.py       # TWINS-R, DEBUT, ANGELFALL-M
 python corps/research/anchor.py              # ANCHOR + redemption sensitivity
 python corps/research/combine_is.py          # sleeve combination (IS)
 python corps/research/oos_validate.py        # ONE-SHOT OOS — run once
+# round two:
+python corps/research/augment4_coupon.py     # coupon recovery (validated)
+python corps/research/magnet.py              # MAGNET + kill gates
+python corps/research/variants.py            # vol-managed / limit-entry / calendar
+python corps/research/oos2.py                # GRANITE-CL one-shot OOS — run once
 ```

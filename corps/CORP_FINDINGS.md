@@ -167,39 +167,52 @@ Achilles heel as munis. A conservative variant (≤5y *and* excl. deep distress
 cs≤5%) roughly **halves the drawdown to −8.8%** but gives back return
 (+3.84% CAGR, below LQD) — a low-vol knob, not the headline.
 
-## Recommended operating point: add an issuer concentration cap
+## Recommended operating point: GRANITE-CL
 
-Capping the book at **one concurrent position per issuer** is the single best
-risk-adjusted improvement found (full sample, honest daily marks):
+Two refinements survived honest out-of-sample validation and now define the
+recommended book (all numbers at honest daily marks, monthly Sharpe vs T-bill):
 
-| book | trades | CAGR | maxDD | Sharpe |
-|---|--:|--:|--:|--:|
-| focused ≤5y | 21,872 | +5.88% | −31.3% | 0.46 |
-| **focused ≤5y + 1 position/issuer** | 11,477 | **+6.62%** | **−30.0%** | **0.58** |
+1. **Issuer concentration cap** — max one concurrent position per issuer.
+2. **Limit-entry discipline** — after the ≥3-pt dislocation signal, accept the
+   fill only if the ask is ≤ the latest prior mid + 0.25 (never chase a price
+   that has already bounced). The matched control faces the same fill cap.
 
-Out-of-sample (2016–2025) it delivers **+2.65% excess vs control (p<0.001),
-CAGR +7.24%, Sharpe 0.51**. Diversification across issuers beats raw breadth —
-half the trades, better returns, better risk.
+| book (≤5y, issuer-capped) | trades | mean/trade | excess | CAGR | Sharpe | maxDD |
+|---|--:|--:|--:|--:|--:|--:|
+| GRANITE-C (no limit filter) | 11,477 | +9.2% | +3.0% | +6.62% | 0.58 | −30.0% |
+| **GRANITE-CL (limit entry), full** | 4,592 | **+10.54%** | **+4.58%** | **+8.88%** | **0.73** | −37.3% |
+| GRANITE-CL, one-shot OOS 2016–25 | 2,733 | +10.98% | **+5.48%** | +8.05% | 0.56 | −31.3% |
+
+The OOS excess is *higher* than in-sample (+5.48% vs +4.56%) — no decay. The
+limit cap is an implicit depth filter, and depth was monotone from the first
+threshold sweep. Cost: about a third of the fills and a deeper crisis drawdown
+(the surviving fills concentrate in the deepest dislocations).
 
 Also confirmed: the excess survives in the **most-liquid quartile** (+3.54%), so
 it is not an illiquidity artifact; and stacking depth × duration (≥4pt & ≤5y)
 gives the best CAGR (+6.33%, OOS excess +3.92%) at the cost of a deeper −38.9%
 drawdown.
 
-## A separate search for a higher-Sharpe strategy failed
+## The search for a Sharpe-3 strategy: target not met, frontier mapped
 
-A full independent search for a novel strategy targeting Sharpe ≈3 / CAGR ≥10%
-was run: 24 specs from six trading-lens agents, 9 strategy families screened
-in-sample with pre-registered kill gates, then a one-shot out-of-sample test.
-**The target was not met.** Seven families died in-sample; the one live
-candidate (a volume-confirmed fire-sale reversal) had a significant *and*
-monotone in-sample edge and still **failed out-of-sample** (+0.07%, p=0.25).
-Combination could not help — the sleeves are all long credit beta and their
-correlations *rose* out-of-sample (0.69–0.85).
+Two full experimental rounds targeted Sharpe ≈3 / CAGR ≥10%: 24 specs from six
+trading-lens agents plus four structural/creative extensions — 13 strategy
+families in all — screened in-sample with pre-registered kill gates, survivors
+given exactly one OOS look each. **The Sharpe-3 target was not met**, and the
+mechanism is demonstrated, not asserted: the bid-ask toll is paid twice per
+round trip (killing every short-horizon sleeve, including one that was
+significant *and* monotone in-sample and still died OOS); every surviving
+sleeve is long the same credit-beta factor (OOS correlations 0.69–0.85, so
+combination cannot lift Sharpe); and vol-targeting trades CAGR for Sharpe
+without leverage. Notable clean kills: hold-to-redemption constructions
+(MAGNET/ANCHOR — the "pay the spread once" thesis is real but the carry is
+repackaged beta), vol-managed sizing, calendar effects, momentum, issuer RV,
+new-issue concession as alpha.
 
-Full write-up, including the mechanism (bid-ask paid twice, a single tradable
-risk factor, vol-targeting trading CAGR for Sharpe):
-[`NEW_STRATEGY_SEARCH.md`](NEW_STRATEGY_SEARCH.md).
+The search *did* deliver GRANITE-CL (above), a validated coupon-recovery method
+for the panel's missing field, and the honest mark-to-market risk correction.
+**The honest frontier of long-only cash corporates: Sharpe ~0.6–1.0 at CAGR
+~8–11%.** Full write-up: [`NEW_STRATEGY_SEARCH.md`](NEW_STRATEGY_SEARCH.md).
 
 ## Honest caveats
 

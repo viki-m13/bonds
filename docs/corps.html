@@ -87,6 +87,7 @@ caption{caption-side:bottom;font-size:.7rem;color:var(--t3);text-align:left;padd
   <a href="#evidence">6 · Evidence</a>
   <a href="#equity">7 · Performance vs LQD</a>
   <a href="#selective">8 · Selectivity — a focused book</a>
+  <a href="#refine">8.5 · Refinements &amp; honest risk</a>
   <a href="#audit">9 · Bias &amp; overfitting audit</a>
   <a href="#robust">10 · Robust levers &amp; limitations</a>
   <a href="#repro">11 · Reproduction</a>
@@ -191,7 +192,7 @@ total return over the same window.</p>
 <div class="chart-wrap"><canvas id="chEquity"></canvas></div>
 <div class="figcap">Fig 4 — Growth of $1, total return. See §9 on the path-smoothing caveat.</div>
 <table id="tblEquity"><thead><tr><th></th><th>Total</th><th>CAGR</th><th>Max drawdown*</th></tr></thead><tbody></tbody>
-<caption>*Drawdown understated by linear intra-trade attribution; total return &amp; CAGR are realized from bid/ask fills.</caption></table>
+<caption>*Chart drawdowns use linear intra-trade attribution and are <b>understated</b>: re-marking daily at actual mid prints gives maxDD <b>−32.7%</b> (full book) / <b>−31.3%</b> (≤5y), monthly Sharpe vs T-bill 0.41 / 0.46. Total return &amp; CAGR are unaffected (realized from bid/ask fills). See §8.5.</caption></table>
 
 <h2 id="selective"><span class="num">8</span>Selectivity — a focused short-duration book</h2>
 <p>The full-universe book carries <b>~3,100 concurrent positions</b> — more than a
@@ -227,9 +228,57 @@ base book's one weak regime is gone.</p>
   <div>
   <table id="tblSelFinal"><thead><tr><th>Book</th><th>Avg pos.</th><th>Total</th><th>CAGR</th><th>MaxDD*</th><th>OOS excess</th></tr></thead><tbody></tbody></table>
   <table id="tblSelEra" style="margin-top:10px"><thead><tr><th>Era (≤5y book)</th><th>Trades</th><th>Win</th><th>Excess</th><th>p</th></tr></thead><tbody></tbody></table>
-  <p style="font-size:.8rem;margin-top:6px" class="mut">*Drawdown understated by linear intra-trade attribution; total &amp; CAGR realized from bid/ask fills.</p>
+  <p style="font-size:.8rem;margin-top:6px" class="mut">*Drawdown understated by linear intra-trade attribution — honest daily-mark figures in §8.5; total &amp; CAGR realized from bid/ask fills.</p>
   </div>
 </div>
+
+<h2 id="refine"><span class="num">8.5</span>Refinements &amp; the honest risk picture <span style="font-size:.7em;color:var(--t2)">(second research round)</span></h2>
+<p>A second research program — six agent "trading lenses" proposing 24 specs,
+13 strategy families screened in-sample with <b>pre-registered kill gates</b>,
+survivors given exactly one out-of-sample look — searched for a higher-Sharpe
+construction and stress-tested this strategy's accounting. Three results
+matter:</p>
+<div class="g2">
+  <div class="card"><h3>1 · Honest mark-to-market risk (correction)</h3>
+  <p style="font-size:.86rem">The equity-curve drawdowns above use linear intra-trade
+  attribution, which smooths the path. Re-marking every position daily at its
+  <b>actual mid prints</b> (stale marks flat, monthly Sharpe vs T-bill):</p>
+  <table style="font-size:.82rem"><thead><tr><th>book</th><th>chart maxDD</th><th><b>honest maxDD</b></th><th>Sharpe</th></tr></thead>
+  <tbody>
+  <tr><td>full ≥3pt</td><td>−14.1%</td><td class="neg"><b>−32.7%</b></td><td>0.41</td></tr>
+  <tr><td>focused ≤5y</td><td>−15.4%</td><td class="neg"><b>−31.3%</b></td><td>0.46</td></tr>
+  <tr class="hl"><td>≤5y + issuer cap</td><td>—</td><td class="neg"><b>−30.0%</b></td><td><b>0.58</b></td></tr>
+  </tbody></table>
+  <p style="font-size:.82rem" class="mut">Total return and CAGR are unaffected — they were always
+  realized from bid/ask fills. Real risk is ~2× the smoothed path; risk-adjusted
+  return is ordinary, not exceptional.</p></div>
+  <div class="card"><h3>2 · GRANITE-CL — the validated refinement</h3>
+  <p style="font-size:.86rem">On the issuer-capped ≤5y book, accept the fill <b>only if the
+  ask ≤ latest prior mid + 0.25</b> — never chase a bounced price (the control
+  faces the same fill cap). One frozen parameter; the cap is an implicit depth
+  filter, and depth was monotone from the first sweep.</p>
+  <table style="font-size:.82rem"><thead><tr><th>window</th><th>n</th><th>mean/tr</th><th>excess</th><th>CAGR</th><th>Sharpe</th></tr></thead>
+  <tbody>
+  <tr><td>IS 2003–15</td><td>2,018</td><td class="pos">+12.62%</td><td class="pos">+4.56%</td><td class="pos">+11.45%</td><td>0.99</td></tr>
+  <tr class="hl"><td><b>OOS 2016–25</b> (one-shot)</td><td>2,733</td><td class="pos">+10.98%</td><td class="pos"><b>+5.48%</b></td><td class="pos">+8.05%</td><td>0.56</td></tr>
+  <tr><td>full 2003–25</td><td>4,592</td><td class="pos">+10.54%</td><td class="pos">+4.58%</td><td class="pos"><b>+8.88%</b></td><td><b>0.73</b></td></tr>
+  </tbody></table>
+  <p style="font-size:.82rem" class="mut">OOS excess <em>above</em> IS — no decay. All p&lt;0.001.
+  Cost: ~⅓ of the fills; deeper crisis maxDD (−37.3% honest marks).</p></div>
+</div>
+<div class="card" style="margin-top:14px"><h3>3 · The negative result, documented</h3>
+<p style="font-size:.86rem">The search's target — Sharpe ≈3 / CAGR ≥10% — was <b>not met</b>, with the
+mechanism demonstrated rather than asserted: the bid-ask toll is paid twice per
+round trip (it killed every short-horizon sleeve, including one that was
+significant <em>and</em> monotone in-sample yet still died out-of-sample); all
+surviving sleeves are long the same credit-beta factor (OOS correlations
+0.69–0.85, so combination cannot lift Sharpe); vol-targeting trades CAGR for
+Sharpe without leverage. Clean kills: fire-sale reversal, spread-widening
+reversion, carry ladders, issuer relative-value, momentum, fallen-angel proxy,
+new-issue concession, index-exclusion and hold-to-redemption constructions,
+vol-managed sizing, calendar effects. <b>The honest frontier of long-only cash
+corporates is Sharpe ~0.6–1.0 at CAGR ~8–11%</b> — GRANITE-CL sits on it.
+Full write-up: <span class="mono">corps/NEW_STRATEGY_SEARCH.md</span>.</p></div>
 
 <h2 id="audit"><span class="num">9</span>Bias &amp; overfitting audit</h2>
 <p>The checks a credit-quant desk would demand. Full detail in
