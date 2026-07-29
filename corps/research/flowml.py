@@ -184,17 +184,6 @@ def eval_book(bonds, rows, mask, label):
     if not sel:
         print(f"  {label}: empty", flush=True)
         return None
-    fl = [e2.Fill(rows[i]["six"], rows[i]["entry_day"], 0, 0, 0, 0, False)
-          for i in sel]
-    # rebuild proper Fill objects from stored rows
-    fl = []
-    for i in sel:
-        r = rows[i]
-        b = bonds[r["six"]]
-        f = e2.Fill(r["six"], r["entry_day"], 100.0, r["exit_day"], 100.0,
-                    b["coupon_inv"], False)
-        f.ret = r["ret"]; f.hold = r["hold"]
-        fl.append(f)
     rr = np.array([r["ret"] for i, r in enumerate(rows) if mask[i]])
     print(f"  {label:26} n={len(rr):5} mean={rr.mean()*100:+6.2f}% "
           f"win={(rr>0).mean()*100:.0f}%", flush=True)
