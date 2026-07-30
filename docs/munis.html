@@ -361,6 +361,29 @@ slate dots: days customers <em>sold</em>; dashed line: the trailing 60-day media
 </style>
 <div id="trades_muni"></div>
 
+<h3 style="margin-top:22px">Quant appendix — KEYSTONE-XL</h3>
+<p style="font-size:.9rem;max-width:80ch">Everything under the hood: where each point of return
+comes from, the shape of the trade distribution, monthly moments, the worst episodes, and what
+the book actually holds. The decomposition is an exact identity — the four components sum to the
+per-trade total.</p>
+<div class="g2">
+  <div><h3>Return decomposition (mean per trade)</h3>
+  <div class="tscroll"><table><thead><tr><th>Component</th><th>Mean</th><th>Share</th></tr></thead><tbody id="mDecomp"></tbody></table></div>
+  <p class="figcap">Carry = coupon accrual over the hold. Entry edge = discount captured vs the entry-day mid (the limit cap's contribution). Reversion = mid-to-mid price recovery — the alpha engine. Exit cost = selling at the bid below mid.</p></div>
+  <div><h3>Per-trade return distribution</h3>
+  <div class="tscroll"><table><tbody id="mDist"></tbody></table></div></div>
+</div>
+<div class="g2">
+  <div><h3>Monthly return moments</h3>
+  <div class="tscroll"><table><tbody id="mMonthly"></tbody></table></div></div>
+  <div><h3>Worst drawdown episodes</h3>
+  <div class="tscroll"><table><thead><tr><th>Peak</th><th>Trough</th><th>Recovered</th><th>Depth</th></tr></thead><tbody id="mDD"></tbody></table></div>
+  <h3 style="margin-top:14px">Book structure &amp; execution</h3>
+  <div class="tscroll"><table><tbody id="mConc"></tbody></table></div></div>
+</div>
+<h3>Year by year</h3>
+<div class="tscroll"><table><thead><tr><th>Year</th><th>Book return</th><th>Trades entered</th><th>Mean/trade (entry vintage)</th></tr></thead><tbody id="mAnnual"></tbody></table></div>
+
 <!-- 8 RISK -->
 <h2 id="risk"><span class="num">8</span>Risk, regime &amp; capacity</h2>
 <div class="callout warn">
