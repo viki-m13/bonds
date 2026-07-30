@@ -82,8 +82,8 @@ round trip). The strategy that **works**, validated honestly OOS:
 
 > **Deep-dislocation reversion** — buy when a bond prints ≥3 points below
 > its own trailing 60-day median (a forced-seller dislocation), hold ~1
-> year, sell into a customer bid. Full-sample 2013–2025: 1,350 trades,
-> **73% win, +4.4% mean/trade, +3.1% excess vs a matched random-entry
+> year, sell into a customer bid. Full-sample 2013–2025: 3,089 trades,
+> **74% win, +4.6% mean/trade, +3.25% excess vs a matched random-entry
 > control (p<0.001)**. It loses in sustained rate selloffs (2022), so it
 > is a mean-reversion strategy, not all-weather.
 

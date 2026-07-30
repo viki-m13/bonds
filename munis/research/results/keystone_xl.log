@@ -1,0 +1,16 @@
+loading muni panel ...
+3085 muni bonds prepared
+
+[IS] 2012-01-01..2022-12-31:
+  base                       n= 1701 win= 63% mean= +2.56% hold= 375d excess=+1.48% p=0.000 cagr= +3.66% dd=-9.1%
+  +limit                     n=  484 win= 70% mean= +5.14% hold= 376d excess=+3.75% p=0.000 cagr= +6.18% dd=-6.5%
+  +limit+issuer              n=  484 win= 70% mean= +5.14% hold= 376d excess=+3.78% p=0.000 cagr= +6.18% dd=-6.5%
+  KEYSTONE-XL (+recovery)    n=  484 win= 73% mean= +5.50% hold= 302d excess=+3.77% p=0.000 cagr= +7.98% dd=-4.7%
+
+[OOS] 2023-01-01..2026-07-07:
+  base                       n= 2274 win= 91% mean= +6.64% hold= 381d excess=+2.10% p=0.000 cagr= +5.69% dd=-0.0%
+  +limit                     n=  574 win= 97% mean= +8.58% hold= 384d excess=+3.89% p=0.000 cagr= +7.16% dd=0.0%
+  +limit+issuer              n=  573 win= 97% mean= +8.58% hold= 384d excess=+4.05% p=0.000 cagr= +7.16% dd=0.0%
+  KEYSTONE-XL (+recovery)    n=  573 win= 98% mean= +6.92% hold= 234d excess=+2.34% p=0.000 cagr= +9.44% dd=0.0%
+
+wrote /home/user/bonds/munis/research/results/keystone_xl.json
