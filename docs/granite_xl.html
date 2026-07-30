@@ -138,6 +138,25 @@ per-trade total.</p>
 <h3>Year by year</h3>
 <div class="tscroll"><table style="min-width:0"><thead><tr><th>Year</th><th>Book return</th><th>Trades entered</th><th>Mean/trade (entry vintage)</th></tr></thead><tbody id="qAnnual"></tbody></table></div>
 
+<h2>Execution &amp; live replication</h2>
+<p style="font-size:.9rem;max-width:80ch"><b>Already inside every backtest number:</b> fills pay the
+full printed bid–ask (buy at the customer-ask VWAP, sell at the customer-bid VWAP); no fill unless the
+required side actually printed (no phantom liquidity, 7-day fill window or no trade); entry is the day
+<em>after</em> the signal (no latency assumption); dead bonds exit at their last real bid. What is
+<em>not</em> automatic is competition for the print and size — modeled below.</p>
+<div class="g2">
+  <div><h3>Slippage stress — pay up h to win the print</h3>
+  <div class="tscroll"><table style="min-width:0"><thead><tr><th>Haircut h</th><th>Mean/trade</th><th>Win</th><th>CAGR</th><th>MaxDD</th></tr></thead><tbody id="xSlip"></tbody></table></div>
+  <p class="figcap" id="xSlipNote"></p></div>
+  <div><h3>Capacity at 25% participation of printed volume</h3>
+  <div class="tscroll"><table style="min-width:0"><tbody id="xCap"></tbody></table></div>
+  <p class="figcap">Position capped at 25% of the entry day's printed volume in that bond. Conservative:
+  a patient buyer can also work orders across the multi-day dislocation window, and reported TRACE
+  volumes are top-coded (large trades shown capped), so true capacity is higher.</p></div>
+</div>
+<h3>Live-desk checklist — what a replication must handle</h3>
+<div class="card"><ul style="font-size:.86rem;padding-left:18px;columns:2;column-gap:28px" id="xCheck"></ul></div>
+
 <h2>Honest limits</h2>
 <div class="g2">
   <div class="card"><h3>What this strategy is</h3>
@@ -287,5 +306,25 @@ document.getElementById(ids.conc).innerHTML=crows.map(([k,v])=>`<tr><td>${k}</td
 }
 </script>
 <script>renderQuant(QC, {decomp:"qDecomp",dist:"qDist",monthly:"qMonthly",dd:"qDD",conc:"qConc",annual:"qAnnual"}, "LQD");</script>
+<script>const XC = {"slippage": [{"mean_ret": 0.062194802953429294, "win": 0.8256219991270187, "cagr": 0.16621623926903895, "sharpe_m": 1.0310271276159304, "maxdd": -0.4124560092189907, "h": 0.0}, {"mean_ret": 0.0588583551202977, "win": 0.8186381492797905, "cagr": 0.15935450172358423, "sharpe_m": 0.9897898755921056, "maxdd": -0.41683379366598583, "h": 0.125}, {"mean_ret": 0.0555748443830686, "win": 0.8105630728939328, "cagr": 0.1525628431615813, "sharpe_m": 0.9485560603359343, "maxdd": -0.4211733168232923, "h": 0.25}, {"mean_ret": 0.049139245248432085, "win": 0.7965953731994763, "cagr": 0.13921275894735508, "sharpe_m": 0.8665153332893539, "maxdd": -0.4297403688932624, "h": 0.5}], "breakeven_h_vs_lqd": null, "lqd_cagr": 0.04542182877420231, "capacity": {"participation": 0.25, "median_pos_mm": 0.5, "p25_pos_mm": 0.125, "p75_pos_mm": 1.306437462568283, "avg_concurrency": 154.11863146150986, "annual_deployable_mm": 278.8074677837545, "implied_aum_mm": 77.05931573075493}, "ops": {"fills_per_year": 207.45946448493862, "max_fills_year": 915, "min_fills_year": 52}};</script>
+<script>
+function renderExec(X, ids, checklist, benchNote){
+if(!X) return;
+const f1=x=>(x*100).toFixed(1), f2=x=>(x*100).toFixed(2);
+document.getElementById(ids.slip).innerHTML = X.slippage.map((s,i)=>
+ `<tr class="${i==0?'hl':''}"><td>${s.h===0?'none (printed VWAP)':'+'+s.h+' pt'}</td><td class="${s.mean_ret>=0?'pos':'neg'}">${s.mean_ret>=0?'+':''}${f2(s.mean_ret)}%</td><td>${Math.round(s.win*100)}%</td><td class="${s.cagr>=0?'pos':'neg'}">${s.cagr>=0?'+':''}${f2(s.cagr)}%</td><td class="neg">${f1(s.maxdd)}%</td></tr>`).join('');
+document.getElementById(ids.slipnote).textContent = benchNote;
+const C=X.capacity, O=X.ops;
+const rows=[['median position (25% of entry-day print)','$'+C.median_pos_mm.toFixed(2)+'M'],
+ ['p75 position','$'+C.p75_pos_mm.toFixed(2)+'M'],
+ ['avg concurrent positions',Math.round(C.avg_concurrency).toLocaleString()],
+ ['deployable per year','$'+Math.round(C.annual_deployable_mm).toLocaleString()+'M'],
+ ['implied book size (median pos × concurrency)','$'+Math.round(C.implied_aum_mm).toLocaleString()+'M'],
+ ['fills per year',Math.round(O.fills_per_year)+' (peak year '+O.max_fills_year+')']];
+document.getElementById(ids.cap).innerHTML=rows.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+document.getElementById(ids.check).innerHTML=checklist.map(c=>`<li style="margin-bottom:6px">${c}</li>`).join('');
+}
+</script>
+<script>renderExec(XC, {slip:"xSlip",slipnote:"xSlipNote",cap:"xCap",check:"xCheck"}, ["<b>Latency:</b> TRACE disseminates within 15 minutes; the model waits for the <em>next day's</em> print \u2014 a full-day conservatism buffer.", "<b>Pricing basis:</b> daily VWAPs blend odd lots; institutional round-lot executions typically price <em>better</em> than the blended ask.", "<b>Volume top-coding:</b> TRACE caps displayed size ($5MM IG / $1MM HY), so the capacity figures are floors, not ceilings.", "<b>Settlement & financing:</b> T+1; no leverage anywhere; model cash earns T-bills; results gross of fees and taxes.", "<b>Crisis clustering:</b> fills concentrate in selloffs \u2014 a live book needs pre-committed dry powder and the issuer cap enforced at order entry.", "<b>Fill-or-forget:</b> the limit cap means many orders never fill; never chase \u2014 unfilled signals are the filter working.", "<b>Vehicle:</b> ~9-month average holds and \u221235 to \u221243% honest crisis marks require capital that cannot be gated out at the trough.", "<b>Scarce capital:</b> when the book can't take every signal, the walk-forward ML ranker (research trail) roughly quadruples the per-trade edge of the marginal dollar."], "h is paid on BOTH legs (entry ask + h, exit bid − h) on top of the full printed spread already in the base numbers. No breakeven vs LQD within +0.5 pt.");</script>
 </body>
 </html>
