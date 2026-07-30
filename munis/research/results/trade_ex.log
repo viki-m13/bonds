@@ -1,0 +1,7 @@
+loading muni panel ...
+3085 muni bonds
+KEYSTONE-XL fills 1061, tape-dense 989
+  90th-percentile outcome  A753BEBC5C383D9F3645DF21F893E4158 2025-04-11→2025-10-20 ret=+13.3% hold=192d tape=125
+  Median outcome           A181E782825824AA83638301576D83700 2022-05-16→2023-08-14 ret=+6.3% hold=455d tape=253
+  10th-percentile outcome  A94DBD7AEB0444607AB809FF3D0C5874D 2022-02-02→2023-05-03 ret=-1.6% hold=455d tape=180
+wrote docs/trade_examples_muni.json
