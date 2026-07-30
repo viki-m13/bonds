@@ -364,6 +364,38 @@ the deaths of both remaining stock-style screens below.
 
 No round-4 candidate was admitted to an OOS batch — nothing passed IS.
 
+### 9.4.5 Round five — the downside-protection program: a complete, informative negative
+
+Can the −41% honest-mark crisis drawdown be cut **without selling the crisis
+returns that pay for the strategy**? Nine mechanisms, each IS-tested against a
+pre-registered gate (keep ≥90% of IS CAGR, cut IS maxDD ≥20% relative, 2008-09
+vintage mean must stay positive), designs red-teamed by an adversarial agent
+that correctly predicted every verdict:
+
+| mechanism | result | why it died |
+|---|---|---|
+| entry-price floors (70/75/80) | CAGR −55% | deep-price entries ARE the alpha |
+| bond-specific-only entries | CAGR **+20%**, DD unchanged | return refinement, not protection (flagged) |
+| thesis-break exit (sibling collapse) | per-trade p5 −32→−18%, DD unchanged | book DD is mark-driven, not exit-driven |
+| stop-losses (−10/15/20) | DD −41→−26% but GFC vintage +14.5→+2.4% | sells crisis bottoms — the exact failure the gate exists to catch |
+| ML tail-avoider (walk-forward) | skipped trades returned **+13.91%** | learned to fear crisis vintages — a regime gate in ML clothing |
+| exit loosening in drawdowns (F3) | DD *worse* (−42.2%) | freed capital re-enters the falling market |
+| deployment pacing, crisis release (F1) | CAGR +23.1% but DD −45.3%, Sharpe 0.50 | buys more of the way down — a return enhancer, not protection |
+
+**The theorem this proves empirically:** in a long-only cash-bond book, crisis
+drawdown is *marks on positions you are being paid to hold*. Every protection
+mechanism lives on one trade-off line — protect the marks ⟷ sell the crisis
+participation — and the only way off that line is hedging instruments (CDS,
+index futures, options) that this dataset does not contain. The mature way to
+run GRANITE-XL is therefore: size the book so −40% marks are tolerable, secure
+non-gateable capital, and treat the drawdown as the price of the +17% OOS CAGR.
+
+Two incidental findings preserved for future work: bond-specific-only entries
+(+23.0% IS CAGR, Sharpe 1.20 — would need its own one-shot OOS before any
+adoption; the sibling feature has had prior looks, so this is flagged, not
+adopted) and the thesis-break exit (truncates per-trade tails at zero book
+cost — operationally comforting, economically neutral).
+
 ### 9.5 Final verdict on the Sharpe-3 / CAGR-10 target
 
 **CAGR ≥10%: MET out-of-sample.** GRANITE-XL delivers **+17.13% OOS CAGR
