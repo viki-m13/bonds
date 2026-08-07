@@ -7,6 +7,13 @@ Bond trading model using historical bond market data.
 This repo hosts several systematic strategies with live, self-updating
 factsheets at https://viki-m13.github.io/bonds/ :
 
+- **KEYSTONE / KEYSTONE-XL** (municipal) and **GRANITE / GRANITE-XL**
+  (corporate) — dislocation-reversion in individual bonds; pages
+  `docs/munis.html`, `docs/corps.html`, `docs/granite_xl.html` and the two
+  tearsheets. A 2026-08 full trade-desk audit (reproduction, bias hunt,
+  corrected planning numbers, live-readiness) is in
+  [`XL_AUDIT.md`](XL_AUDIT.md).
+
 - **SUMMIT** — a concentrated biweekly/monthly **DCA stock-selection** strategy
   on point-in-time S&P 500 data (beats QQQ-DCA in 93% of rolling windows). Full
   project record, research log, and reproduction steps in [`dca/README.md`](dca/README.md);

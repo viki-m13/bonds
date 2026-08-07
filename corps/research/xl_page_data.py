@@ -60,6 +60,25 @@ def main():
     oos_s, _ = stats_for(bonds, foos, woos)
     print(f"full: cagr={full['cagr']*100:+.2f}% sharpe={full['sharpe_m']:.2f}", flush=True)
 
+    # 2026-08 audit: the same fills re-priced with recovered REAL coupons
+    # (coupon_inv, augment4) — the panel's median-YTW carry proxy overstates
+    # accrual on the discount/distressed bonds this book buys. See XL_AUDIT.md.
+    def refill(f):
+        c = float(bonds[f.six].get("coupon_inv", f.coupon))
+        return e2.Fill(f.six, f.entry_day, f.entry_px, f.exit_day, f.exit_px, c, f.stale)
+    audit = None
+    if any("coupon_inv" in b for b in bonds.values()):
+        ftrue = [refill(f) for f in fills]
+        a_full, (days, nav, daily) = stats_for(bonds, ftrue, w_all)
+        a_is, _ = stats_for(bonds, [refill(f) for f in fis], wis)
+        a_oos, _ = stats_for(bonds, [refill(f) for f in foos], woos)
+        audit = {"full": a_full, "is": a_is, "oos": a_oos}
+        # the plotted growth-of-$1 series switches to the real-coupon NAV
+        # (days/nav shadowed above) — the honest carry path
+        print(f"audit (real coupons): full cagr={a_full['cagr']*100:+.2f}% "
+              f"sharpe_m={a_full['sharpe_m']:.2f} | oos cagr={a_oos['cagr']*100:+.2f}% "
+              f"sharpe_m={a_oos['sharpe_m']:.2f}", flush=True)
+
     # monthly NAV series vs LQD
     ts = pd.Series(nav, index=pd.to_datetime(days, unit="D"))
     mon = ts.resample("MS").first().dropna()
@@ -96,7 +115,7 @@ def main():
                     "total": float(lqd_eq.iloc[-1] - 1)},
             "era": era_rows, "atlas": atlas,
             "cl_era_excess": cl_diag.get("era"),
-            "transfer": transfer, "keystone_xl": kxl}
+            "transfer": transfer, "keystone_xl": kxl, "audit": audit}
     (DOCS / "granite_xl_data.json").write_text(json.dumps(data, default=float))
     print("wrote docs/granite_xl_data.json", flush=True)
 

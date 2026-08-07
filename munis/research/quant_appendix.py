@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import backtest as bt  # noqa: E402
 from strategies import FACTORIES  # noqa: E402
 from limit_transfer import load_bonds, limit_filter  # noqa: E402
-from keystone_xl import issuer_cap, recovery_exit, IS_LO, OOS_HI  # noqa: E402
+from keystone_xl import issuer_cap, issuer_of, recovery_exit, IS_LO, OOS_HI  # noqa: E402
 from xl_equity import nav_series  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -117,7 +117,9 @@ def main():
                     "n": int(len(sub)),
                     "mean": float(sub["ret"].mean()) if len(sub) else None})
 
-    by_iss = df.groupby(df["six"].str[:6]).size()
+    # AUDIT FIX 2026-08: group by the real issuer (EMMA ids are opaque hashes;
+    # a 6-char prefix is near-unique and overstated diversification).
+    by_iss = df.groupby(df["six"].map(issuer_of)).size()
     conc = {"n_issuers": int(by_iss.size),
             "top_share": float(by_iss.max() / len(df)),
             "top5_share": float(by_iss.nlargest(5).sum() / len(df))}

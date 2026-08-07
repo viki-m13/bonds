@@ -30,12 +30,31 @@ IS_LO, IS_HI = pd.Timestamp("2012-01-01"), bt.IS_END
 OOS_LO, OOS_HI = pd.Timestamp("2023-01-01"), bt.OOS_END
 RNG = np.random.default_rng(71)
 
+_ISSUER: dict[str, str] | None = None
+
+
+def issuer_of(six: str) -> str:
+    """Real issuer key for a muni security. EMMA securityIds are opaque
+    33-char hashes, so (unlike corp CUSIPs) a 6-char prefix carries no issuer
+    information — the issuer is recovered from the universe description
+    (text before the '/' series separator). Falls back to the id itself."""
+    global _ISSUER
+    if _ISSUER is None:
+        uni = pd.read_csv(ROOT / "data" / "universe" / "universe.csv.gz").drop_duplicates("six")
+        key = (uni["desc"].astype(str).str.upper().str.split("/").str[0]
+               .str.strip().str.replace(r"\s+", " ", regex=True))
+        _ISSUER = dict(zip(uni["six"], key))
+    return _ISSUER.get(six, six)
+
 
 def issuer_cap(fills, cap=1):
+    """AUDIT FIX 2026-08: previously grouped by six[:6] — near-unique for
+    EMMA hash ids, so the cap never bound (removed 1 of 1058 fills). Now
+    groups by the real issuer; the cap binds as documented."""
     fills = sorted(fills, key=lambda f: f.entry_date)
     open_by, kept = {}, []
     for f in fills:
-        iss = f.six[:6]
+        iss = issuer_of(f.six)
         cur = [x for x in open_by.get(iss, []) if x > f.entry_date]
         if len(cur) < cap:
             kept.append(f); cur.append(f.exit_date)
