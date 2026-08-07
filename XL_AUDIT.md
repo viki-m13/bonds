@@ -196,6 +196,44 @@ the published per-trade means** (munis sit at the −0.4 to −0.7 pp end).
   comparison retained for continuity — the paired-entries MTM comparison is
   the decision metric, as in corps.
 
+## 6c. Live-protocol replay — the admission rule is load-bearing (GRANITE-XL)
+
+The published GRANITE-XL book is produced by a filter *pipeline*
+(entries with 1-year exits → issuer cap → limit filter → recovery exits),
+not by a live decision rule. Two consequences a desk must understand:
+
+1. **Phantom capacity consumption.** The issuer cap runs *before* the limit
+   filter, so candidates that are later rejected by the limit cap still
+   blocked their issuer for the full 1-year schedule. Of 107,547
+   limit-passed candidates over 2003–24, the published pipeline admits only
+   4,582 — a natural live rule admits far more.
+2. **Lockout definition.** The cap blocks an issuer for the *1-year-book*
+   exit schedule (~13 months), not until the recovery exit (~8 months)
+   actually frees capital.
+
+Replaying the strategy as an implementable chronological protocol (identical
+signals, limit filter, depth weights; lagged-mid recovery exits; real
+coupons):
+
+| implementable protocol | fills | mean/tr | full CAGR / Sh(m) | OOS CAGR / Sh(m) |
+|---|--:|--:|--|--|
+| published pipeline (reference, real coupons) | 4,582 | +5.79% | +14.80% / 0.94 | +14.19% / 0.86 |
+| tight time-based lockout (issuer locked ~13mo per accepted entry) | 8,372 | +5.36% | +13.87% / 0.90 | **+11.47% / 0.74** |
+| position-based lockout (capacity freed at actual exit) | 9,360 | +5.05% | +11.32% / 0.75 | **+10.72% / 0.59** |
+
+The published fill set *is* technically implementable (lock the issuer on
+every gated candidate, bought or not — observable point-in-time), but its
+extra ~2–3 pp of OOS CAGR over the natural protocols comes from that
+accidental selectivity, and a PM should treat it as model risk, not alpha.
+The muni analog shows **no such fragility**: the KEYSTONE-XL live replay
+(real issuer cap vs actual open book, lagged exits) doubles the book
+(656 → 1,337 fills) at essentially unchanged CAGR (full +7.42% vs +7.82%,
+OOS +9.20% vs +9.29%).
+
+**Honest planning range for GRANITE-XL live: OOS CAGR ≈ +11–14%, monthly
+Sharpe 0.6–0.9, annual-frequency Sharpe ~0.5–0.6, maxDD −35–42%.** Still
+2–3× LQD with comparable drawdown — but not the +17%/1.0 of the headline.
+
 ## 7. Live-readiness — the honest gap list
 
 1. **No live corporate data feed.** The OSBAP panel ends 2025-03 and updates
@@ -242,8 +280,8 @@ the published per-trade means** (munis sit at the −0.4 to −0.7 pp end).
 | Book | ~336 trades / 3.5y OOS, ~30 concurrent | ~200–400 concurrent, ~208 fills/yr |
 | Mean/trade | +5.0–6.5% (lagged exit) | +5.5–6.0% (real coupons, lagged exit) |
 | Excess vs random-in-same-bond | +2.5–3.6% | +3–5% |
-| CAGR | +7.5–9% (bull-tilted OOS; through-cycle nearer +6–8%) | **+14–15%** (real coupons; +17% was proxy-flattered) |
-| Sharpe to budget | n/a (marks too sparse) — use maxDD | **~0.6 annual-frequency** (monthly 0.86–0.94 is smoothed) |
+| CAGR | +7.5–9% (bull-tilted OOS; through-cycle nearer +6–8%; live replay confirms) | **+11–14%** (real coupons + implementable admission; +17% was proxy- and pipeline-flattered) |
+| Sharpe to budget | n/a (marks too sparse) — use maxDD | **~0.5–0.6 annual-frequency** (monthly 0.6–0.9) |
 | maxDD | −5% on smoothed marks; assume 2–3× on real marks | **−35 to −42%** |
 | Failure mode | sustained rate selloff (2022: −2% excess, 35% win) | systemic credit crisis (GFC excess ≈ 0) |
 | Live feed | manual EMMA refresh (works) | **missing — blocker** |

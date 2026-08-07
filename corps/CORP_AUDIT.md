@@ -162,3 +162,15 @@ Also verified in this audit: two-leg cluster bootstrap keeps every headline
 excess at p<0.001; the corp issuer cap (CUSIP6) is genuine — the *muni*
 issuer cap was not (opaque EMMA ids; fixed in `munis/`, muni XL book
 573 → 336 OOS trades with returns intact).
+
+5. **The admission pipeline is load-bearing (live-protocol replay).** The
+   published book applies the issuer cap *before* the limit filter (rejected
+   candidates still consume issuer capacity) and locks issuers for the
+   1-year schedule rather than until the recovery exit frees capital.
+   Chronological replays with implementable rules (real coupons, lagged
+   recovery trigger) give: tight ~13-month issuer lockout → 8,372 fills,
+   full +13.87%/0.90, **OOS +11.47%/0.74**; capacity freed at actual exit →
+   9,360 fills, full +11.32%/0.75, **OOS +10.72%/0.59** (vs the published
+   4,582-fill pipeline at +14.19%/0.86 on real coupons). Budget OOS CAGR
+   **+11–14%**. The muni analog is robust to the same replay (doubled book,
+   unchanged CAGR). Details: `XL_AUDIT.md` §6c.
