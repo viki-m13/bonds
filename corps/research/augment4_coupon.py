@@ -42,6 +42,9 @@ def _invert(P, y, T):
 
 
 def recover(b, min_mat):
+    # AUDIT FIX 2026-08: engine2.build_cache stopped storing "ytw" in the
+    # cache, which broke this script (KeyError). The panel ytw is now merged
+    # back in by main() before recovery (b["ytw"] aligned to b["day"]).
     y = b["ytw"].astype(np.float64) / 100.0
     T = b["mat"].astype(np.float64)
     P = b["mid"].astype(np.float64)
@@ -63,8 +66,32 @@ def recover(b, min_mat):
     return float(np.clip(np.median(c1), 0.0, 15.0)), iqr
 
 
+def _attach_ytw(bonds):
+    """Merge panel ytw into the cache bonds, aligned to each bond's day
+    vector (NaN where the panel row is missing)."""
+    from panel_io import load_full
+    p = load_full(columns=["six", "date", "ytw"])
+    p["day"] = p["date"].values.astype("datetime64[D]").astype(np.int32)
+    for six, g in p.groupby("six"):
+        b = bonds.get(six)
+        if b is None:
+            continue
+        day = g["day"].to_numpy()
+        order = np.argsort(day, kind="stable")
+        day = day[order]
+        ytw = g["ytw"].to_numpy(np.float64)[order]
+        out = np.full(len(b["day"]), np.nan)
+        idx = np.searchsorted(day, b["day"])
+        ok = (idx < len(day))
+        ok[ok] &= day[idx[ok]] == b["day"][ok]
+        out[ok] = ytw[idx[ok]]
+        b["ytw"] = out
+
+
 def main():
     bonds = e2.load_cache()
+    print(f"{len(bonds)} bonds; attaching panel ytw ...", flush=True)
+    _attach_ytw(bonds)
     print(f"{len(bonds)} bonds; recovering coupons (v2, AI-corrected) ...", flush=True)
     n_ok3 = n_ok2 = n_fb = 0
     near_par_diff, prem_flag, disc_flag, all_c, all_iqr = [], [], [], [], []
@@ -120,6 +147,8 @@ def main():
     if not (v1 < 0.5 and v2p >= 0.80 and 0.5 <= q[0] and q[2] <= 12):
         print("VALIDATION FAILED — cache NOT rewritten", flush=True)
         sys.exit(1)
+    for b in bonds.values():          # keep the cache lean: ytw was only
+        b.pop("ytw", None)            # needed for the inversion itself
     with open(e2.CACHE, "wb") as f:
         pickle.dump(bonds, f, protocol=5)
     print(f"rewrote cache ({e2.CACHE.stat().st_size/1e9:.2f} GB) with coupon_inv (v2)",

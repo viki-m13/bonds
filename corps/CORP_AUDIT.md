@@ -129,3 +129,36 @@ Reproduce: `corps/research/selective.py` (grid) and
 - **Prices** are OSBAP's cleaned daily VWAP + bid/ask (a reputable academic
   pipeline), not raw executable ticks; fills assume the patient buyer captures
   the posted bid/ask.
+
+## 6. 2026-08 trade-desk audit addendum (GRANITE-XL / KEYSTONE-XL)
+
+A second full adversarial audit (see repo-root **`XL_AUDIT.md`** for methods
+and complete tables). Everything reproduced bit-for-bit from the committed
+panel; the four material findings:
+
+1. **Carry proxy inflates the XL headline.** Re-pricing the identical XL
+   fills with recovered real coupons (the `augment4` inversion, repaired in
+   this audit and re-validated: near-par error 0.049, premium consistency
+   99.95%): full-sample CAGR **+16.62% → +14.80%** (Sharpe(m) 1.03 → 0.94),
+   IS +19.24% → +17.95%, **OOS +17.13% → +14.19% (Sharpe(m) 0.86)**. The
+   divergence is largest OOS because 2016–24 yields ran far above coupons.
+   Excess-vs-control and GRANITE-CL are barely affected. Plan on the
+   corrected numbers.
+2. **Monthly Sharpe is smoothed** (monthly autocorr 0.38 from stale marks).
+   The already-computed annual-frequency Sharpe — 0.53 full / 0.55 IS / 0.64
+   OOS — is the honest risk-adjusted figure and is now surfaced on the pages.
+3. **Recovery exit uses the same-day mid** (a full-day aggregate) to trigger
+   a same-day bid execution. A strictly-prior-day trigger costs −0.93pp/trade
+   IS, −0.10pp OOS, but is **CAGR-neutral at book level** (holds shorten
+   symmetrically). Use the lagged trigger live.
+4. **NAV construction**: daily weight renormalization at mid implies ~1.7×
+   NAV/yr of uncosted turnover (~1.1%/yr at per-bond half-spreads); a
+   no-rebalance drift-weight book gives +18.05% CAGR / −35.2% maxDD (proxy
+   carry), so the construction is not return-flattering — but run drift
+   weights live. Early-2003 and 2024–25 NAV segments ride <10 open positions
+   (1.9% of invested days) and are single-name risk, not strategy evidence.
+
+Also verified in this audit: two-leg cluster bootstrap keeps every headline
+excess at p<0.001; the corp issuer cap (CUSIP6) is genuine — the *muni*
+issuer cap was not (opaque EMMA ids; fixed in `munis/`, muni XL book
+573 → 336 OOS trades with returns intact).

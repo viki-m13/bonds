@@ -200,6 +200,12 @@ on identical entries:
 | IS 2003–2015 | +6.34% | 271d | **+19.24%** | **1.15** | −41.6% |
 | **one-shot OOS 2016–2025** | +6.87% | 266d | **+17.13%** | **1.03** | −34.3% |
 
+> **2026-08 audit.** These figures accrue carry at the panel's median-yield
+> proxy. On recovered real coupons the identical fills give **IS +17.95% /
+> 1.09, OOS +14.19% / 0.86, full +14.80% / 0.94**; annual-frequency Sharpe is
+> ~0.5–0.65 (monthly marks are smoothed, autocorr 0.38). Plan on the
+> corrected numbers. Full audit: [`../XL_AUDIT.md`](../XL_AUDIT.md).
+
 Faster capital recycling: the deep limit-capped entries revert early; the
 recovery exit harvests and redeploys. Per-trade return halves while book
 compounding roughly doubles. (Disclosure: the recovery-exit idea had one

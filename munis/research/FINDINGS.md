@@ -172,6 +172,23 @@ daily; it lights up in a selloff.
   (~100–250/yr across ~1,400 liquid bonds), and each fill is one customer
   buying into someone else's forced sale.
 
+## 2026-08 audit addendum (KEYSTONE-XL)
+
+A full trade-desk audit (repo-root [`XL_AUDIT.md`](../../XL_AUDIT.md))
+reproduced every published number and found/fixed one implementation bug:
+the XL **issuer cap keyed on `six[:6]`**, which for EMMA's opaque 33-char
+security ids is near-unique — the cap never bound. It now groups by the real
+issuer (parsed from the universe description): the XL book shrinks 484→325
+(IS) / 573→336 (OOS) trades while returns hold (+5.27%/+6.85% mean,
++7.84%/+9.29% CAGR), and the page's issuer-concentration stats are now real.
+Also quantified: OOS win rates are flattered by right-censored final-year
+holds (full-455d accrual on unfinished trades; censor-safe entries give 93%
+win, higher excess) and by universe survivorship (pre-2025-07 OOS entries
++5.5% excess vs +2.5% in the survivorship-free final year — the durable
+range is +2.5–3.6%); the recovery exit's same-day-mid trigger is worth
+−0.4 to −0.7pp/trade vs an executable prior-day trigger — use the lagged
+rule live.
+
 ## Reproduce
 
 ```bash
