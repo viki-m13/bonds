@@ -54,7 +54,11 @@ def main():
     for six, b in bonds.items():
         b["_six"] = six
     print(f"loaded {len(bonds)} bonds", flush=True)
-    fills = xl_fills(bonds)
+    # 2026-08 audit: slippage/capacity grids are quoted at recovered real
+    # coupons (coupon_inv), not the median-YTW carry proxy. See XL_AUDIT.md.
+    fills = [e2.Fill(f.six, f.entry_day, f.entry_px, f.exit_day, f.exit_px,
+                     float(bonds[f.six].get("coupon_inv", f.coupon)), f.stale)
+             for f in xl_fills(bonds)]
     w = [float(np.clip(depth_of(bonds, f) / 3.0, 0.5, 2.0)) for f in fills]
     print(f"XL fills {len(fills)}", flush=True)
 

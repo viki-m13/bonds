@@ -117,12 +117,20 @@ def monthly_stats(days, nav, daily, bench_m=None):
     return out
 
 
+def real_coupons(bonds, fills):
+    """2026-08 audit: re-price fills with recovered real coupons (coupon_inv)
+    instead of the panel's median-YTW carry proxy. See XL_AUDIT.md."""
+    return [e2.Fill(f.six, f.entry_day, f.entry_px, f.exit_day, f.exit_px,
+                    float(bonds[f.six].get("coupon_inv", f.coupon)), f.stale)
+            for f in fills]
+
+
 def main():
     bonds = e2.load_cache()
     for six, b in bonds.items():
         b["_six"] = six
     print(f"loaded {len(bonds)} bonds", flush=True)
-    fills = xl_fills(bonds)
+    fills = real_coupons(bonds, xl_fills(bonds))
     w = [float(np.clip(depth_of(bonds, f) / 3.0, 0.5, 2.0)) for f in fills]
     df = decompose(bonds, fills)
     print(f"XL fills {len(fills)}, decomposed {len(df)}", flush=True)
