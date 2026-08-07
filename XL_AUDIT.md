@@ -91,7 +91,10 @@ Re-pricing the *identical* XL fills with recovered real coupons:
 | mean/trade (full) | +6.22% | +5.79% |
 
 The gap is largest OOS (−2.9 pp CAGR) because 2016–24 yields ran far above
-coupons. The recovered coupons are themselves conservative for premium
+coupons. (Windowing note: the table above re-runs each window separately, the
+oos3 convention; slicing the *full-run* book by entry date — the strategy
+page's convention — gives OOS +12.6% / 0.84 on real coupons. Both are valid;
+the honest OOS range is +12.6–14.2%.) The recovered coupons are themselves conservative for premium
 callables (YTW-based, biases carry *down*), so the truth is likely between
 the columns — **plan around ≈ +14–15% OOS CAGR, not +17%**. The
 excess-vs-control numbers are unaffected (both legs hold the same bond), and

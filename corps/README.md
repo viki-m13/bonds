@@ -12,7 +12,9 @@ data.
 ## Status
 
 **Working corporate strategy, validated out-of-sample on 22 years of free
-data.** Full sample 2002–2025 (8,000 liquid bonds): buy ≥3 pts below a bond's
+data.** (2026-08: a full trade-desk audit of the GRANITE-XL operating point —
+carry proxy, admission protocol, look-ahead, live-readiness — lives in
+[`../XL_AUDIT.md`](../XL_AUDIT.md); budget the corrected numbers there.) Full sample 2002–2025 (8,000 liquid bonds): buy ≥3 pts below a bond's
 own trailing 60-day median, hold ~1 year → **75% win, +6.22%/trade, +1.38%
 excess vs a matched control (p<0.001)**; equity **+5.41% CAGR / −14.7% maxDD
 vs LQD +4.61% / −25.0%**. OOS (2016–2025) excess +1.69% (p<0.001). Loses in
