@@ -92,11 +92,12 @@ def main():
     lqd_full = (lqd_eq.iloc[-1]) ** (1 / ((mon.index[-1] - mon.index[0]).days / 365.25)) - 1
     lqd_dd = float((lqd_eq / lqd_eq.cummax() - 1).min())
 
-    # era rows (per-trade, XL book)
+    # era rows (per-trade, XL book; real coupons when available — audit)
+    era_fills = [refill(f) for f in fills] if audit else fills
     era_rows = []
     for lab, lo, hi in ERAS:
         lo_d, hi_d = e2.D(lo), e2.D(hi)
-        fl = [f for f in fills if lo_d <= f.entry_day <= hi_d]
+        fl = [f for f in era_fills if lo_d <= f.entry_day <= hi_d]
         if len(fl) < 20:
             continue
         rr = np.array([f.ret for f in fl])

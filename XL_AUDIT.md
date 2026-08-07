@@ -100,7 +100,13 @@ the columns — **plan around ≈ +14–15% OOS CAGR, not +17%**. The
 excess-vs-control numbers are unaffected (both legs hold the same bond), and
 the GRANITE-CL 1-year book is barely affected (+10.98% → +9.97% mean/trade
 OOS; IS unchanged). This is a GRANITE-XL-headline issue, not a
-signal-validity issue.
+signal-validity issue — the **base full-universe GRANITE book is
+carry-proxy-insensitive** (identical fills re-priced on real coupons:
+mean/trade +7.51% → +7.44%, honest-marks CAGR +5.48% → +5.33%, maxDD
+−32.7% → −33.2%), because it is not concentrated in the short-dated
+crossover names where the proxy diverges. All GRANITE-XL page surfaces
+(hero KPIs, main table, equity curve, era table, quant appendix, slippage
+grid, trade examples) are now quoted at real coupons.
 
 ## 4. Mild look-ahead: the recovery exit's same-day mid
 

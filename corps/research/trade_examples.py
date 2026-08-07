@@ -65,6 +65,10 @@ def main():
         b["_six"] = six
     print(f"loaded {len(bonds)} bonds", flush=True)
     fills = xl_fills(bonds)
+    # 2026-08 audit: quote each example's return at its recovered real coupon
+    fills = [e2.Fill(f.six, f.entry_day, f.entry_px, f.exit_day, f.exit_px,
+                     float(bonds[f.six].get("coupon_inv", f.coupon)), f.stale)
+             for f in fills]
     dense = [f for f in fills if density(bonds, f) >= 60]
     dense.sort(key=lambda f: f.ret)
     n = len(dense)
