@@ -167,6 +167,35 @@ the published per-trade means** (munis sit at the −0.4 to −0.7 pp end).
   0.5 pt haircut; KEYSTONE-XL 8.2→7.0%). Capacity estimates: ~$77M implied
   AUM (corps, 25% participation), muni sleeve is boutique-sized.
 
+## 6b. Second-pass checks (data integrity, stability, small defects)
+
+- **Panel integrity.** Corp: 29.67M rows, 210 duplicate (bond,day) rows
+  (negligible), 0.06% of mids <10, mid outside the day's [bid,ask]±0.5 on
+  1.0% of two-sided days; **7.8% of two-sided days print ask<bid**
+  (trade-derived sides can cross — execution noise, works both ways, and the
+  median spread paid is still 0.31 pt / p90 2.1 pt). Muni: 0 duplicates,
+  3.1% buy<sell violations, median spread 0.66 pt — consistent with the
+  repo's own VALIDATION.md.
+- **Control stability.** GRANITE-CL OOS excess across 5 control RNG seeds:
+  +5.04% to +5.99% (published +5.48% mid-range). Conclusion unchanged by
+  seed choice.
+- **No single-name driver.** XL full book: 4,582 fills across 4,052 bonds
+  (max 4 fills/bond); the top-10 bonds contribute 12.8% of total weighted
+  per-trade return.
+- **Small spec inconsistency found: the XL recovery exit can outlast the
+  base exit** that the cooldown and issuer cap were computed against (the
+  455-day stale path extends the hold). Result: 98 of 4,582 corp XL fills
+  (2.1%) overlap a same-bond position, and 9 of 656 muni XL fills (1.4%)
+  overlap a same-issuer position — technically violating the 1-per-issuer
+  rule the entries were filtered on. Effect is de-minimis at book level, but a
+  live book should re-check the cap at entry against *actual* open
+  positions, not the 1-year-book schedule (same conclusion for munis).
+- **XL-stage excess caveat (munis).** The keystone_xl.py "excess" for the
+  recovery-exit stage compares a ~230–310d-hold strategy against the
+  1-year-hold control (+2.37% OOS); it is a conservative apples-to-oranges
+  comparison retained for continuity — the paired-entries MTM comparison is
+  the decision metric, as in corps.
+
 ## 7. Live-readiness — the honest gap list
 
 1. **No live corporate data feed.** The OSBAP panel ends 2025-03 and updates
