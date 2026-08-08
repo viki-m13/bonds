@@ -1,0 +1,176 @@
+# Corporate strategy — bias & overfitting audit
+
+Professional-grade validation of the corporate dislocation-reversion strategy.
+Every check below is reproducible from the committed data
+(`corps/data/panel/*.parquet`) and code.
+
+## Summary verdict
+
+| risk | status | how addressed |
+|---|---|---|
+| Survivorship bias | **controlled** | Data is the full TRACE tape incl. defaulted/called bonds; 70% of bonds stop trading before the sample end and are retained with their final prices. 7–14% of positions exit "stale" (bond stopped trading) and take the realized loss. |
+| Selection bias | **controlled** | Universe = **all 55,545 bonds** with ≥20 trading days (99.9% of all bond-days), not a top-N-by-liquidity cut. Removing our earlier "top-8000" shortcut *raised* the excess (+1.38%→+2.06%), confirming the shortcut, if anything, understated — the bias was against us. |
+| Look-ahead bias | **controlled** | Trailing median is `.shift(1)` (excludes today); liquidity gate counts trailing-90d dates in `[t−90, t)`; entry is the first ask strictly **after** the signal day; exits use only prices at/before exit. |
+| Overfitting (parameters) | **controlled** | Core parameters (60-day window, 3-pt threshold, ~1-yr hold, 90-day/8-day gate) were **transferred verbatim from the muni strategy — zero corporate-specific fitting** — and still produce +2.06% excess. |
+| Overfitting (added signals) | **demonstrated** | Two economically-motivated overlays (market-regime gate, per-bond credit filter) were tested and **rejected for failing out-of-sample** (see below). We publish the base, not the in-sample-flattering variant. |
+| Data-mining / robustness | **controlled** | Signal is **monotone** in threshold (1/2/3/4 pt) and hold length; IS and OOS both significant on a clean time split. |
+| Transaction costs | **modeled** | Fills use the actual daily **bid/ask** from the panel (buy ask, sell bid) — the spread is paid, not assumed away. |
+
+## 1. Survivorship — the data retains dead bonds
+
+The OSBAP panel is built from the complete TRACE tape. Diagnostics on the
+55,545-bond universe:
+
+- **70%** of bonds stop trading > 1 year before the sample end (matured,
+  called, or defaulted) and remain in the panel with their last prints.
+- **8%** ever print below 50 (crash/distress); **4%** have their *final* trade
+  below 70 (died distressed, never recovered).
+- **7–14%** of strategy positions exit "stale" — the bond stopped trading
+  during the hold — and the exit takes the last available bid (a real loss when
+  the bond cratered).
+
+A survivorship-biased dataset would show none of this. The strategy's edge is
+measured *after* eating these losses.
+
+## 2. Selection — full universe, not a survivor cut
+
+Our first pass pre-filtered to the "top 8,000 bonds by lifetime trading days,"
+which favors long-lived survivors. The professional rebuild uses **every bond
+with ≥20 trading days** (55,545 bonds, 29.7M bond-days = 99.9% of the data);
+tradability is decided **point-in-time** by the trailing-liquidity gate, not by
+a bond's full-sample longevity. Result: the excess *rose* (+1.38%→**+2.06%**),
+so the earlier cut was conservative, not flattering.
+
+## 3. Overfitting — the transfer test and the rejected overlays
+
+**Transfer test (strongest evidence).** The entire signal specification was
+fixed on U.S. **municipal** bonds and applied **unchanged** to corporates —
+different asset class, different issuers, different data vendor. A curve-fit
+signal does not transfer across markets; this one does (+2.06% excess,
++1.63% OOS).
+
+**Rejected "improvements"** (each judged on OOS excess vs the base +1.63%):
+
+| overlay | IS | **OOS** | verdict |
+|---|--:|--:|---|
+| base | +3.37% | **+1.63%** | — |
+| market-regime gate | +4.21% | +0.94% | **reject** (fit the GFC, degrades OOS) |
+| per-bond credit filter | +3.20% | +0.64% | **reject** |
+| regime + credit | +3.37% | +0.78% | **reject** |
+
+The regime gate looked great in-sample and "fixed" the 2008 GFC, but it
+**hurt out-of-sample** — the textbook overfitting signature. We keep the base.
+
+**Robust levers** (monotone, fair same-control comparison, hold OOS):
+
+| lever | OOS excess | note |
+|---|--:|---|
+| threshold ≥3 pt | +1.63% | broad operating point |
+| threshold ≥4 pt | **+2.96%** | deeper = cleaner signal, fewer trades (capacity/alpha tradeoff) |
+| hold ~455 d | +2.78% | more excess, more duration risk |
+| **duration ≤5 y** | **+3.51%** | short bonds pull to par → cleaner reversion; ~30% of trades, **repairs the GFC** OOS (see below) |
+| dynamic recovery-exit | — | cuts avg hold ~375→240 d at similar *annualized* return — a turnover/risk gain, not extra alpha |
+
+**Selectivity — duration, not credit quality (§8 of the white paper).** A
+credit-quant would ask whether a smaller, higher-conviction book beats the
+3,100-position full universe. Tested point-in-time (both filters gate the
+control identically):
+
+- **Credit quality filtering backfires.** Restricting to top-IG (spread ≤1.5%)
+  *kills* the OOS timing edge (−0.25%, p≈1) and even loses money outright
+  (2022 rate selloff). The alpha lives in crossover/HY; only the deepest
+  distress (spread >5%, falling knives) has no edge and is worth trimming as a
+  tail knob.
+- **Duration concentrates the edge.** Short-dated (≤5 y) dislocations must pull
+  to par → OOS excess **+3.51%** (double the full book) on ~30% of the trades;
+  long (>12 y) shows **zero** OOS edge. The focused ≤5 y book returns +268.9% /
+  +5.93% CAGR on **1,016** avg positions (vs 3,133), and — the key
+  anti-overfitting point — it **repairs the 2008 GFC out-of-sample**
+  (era excess +3.46%, p=0.006), the opposite of the rejected regime gate's
+  in-sample-only "fix." Monotone, structural, improves IS *and* OOS.
+
+Reproduce: `corps/research/selective.py` (grid) and
+`corps/research/selective_equity.py` (equity/era).
+
+## 4. Look-ahead — point-in-time construction
+
+- Signal `price ≤ trailing-60d-median − k`: median is `.shift(1)`, excludes today.
+- Liquidity gate: trailing-90d active-day count over `[t−90, t)`, excludes today.
+- Entry: first customer-ask print **strictly after** the signal day (≤7d).
+- Exit: first bid in `[entry+min_hold, entry+max_hold]`; stale exit uses the
+  last bid **at or before** the hard stop. No future information anywhere.
+- Matched control draws random entry days from the **same window** with the
+  **same** gate and exit logic; significance is a 2,000-sample cluster bootstrap.
+
+## 5. Known limitations (disclosed)
+
+- **Coupon carry** is proxied by each bond's median yield (OSBAP daily rows omit
+  the coupon); the excess-vs-control metric nets it out (both legs hold the same
+  bond for the same period).
+- **Equity-curve drawdown was materially understated** (corrected). The
+  published −14.1% came from linear intra-trade attribution. Re-marking every
+  position daily at its **actual mid prints** (engine `corps/research/engine2.py`,
+  stale marks held flat) gives the honest figures:
+
+  | book | published maxDD | **honest mark-to-market maxDD** | monthly Sharpe vs T-bill |
+  |---|--:|--:|--:|
+  | full universe ≥3pt | −14.1% | **−32.7%** | 0.41 |
+  | focused ≤5y | −15.4% | **−31.3%** | 0.46 |
+  | ≥4pt | −18.4% | **−37.2%** | 0.38 |
+  | focused ≤5y, 1 position/issuer | — | **−30.0%** | **0.58** |
+
+  Total return and CAGR are unaffected — they were always realized from
+  bid/ask fills. Only the *path* was smoothed. The strategy's risk is roughly
+  **twice** what the attribution curve implied, and its risk-adjusted return is
+  ordinary (Sharpe ~0.4–0.6), not exceptional.
+- **Capacity**: the full-universe number includes illiquid names; a live book
+  would tier by liquidity, trading fewer, larger positions. Deeper-threshold
+  operating points (≥4 pt) concentrate the alpha but reduce breadth.
+- **Prices** are OSBAP's cleaned daily VWAP + bid/ask (a reputable academic
+  pipeline), not raw executable ticks; fills assume the patient buyer captures
+  the posted bid/ask.
+
+## 6. 2026-08 trade-desk audit addendum (GRANITE-XL / KEYSTONE-XL)
+
+A second full adversarial audit (see repo-root **`XL_AUDIT.md`** for methods
+and complete tables). Everything reproduced bit-for-bit from the committed
+panel; the four material findings:
+
+1. **Carry proxy inflates the XL headline.** Re-pricing the identical XL
+   fills with recovered real coupons (the `augment4` inversion, repaired in
+   this audit and re-validated: near-par error 0.049, premium consistency
+   99.95%): full-sample CAGR **+16.62% → +14.80%** (Sharpe(m) 1.03 → 0.94),
+   IS +19.24% → +17.95%, **OOS +17.13% → +14.19% (Sharpe(m) 0.86)**. The
+   divergence is largest OOS because 2016–24 yields ran far above coupons.
+   Excess-vs-control and GRANITE-CL are barely affected. Plan on the
+   corrected numbers.
+2. **Monthly Sharpe is smoothed** (monthly autocorr 0.38 from stale marks).
+   The already-computed annual-frequency Sharpe — 0.53 full / 0.55 IS / 0.64
+   OOS — is the honest risk-adjusted figure and is now surfaced on the pages.
+3. **Recovery exit uses the same-day mid** (a full-day aggregate) to trigger
+   a same-day bid execution. A strictly-prior-day trigger costs −0.93pp/trade
+   IS, −0.10pp OOS, but is **CAGR-neutral at book level** (holds shorten
+   symmetrically). Use the lagged trigger live.
+4. **NAV construction**: daily weight renormalization at mid implies ~1.7×
+   NAV/yr of uncosted turnover (~1.1%/yr at per-bond half-spreads); a
+   no-rebalance drift-weight book gives +18.05% CAGR / −35.2% maxDD (proxy
+   carry), so the construction is not return-flattering — but run drift
+   weights live. Early-2003 and 2024–25 NAV segments ride <10 open positions
+   (1.9% of invested days) and are single-name risk, not strategy evidence.
+
+Also verified in this audit: two-leg cluster bootstrap keeps every headline
+excess at p<0.001; the corp issuer cap (CUSIP6) is genuine — the *muni*
+issuer cap was not (opaque EMMA ids; fixed in `munis/`, muni XL book
+573 → 336 OOS trades with returns intact).
+
+5. **The admission pipeline is load-bearing (live-protocol replay).** The
+   published book applies the issuer cap *before* the limit filter (rejected
+   candidates still consume issuer capacity) and locks issuers for the
+   1-year schedule rather than until the recovery exit frees capital.
+   Chronological replays with implementable rules (real coupons, lagged
+   recovery trigger) give: tight ~13-month issuer lockout → 8,372 fills,
+   full +13.87%/0.90, **OOS +11.47%/0.74**; capacity freed at actual exit →
+   9,360 fills, full +11.32%/0.75, **OOS +10.72%/0.59** (vs the published
+   4,582-fill pipeline at +14.19%/0.86 on real coupons). Budget OOS CAGR
+   **+11–14%**. The muni analog is robust to the same replay (doubled book,
+   unchanged CAGR). Details: `XL_AUDIT.md` §6c.

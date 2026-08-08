@@ -5,9 +5,9 @@
       "discount": 2.5,
       "require_sell_pressure": true
     },
-    "is_n": 1727,
-    "is_excess_vs_control": 0.0001208205995653,
-    "is_excess_p_boot": 0.476
+    "is_n": 3876,
+    "is_excess_vs_control": 0.0003836785644764,
+    "is_excess_p_boot": 0.279
   },
   {
     "family": "momentum",
@@ -15,26 +15,26 @@
       "window_days": 60,
       "thresh": 1.0
     },
-    "is_n": 3707,
-    "is_excess_vs_control": 1.007124056297791e-05,
-    "is_excess_p_boot": 0.5605
+    "is_n": 8105,
+    "is_excess_vs_control": -0.0001480308613923,
+    "is_excess_p_boot": 0.789
   },
   {
     "family": "new_issue",
     "params": {
       "max_age_days": 10
     },
-    "is_n": 268,
-    "is_excess_vs_control": 0.0033161944992984,
-    "is_excess_p_boot": 0.1155
+    "is_n": 623,
+    "is_excess_vs_control": 0.0031406403182544,
+    "is_excess_p_boot": 0.0595
   },
   {
     "family": "price_discount",
     "params": {
       "discount": 3.0
     },
-    "is_n": 791,
-    "is_excess_vs_control": 0.0206898105379134,
+    "is_n": 1701,
+    "is_excess_vs_control": 0.0199436759581045,
     "is_excess_p_boot": 0.0
   },
   {
@@ -42,8 +42,8 @@
     "params": {
       "ytw_cheap": 0.5
     },
-    "is_n": 906,
-    "is_excess_vs_control": 0.0040882462027857,
-    "is_excess_p_boot": 0.2465
+    "is_n": 1941,
+    "is_excess_vs_control": 0.0054456923698932,
+    "is_excess_p_boot": 0.027
   }
 ]

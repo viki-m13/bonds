@@ -1,0 +1,9 @@
+loading muni panel ...
+3085 muni bonds
+XL fills 1061
+  h=0.000  mean= +6.36% cagr= +8.38% maxdd=-4.7%
+  h=0.125  mean= +6.11% cagr= +8.07% maxdd=-4.9%
+  h=0.250  mean= +5.86% cagr= +7.76% maxdd=-5.2%
+  h=0.500  mean= +5.35% cagr= +7.14% maxdd=-5.8%
+  capacity: median pos $0.009M @25% part., concurrency 53, implied AUM $0.5M
+wrote docs/exec_muni.json

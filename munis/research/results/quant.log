@@ -1,0 +1,6 @@
+loading muni panel ...
+3085 muni bonds
+XL fills 1061, decomposed 1061
+decomposition: {'carry': 3.21, 'edge': -0.38, 'rev': 4.0, 'xcost': -0.46, 'total': 6.36}
+monthly: {'vol_ann': 0.022, 'sharpe_gross': 3.569, 'sortino': 10.786, 'skew': 1.136, 'kurt': 2.76, 'hit': 0.851, 'best_m': 0.033, 'worst_m': -0.006, 'beta': 0.133, 'corr': 0.272, 'alpha_ann': 0.083, 'note': 'linear-attribution NAV (munis do not print daily) — vol/Sharpe optimistic; per-trade rows are realized fills'}
+wrote docs/quant_muni.json

@@ -5,13 +5,13 @@ not work — the dealer bid-ask spread eats every round trip. But a
 **deep-dislocation reversion** strategy does: buy a bond when it prints
 **≥3 points below its own trailing 60-day median** (a forced-seller
 dislocation), hold **~1 year**, sell into a customer bid. Full-sample
-2013–2025, across 1,350 trades in 1,416 bonds:
+2013–2025, across 3,089 trades in 3,085 bonds:
 
 | | value |
 |---|---|
-| Win rate | **73%** |
-| Mean return / trade (~1yr, incl. coupon) | **+4.42%** |
-| **Excess vs matched random-entry control** | **+3.10%** |
+| Win rate | **74%** |
+| Mean return / trade (~1yr, incl. coupon) | **+4.57%** |
+| **Excess vs matched random-entry control** | **+3.25%** |
 | Bootstrap p-value | **<0.001** |
 
 The excess is measured against random entries *in the same bonds over the
@@ -66,11 +66,11 @@ coupon credited), unconditional across all bond-days:
 
 | hold | mean return | win rate |
 |--:|--:|--:|
-| 30d | −1.00% | 37% |
-| 90d | −0.41% | 49% |
-| 180d | +0.46% | 62% |
-| 365d | +1.78% | 69% |
-| 730d | +4.64% | 77% |
+| 30d | −0.96% | 36% |
+| 90d | −0.36% | 48% |
+| 180d | +0.48% | 61% |
+| 365d | +1.85% | 69% |
+| 730d | +4.77% | 78% |
 
 Past ~6 months you're positive. The earlier strategies simply used the
 wrong holding period for the instrument.
@@ -92,15 +92,15 @@ trailing 60-day median mid — is monotone and significant **in-sample**
 
 | threshold | IS n | win | mean/trade | excess vs ctrl | p |
 |---|--:|--:|--:|--:|--:|
-| ≥1pt below | 1146 | 59% | +0.65% | −0.13% | 0.65 |
-| ≥2pt below | 960 | 62% | +1.79% | +0.95% | 0.002 |
-| **≥3pt below** | 791 | 63% | +2.55% | **+2.07%** | **<0.001** |
+| ≥1pt below | 2462 | 59% | +0.68% | −0.33% | 0.957 |
+| ≥2pt below | 2051 | 61% | +1.68% | +0.68% | **<0.001** |
+| **≥3pt below** | 1701 | 63% | +2.56% | **+1.99%** | **<0.001** |
 
 Locked mechanically (`lock_configs.py`) and run **once** out-of-sample:
 
 | window | n | win | mean/trade | excess vs ctrl | p |
 |---|--:|--:|--:|--:|--:|
-| OOS 2023-01 → 2025-04 (1yr holds) | 608 | 87% | +6.32% | **+4.45%** | **<0.001** |
+| OOS 2023-01 → 2025-04 (1yr holds) | 1497 | 87% | +6.40% | **+4.76%** | **<0.001** |
 
 ### 6. The regime breakdown (the most important table here)
 
@@ -108,24 +108,24 @@ Locked mechanically (`lock_configs.py`) and run **once** out-of-sample:
 
 | era | trades | win | excess | p |
 |---|--:|--:|--:|--:|
-| 2013–2016 | 108 | 94% | +2.79% | <0.001 |
-| 2017–2019 | 63 | 94% | +2.17% | 0.007 |
-| 2020–2021 (COVID crash+recovery) | 238 | 86% | +10.65% | <0.001 |
-| **2022 (rate selloff)** | 401 | **32%** | **−1.99%** | 1.00 |
-| 2023–2025 (recovery) | 564 | 85% | +4.22% | <0.001 |
+| 2013–2016 | 205 | 93% | +2.66% | <0.001 |
+| 2017–2019 | 129 | 92% | +1.63% | 0.003 |
+| 2020–2021 (COVID crash+recovery) | 518 | 85% | +10.68% | <0.001 |
+| **2022 (rate selloff)** | 891 | **35%** | **−2.08%** | 1.00 |
+| 2023–2025 (recovery) | 1375 | 86% | +4.50% | <0.001 |
 
 The OOS window (2023–2025) overlaps a muni **bull market** — yields peaked
 in late 2022 and fell through 2024 — which is why OOS (+4.45%) prints
-hotter than IS (+2.07%) and win rates hit the high 80s. **The in-sample
-+2.07% (multi-regime, includes the 2022 loss) is the durable estimate;
-the +4.45% is what a good regime looks like.** The full-sample number
-(+3.10% excess over 2013–2025) sits between them and is the honest headline.
+hotter than IS (+1.99%) and win rates hit the high 80s. **The in-sample
++1.99% (multi-regime, includes the 2022 loss) is the durable estimate;
+the +4.76% is what a good regime looks like.** The full-sample number
+(+3.25% excess over 2013–2025) sits between them and is the honest headline.
 
 ### 7. A regime overlay helps but costs trades
 
 Gating entries on the broad market (only buy when MUB ≥ its 100-day
-average) nearly removes the 2022 losses and lifts full-sample excess to
-+4.26%, but cuts the trade count ~6× (791→128). It is offered as a risk
+average) nearly removes the 2022 losses and lifts full-sample excess
+further, but cuts the trade count several-fold. It is offered as a risk
 overlay, not baked into the core — filtering on the event that most
 motivated it (2022) risks curve-fitting, so we disclose both.
 
@@ -137,23 +137,23 @@ motivated it (2022) risks curve-fitting, so we disclose both.
 
 | | total | CAGR | maxDD |
 |---|--:|--:|--:|
-| Strategy | **+82.9%** | **4.62%** | −9.2% |
-| MUB (total return) | +31.8% | 2.09% | −13.7% |
+| Strategy | **+85.7%** | **4.74%** | −8.0% |
+| MUB (total return) | +32.5% | 2.13% | −13.7% |
 
-~$1 → ~$1.83 vs ~$1.32; relative wealth rises steadily (not one lucky
+~$1 → ~$1.86 vs ~$1.33; relative wealth rises steadily (not one lucky
 year), with the 2022 stall visible. **Caveat:** munis don't print daily,
 so each trade's realized entry→exit return is spread geometrically across
 its ~1y hold — this smooths intra-trade volatility and **understates the
-true drawdown** (the −9.2% would be deeper under daily marks). Total
+true drawdown** (the −8.0% would be deeper under daily marks). Total
 return and CAGR are realized (real prints + coupon); the path smoothness
 is optimistic.
 
 ## Is it live right now?
 
 No — and that's the strategy working as designed. As of the last data
-date (2026-07-08), **zero** bonds trade ≥3pt below their own trend; the
-deepest of 696 recently-active names is −1.6pt and the median bond is
-slightly *above* trend. A liquidity-provision strategy is supposed to be
+date (2026-07-10), **zero** bonds trade ≥3pt below their own trend and the
+median recently-active bond is slightly *above* trend. A
+liquidity-provision strategy is supposed to be
 dormant when nobody is force-selling. `current_picks.py` runs the screen
 daily; it lights up in a selloff.
 
@@ -163,7 +163,7 @@ daily; it lights up in a selloff.
   — systematically choosing *which* munis to own when they dislocate,
   which is "trading them like stocks" on the timescale the instrument
   actually rewards (~1 year, not intraday).
-- **Real and significant** (+3.1% excess over a matched control across 13
+- **Real and significant** (+3.25% excess over a matched control across 13
   years, p<0.001) — not carry, not credit premium, not composition.
 - **Not all-weather**: it is short volatility / short a rate-shock. Size
   it as the mean-reversion strategy it is, optionally with the market
@@ -171,6 +171,23 @@ daily; it lights up in a selloff.
 - **Capacity-limited**: deep idiosyncratic dislocations are rare
   (~100–250/yr across ~1,400 liquid bonds), and each fill is one customer
   buying into someone else's forced sale.
+
+## 2026-08 audit addendum (KEYSTONE-XL)
+
+A full trade-desk audit (repo-root [`XL_AUDIT.md`](../../XL_AUDIT.md))
+reproduced every published number and found/fixed one implementation bug:
+the XL **issuer cap keyed on `six[:6]`**, which for EMMA's opaque 33-char
+security ids is near-unique — the cap never bound. It now groups by the real
+issuer (parsed from the universe description): the XL book shrinks 484→325
+(IS) / 573→336 (OOS) trades while returns hold (+5.27%/+6.85% mean,
++7.84%/+9.29% CAGR), and the page's issuer-concentration stats are now real.
+Also quantified: OOS win rates are flattered by right-censored final-year
+holds (full-455d accrual on unfinished trades; censor-safe entries give 93%
+win, higher excess) and by universe survivorship (pre-2025-07 OOS entries
++5.5% excess vs +2.5% in the survivorship-free final year — the durable
+range is +2.5–3.6%); the recovery exit's same-day-mid trigger is worth
+−0.4 to −0.7pp/trade vs an executable prior-day trigger — use the lagged
+rule live.
 
 ## Reproduce
 

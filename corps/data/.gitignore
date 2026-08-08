@@ -1,0 +1,11 @@
+# large single-file panel (>100MB) — reproduced from panel/ or the OSBAP URL
+panel_osbap_full.parquet
+panel_osbap.parquet
+_daycounts.pkl
+*.zip
+# per-CUSIP TRACE downloads (only when credentialed)
+trades/
+universe/_*
+_cookies.txt
+cache_bonds.pkl
+cache_global.pkl
