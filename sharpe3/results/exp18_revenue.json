@@ -1,0 +1,38 @@
+{
+ "rev_yoy": {
+  "sharpe": -0.01,
+  "cagr": -0.0049,
+  "vol": 0.0894,
+  "maxdd": -0.3857,
+  "sortino": -0.01,
+  "days": 5647,
+  "worst_day": -0.0814,
+  "gross_sharpe": 0.008834665359381757,
+  "IS": 0.069,
+  "OOS": -0.084
+ },
+ "rev_acc": {
+  "sharpe": 0.001,
+  "cagr": -0.0016,
+  "vol": 0.0568,
+  "maxdd": -0.3725,
+  "sortino": 0.001,
+  "days": 5647,
+  "worst_day": -0.0631,
+  "gross_sharpe": 0.05195388557843684,
+  "IS": 0.322,
+  "OOS": -0.255
+ },
+ "rev_surp": {
+  "sharpe": 0.102,
+  "cagr": 0.0048,
+  "vol": 0.0733,
+  "maxdd": -0.3636,
+  "sortino": 0.102,
+  "days": 5647,
+  "worst_day": -0.0625,
+  "gross_sharpe": 0.12960705203111972,
+  "IS": 0.247,
+  "OOS": -0.046
+ }
+}

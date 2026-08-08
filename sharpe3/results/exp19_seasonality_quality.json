@@ -1,0 +1,26 @@
+{
+ "seasonality_5y": {
+  "sharpe": -0.171,
+  "cagr": -0.0196,
+  "vol": 0.0914,
+  "maxdd": -0.5322,
+  "sortino": -0.196,
+  "days": 5647,
+  "worst_day": -0.0667,
+  "gross_sharpe": -0.011143955473967347,
+  "IS": -0.549,
+  "OOS": 0.247
+ },
+ "gross_profitability": {
+  "sharpe": -0.004,
+  "cagr": -0.004,
+  "vol": 0.0858,
+  "maxdd": -0.3574,
+  "sortino": -0.004,
+  "days": 5647,
+  "worst_day": -0.0323,
+  "gross_sharpe": 0.0013764281608985723,
+  "IS": 0.051,
+  "OOS": -0.063
+ }
+}

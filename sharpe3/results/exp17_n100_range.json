@@ -1,0 +1,86 @@
+{
+ "rngpos5_rev": {
+  "sharpe": -0.592,
+  "cagr": -0.0814,
+  "vol": 0.1292,
+  "maxdd": -0.8686,
+  "sortino": -0.615,
+  "days": 5647,
+  "worst_day": -0.0802,
+  "gross_sharpe": 0.19521846136123458,
+  "IS": -0.278,
+  "OOS": -0.951
+ },
+ "rngpos5_cont": {
+  "sharpe": -1.001,
+  "cagr": -0.1292,
+  "vol": 0.1298,
+  "maxdd": -0.9622,
+  "sortino": -0.973,
+  "days": 5647,
+  "worst_day": -0.0774,
+  "gross_sharpe": -0.21872458226122982,
+  "IS": -1.25,
+  "OOS": -1.108
+ },
+ "range_compress": {
+  "sharpe": -0.537,
+  "cagr": -0.0712,
+  "vol": 0.1233,
+  "maxdd": -0.8405,
+  "sortino": -0.534,
+  "days": 5647,
+  "worst_day": -0.0977,
+  "gross_sharpe": -0.10922861344197654,
+  "IS": -0.33,
+  "OOS": -0.808
+ },
+ "parkinson_ratio": {
+  "sharpe": -0.5,
+  "cagr": -0.066,
+  "vol": 0.1216,
+  "maxdd": -0.8279,
+  "sortino": -0.475,
+  "days": 5647,
+  "worst_day": -0.1112,
+  "gross_sharpe": -0.20128239543365983,
+  "IS": 0.034,
+  "OOS": -0.973
+ },
+ "parkinson_ratio_neg": {
+  "sharpe": -0.133,
+  "cagr": -0.0232,
+  "vol": 0.1213,
+  "maxdd": -0.6589,
+  "sortino": -0.144,
+  "days": 5647,
+  "worst_day": -0.0583,
+  "gross_sharpe": 0.1726576382068301,
+  "IS": -0.7,
+  "OOS": 0.187
+ },
+ "gapfade5": {
+  "sharpe": -0.204,
+  "cagr": -0.0441,
+  "vol": 0.1591,
+  "maxdd": -0.6734,
+  "sortino": -0.219,
+  "days": 5647,
+  "worst_day": -0.0658,
+  "gross_sharpe": 0.33785687342159004,
+  "IS": -0.356,
+  "OOS": -0.178
+ },
+ "hl_rev5": {
+  "sharpe": -0.327,
+  "cagr": -0.0605,
+  "vol": 0.1546,
+  "maxdd": -0.8614,
+  "sortino": -0.346,
+  "days": 5647,
+  "worst_day": -0.0767,
+  "gross_sharpe": 0.3063635885881557,
+  "IS": -0.037,
+  "OOS": -0.597
+ }
+}
