@@ -13,3 +13,6 @@ DEV = 1995–2014. VAL = 2015–2019 (survivors only). TEST = 2020+ (final only)
 | 3 | 04:45 | battery1 CLEAN: rev5 wk gross 1.06 net -0.48; rev1 daily gross 1.28 net -1.86; rev21 -0.77; mom12-1 -0.57; lowvol -1.36; short-lottery -0.76; volspike -1.78 | best net -0.48 | reversal is real GROSS, dies to turnover. Problem restated: alpha per unit turnover |
 | 4 | 04:50 | exp03: leadlag gross 0.86 net -1.05; high-volume premium dead (-2.28 net, -0.27 gross) | — | leadlag also gross-real / net-dead |
 | 5 | 04:55 | exp02 residual reversal (7 configs): best GROSS 1.59 (h5 skip0 f10 prop, all-names book) but net deeply negative — hyper-diversified residual book has tiny vol so fixed cost drag dominates | gross 1.59 | metric that matters = gross alpha per $ traded; need concentration + patience (exp06) |
+| 6 | 05:05 | exp05 volume-conditioned reversal: quiet-vol gross 0.56 (WORSE than unconditional), loud continuation -0.43 gross, interaction 0.73 | dead end | LMSW conditioning does not help at weekly horizon on this universe |
+| 7 | 05:05 | exp03 pairs-lite: gross 0.62, net -2.23 | dead end as-is | classic Gatev decay confirmed |
+| 8 | 05:10 | exp06 crashed (dtype bug), fixed + residual cache added, rerunning; exp07 slow sleeves launched | — | |

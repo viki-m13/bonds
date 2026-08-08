@@ -22,30 +22,36 @@ mo = [d for d in G.month_ends(idx) if pd.Timestamp("1994-06-30") < d <= DEV_END]
 Rf = R.fillna(0.0).astype(np.float32)
 
 # ---------- monthly factor loadings -> daily residuals ----------
-print("building daily residuals...", flush=True)
-resid = pd.DataFrame(np.nan, index=idx, columns=R.columns, dtype=np.float32)
-E_mo = G.elig_on(mo, ELIG)
-for mi, d in enumerate(mo):
-    i = idx.get_loc(d)
-    if i < 160: continue
-    e = E_mo.loc[d]; names = [c for c in e[e].index if c in R.columns]
-    Rw = R.iloc[i-126:i+1][names]
-    good = [c for c in Rw.columns[Rw.notna().sum() > 113]]
-    if len(good) < 100: continue
-    X = Rw[good].fillna(0.0).values
-    Xc = X - X.mean(0)
-    try:
-        U, S, Vt = np.linalg.svd(Xc, full_matrices=False)
-    except np.linalg.LinAlgError:
-        continue
-    B = Vt[:10].T                                  # loadings (n x 10)
-    # apply through next month
-    j_end = idx.get_loc(mo[mi+1]) if mi+1 < len(mo) else min(i+23, len(idx)-1)
-    Rn = Rf.iloc[i+1:j_end+1][good].values         # days x n
-    BtB_inv_Bt = np.linalg.pinv(B.T @ B) @ B.T
-    F = Rn @ BtB_inv_Bt.T                          # days x 10
-    res = Rn - F @ B.T
-    resid.iloc[i+1:j_end+1, [resid.columns.get_loc(c) for c in good]] = res
+RES_P = "/tmp/sharpe3_work/_resid_daily.pkl"
+if os.path.exists(RES_P):
+    resid = pd.read_pickle(RES_P)
+    print("residuals loaded from cache", flush=True)
+else:
+    print("building daily residuals...", flush=True)
+    resid = pd.DataFrame(np.nan, index=idx, columns=R.columns, dtype=np.float32)
+    E_mo = G.elig_on(mo, ELIG)
+    for mi, d in enumerate(mo):
+        i = idx.get_loc(d)
+        if i < 160: continue
+        e = E_mo.loc[d]; names = [c for c in e[e].index if c in R.columns]
+        Rw = R.iloc[i-126:i+1][names]
+        good = [c for c in Rw.columns[Rw.notna().sum() > 113]]
+        if len(good) < 100: continue
+        X = Rw[good].fillna(0.0).values
+        Xc = X - X.mean(0)
+        try:
+            U, S, Vt = np.linalg.svd(Xc, full_matrices=False)
+        except np.linalg.LinAlgError:
+            continue
+        B = Vt[:10].T                                  # loadings (n x 10)
+        # apply through next month
+        j_end = idx.get_loc(mo[mi+1]) if mi+1 < len(mo) else min(i+23, len(idx)-1)
+        Rn = Rf.iloc[i+1:j_end+1][good].values         # days x n
+        BtB_inv_Bt = np.linalg.pinv(B.T @ B) @ B.T
+        F = Rn @ BtB_inv_Bt.T                          # days x 10
+        res = Rn - F @ B.T
+        resid.iloc[i+1:j_end+1, [resid.columns.get_loc(c) for c in good]] = res
+    resid.to_pickle(RES_P)
 print(f"residuals ready t={time.time()-t0:.0f}s", flush=True)
 
 vol20 = R.rolling(20, min_periods=10).std()
@@ -58,7 +64,7 @@ Zv = (-Z).values  # long low residual returns
 print(f"Z ready t={time.time()-t0:.0f}s", flush=True)
 
 # eligibility daily
-E_d = ELIG.reindex(idx).ffill().fillna(False)[R.columns].values
+E_d = ELIG.reindex(idx).ffill().fillna(False)[R.columns].astype(bool).values
 
 days = [k for k in range(dstart, len(idx)) if idx[k] <= DEV_END]
 def run_patient(zin, zout, lam, nmax=75):
