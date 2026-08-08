@@ -16,12 +16,47 @@ FEE_BPS = 10.0
 BORROW_BPS_Y = 25.0
 
 _cache = {}
+def _clean_returns(R):
+    """Remove data glitches, not outcomes:
+    - |r| > 500% in one day on a $10M-ADV name is treated as a bad print
+    - spike-reversal pairs (huge move immediately ~fully reversed) are bad prints
+    Both the spike day and the day after (computed off the bad price) are voided.
+    """
+    Rv = R.values
+    nxt = np.vstack([Rv[1:], np.full((1, Rv.shape[1]), np.nan)])
+    with np.errstate(invalid="ignore"):
+        bad_abs = np.abs(Rv) > 5.0
+        rt = (1 + Rv) * (1 + nxt) - 1
+        spike_up = (Rv > 1.0) & (nxt < -0.4) & (np.abs(rt) < 0.25)
+        spike_dn = (Rv < -0.5) & (nxt > 0.8) & (np.abs(rt) < 0.25)
+    bad = bad_abs | spike_up | spike_dn
+    badnext = np.vstack([np.zeros((1, Rv.shape[1]), dtype=bool), bad[:-1]])
+    n = int(bad.sum() + (badnext & ~bad).sum())
+    Rv = Rv.copy()
+    Rv[bad | badnext] = np.nan
+    print(f"[engine] cleaned {n} glitch return cells ({n/np.isfinite(Rv).sum()*1e4:.1f} per 10k)", flush=True)
+    return pd.DataFrame(Rv, index=R.index, columns=R.columns)
+
 def load():
     if "PX" not in _cache:
         _cache["PX"] = pd.read_pickle(f"{HERE}/_px_daily.pkl")
         _cache["DV"] = pd.read_pickle(f"{HERE}/_dv_daily.pkl")
-        _cache["ELIG"] = pd.read_pickle(f"{HERE}/_elig.pkl")
-        _cache["R"] = _cache["PX"].pct_change(fill_method=None)
+        # eligibility rebuilt WITHOUT the adjusted-price filter (adjusted price
+        # thresholds are not PIT-pure); pure raw dollar-volume floor instead.
+        p2 = f"{HERE}/_elig2.pkl"
+        if os.path.exists(p2):
+            _cache["ELIG"] = pd.read_pickle(p2)
+        else:
+            med = _cache["DV"].rolling(63, min_periods=40).median()
+            _cache["ELIG"] = (med >= 1e7).resample("ME").last().fillna(False)
+            _cache["ELIG"].to_pickle(p2)
+            print(f"[engine] rebuilt ELIG (DV-only): avg eligible/mo {float(_cache['ELIG'].sum(axis=1).mean()):.0f}", flush=True)
+        p = f"{HERE}/_r_clean.pkl"
+        if os.path.exists(p):
+            _cache["R"] = pd.read_pickle(p)
+        else:
+            _cache["R"] = _clean_returns(_cache["PX"].pct_change(fill_method=None))
+            _cache["R"].to_pickle(p)
     return _cache["PX"], _cache["DV"], _cache["ELIG"], _cache["R"]
 
 def run(W, R, fee_bps=FEE_BPS, borrow_bps_y=BORROW_BPS_Y, lag=2):

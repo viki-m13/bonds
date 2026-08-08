@@ -17,7 +17,7 @@ DEV_END = pd.Timestamp("2014-12-31")
 idx = R.index
 wk = [d for d in G.week_ends(idx) if pd.Timestamp("1995-01-01") < d <= DEV_END]
 E_wk = G.elig_on(wk, ELIG)
-r5 = PX.pct_change(5, fill_method=None)
+r5 = np.expm1(np.log1p(R).rolling(5).sum())
 
 # ---------- 1) lead-lag ----------
 # leader = top-100 by dollar volume (PIT, monthly); follower = the rest of eligibles.

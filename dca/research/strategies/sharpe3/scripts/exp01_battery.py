@@ -16,10 +16,11 @@ mo = [d for d in G.month_ends(idx) if pd.Timestamp("1994-06-30") < d <= pd.Times
 E_wk = G.elig_on(wk, ELIG); E_mo = G.elig_on(mo, ELIG)
 print(f"weekly dates {len(wk)}, monthly {len(mo)}, cols {R.shape[1]}  t={time.time()-t0:.0f}s", flush=True)
 
-# ---- signal matrices (computed once, full panel, PIT by construction) ----
-r5 = PX.pct_change(5, fill_method=None)
-r21 = PX.pct_change(21, fill_method=None)
-r252_21 = PX.shift(21).pct_change(231, fill_method=None)      # 12-1 momentum
+# ---- signal matrices from CLEANED returns (computed once, PIT by construction) ----
+L = np.log1p(R)
+r5 = np.expm1(L.rolling(5).sum())
+r21 = np.expm1(L.rolling(21).sum())
+r252_21 = np.expm1(L.rolling(231).sum().shift(21))            # 12-1 momentum
 vol63 = R.rolling(63, min_periods=40).std()
 volspike = DV.rolling(5).mean() / DV.rolling(63, min_periods=40).mean()
 maxret21 = R.rolling(21).max()
