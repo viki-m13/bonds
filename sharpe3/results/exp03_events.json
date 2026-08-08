@@ -1,0 +1,80 @@
+{
+ "pead_H3": {
+  "sharpe": -0.444,
+  "cagr": -0.1723,
+  "vol": 0.3115,
+  "maxdd": -0.9955,
+  "sortino": -0.49,
+  "days": 5647,
+  "worst_day": -0.3933,
+  "gross_sharpe": 0.24022314526368865,
+  "avg_turnover": 1.69,
+  "IS": -0.287,
+  "OOS": -0.745
+ },
+ "pead_H5": {
+  "sharpe": -0.311,
+  "cagr": -0.115,
+  "vol": 0.2715,
+  "maxdd": -0.9771,
+  "sortino": -0.366,
+  "days": 5647,
+  "worst_day": -0.2951,
+  "gross_sharpe": 0.28375459486234955,
+  "avg_turnover": 1.281,
+  "IS": -0.184,
+  "OOS": -0.549
+ },
+ "pead_H10": {
+  "sharpe": -0.124,
+  "cagr": -0.0444,
+  "vol": 0.2011,
+  "maxdd": -0.8381,
+  "sortino": -0.146,
+  "days": 5647,
+  "worst_day": -0.1842,
+  "gross_sharpe": 0.4193520771436396,
+  "avg_turnover": 0.866,
+  "IS": -0.091,
+  "OOS": -0.184
+ },
+ "rev5_nonews": {
+  "sharpe": 1.508,
+  "cagr": 1.2083,
+  "vol": 0.6423,
+  "maxdd": -0.9019,
+  "sortino": 5.688,
+  "days": 5647,
+  "worst_day": -0.1008,
+  "gross_sharpe": 1.8600742873021296,
+  "avg_turnover": 1.799,
+  "IS": 1.942,
+  "OOS": -0.325
+ },
+ "rev5_newsonly": {
+  "sharpe": -0.503,
+  "cagr": -0.1614,
+  "vol": 0.2751,
+  "maxdd": -0.9853,
+  "sortino": -0.739,
+  "days": 5647,
+  "worst_day": -0.1893,
+  "gross_sharpe": 0.42212144882093,
+  "avg_turnover": 2.023,
+  "IS": -0.694,
+  "OOS": -0.161
+ },
+ "newsmom_2d": {
+  "sharpe": -1.542,
+  "cagr": -0.3342,
+  "vol": 0.2442,
+  "maxdd": -0.9999,
+  "sortino": -2.061,
+  "days": 5647,
+  "worst_day": -0.1446,
+  "gross_sharpe": 0.012187937035391214,
+  "avg_turnover": 3.012,
+  "IS": -1.288,
+  "OOS": -2.004
+ }
+}

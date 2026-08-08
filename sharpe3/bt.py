@@ -31,6 +31,22 @@ def _exec_returns(panel, mode):
 
 
 def run(weights, panel, mode="open", cost_bps=5.0):
+    """See module docstring. mode="sameclose": MOC execution at the close of
+    the signal day itself (order submitted into the closing auction from
+    ~3:45pm data; assumes the last minutes don't flip the signal — an
+    approximation that must be stress-tested against mode="open")."""
+    if mode == "sameclose":
+        r = panel["close"].pct_change(fill_method=None)
+        w = weights.reindex(index=r.index, columns=r.columns).fillna(0.0)
+        pos = w.shift(1).fillna(0.0)
+        pnl = (pos * r).sum(axis=1)
+        dw = w.diff().abs().sum(axis=1).fillna(0.0)
+        cost = dw * cost_bps / 1e4
+        return {"gross": pnl, "net": pnl - cost, "turnover": dw, "cost": cost}
+    return _run_lagged(weights, panel, mode, cost_bps)
+
+
+def _run_lagged(weights, panel, mode="open", cost_bps=5.0):
     """Backtest. Returns dict with daily net/gross returns and turnover.
 
     weights: DataFrame dates x tickers (target weights decided at close of d).
