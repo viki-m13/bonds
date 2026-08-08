@@ -1,0 +1,53 @@
+/usr/local/lib/python3.11/dist-packages/pandas/core/nanops.py:1028: RuntimeWarning: invalid value encountered in subtract
+  sqr = _ensure_numeric((avg - values) ** 2)
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:49: RuntimeWarning: invalid value encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial, where)
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:49: RuntimeWarning: invalid value encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial, where)
+/usr/local/lib/python3.11/dist-packages/pandas/core/nanops.py:1028: RuntimeWarning: invalid value encountered in subtract
+  sqr = _ensure_numeric((avg - values) ** 2)
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:49: RuntimeWarning: invalid value encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial, where)
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:49: RuntimeWarning: invalid value encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial, where)
+/usr/local/lib/python3.11/dist-packages/pandas/core/nanops.py:1028: RuntimeWarning: invalid value encountered in subtract
+  sqr = _ensure_numeric((avg - values) ** 2)
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:49: RuntimeWarning: invalid value encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial, where)
+/usr/local/lib/python3.11/dist-packages/numpy/_core/_methods.py:49: RuntimeWarning: invalid value encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial, where)
+/usr/local/lib/python3.11/dist-packages/pandas/core/nanops.py:1028: RuntimeWarning: invalid value encountered in subtract
+  sqr = _ensure_numeric((avg - values) ** 2)
+/usr/local/lib/python3.11/dist-packages/pandas/core/nanops.py:1028: RuntimeWarning: invalid value encountered in subtract
+  sqr = _ensure_numeric((avg - values) ** 2)
+/usr/local/lib/python3.11/dist-packages/pandas/core/nanops.py:1028: RuntimeWarning: invalid value encountered in subtract
+  sqr = _ensure_numeric((avg - values) ** 2)
+34 features; stacking...
+stacked (5647, 720, 34) 29s
+2008: train 90282 rows  32s
+2009: train 121889 rows  39s
+2010: train 140866 rows  41s
+2011: train 158293 rows  43s
+2012: train 195897 rows  46s
+2013: train 214289 rows  49s
+2014: train 260942 rows  52s
+2015: train 303197 rows  55s
+2016: train 341017 rows  59s
+2017: train 373065 rows  63s
+2018: train 411049 rows  73s
+2019: train 467490 rows  79s
+2020: train 542306 rows  85s
+2021: train 619920 rows  92s
+2022: train 705224 rows  99s
+2023: train 783374 rows  106s
+2024: train 873250 rows  114s
+2025: train 963769 rows  124s
+2026: train 1075385 rows  141s
+ridge IC: mean=0.0051 t=1.2
+ml_ridge_d10             netSR= -0.45 grossSR=  0.25 IS= -0.94 OOS=  0.11 to= 0.88
+ml_ridge_d10_sm3         netSR= -0.10 grossSR=  0.22 IS= -0.58 OOS=  0.35 to= 0.32
+lgb IC: mean=0.0096 t=2.6
+ml_lgb_d10               netSR= -0.72 grossSR=  0.28 IS= -1.13 OOS= -0.29 to= 0.96
+ml_lgb_d10_sm3           netSR=  0.03 grossSR=  0.46 IS= -0.49 OOS=  0.51 to= 0.36
+ml_combo_sm3             netSR=  0.03 grossSR=  0.38 IS= -0.60 OOS=  0.62 to= 0.34
+DONE 146.98634552955627

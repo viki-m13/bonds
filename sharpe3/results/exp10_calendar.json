@@ -1,0 +1,67 @@
+{
+ "tom_long": {
+  "sharpe": 0.739,
+  "cagr": 0.072,
+  "vol": 0.1009,
+  "maxdd": -0.2917,
+  "sortino": 0.596,
+  "days": 5647,
+  "worst_day": -0.0581,
+  "gross_sharpe": 0.7871498170732366,
+  "avg_turnover": 0.096,
+  "IS": 0.786,
+  "OOS": 0.653
+ },
+ "nontom_long": {
+  "sharpe": 0.704,
+  "cagr": 0.103,
+  "vol": 0.1567,
+  "maxdd": -0.4122,
+  "sortino": 0.741,
+  "days": 5647,
+  "worst_day": -0.1196,
+  "gross_sharpe": 0.7350502134277458,
+  "avg_turnover": 0.096,
+  "IS": 0.812,
+  "OOS": 0.494
+ },
+ "tom_highbeta_ls": {
+  "sharpe": 0.034,
+  "cagr": -0.0126,
+  "vol": 0.1947,
+  "maxdd": -0.8502,
+  "sortino": 0.024,
+  "days": 5647,
+  "worst_day": -0.1655,
+  "gross_sharpe": 0.0955701678042027,
+  "avg_turnover": 0.239,
+  "IS": -0.115,
+  "OOS": 0.399
+ },
+ "mon_long": {
+  "sharpe": 0.402,
+  "cagr": 0.0279,
+  "vol": 0.0755,
+  "maxdd": -0.2227,
+  "sortino": 0.331,
+  "days": 5647,
+  "worst_day": -0.084,
+  "gross_sharpe": 0.6512592008318016,
+  "avg_turnover": 0.374,
+  "IS": 0.588,
+  "OOS": 0.034
+ },
+ "fri_long": {
+  "sharpe": 0.291,
+  "cagr": 0.0201,
+  "vol": 0.0792,
+  "maxdd": -0.4308,
+  "sortino": 0.276,
+  "days": 5647,
+  "worst_day": -0.0532,
+  "gross_sharpe": 0.5452283521480608,
+  "avg_turnover": 0.401,
+  "IS": -0.025,
+  "OOS": 0.944
+ }
+}
