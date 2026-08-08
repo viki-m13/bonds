@@ -79,18 +79,60 @@ def main():
               f"sharpe_m={a_full['sharpe_m']:.2f} | oos cagr={a_oos['cagr']*100:+.2f}% "
               f"sharpe_m={a_oos['sharpe_m']:.2f}", flush=True)
 
-    # monthly NAV series vs LQD
+    # monthly NAV series vs the two benchmarks (LQD = IG corporates, the
+    # like-for-like credit benchmark; AGG = the US aggregate bond market).
     ts = pd.Series(nav, index=pd.to_datetime(days, unit="D"))
     mon = ts.resample("MS").first().dropna()
-    lqd = (pd.read_csv(ROOT / "data" / "etf" / "LQD.csv.gz", parse_dates=["date"])
-           .set_index("date")["adjclose"])
-    lqd = lqd.reindex(mon.index, method="ffill").bfill()
-    lqd_eq = lqd / lqd.iloc[0]
+
+    def bench(fname):
+        s = (pd.read_csv(ROOT / "data" / "etf" / fname, parse_dates=["date"])
+             .set_index("date")["adjclose"])
+        first = s.index.min()
+        # NO backfill before the ETF existed: reindex, forward-fill only, and
+        # leave NaN before inception. AGG launched 2003-09-29, ~9 months after
+        # the backtest start — backfilling would silently credit it a flat
+        # 9 months and understate it. Rebased to $1 at its own first month.
+        r = s.reindex(mon.index.union(s.index)).ffill().reindex(mon.index)
+        r[mon.index < first] = np.nan
+        base = r.dropna()
+        if base.empty:
+            return r, None, None, None
+        eq = r / base.iloc[0]
+        yrs = (base.index[-1] - base.index[0]).days / 365.25
+        cagr = float(eq.dropna().iloc[-1] ** (1 / yrs) - 1)
+        dd = float((eq / eq.cummax() - 1).min())
+        return eq, cagr, dd, base.index[0]
+
+    lqd_eq, lqd_full, lqd_dd, lqd_start = bench("LQD.csv.gz")
+    agg_eq, agg_cagr, agg_dd, agg_start = bench("AGG.csv.gz")
+
+    def jn(x):
+        return None if not np.isfinite(x) else round(float(x), 4)
+
     series = [{"date": d.strftime("%Y-%m-%d"), "strat": round(float(v), 4),
-               "lqd": round(float(l), 4)}
-              for d, v, l in zip(mon.index, mon.values, lqd_eq.values)]
-    lqd_full = (lqd_eq.iloc[-1]) ** (1 / ((mon.index[-1] - mon.index[0]).days / 365.25)) - 1
-    lqd_dd = float((lqd_eq / lqd_eq.cummax() - 1).min())
+               "lqd": jn(l), "agg": jn(a)}
+              for d, v, l, a in zip(mon.index, mon.values,
+                                    lqd_eq.values, agg_eq.values)]
+
+    # common-window comparison (from AGG's inception) so all three series are
+    # measured over identical dates — the apples-to-apples table row.
+    common = None
+    if agg_start is not None:
+        cm = mon[mon.index >= agg_start]
+        def stats_from(eq):
+            eq = eq[eq.index >= agg_start].dropna()
+            eq = eq / eq.iloc[0]
+            yrs = (eq.index[-1] - eq.index[0]).days / 365.25
+            return {"cagr": float(eq.iloc[-1] ** (1 / yrs) - 1),
+                    "maxdd": float((eq / eq.cummax() - 1).min()),
+                    "total": float(eq.iloc[-1] - 1)}
+        common = {"start": agg_start.strftime("%Y-%m-%d"),
+                  "strat": stats_from(cm), "lqd": stats_from(lqd_eq),
+                  "agg": stats_from(agg_eq)}
+        print(f"common window from {common['start']}: strat "
+              f"{common['strat']['cagr']*100:+.2f}% | LQD "
+              f"{common['lqd']['cagr']*100:+.2f}% | AGG "
+              f"{common['agg']['cagr']*100:+.2f}%", flush=True)
 
     # era rows (per-trade, XL book; real coupons when available — audit)
     era_fills = [refill(f) for f in fills] if audit else fills
@@ -113,7 +155,12 @@ def main():
 
     data = {"full": full, "is": is_s, "oos": oos_s, "series": series,
             "lqd": {"cagr": float(lqd_full), "maxdd": lqd_dd,
-                    "total": float(lqd_eq.iloc[-1] - 1)},
+                    "total": float(lqd_eq.dropna().iloc[-1] - 1),
+                    "start": lqd_start.strftime("%Y-%m-%d")},
+            "agg": {"cagr": float(agg_cagr), "maxdd": agg_dd,
+                    "total": float(agg_eq.dropna().iloc[-1] - 1),
+                    "start": agg_start.strftime("%Y-%m-%d")},
+            "common": common,
             "era": era_rows, "atlas": atlas,
             "cl_era_excess": cl_diag.get("era"),
             "transfer": transfer, "keystone_xl": kxl, "audit": audit}

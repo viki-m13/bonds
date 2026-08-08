@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KEYSTONE — Strategy Tearsheet</title>
 <script src="vendor/chart.umd.min.js"></script>
 <style>
@@ -9,7 +10,7 @@
 :root{--t1:#14203a;--t2:#45506a;--t3:#8890a6;--green:#0d8f63;--red:#cf3049;--accent:#12386e;--gold:#c9922b;--card:#f6f8fa;--border:#e3e6ec}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:8.5in;height:11in}
-body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--t1);font-size:11px;line-height:1.45;padding:0.5in 0.55in}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--t1);font-size:11px;line-height:1.45;padding:0.5in 0.55in 0.28in}
 .hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--accent);padding-bottom:10px;margin-bottom:13px}
 .hd .eye{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:700}
 .hd h1{font-size:29px;color:var(--accent);font-weight:800;letter-spacing:-.5px;line-height:1.02}
@@ -37,12 +38,22 @@ td:first-child{text-align:left;font-weight:600;color:var(--t1)}
 .box.warn{background:#fdf3f4;border-color:#f0c9cf}
 .box h3{font-size:9.4px;color:var(--t1);margin-bottom:3px}
 .box p{font-size:9.2px;margin:2px 0}
-.band{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px;padding-top:11px;border-top:1.5px solid var(--border)}
-.band h3{font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;font-weight:800}
-.band p,.band li{font-size:9px;color:var(--t2);margin:2px 0}
+.band{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-top:8px;padding-top:8px;border-top:1.5px solid var(--border)}
+.band h3{font-size:8.6px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;font-weight:800}
+.band p,.band li{font-size:8.3px;line-height:1.34;color:var(--t2);margin:1.5px 0}
 .band ul{margin-left:13px}
-.foot{position:absolute;bottom:0.34in;left:0.55in;right:0.55in;font-size:7.4px;color:var(--t3);border-top:1px solid var(--border);padding-top:5px;line-height:1.4}
+.foot{margin-top:5px;font-size:7px;color:var(--t3);border-top:1px solid var(--border);padding-top:4px;line-height:1.3}
 .sig{font-size:9.4px}
+
+/* SCREEN ONLY — this sheet is a fixed Letter-size print artifact (the PDF is
+   the deliverable), so it must not reflow. On a phone, scale the whole page
+   down to fit the viewport instead of leaving it half off-screen. Print and
+   PDF output are untouched. */
+@media screen and (max-width:860px){
+  html{width:100%;height:auto;overflow-x:hidden;background:#f2f4f2}
+  body{transform:scale(calc(100vw / 8.5in));transform-origin:top left;
+       margin:0 auto;box-shadow:0 1px 8px rgba(0,0,0,.12)}
+}
 </style>
 </head>
 <body>
@@ -76,7 +87,7 @@ td:first-child{text-align:left;font-weight:600;color:var(--t1)}
     <div class="box sig">
       <b>Buy</b> when a bond prints <b>≥3 pts below its own trailing 60-day median</b> (a forced-seller dislocation) and it clears a trailing-liquidity gate. <b>Fill</b> at the next customer-buy print. <b>Hold ~1 year</b>; <b>exit</b> into a customer-sell print. Coupon accrues throughout.
     </div>
-    <p>The dealer bid–ask spread (~0.44 pt round-trip) kills short-term timing but is a one-time cost against growing carry + reversion. Buying idiosyncratic dislocations and holding to reversion beats random entry <b>in the same bonds</b> — pure timing alpha, net of spread, carry and selection.</p>
+    <p>The ~0.44 pt round-trip spread kills short-term timing but is a one-time cost against growing carry + reversion. Beating random entry <b>in the same bonds</b> makes this pure timing alpha — net of spread, carry and selection.</p>
 
     <h2>Signal strength by depth (full sample)</h2>
     <table id="thr"><thead><tr><th>Entry threshold</th><th>Trades</th><th>Win</th><th>Excess</th><th>p</th></tr></thead><tbody></tbody></table>
@@ -86,11 +97,11 @@ td:first-child{text-align:left;font-weight:600;color:var(--t1)}
 
     <div class="box sig">
       <h3>KEYSTONE-XL — the validated upgrade</h3>
-      <p>The execution stack proven on corporates transfers verbatim: <b>limit entry</b> (fill only if buy price ≤ prior mid + 0.25), <b>1 position/issuer</b>, <b>recovery exit</b> (first sell print ≥21d once mid recovers to entry-day median). Full window 2012–26: <b>+7.82% CAGR at −4.8% maxDD</b> (base +4.35% / −9.1%); OOS 2023–26 <b>+9.29% CAGR, 98% win</b>, excess +2.37% (p&lt;0.001) vs a cap-matched control. Validated in four independent samples (muni &amp; corp, IS &amp; OOS each). <i>2026-08 audit: the issuer cap previously keyed on an id prefix and never bound; it now uses real issuers (book 573→336 OOS trades, returns intact). OOS win rates are flattered by right-censored final-year holds and universe survivorship — the durable excess estimate is +2.5–3.6%; live recovery exits should trigger on the prior day's mid (≈−0.4 to −0.7pp/trade). See XL_AUDIT.md.</i></p>
+      <p>The execution stack proven on corporates transfers verbatim: <b>limit entry</b> (fill only if buy price ≤ prior mid + 0.25), <b>1 position/issuer</b>, <b>recovery exit</b> (first sell print ≥21d once mid recovers to entry-day median). Full window 2012–26: <b>+7.82% CAGR at −4.8% maxDD</b> (base +4.35% / −9.1%); OOS 2023–26 <b>+9.29% CAGR, 98% win</b>, excess +2.37% (p&lt;0.001) vs a cap-matched control. Validated in four independent samples (muni &amp; corp, IS &amp; OOS each). <i>2026-08 audit: the issuer cap keyed on an id prefix and never bound — now on real issuers (573→336 OOS trades, returns intact). Win rates are flattered by right-censored holds and survivorship; durable excess +2.5–3.6%. See XL_AUDIT.md.</i></p>
     </div>
     <div class="box warn">
       <h3>Known failure mode — sustained rate selloffs</h3>
-      <p>Mean-reversion is short a rate shock. In 2022 the whole market repriced down and dislocations did not revert (−1.99% excess). Size accordingly; an optional MUB-trend overlay mitigates it.</p>
+      <p>Mean-reversion is short a rate shock: in 2022 the market repriced down and dislocations did not revert (−1.99% excess). Size accordingly; an optional MUB-trend overlay mitigates it.</p>
     </div>
   </div>
 </div>
