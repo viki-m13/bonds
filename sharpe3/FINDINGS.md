@@ -5,7 +5,7 @@ using only the point-in-time data already in this repo (daily + intraday).
 
 **Status**: research complete — see verdict at the bottom. All numbers below
 are net of costs, PIT-universe, next-day execution unless labeled otherwise.
-Everything is reproducible: `sharpe3/experiments/exp01..exp20`, results in
+Everything is reproducible: `sharpe3/experiments/exp01..exp27`, results in
 `sharpe3/results/*.json`.
 
 ## Data used
