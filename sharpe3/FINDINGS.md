@@ -58,6 +58,9 @@ Everything is reproducible: `sharpe3/experiments/exp01..exp20`, results in
 | 16 | conditional liquidity provision (reversal after stress) | — | ≤1.1 | — | ≤0.4 | conditioning can't rescue a dead edge |
 | 17 | NDX OHLC range/Parkinson/gap signals | ≤0.3 | ≤ −0.1 | — | negative | dead |
 | 18 | revenue growth/acceleration/surprise (XBRL, 70d lag) | ≤0.1 | ≈ 0 | — | ≈ 0 | dead |
+| 19 | per-stock month-of-year seasonality (Heston-Sadka); gross profitability (Novy-Marx) | ≈ 0 | ≈ 0 | — | ≈ 0 | dead |
+| 22 | ETF late-day flow → next-day beta cross-section | ≤0.2 | ≤ −0.4 | — | negative | dead |
+| 24 | pairs trading (GGR distance, sector-matched, top-50, z>2 entry, 2010+) | 0.36 | −0.06 | — | −0.03 | dead (as documented post-2002) |
 
 (Values are the best variant per family; full grids in `results/`.)
 
