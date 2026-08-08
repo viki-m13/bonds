@@ -61,6 +61,13 @@ Everything is reproducible: `sharpe3/experiments/exp01..exp20`, results in
 | 19 | per-stock month-of-year seasonality (Heston-Sadka); gross profitability (Novy-Marx) | ≈ 0 | ≈ 0 | — | ≈ 0 | dead |
 | 22 | ETF late-day flow → next-day beta cross-section | ≤0.2 | ≤ −0.4 | — | negative | dead |
 | 24 | pairs trading (GGR distance, sector-matched, top-50, z>2 entry, 2010+) | 0.36 | −0.06 | — | −0.03 | dead (as documented post-2002) |
+| 25 | PCA factor-neutral construction of every headline signal (K=5/10/20) | 0.71 | −1.6…0.07 | — | — | removes 70% of vol, adds no alpha |
+| 26/27 | ceiling arithmetic: measured IC, effective breadth, horizon trade-off | — | — | — | — | **the quantitative verdict** |
+
+**Data deliberately not mined**: the 13F institutional-holdings panel
+(`_13f_cusip.pkl`) covers only 16 irregular quarters (2022–2026). Fourteen
+usable observations cannot support a Sharpe claim at any confidence, so it is
+recorded as a data limitation rather than a tested family.
 
 (Values are the best variant per family; full grids in `results/`.)
 
@@ -112,6 +119,69 @@ signal on liquid US equities is ≈ 0 net**. The full-sample Sharpes in the map
 above are pre-2009-era alpha plus the open-price artifact — not something that
 exists to be traded today.
 
+### Factor-neutral construction: tested, and it does not hide alpha (exp25)
+
+Every portfolio above is a naive decile long-short, which carries large
+uncontrolled market/sector/size/vol exposures. The standard desk response is a
+risk model. I built one (rolling PCA on the trailing 252d member-return
+correlation matrix, K = 5/10/20 statistical factors, refit monthly, applied
+forward only; `riskmodel.py`) and rebuilt each signal as a factor-neutral,
+dollar-neutral, inverse-vol optimized book:
+
+| signal | construction | ann. vol | **gross** SR | net SR (5bps) |
+|---|---|---|---|---|
+| 5d reversal | naive decile | 0.222 | 0.62 | −0.28 |
+| 5d reversal | factor-neutral K=10 | 0.072 | 0.67 | −1.46 |
+| 5d reversal | factor-neutral K=20 | 0.066 | **0.71** | −1.60 |
+| intraday-cum rev | naive decile | 0.202 | 0.41 | −0.25 |
+| intraday-cum rev | factor-neutral K=20 | 0.058 | 0.57 | −1.12 |
+| momentum 12-1 | naive decile | — | 0.21 | 0.08 |
+| momentum 12-1 | factor-neutral K=5 | — | 0.42 | 0.07 |
+
+The risk model works exactly as designed — it removes ~70% of portfolio
+volatility (0.222 → 0.066). But **gross Sharpe barely moves** (0.62 → 0.71):
+the factor exposure was carrying risk, not concealing alpha. And because the
+cost drag is a fixed charge on turnover while the volatility it is measured
+against has fallen 3×, net Sharpe gets *worse*. Better construction cannot
+manufacture information that is not in the data.
+
+### The horizon trap — the wall, quantified (exp26/exp27)
+
+This is the decisive analysis. By the fundamental law of active management,
+Sharpe_gross = IC × √breadth, where breadth = N_eff × (252/h) independent bets
+per year. Measured on the clean era (2015+): the S&P 500 cross-section has
+**N_eff = 315** (464 names, average residual correlation 0.001 — the breadth
+really is there). Measured IC of the best signal at each horizon, versus what
+the portfolio actually delivers after costs:
+
+| holding period | measured IC (t) | independent bets/yr | **theoretical** max gross SR | realized gross SR | turnover | cost drag @5bps | **net SR @5bps** |
+|---|---|---|---|---|---|---|---|
+| 1 day | 0.0109 (3.1) | 79,350 | **3.07** | 0.65 | 864×/yr | −1.95 SR | **−1.31** |
+| 2 days | 0.0090 (2.6) | 39,675 | 1.79 | 0.59 | 525× | −1.16 SR | −0.58 |
+| 5 days | 0.0111 (3.2) | 15,870 | 1.40 | 0.47 | 228× | −0.50 SR | −0.03 |
+| 10 days | 0.0085 (2.5) | 7,935 | 0.75 | 0.06 | 118× | −0.27 SR | −0.21 |
+| 21 days | 0.0112 (3.4) | 3,779 | 0.69 | 0.12 | 59× | −0.14 SR | −0.01 |
+| 63 days | 0.0100 (3.3) | 1,260 | 0.36 | −0.03 | 21× | −0.04 SR | −0.07 |
+
+Read the table as a trap with two jaws:
+
+- **Only the 1-day horizon has a theoretical ceiling above 3** — and only
+  barely (3.07), assuming a *perfect* risk model, *optimal* weights and
+  *zero* costs. There, turnover is 864×/yr and the cost drag alone is
+  −1.95 Sharpe units at 5 bps. Net: −1.31.
+- **The horizons whose costs are affordable** (21d: drag −0.14; 63d: −0.04)
+  have theoretical ceilings of **0.69 and 0.36** — they cannot reach 3 even
+  in principle, with perfect execution and free trading.
+- Realized gross Sharpe is only 20–40% of theoretical even before costs,
+  because a decile sort cannot extract a full IC — and exp25 shows that
+  fixing the construction does not close the gap either.
+
+There is no horizon on this data where breadth and affordability overlap
+sufficiently. **To reach Sharpe 3 at a tradeable (5-day) horizon would require
+IC ≈ 0.024 — roughly 2× the best measured — and at 21 days, IC ≈ 0.049,
+about 4.4×.** Nothing in 24 families of price, volume, event, filing,
+fundamental or ML signal came within a factor of two of that.
+
 ## The final ensemble (the honest deliverable)
 
 Four sleeves defined a priori (economic motivation, robust construction — no
@@ -162,26 +232,37 @@ mirrors the conclusion of the same hunt on crypto data
 (`crypto_pulse/research/SHARPE3_VERDICT.md`) — and the fundamental reasons are
 the same three walls:
 
-1. **The information wall.** Sharpe ≈ IC × √(effective breadth). The measured
-   post-2015 information coefficient of *everything we could engineer from
-   this data* — 22 families, 34-feature ML — is ≈ 0.01 at 1–5d horizons
-   (t ≈ 2.5). With ~410 names, ρ-adjusted effective breadth ≈ 80 names ×
-   ~50 independent 5d bets/yr ⇒ SR_gross ≈ 0.01·√4000 ≈ 0.6, which is
-   exactly what the portfolios realize before costs. Sharpe 3 needs IC ≈ 0.05
-   sustained — 5× everything measurable here — or ~25× the breadth
-   (= intraday rebalancing across thousands of names, i.e. per-stock intraday
-   data this repo does not have, plus the execution stack to trade it).
+1. **The information wall.** The measured post-2015 rank-IC of *everything
+   engineerable from this data* — 24 families, a 34-feature walk-forward ML in
+   two configurations, and an IC-weighted walk-forward combination of all of
+   them — sits at **0.007–0.017 (t ≈ 2–3.6)** at every horizon from 1 to 63
+   days. The walk-forward *combination* of all ten headline signals scores
+   IC 0.0076 (t = 2.1) — combining does not raise it, because the signals are
+   different projections of the same thin information. Reaching Sharpe 3 needs
+   IC ≈ 0.024 at 5 days or ≈ 0.049 at 21 days: 2× to 4.4× what exists.
 2. **The decay wall.** Every classical anomaly reproduces in-sample exactly
    where the literature found it (short-term reversal, overnight cross-section,
    PEAD, index reconstitution, lead-lag, turn-of-month) and every one of them
    is ≈ 0 or negative after 2018 in liquid US equities. This is the documented
    institutionalization of short-horizon stat-arb, visible end-to-end in our
    yearly tables.
-3. **The cost wall.** Where gross edges still exist (small caps, gross SR
-   0.6–1.2 below $20M ADV), realistic costs (10–20 bps) turn them into net
-   −3 to −8. The "Sharpe 3–5 small-cap reversal" of legend is bid-ask bounce:
-   this repo's crypto research already demonstrated the mechanism, and the
-   broad-universe tier sweep reproduces it in equities.
+3. **The cost wall — and the horizon trap it creates.** Breadth is not the
+   binding constraint: N_eff = 315 independent names, and at a 1-day horizon
+   that is 79,350 independent bets a year, enough for a *theoretical* ceiling
+   of 3.07. But 1-day rebalancing costs 864×/yr of turnover — a −1.95 Sharpe
+   drag at 5 bps. Slow the book down until costs are affordable (21–63 days,
+   drag −0.14 to −0.04) and the theoretical ceiling has already fallen to
+   0.69–0.36. **The horizons with the breadth cannot pay their costs; the
+   horizons that can pay their costs lack the breadth.** Separately, where
+   gross edges do persist (small caps below $20M ADV, gross 0.6–1.2),
+   realistic 10–20 bps costs turn them into net −3 to −8 — the legendary
+   "Sharpe 3–5 small-cap reversal" is bid-ask bounce, the same mechanism this
+   repo's crypto research documented, reproduced here in equities.
+
+   A fourth possibility — that better *portfolio construction* rather than
+   better signals was the missing piece — was tested and rejected (exp25): a
+   PCA risk model removes 70% of portfolio volatility but moves gross Sharpe
+   only 0.62 → 0.71. The factor exposure carried risk, not hidden alpha.
 
 **What a Sharpe 3 would actually require** (all outside this dataset):
 per-stock intraday data with an execution simulator (queue/latency), options
@@ -201,5 +282,5 @@ deliverable of this project is the map, the harness, the artifact forensics,
 and the measured ceiling — not a number that would not survive its first week
 of live trading.
 
-*Every claim above is reproducible from `experiments/exp01..exp22` +
+*Every claim above is reproducible from `experiments/exp01..exp27` +
 `results/*.json` on the data in this repository.*

@@ -33,7 +33,7 @@ factsheets at https://viki-m13.github.io/bonds/ :
   event study and a survivorship-matched random control. Full record in
   [`parabolic/README.md`](parabolic/README.md).
 - **SHARPE3** — the honest hunt for a **Sharpe-3+ stock-picking strategy** on
-  the repo's PIT data (daily + intraday): 23 experiment families (reversal,
+  the repo's PIT data (daily + intraday): 27 experiments across 24 signal families (reversal,
   overnight, PEAD/8-K events, index reconstitution, lead-lag, VWAP imbalance,
   walk-forward ML, broad delisting-inclusive universe...), a data-forensics
   finding (pre-2009 open-price artifact), and the quantified verdict that an

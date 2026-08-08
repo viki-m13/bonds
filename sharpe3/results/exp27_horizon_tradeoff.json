@@ -1,0 +1,96 @@
+{
+ "N_eff": 314.9,
+ "avg_resid_corr": 0.00102,
+ "horizons": {
+  "1": {
+   "ic": 0.0109,
+   "t_stat": 3.1,
+   "independent_bets_per_yr": 79350,
+   "theoretical_max_gross_sharpe": 3.07,
+   "realized_gross_sharpe": 0.65,
+   "annual_turnover_x": 864.2,
+   "ann_vol": 0.221,
+   "cost_drag_sharpe_at_5bps": 1.95,
+   "net_sharpe": {
+    "2.0": -0.13,
+    "5.0": -1.31,
+    "10.0": -3.3
+   }
+  },
+  "2": {
+   "ic": 0.009,
+   "t_stat": 2.6,
+   "independent_bets_per_yr": 39675,
+   "theoretical_max_gross_sharpe": 1.79,
+   "realized_gross_sharpe": 0.59,
+   "annual_turnover_x": 525.4,
+   "ann_vol": 0.226,
+   "cost_drag_sharpe_at_5bps": 1.16,
+   "net_sharpe": {
+    "2.0": 0.12,
+    "5.0": -0.58,
+    "10.0": -1.75
+   }
+  },
+  "5": {
+   "ic": 0.0111,
+   "t_stat": 3.2,
+   "independent_bets_per_yr": 15870,
+   "theoretical_max_gross_sharpe": 1.4,
+   "realized_gross_sharpe": 0.47,
+   "annual_turnover_x": 228.2,
+   "ann_vol": 0.228,
+   "cost_drag_sharpe_at_5bps": 0.5,
+   "net_sharpe": {
+    "2.0": 0.27,
+    "5.0": -0.03,
+    "10.0": -0.53
+   }
+  },
+  "10": {
+   "ic": 0.0085,
+   "t_stat": 2.5,
+   "independent_bets_per_yr": 7935,
+   "theoretical_max_gross_sharpe": 0.75,
+   "realized_gross_sharpe": 0.06,
+   "annual_turnover_x": 118.2,
+   "ann_vol": 0.218,
+   "cost_drag_sharpe_at_5bps": 0.27,
+   "net_sharpe": {
+    "2.0": -0.04,
+    "5.0": -0.21,
+    "10.0": -0.48
+   }
+  },
+  "21": {
+   "ic": 0.0112,
+   "t_stat": 3.4,
+   "independent_bets_per_yr": 3779,
+   "theoretical_max_gross_sharpe": 0.69,
+   "realized_gross_sharpe": 0.12,
+   "annual_turnover_x": 59.3,
+   "ann_vol": 0.218,
+   "cost_drag_sharpe_at_5bps": 0.14,
+   "net_sharpe": {
+    "2.0": 0.07,
+    "5.0": -0.01,
+    "10.0": -0.15
+   }
+  },
+  "63": {
+   "ic": 0.01,
+   "t_stat": -3.3,
+   "independent_bets_per_yr": 1260,
+   "theoretical_max_gross_sharpe": 0.36,
+   "realized_gross_sharpe": -0.03,
+   "annual_turnover_x": 21.3,
+   "ann_vol": 0.237,
+   "cost_drag_sharpe_at_5bps": 0.04,
+   "net_sharpe": {
+    "2.0": -0.04,
+    "5.0": -0.07,
+    "10.0": -0.12
+   }
+  }
+ }
+}

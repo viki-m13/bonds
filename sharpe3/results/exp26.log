@@ -1,0 +1,41 @@
+--- horizon 1d rank-IC (2015+) ---
+  mom12_1      IC=+0.0138 t= +3.0
+  rev1d        IC=+0.0093 t= +2.9
+  d200ma       IC=+0.0080 t= +1.8
+  rev5d        IC=+0.0077 t= +2.1
+  rev_i5       IC=+0.0071 t= +2.2
+  onmom252     IC=+0.0070 t= +2.4
+  rev21d       IC=+0.0047 t= +1.3
+  dvrank       IC=+0.0033 t= +1.4
+  skew63       IC=-0.0009 t= -0.4
+  vol60        IC=+0.0005 t= +0.1
+--- horizon 5d rank-IC (2015+) ---
+  rev5d        IC=+0.0123 t= +3.6
+  rev_i5       IC=+0.0111 t= +3.5
+  rev21d       IC=+0.0099 t= +2.8
+  mom12_1      IC=+0.0087 t= +1.8
+  dvrank       IC=+0.0082 t= +3.6
+  rev1d        IC=+0.0073 t= +2.4
+  onmom252     IC=+0.0068 t= +2.4
+  d200ma       IC=+0.0030 t= +0.7
+  skew63       IC=-0.0021 t= -1.0
+  vol60        IC=-0.0015 t= -0.3
+--- horizon 21d rank-IC (2015+) ---
+  dvrank       IC=+0.0170 t= +8.3
+  rev21d       IC=+0.0115 t= +3.4
+  rev5d        IC=+0.0103 t= +3.2
+  rev_i5       IC=+0.0072 t= +2.5
+  vol60        IC=-0.0067 t= -1.5
+  rev1d        IC=+0.0058 t= +2.0
+  skew63       IC=-0.0050 t= -2.6
+  mom12_1      IC=-0.0042 t= -1.0
+  onmom252     IC=+0.0020 t= +0.7
+  d200ma       IC=-0.0010 t= -0.2
+/usr/local/lib/python3.11/dist-packages/pandas/core/nanops.py:1673: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  return spearmanr(a, b)[0]
+walk-forward combo IC (h5, 2017+): {'ic': 0.0076, 't': 2.1}
+names: 464 avg residual corr: 0.001 N_eff: 314.9
+h1: best=mom12_1 IC 0.0138 x sqrt(79350) -> THEORETICAL max gross SR 3.89 | IC needed for SR3: 0.0106 (0.8x what exists)
+h5: best=rev5d IC 0.0123 x sqrt(15870) -> THEORETICAL max gross SR 1.55 | IC needed for SR3: 0.0238 (1.9x what exists)
+h21: best=dvrank IC 0.0170 x sqrt(3779) -> THEORETICAL max gross SR 1.04 | IC needed for SR3: 0.0488 (2.9x what exists)
+saved

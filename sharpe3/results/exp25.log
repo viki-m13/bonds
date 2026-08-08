@@ -1,0 +1,26 @@
+rev5d_naive_decile                 net= -0.28 gross=  0.62 10-17= -0.96 18-26= -0.10 to= 1.59
+rev5d_fneutral_K5                  net= -1.25 gross=  0.58 10-17= -2.45 18-26= -0.85 to= 1.20
+rev5d_fneutral_K10                 net= -1.46 gross=  0.67 10-17= -2.66 18-26= -1.05 to= 1.21
+rev5d_fneutral_K20                 net= -1.60 gross=  0.71 10-17= -2.82 18-26= -1.18 to= 1.21
+  [49s]
+rev_i5_sm3_naive_decile            net= -0.25 gross=  0.41 10-17= -0.67 18-26= -0.14 to= 1.06
+rev_i5_sm3_fneutral_K5             net= -0.82 gross=  0.50 10-17= -1.52 18-26= -0.59 to= 0.77
+rev_i5_sm3_fneutral_K10            net= -1.04 gross=  0.51 10-17= -1.74 18-26= -0.80 to= 0.77
+rev_i5_sm3_fneutral_K20            net= -1.12 gross=  0.57 10-17= -1.90 18-26= -0.85 to= 0.77
+  [218s]
+rev21d_naive_decile                net= -0.14 gross=  0.30 10-17= -0.36 18-26= -0.04 to= 0.79
+rev21d_fneutral_K5                 net= -0.45 gross=  0.41 10-17= -0.83 18-26= -0.33 to= 0.58
+rev21d_fneutral_K10                net= -0.55 gross=  0.46 10-17= -0.76 18-26= -0.52 to= 0.59
+rev21d_fneutral_K20                net= -0.56 gross=  0.55 10-17= -0.92 18-26= -0.47 to= 0.60
+  [282s]
+onmom252_naive_decile              net=  0.02 gross=  0.18 10-17= -0.06 18-26=  0.07 to= 0.16
+onmom252_fneutral_K5               net= -0.34 gross=  0.02 10-17=  0.08 18-26= -0.66 to= 0.12
+onmom252_fneutral_K10              net= -0.44 gross= -0.01 10-17= -0.04 18-26= -0.78 to= 0.13
+onmom252_fneutral_K20              net= -0.47 gross=  0.03 10-17= -0.03 18-26= -0.83 to= 0.13
+  [468s]
+mom12_1_naive_decile               net=  0.08 gross=  0.21 10-17=  0.12 18-26=  0.07 to= 0.23
+mom12_1_fneutral_K5                net=  0.07 gross=  0.42 10-17=  0.14 18-26=  0.03 to= 0.20
+mom12_1_fneutral_K10               net= -0.02 gross=  0.41 10-17=  0.11 18-26= -0.11 to= 0.21
+mom12_1_fneutral_K20               net= -0.28 gross=  0.25 10-17= -0.20 18-26= -0.35 to= 0.22
+  [495s]
+DONE 494.74817299842834

@@ -1,0 +1,165 @@
+{
+ "ic": {
+  "h1": {
+   "rev1d": {
+    "ic": 0.0093,
+    "t": 2.9
+   },
+   "rev5d": {
+    "ic": 0.0077,
+    "t": 2.1
+   },
+   "rev21d": {
+    "ic": 0.0047,
+    "t": 1.3
+   },
+   "rev_i5": {
+    "ic": 0.0071,
+    "t": 2.2
+   },
+   "onmom252": {
+    "ic": 0.007,
+    "t": 2.4
+   },
+   "mom12_1": {
+    "ic": 0.0138,
+    "t": 3.0
+   },
+   "vol60": {
+    "ic": 0.0005,
+    "t": 0.1
+   },
+   "dvrank": {
+    "ic": 0.0033,
+    "t": 1.4
+   },
+   "d200ma": {
+    "ic": 0.008,
+    "t": 1.8
+   },
+   "skew63": {
+    "ic": -0.0009,
+    "t": -0.4
+   }
+  },
+  "h5": {
+   "rev1d": {
+    "ic": 0.0073,
+    "t": 2.4
+   },
+   "rev5d": {
+    "ic": 0.0123,
+    "t": 3.6
+   },
+   "rev21d": {
+    "ic": 0.0099,
+    "t": 2.8
+   },
+   "rev_i5": {
+    "ic": 0.0111,
+    "t": 3.5
+   },
+   "onmom252": {
+    "ic": 0.0068,
+    "t": 2.4
+   },
+   "mom12_1": {
+    "ic": 0.0087,
+    "t": 1.8
+   },
+   "vol60": {
+    "ic": -0.0015,
+    "t": -0.3
+   },
+   "dvrank": {
+    "ic": 0.0082,
+    "t": 3.6
+   },
+   "d200ma": {
+    "ic": 0.003,
+    "t": 0.7
+   },
+   "skew63": {
+    "ic": -0.0021,
+    "t": -1.0
+   }
+  },
+  "h21": {
+   "rev1d": {
+    "ic": 0.0058,
+    "t": 2.0
+   },
+   "rev5d": {
+    "ic": 0.0103,
+    "t": 3.2
+   },
+   "rev21d": {
+    "ic": 0.0115,
+    "t": 3.4
+   },
+   "rev_i5": {
+    "ic": 0.0072,
+    "t": 2.5
+   },
+   "onmom252": {
+    "ic": 0.002,
+    "t": 0.7
+   },
+   "mom12_1": {
+    "ic": -0.0042,
+    "t": -1.0
+   },
+   "vol60": {
+    "ic": -0.0067,
+    "t": -1.5
+   },
+   "dvrank": {
+    "ic": 0.017,
+    "t": 8.3
+   },
+   "d200ma": {
+    "ic": -0.001,
+    "t": -0.2
+   },
+   "skew63": {
+    "ic": -0.005,
+    "t": -2.6
+   }
+  }
+ },
+ "combo_ic_h5": {
+  "ic": 0.0076,
+  "t": 2.1
+ },
+ "breadth": {
+  "n_names": 464,
+  "avg_resid_corr": 0.001,
+  "N_eff": 314.9
+ },
+ "implied": {
+  "h1": {
+   "best_signal": "mom12_1",
+   "ic_used": 0.0138,
+   "independent_bets_per_year": 79350.0,
+   "theoretical_max_gross_sharpe": 3.89,
+   "ic_needed_for_SR3": 0.0106,
+   "ic_multiple_needed": 0.8
+  },
+  "h5": {
+   "best_signal": "rev5d",
+   "ic_used": 0.0123,
+   "independent_bets_per_year": 15870.0,
+   "theoretical_max_gross_sharpe": 1.55,
+   "ic_needed_for_SR3": 0.0238,
+   "ic_multiple_needed": 1.9
+  },
+  "h21": {
+   "best_signal": "dvrank",
+   "ic_used": 0.017,
+   "independent_bets_per_year": 3779.0,
+   "theoretical_max_gross_sharpe": 1.04,
+   "ic_needed_for_SR3": 0.0488,
+   "ic_multiple_needed": 2.9
+  }
+ }
+}
