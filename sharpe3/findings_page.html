@@ -1,0 +1,282 @@
+<title>SHARPE3 — the honest hunt</title>
+<style>
+:root{
+  --ground:#FAFBFC; --ink:#171A1F; --muted:#626A75; --hair:#DCE1E6;
+  --accent:#B5304A; --pos:#1F7A5C; --amber:#C9972B; --amberwash:rgba(201,151,43,.10);
+  --codebg:#F0F2F4;
+}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#15181D; --ink:#E6E8EB; --muted:#9AA2AD; --hair:#2A2F37;
+    --accent:#E25C77; --pos:#3FA57F; --amber:#D8A83E; --amberwash:rgba(216,168,62,.12);
+    --codebg:#1E2228;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#15181D; --ink:#E6E8EB; --muted:#9AA2AD; --hair:#2A2F37;
+  --accent:#E25C77; --pos:#3FA57F; --amber:#D8A83E; --amberwash:rgba(216,168,62,.12);
+  --codebg:#1E2228;
+}
+body{background:var(--ground);color:var(--ink);
+  font:16px/1.6 "Avenir Next","Helvetica Neue",system-ui,sans-serif;
+  margin:0;padding:0 20px 80px}
+main{max-width:860px;margin:0 auto}
+.mono{font-family:ui-monospace,"SF Mono",Consolas,Menlo,monospace}
+header{padding:44px 0 10px;border-bottom:1px solid var(--hair)}
+.eyebrow{font-family:ui-monospace,"SF Mono",Consolas,monospace;font-size:12px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:34px;line-height:1.15;margin:10px 0 6px;text-wrap:balance;font-weight:700}
+.sub{color:var(--muted);max-width:60ch;margin:0 0 26px}
+h2{font-size:21px;margin:44px 0 6px;text-wrap:balance}
+h2 .n{font-family:ui-monospace,monospace;color:var(--muted);font-size:14px;margin-right:8px}
+p{max-width:68ch}
+.verdict{border:2px solid var(--accent);padding:20px 24px;margin:30px 0 8px}
+.verdict .eyebrow{color:var(--accent)}
+.verdict p{margin:.5em 0 0;font-size:17.5px}
+.small{font-size:13.5px;color:var(--muted)}
+table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px;
+  font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto}
+th{font-family:ui-monospace,monospace;font-size:11.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);text-align:left;font-weight:600}
+th,td{padding:7px 12px 7px 0;border-bottom:1px solid var(--hair);vertical-align:top}
+td.num,th.num{text-align:right;padding-right:18px}
+.dead{color:var(--accent);font-weight:600}
+.ok{color:var(--pos);font-weight:600}
+.chart{margin:18px 0 4px}
+.legend{display:flex;gap:22px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:6px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:12px;height:12px;display:inline-block}
+code{font-family:ui-monospace,"SF Mono",Consolas,monospace;font-size:.88em;
+  background:var(--codebg);padding:1px 5px;border-radius:3px}
+.walls{display:grid;gap:0;margin:16px 0;border-top:1px solid var(--hair)}
+.wall{padding:16px 0;border-bottom:1px solid var(--hair)}
+.wall b{display:block;margin-bottom:4px}
+ul{padding-left:20px}li{margin:6px 0;max-width:66ch}
+a{color:inherit}
+</style>
+<main>
+<header>
+  <div class="eyebrow">viki-m13/bonds · sharpe3/ · 27 experiments · 24 signal families · 2026-08-08</div>
+  <h1>The honest hunt for a Sharpe-3 stock-picking strategy</h1>
+  <p class="sub">Eight hours of systematic research on the repo's point-in-time data —
+  S&amp;P 500 &amp; NASDAQ-100 PIT panels, the 24,000-ticker delisting-inclusive Tiingo
+  universe, 1M SEC 8-K filings, and intraday data. Everything net of costs,
+  next-day execution, walk-forward.</p>
+</header>
+
+<div class="verdict">
+  <div class="eyebrow">Verdict</div>
+  <p><b>A durable, honest, out-of-sample, net-of-cost Sharpe&nbsp;3 is not attainable
+  from this data</b> — and the arithmetic says why, not just the search. The only
+  holding period with enough breadth to reach 3 even <i>theoretically</i> is one day
+  (ceiling 3.07, with zero costs assumed); there the cost drag alone is −1.95 Sharpe.
+  Every horizon that can pay its costs has a theoretical ceiling below 0.7. Realized:
+  the a-priori four-sleeve ensemble makes <span class="mono">OOS +0.22</span>, with a
+  bootstrap CI containing zero.</p>
+</div>
+<p class="small">This mirrors the repo's earlier crypto verdict
+(<span class="mono">crypto_pulse/research/SHARPE3_VERDICT.md</span>) — different asset
+class, same three walls.</p>
+
+<h2><span class="n">01</span>One chart that tells the story</h2>
+<p>Yearly Sharpe of the best price signal found (5-day intraday-cumulative reversal,
+long–short deciles, 5&nbsp;bps): spectacular where the data is bad, dead where it's good.</p>
+
+<div class="chart">
+<svg viewBox="0 0 820 240" width="100%" role="img" aria-label="Yearly Sharpe bars 2004 to 2026">
+  <rect x="30" y="10" width="106" height="196" fill="var(--amberwash)"/>
+  <line x1="30" y1="146" x2="812" y2="146" stroke="var(--hair)" stroke-width="1"/>
+  <!-- bars: x = 34 + (yr-2004)*34, scale 17px per Sharpe unit, baseline y=146 -->
+  <g>
+    <rect x="36"  y="48.9" width="22" height="97.1" fill="var(--amber)"/>
+    <rect x="70"  y="60.7" width="22" height="85.3" fill="var(--amber)"/>
+    <rect x="104" y="85.0" width="22" height="61.0" fill="var(--amber)"/>
+    <rect x="138" y="131.4" width="22" height="14.6" fill="var(--pos)"/>
+    <rect x="172" y="132.4" width="22" height="13.6" fill="var(--pos)"/>
+    <rect x="206" y="139.9" width="22" height="6.1"  fill="var(--pos)"/>
+    <rect x="240" y="146" width="22" height="10.5" fill="var(--accent)"/>
+    <rect x="274" y="146" width="22" height="18.7" fill="var(--accent)"/>
+    <rect x="308" y="146" width="22" height="36.4" fill="var(--accent)"/>
+    <rect x="342" y="128.3" width="22" height="17.7" fill="var(--pos)"/>
+    <rect x="376" y="146" width="22" height="7.3"  fill="var(--accent)"/>
+    <rect x="410" y="146" width="22" height="8.2"  fill="var(--accent)"/>
+    <rect x="444" y="146" width="22" height="13.9" fill="var(--accent)"/>
+    <rect x="478" y="146" width="22" height="8.5"  fill="var(--accent)"/>
+    <rect x="512" y="146" width="22" height="18.9" fill="var(--accent)"/>
+    <rect x="546" y="146" width="22" height="16.0" fill="var(--accent)"/>
+    <rect x="580" y="121.4" width="22" height="24.6" fill="var(--pos)"/>
+    <rect x="614" y="146" width="22" height="8.0"  fill="var(--accent)"/>
+    <rect x="648" y="144.5" width="22" height="1.5" fill="var(--pos)"/>
+    <rect x="682" y="146" width="22" height="6.5"  fill="var(--accent)"/>
+    <rect x="716" y="146" width="22" height="4.9"  fill="var(--accent)"/>
+    <rect x="750" y="146" width="22" height="19.7" fill="var(--accent)"/>
+    <rect x="784" y="146" width="22" height="29.2" fill="var(--accent)"/>
+  </g>
+  <g fill="var(--muted)" font-family="ui-monospace,monospace" font-size="11">
+    <text x="47"  y="222" text-anchor="middle">'04</text>
+    <text x="115" y="222" text-anchor="middle">'06</text>
+    <text x="183" y="222" text-anchor="middle">'08</text>
+    <text x="251" y="222" text-anchor="middle">'10</text>
+    <text x="319" y="222" text-anchor="middle">'12</text>
+    <text x="387" y="222" text-anchor="middle">'14</text>
+    <text x="455" y="222" text-anchor="middle">'16</text>
+    <text x="523" y="222" text-anchor="middle">'18</text>
+    <text x="591" y="222" text-anchor="middle">'20</text>
+    <text x="659" y="222" text-anchor="middle">'22</text>
+    <text x="727" y="222" text-anchor="middle">'24</text>
+    <text x="795" y="222" text-anchor="middle">'26</text>
+    <text x="24" y="150" text-anchor="end">0</text>
+    <text x="24" y="99"  text-anchor="end">+3</text>
+    <text x="24" y="65"  text-anchor="end">+5</text>
+  </g>
+</svg>
+<div class="legend">
+  <span><span class="sw" style="background:var(--amber)"></span>2004–06: corrupted-opens era (Sharpe 3.6–5.7 — artifact)</span>
+  <span><span class="sw" style="background:var(--pos)"></span>positive year</span>
+  <span><span class="sw" style="background:var(--accent)"></span>negative year</span>
+</div>
+</div>
+
+<h2><span class="n">02</span>Data forensics: the pre-2009 open-price artifact</h2>
+<p>An equal-weight portfolio of all index members must show the same Sharpe measured
+open-to-open as close-to-close. It does — from 2009 on. Before that, Yahoo-derived
+opens are partly stale/synthetic, injecting <b>+14%/yr of phantom return</b> into any
+open-execution backtest:</p>
+<div class="tablewrap"><table>
+<tr><th>era</th><th class="num">close-to-close EW</th><th class="num">open-to-open EW</th></tr>
+<tr><td>2004–2008</td><td class="num">0.17</td><td class="num dead">1.59</td></tr>
+<tr><td>2009–2014</td><td class="num">1.07</td><td class="num">1.16</td></tr>
+<tr><td>2015–2019</td><td class="num">0.85</td><td class="num">0.84</td></tr>
+<tr><td>2020–2026</td><td class="num">0.66</td><td class="num">0.70</td></tr>
+</table></div>
+<p class="small">Every "spectacular" early-sample result (overnight-only books printing
+Sharpe 15–36 in 2004–06) sits precisely in this zone.</p>
+
+<h2><span class="n">03</span>The map — 23 families, one pattern</h2>
+<p>Each family reproduces the classic literature in-sample and is ≈&nbsp;0 or negative
+out-of-sample (2019+, liquid US equities, real costs):</p>
+<div class="tablewrap"><table>
+<tr><th>family</th><th class="num">best net SR</th><th class="num">OOS 2019+</th><th>verdict</th></tr>
+<tr><td>short-term reversal (1–21d, all refinements)</td><td class="num">1.5</td><td class="num">−0.1</td><td class="dead">dead OOS</td></tr>
+<tr><td>overnight-return momentum (21–252d)</td><td class="num">1.4</td><td class="num">−0.4…+0.2</td><td class="dead">artifact-heavy</td></tr>
+<tr><td>momentum 12-1 / 6-1</td><td class="num">−0.4</td><td class="num">≈0</td><td class="dead">dead</td></tr>
+<tr><td>PEAD / 8-K event drift (1M filings, 17 item codes)</td><td class="num">−0.1</td><td class="num">≤0.3</td><td class="dead">arbed away</td></tr>
+<tr><td>earnings-announcement premium (PIT-predicted windows)</td><td class="num">0.0</td><td class="num">+0.3</td><td class="dead">noise</td></tr>
+<tr><td>S&amp;P adds/deletes reconstitution</td><td class="num">0.2</td><td class="num">−0.6</td><td class="dead">dead since 2012</td></tr>
+<tr><td>sector lead-lag, big-brother→little-brother</td><td class="num">−0.2</td><td class="num">&lt;0</td><td class="dead">dead</td></tr>
+<tr><td>pairs trading (GGR distance, sector-matched)</td><td class="num" colspan="2">see FINDINGS</td><td class="dead">dead</td></tr>
+<tr><td>close-vs-VWAP / range imbalance (118 stocks)</td><td class="num">−0.3</td><td class="num">&lt;0</td><td class="dead">dead</td></tr>
+<tr><td>broad-universe reversal, small/mid tiers (delisting-incl.)</td><td class="num">−0.1…−8</td><td class="num">—</td><td class="dead">costs &gt; edge</td></tr>
+<tr><td>calendar: turn-of-month, weekday, per-stock seasonality</td><td class="num">≤0.7</td><td class="num">—</td><td class="dead">no differentiation</td></tr>
+<tr><td>fundamentals: revenue growth/accel, gross profitability</td><td class="num">≈0</td><td class="num">≈0</td><td class="dead">dead</td></tr>
+<tr><td>walk-forward ML (LightGBM, 34 features, 2 configs, h=1&amp;5)</td><td class="num">≈0</td><td class="num">+0.2…0.5</td><td class="dead">IC 0.01 — real, 5× too small</td></tr>
+<tr><td>intraday ETF anomalies (overnight, first/last-30-min)</td><td class="num">≤0.8</td><td class="num">≤1.1</td><td class="dead">≤1 net today</td></tr>
+<tr><td>conditional liquidity provision (stress-gated reversal)</td><td class="num">0.2</td><td class="num">+0.35</td><td class="dead">best survivor, still ≪3</td></tr>
+</table></div>
+
+<h2><span class="n">04</span>The clean-era capstone</h2>
+<p>Headline signals re-run on <b>2010+ data only</b> (no artifact era, 5 bps):</p>
+<div class="tablewrap"><table>
+<tr><th>signal</th><th class="num">net 2010–26</th><th class="num">gross</th><th class="num">2010–15</th><th class="num">2016–20</th><th class="num">2021–26</th></tr>
+<tr><td>5d reversal</td><td class="num dead">−0.36</td><td class="num">0.60</td><td class="num">−1.05</td><td class="num">0.27</td><td class="num">−0.64</td></tr>
+<tr><td>intraday-cum reversal (flagship)</td><td class="num dead">−0.32</td><td class="num">0.41</td><td class="num">−0.70</td><td class="num">0.14</td><td class="num">−0.56</td></tr>
+<tr><td>overnight momentum 252d</td><td class="num dead">−0.03</td><td class="num">0.14</td><td class="num">−0.02</td><td class="num">−0.29</td><td class="num">0.18</td></tr>
+<tr><td>momentum 12-1</td><td class="num dead">0.08</td><td class="num">0.21</td><td class="num">0.48</td><td class="num">−0.31</td><td class="num">0.27</td></tr>
+<tr><td>low-vol</td><td class="num dead">−0.33</td><td class="num">−0.26</td><td class="num">−0.05</td><td class="num">−0.25</td><td class="num">−0.64</td></tr>
+</table></div>
+<p>On clean data, in the modern market, every classical cross-sectional price signal
+on liquid US equities is ≈&nbsp;0 net. There is no era-selection or signal-selection
+that changes this — that is the point.</p>
+
+<h2><span class="n">05</span>The honest deliverable — and its ceiling</h2>
+<p>Four sleeves defined a&nbsp;priori (no OOS-peeking), equal-risk weighted,
+S&amp;P&nbsp;500 PIT members, next-open, 5&nbsp;bps:</p>
+<div class="tablewrap"><table>
+<tr><th>sleeve</th><th class="num">SR full</th><th class="num">OOS 2019+</th></tr>
+<tr><td>5d intraday-cum reversal, smoothed</td><td class="num">1.54</td><td class="num">−0.06</td></tr>
+<tr><td>252d overnight momentum</td><td class="num">1.15</td><td class="num">0.18</td></tr>
+<tr><td>stress-gated liquidity provision</td><td class="num">0.20</td><td class="num">0.35</td></tr>
+<tr><td>ML average (both walk-forward configs)</td><td class="num">0.03</td><td class="num">0.21</td></tr>
+<tr><td><b>ensemble (equal-risk)</b></td><td class="num"><b>−0.04</b></td><td class="num"><b>+0.22</b></td></tr>
+<tr><td>oracle top-3 by OOS <span class="small">(selection-biased upper bound)</span></td><td class="num">1.08</td><td class="num">0.44</td></tr>
+</table></div>
+<ul>
+<li><b>Bootstrap</b> (21d blocks, 2000 draws): OOS-2019+ Sharpe CI
+<span class="mono">[−1.02, +0.31]</span> — zero inside every interval tested.</li>
+<li><b>Cost sweep</b> (flagship): 2&nbsp;bps → OOS +0.29 · 5&nbsp;bps → −0.06 ·
+10&nbsp;bps → −0.64 · 20&nbsp;bps → −1.80.</li>
+<li><b>Transfer</b> (NASDAQ-100 panel): 0.06 / −0.02 — confirms.</li>
+<li><b>Harness</b>: reproduces hand-computed portfolios exactly; SPY buy-and-hold
+Sharpe 0.65 (2004–26) matches public figures.</li>
+</ul>
+
+<h2><span class="n">06</span>Better construction? Tested, and it adds nothing</h2>
+<p>Every portfolio above is a naive decile sort, carrying large uncontrolled factor
+bets — so the obvious suspicion is that a risk model was the missing piece. I built
+one: rolling PCA on the trailing 252-day member correlation matrix, refit monthly,
+applied forward only, then factor-neutral inverse-vol optimized weights.</p>
+<div class="tablewrap"><table>
+<tr><th>5-day reversal, construction</th><th class="num">ann. vol</th><th class="num">gross SR</th><th class="num">net SR</th></tr>
+<tr><td>naive decile long–short</td><td class="num">0.222</td><td class="num">0.62</td><td class="num">−0.28</td></tr>
+<tr><td>factor-neutral, K=10</td><td class="num">0.072</td><td class="num">0.67</td><td class="num">−1.46</td></tr>
+<tr><td>factor-neutral, K=20</td><td class="num">0.066</td><td class="num">0.71</td><td class="num">−1.60</td></tr>
+</table></div>
+<p>The risk model does its job — <b>70% of portfolio volatility removed</b>. But gross
+Sharpe moves only 0.62&nbsp;→&nbsp;0.71: the factor exposure was carrying <i>risk</i>,
+not concealing <i>alpha</i>. And with the same cost drag measured against a third of
+the volatility, net Sharpe gets worse. Construction cannot manufacture information.</p>
+
+<h2><span class="n">07</span>The horizon trap — the wall, quantified</h2>
+<p>This is the decisive result. Sharpe<sub>gross</sub> = IC&nbsp;×&nbsp;√breadth, and
+breadth = N<sub>eff</sub>&nbsp;×&nbsp;(252/h). The S&amp;P 500 cross-section measures
+<b>N<sub>eff</sub> = 315</b> (464 names, mean residual correlation 0.001) — the breadth
+genuinely is there. Measured IC per horizon against what survives costs:</p>
+<div class="tablewrap"><table>
+<tr><th>hold</th><th class="num">IC (t)</th><th class="num">bets/yr</th><th class="num">theoretical max</th><th class="num">realized gross</th><th class="num">turnover</th><th class="num">cost drag</th><th class="num">net @5bps</th></tr>
+<tr><td>1 day</td><td class="num">.0109 (3.1)</td><td class="num">79,350</td><td class="num ok">3.07</td><td class="num">0.65</td><td class="num">864×</td><td class="num dead">−1.95</td><td class="num dead">−1.31</td></tr>
+<tr><td>2 days</td><td class="num">.0090 (2.6)</td><td class="num">39,675</td><td class="num">1.79</td><td class="num">0.59</td><td class="num">525×</td><td class="num dead">−1.16</td><td class="num dead">−0.58</td></tr>
+<tr><td>5 days</td><td class="num">.0111 (3.2)</td><td class="num">15,870</td><td class="num">1.40</td><td class="num">0.47</td><td class="num">228×</td><td class="num">−0.50</td><td class="num">−0.03</td></tr>
+<tr><td>10 days</td><td class="num">.0085 (2.5)</td><td class="num">7,935</td><td class="num">0.75</td><td class="num">0.06</td><td class="num">118×</td><td class="num">−0.27</td><td class="num">−0.21</td></tr>
+<tr><td>21 days</td><td class="num">.0112 (3.4)</td><td class="num">3,779</td><td class="num">0.69</td><td class="num">0.12</td><td class="num">59×</td><td class="num">−0.14</td><td class="num">−0.01</td></tr>
+<tr><td>63 days</td><td class="num">.0100 (3.3)</td><td class="num">1,260</td><td class="num">0.36</td><td class="num">−0.03</td><td class="num">21×</td><td class="num">−0.04</td><td class="num">−0.07</td></tr>
+</table></div>
+<p>The trap has two jaws. <b>Only the 1-day horizon has a theoretical ceiling above 3</b>
+— and only barely (3.07), assuming a perfect risk model, optimal weights and zero
+costs. There, turnover is 864×/year and the cost drag alone is −1.95 Sharpe units.
+<b>The horizons whose costs are affordable</b> (21d, 63d) have theoretical ceilings of
+0.69 and 0.36 — unreachable even with free trading and perfect execution.</p>
+<p>Reaching Sharpe 3 at a tradeable 5-day horizon needs IC&nbsp;≈&nbsp;0.024 (2× the
+best measured); at 21 days, IC&nbsp;≈&nbsp;0.049 (4.4×). Nothing across 24 families of
+price, volume, event, filing, fundamental or ML signal came within a factor of two.</p>
+
+<h2><span class="n">08</span>The three walls</h2>
+<div class="walls">
+<div class="wall"><b>1 · The information wall</b>
+Measured rank-IC of everything engineerable from this data — 24 families, a 34-feature
+walk-forward ML in two configurations, and an IC-weighted combination of all of it —
+sits at 0.007–0.017 (t ≈ 2–3.6) at every horizon from 1 to 63 days. The walk-forward
+<i>combination</i> of all ten headline signals scores IC 0.0076: combining does not
+raise it, because the signals are different projections of the same thin information.</div>
+<div class="wall"><b>2 · The decay wall</b>
+Every classical anomaly reproduces in-sample exactly where the literature found it,
+and every one is ≈ 0 or negative after 2018 in liquid US equities. The yearly tables
+show the institutionalization of short-horizon stat-arb end-to-end.</div>
+<div class="wall"><b>3 · The cost wall</b>
+The horizon trap above. Separately, where gross edges do persist (small caps below
+$20M ADV, gross 0.6–1.2), realistic 10–20 bps costs produce net −3 to −8: the
+legendary "Sharpe 3–5 small-cap reversal" is bid-ask bounce — the same mechanism this
+repo already documented in crypto, reproduced here in equities.</div>
+</div>
+<p>What a real Sharpe&nbsp;3 requires — all outside this dataset: per-stock intraday
+data with an execution simulator, options/borrow data, or true non-price information
+(news text, transcripts, alt-data). The audited strategies in this repo
+(GRANITE-XL&nbsp;≈&nbsp;0.9, SUMMIT&nbsp;≈&nbsp;1, PULSE&nbsp;≈&nbsp;1.2–1.5) sit at
+the honest ceiling for infrastructure-free research.</p>
+
+<p class="small" style="margin-top:44px;border-top:1px solid var(--hair);padding-top:14px">
+Full record: <code>sharpe3/FINDINGS.md</code> · every claim reproducible from
+<code>sharpe3/experiments/exp01..exp27</code> + <code>results/*.json</code> on branch
+<code>claude/stock-picking-sharpe-strategy-l2gqqg</code>.</p>
+</main>
