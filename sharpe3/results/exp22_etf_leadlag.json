@@ -1,0 +1,50 @@
+{
+ "QQQ_late_cont": {
+  "sharpe": -0.836,
+  "cagr": -0.1522,
+  "vol": 0.1785,
+  "maxdd": -0.9796,
+  "sortino": -0.804,
+  "days": 5647,
+  "worst_day": -0.0791,
+  "gross_sharpe": -0.17980509339271605,
+  "IS": -0.69,
+  "OOS": -1.275
+ },
+ "QQQ_late_fade": {
+  "sharpe": -0.483,
+  "cagr": -0.0962,
+  "vol": 0.1767,
+  "maxdd": -0.9108,
+  "sortino": -0.443,
+  "days": 5647,
+  "worst_day": -0.1299,
+  "gross_sharpe": 0.17980509339271605,
+  "IS": -0.412,
+  "OOS": -0.705
+ },
+ "SPY_late_cont": {
+  "sharpe": -0.862,
+  "cagr": -0.1566,
+  "vol": 0.1789,
+  "maxdd": -0.9794,
+  "sortino": -0.845,
+  "days": 5647,
+  "worst_day": -0.0791,
+  "gross_sharpe": -0.22449412586772677,
+  "IS": -0.661,
+  "OOS": -1.447
+ },
+ "SPY_late_fade": {
+  "sharpe": -0.422,
+  "cagr": -0.0864,
+  "vol": 0.1768,
+  "maxdd": -0.9074,
+  "sortino": -0.382,
+  "days": 5647,
+  "worst_day": -0.1299,
+  "gross_sharpe": 0.22449412586772677,
+  "IS": -0.381,
+  "OOS": -0.559
+ }
+}
