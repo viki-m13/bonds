@@ -60,8 +60,7 @@ for th in [2, 3, 4, 5]:
 
 # ---------- B) tail book ----------
 def tail_book(Zth, H, both=True):
-    W = pd.DataFrame(0.0, index=idx, columns=R.columns)
-    Wv = W.values
+    Wv = np.zeros((len(idx), len(R.columns)))
     for ti in range(len(idx)):
         if not dev_mask[ti]: continue
         z = Zv[ti]

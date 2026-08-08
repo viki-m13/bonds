@@ -16,3 +16,6 @@ DEV = 1995–2014. VAL = 2015–2019 (survivors only). TEST = 2020+ (final only)
 | 6 | 05:05 | exp05 volume-conditioned reversal: quiet-vol gross 0.56 (WORSE than unconditional), loud continuation -0.43 gross, interaction 0.73 | dead end | LMSW conditioning does not help at weekly horizon on this universe |
 | 7 | 05:05 | exp03 pairs-lite: gross 0.62, net -2.23 | dead end as-is | classic Gatev decay confirmed |
 | 8 | 05:10 | exp06 crashed (dtype bug), fixed + residual cache added, rerunning; exp07 slow sleeves launched | — | |
+| 9 | 05:20 | exp06 patient books: best net +0.13 (zin1.0/zout0.25/lam0.25, gross 1.37, tno 0.131/d). Hysteresis works but edge/trade ~ cost/trade | +0.13 | first non-negative net |
+| 10 | 05:20 | exp07 slow sleeves: hi52 -0.29 gross, seasonal -0.08 gross, ltrev 0.28 gross, peerspill 0.20 gross | all ~dead | slow price-only sleeves too weak to matter |
+| 11 | 05:30 | exp08 EVENT STUDY (the ceiling measurement): after 1d resid crash z<-2, entry t+2: +4bp d1, +13bp d5, +20bp d10; deeper crashes pay NO more (z<-5: +9bp d5); up-spike short side ~-5bp. Round-trip cost 20bp. **The bounce is in the day we cannot trade (t+1). Per-trade ceiling ~= costs for all lag-2 tail reversal.** | ceiling | family capped at net ~0-0.5; escalate to ML + regime scaling |
