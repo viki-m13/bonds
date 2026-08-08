@@ -32,6 +32,14 @@ factsheets at https://viki-m13.github.io/bonds/ :
   academic + FinTwit + retail research sweep, validated with an honest IS/OOS
   event study and a survivorship-matched random control. Full record in
   [`parabolic/README.md`](parabolic/README.md).
+- **SHARPE3** — the honest hunt for a **Sharpe-3+ stock-picking strategy** on
+  the repo's PIT data (daily + intraday): 23 experiment families (reversal,
+  overnight, PEAD/8-K events, index reconstitution, lead-lag, VWAP imbalance,
+  walk-forward ML, broad delisting-inclusive universe...), a data-forensics
+  finding (pre-2009 open-price artifact), and the quantified verdict that an
+  honest OOS net Sharpe 3 is **not attainable from this data** — the measured
+  ceiling for today's liquid-equity cross-section is ≈ 0–0.5. Full record:
+  [`sharpe3/FINDINGS.md`](sharpe3/FINDINGS.md).
 - **ASCENT** — the honest answer to "which stocks to buy every 2 weeks/month,
   min-30-day hold, cut losers, beat QQQ-DCA": a stricter mandate-specific
   harness, ~40 new configurations, proper nulls/trajectory/era tests — and the

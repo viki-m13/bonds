@@ -49,19 +49,23 @@ def build_all():
         idx = close.index.searchsorted(g["date"].values)
         idx = idx[idx < len(close.index)]
         evm.iloc[idx, evm.columns.get_loc(tk)] = True
-    news21 = evm.shift(1).rolling(21, min_periods=1).sum()  # shift(1): use through close d
-    has = (news21 > 0) & member
-    hasnt = (news21 == 0) & member
-    wl = has.div(has.sum(axis=1).clip(lower=1), axis=0)
-    ws = hasnt.div(hasnt.sum(axis=1).clip(lower=1), axis=0)
-    sleeves["news_drift"] = (wl - ws) * 1.0
+    # EXCLUDED after diagnosis: the 8-K activity drift is sign-unstable across
+    # portfolio expressions (binary filer-vs-quiet basket: SR -1.6; z-scored
+    # activity LS: SR +0.02). A signal whose sign flips with construction is
+    # not a signal. Kept here as documentation.
+    _ = evm
 
-    # 5. ML blend (exp14), if predictions exist
-    p1 = os.path.join(ROOT, "cache", "exp14_pred_h1.parquet")
-    p5 = os.path.join(ROOT, "cache", "exp14_pred_h5.parquet")
-    if os.path.exists(p1) and os.path.exists(p5):
-        pr = zs(pd.read_parquet(p1)).add(zs(pd.read_parquet(p5)))
-        sleeves["ml_blend_sm3"] = bt.norm_ls(pr.rolling(3).mean(), member, 0.2, 0.2, 2.0)
+    # 5. ML sleeve: average of BOTH walk-forward configs (exp08 v1: all-history
+    # training, exp14 v2: 2010+ training, h1+h5) — averaged a priori, no
+    # config selection on OOS performance.
+    parts = []
+    for p in ("exp08_pred_lgb.parquet", "exp14_pred_h1.parquet", "exp14_pred_h5.parquet"):
+        fp = os.path.join(ROOT, "cache", p)
+        if os.path.exists(fp):
+            parts.append(zs(pd.read_parquet(fp)))
+    if parts:
+        pr = sum(parts) / len(parts)
+        sleeves["ml_avg_sm3"] = bt.norm_ls(pr.rolling(3).mean(), member, 0.2, 0.2, 2.0)
 
     rets = {}
     for nm, w in sleeves.items():

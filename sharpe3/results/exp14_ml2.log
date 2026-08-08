@@ -45,3 +45,15 @@ h5 2020: 467657 rows 342s
 h5 2021: 547018 rows 367s
 h5 2022: 632322 rows 388s
 h5 2023: 711408 rows 410s
+h5 2024: 801284 rows 435s
+h5 2025: 891803 rows 465s
+h5 2026: 1003419 rows 492s
+h5 IC mean=0.0091 t=2.3
+ml2_h1_q20                 netSR= -0.83 grossSR=  0.48 14-19= -1.64 20+= -0.61 to= 0.98
+ml2_h1_q20_sm3             netSR= -0.35 grossSR=  0.27 14-19= -0.77 20+= -0.28 to= 0.38
+ml2_h5_q20                 netSR= -0.64 grossSR=  0.42 14-19= -1.35 20+= -0.35 to= 0.78
+ml2_h5_q20_sm3             netSR= -0.02 grossSR=  0.46 14-19= -0.53 20+=  0.25 to= 0.30
+ml2_blend_q20              netSR= -0.63 grossSR=  0.53 14-19= -1.46 20+= -0.33 to= 0.86
+ml2_blend_q20_sm3          netSR= -0.09 grossSR=  0.45 14-19= -0.62 20+=  0.17 to= 0.33
+ml2_blend_buffered         netSR= -0.53 grossSR=  0.49 14-19= -1.30 20+= -0.21 to= 0.70
+DONE 498.4360439777374
