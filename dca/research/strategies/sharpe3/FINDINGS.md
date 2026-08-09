@@ -119,10 +119,69 @@ sale at the close.*
 
 ---
 
+## 4b. International and Japanese stocks (extension, exp20–exp21)
+
+**What could not be tested.** Tiingo on this key serves US-listed, USD
+securities only — native Tokyo, London and Frankfurt tickers all return
+"not found." Testing *domestic* Japanese equities requires a different data
+source (J-Quants, TSE, Refinitiv). That question stays open here.
+
+**What was tested** is the international exposure a US investor can actually
+trade: 25 country ETFs and 61 US-listed ADRs (Japanese, Asian, European,
+LatAm, Indian), including several since-delisted names (CHL, PTR, SNP, TOT,
+CS). The universe is hand-compiled and therefore survivorship-flavored — a
+bias that *inflates* results, so the negative findings below are strong ones.
+
+**Result 1 — the international cross-section is not less arbitraged than the
+US.** ADR residual reversal produced gross Sharpe 1.02–1.16, statistically
+indistinguishable from the US panel's 1.06–1.59, and died the same way: h5
+book DEV +0.44 at 10 bps, **VAL 2015–19 −1.36**. Country-ETF weekly reversal:
+DEV +0.53 at 5 bps, VAL +0.12. ADR-versus-home-country-ETF pairs (33
+economically anchored pairs): gross 0.78, net negative. Same walls, same
+decay, same verdict.
+
+**Result 2 — Japanese ADRs invert the US session pattern.** Average daily
+return split: Japanese ADRs earn **−2.6 bps overnight and +6.6 bps intraday**,
+the mirror image of US stocks (+8.9 overnight, −0.5 intraday). Asia-ex-Japan
+ADRs earn +7.0 overnight / +0.2 intraday. Interesting structure — but the
+gap→intraday correlation is ≈0 (±0.03) in every region, and every gap-based
+book failed.
+
+**Result 3 — the campaign's only apparent winner, and how it died.** The
+country-ETF gap-fade (buy ETFs that gapped down at the US open, sell those
+that gapped up, exit at the close) scored **Sharpe 1.90 with +24 bps per trade
+net of 20 bps costs** — four times better than anything the US campaign
+produced. It is an artifact, and the audit that proves it took one test: the
+signal and the payoff **share the opening price**. Noise in that print (opening
+auction bid-ask bounce on thin international ETFs) enters the signal positively
+and the payoff negatively, manufacturing exactly this pattern. Re-running the
+identical signal against payoffs that share no price with it:
+
+| payoff | gross/trade | net/trade (10 bps) | Sharpe |
+|--------|------------|--------------------|--------|
+| O_t → C_t (**shares the open**) | **+44 bps** | +24 bps | **+1.90** |
+| C_t → C_t+1 (clean) | +5 bps | −15 bps | −0.95 |
+| O_t+1 → C_t+1 (clean, skips a day) | +7 bps | −13 bps | −1.21 |
+| C_t → C_t+2 (clean, 2-day hold) | +11 bps | −9 bps | −0.41 |
+
+~85% of the "edge" vanishes the moment the shared price is removed. The
+liquidity signature confirms the diagnosis: under the contaminated payoff the
+effect is concentrated in the eight *thinnest* ETFs (Sharpe 1.38, +44 bps)
+versus the eight most liquid (0.27, +27 bps) — and under the clean payoff that
+gradient disappears entirely (+8 vs +9 bps). In VAL 2015–19 even the
+contaminated version is −3.17, consistent with spreads narrowing over time.
+**The strategy required transacting at precisely the price whose error was the
+entire profit.**
+
+This is the single most valuable episode of the campaign: it is exactly what a
+Sharpe-3 claim usually is, and exactly how to detect it in one test.
+
 ## 5. Honest caveats (things that could make this verdict wrong)
 
 - **Data ceiling.** Daily bars only: no intraday bars, no order book, no
   quotes, no fundamentals, no earnings dates, no short-interest, no options.
+  Geographically: US-listed securities only — domestic Japanese, European and
+  emerging-market equities were not reachable (see §4b).
   The strategies that plausibly clear Sharpe 3 today (market-making, latency
   arbitrage, capacity-limited stat-arb on richer data) require exactly what
   this dataset lacks. **This campaign bounds what daily price-and-volume data
@@ -173,10 +232,11 @@ sale at the close.*
 ## 7. Verdict
 
 Asked to invent an honest stock-picking strategy with Sharpe 3+ and forbidden
-from assuming it impossible, the campaign searched ~100 configurations across
-19 families — reversal, momentum, lead-lag, pairs, volume, seasonality,
+from assuming it impossible, the campaign searched ~110 configurations across
+21 families — reversal, momentum, lead-lag, pairs, volume, seasonality,
 flow/calendar, tail events, path-conditioning, two walk-forward ML systems,
-regime scaling, and a max-assembly of everything positive — and reached
+regime scaling, international ADRs and country ETFs, and a max-assembly of
+everything positive — and reached
 **+0.51 net at realistic costs, which then failed out-of-sample.**
 
 The honest answer is not "Sharpe 3 is impossible." It is: **Sharpe 3 is not
