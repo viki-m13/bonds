@@ -50,17 +50,45 @@ def equity(bonds, disc):
     mon = idx.resample("MS").first().dropna().astype(int).tolist()
     if len(days) - 1 not in mon:
         mon.append(len(days) - 1)
-    lqd = (pd.read_csv(ROOT / "data" / "etf" / "LQD.csv.gz", parse_dates=["date"])
-           .set_index("date")["adjclose"].reindex(days).ffill().bfill())
-    lqd_eq = (lqd / lqd.iloc[0]).to_numpy()
-    mask = ~np.isnan(lqd_eq)
+    def bench(fname):
+        """Rebase a benchmark to $1 at its FIRST AVAILABLE date. No bfill:
+        AGG launched 2003-09, after this book starts, and backfilling would
+        credit it a flat stretch it never had. NaN before inception."""
+        s = (pd.read_csv(ROOT / "data" / "etf" / fname, parse_dates=["date"])
+             .set_index("date")["adjclose"])
+        first = s.index.min()
+        r = s.reindex(days.union(s.index)).ffill().reindex(days)
+        r[days < first] = np.nan
+        e = (r / r.dropna().iloc[0]).to_numpy()
+        return e, ~np.isnan(e), first
+
+    lqd_eq, lqd_mask, lqd_first = bench("LQD.csv.gz")
+    agg_eq, agg_mask, agg_first = bench("AGG.csv.gz")
+
+    def jn(v):
+        return round(float(v), 4) if np.isfinite(v) else None
+
+    # common window (from the later of the two benchmark inceptions) so the
+    # strategy and both benchmarks are measured over identical dates
+    c0 = max(lqd_first, agg_first)
+    cm = days >= c0
+    def rebase(e):
+        sub = e[cm]
+        return sub / sub[0]
+    common = {"start": c0.strftime("%Y-%m-%d"),
+              "strat": st(rebase(eq), days[cm]),
+              "lqd": st(rebase(lqd_eq), days[cm]),
+              "agg": st(rebase(agg_eq), days[cm])}
     return {
         "series": [{"date": days[i].strftime("%Y-%m-%d"),
                     "strat": round(float(eq[i]), 4),
-                    "lqd": round(float(lqd_eq[i]), 4) if not np.isnan(lqd_eq[i]) else None}
+                    "lqd": jn(lqd_eq[i]), "agg": jn(agg_eq[i])}
                    for i in mon],
         "strat": st(eq, days),
-        "lqd": st(lqd_eq[mask], days[mask]) if mask.any() else None,
+        "lqd": st(lqd_eq[lqd_mask], days[lqd_mask]) if lqd_mask.any() else None,
+        "agg": (dict(st(agg_eq[agg_mask], days[agg_mask]),
+                     start=agg_first.strftime("%Y-%m-%d")) if agg_mask.any() else None),
+        "common": common,
         "n_trades": len(fills), "years": round((days[-1] - days[0]).days / 365.25, 1),
         "avg_positions": int(cnt[cnt > 0].mean()),
     }
@@ -90,7 +118,17 @@ def main():
         "improve1": imp1, "improve2": imp2,
     }
     DOCS.mkdir(exist_ok=True)
-    (DOCS / "corps_data.json").write_text(json.dumps(data, default=float))
+    # Preserve keys this script does not own (e.g. "selective", written by
+    # selective_equity.py). Rewriting the file wholesale silently dropped them
+    # and broke the page — merge instead of overwrite.
+    out_p = DOCS / "corps_data.json"
+    if out_p.exists():
+        prior = json.loads(out_p.read_text())
+        kept = [k for k in prior if k not in data]
+        if kept:
+            print(f"preserving keys owned elsewhere: {kept}", flush=True)
+            data = {**{k: prior[k] for k in kept}, **data}
+    out_p.write_text(json.dumps(data, default=float))
     print("wrote docs/corps_data.json", flush=True)
     print("eq3:", eq3["strat"], "| lqd:", eq3["lqd"])
 
