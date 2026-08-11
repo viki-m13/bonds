@@ -164,7 +164,18 @@ def main():
             "era": era_rows, "atlas": atlas,
             "cl_era_excess": cl_diag.get("era"),
             "transfer": transfer, "keystone_xl": kxl, "audit": audit}
-    (DOCS / "granite_xl_data.json").write_text(json.dumps(data, default=float))
+    # preserve keys owned by other scripts (e.g. "bedrock" from
+    # bedrock_page_data.py). NOTE: the series is rebuilt here, which drops the
+    # per-point "bv" values — re-run bedrock_page_data.py after this script.
+    out_p = DOCS / "granite_xl_data.json"
+    if out_p.exists():
+        prior = json.loads(out_p.read_text())
+        kept = [k for k in prior if k not in data]
+        if kept:
+            print(f"preserving keys owned elsewhere: {kept} "
+                  f"(re-run bedrock_page_data.py to refresh series.bv)", flush=True)
+            data = {**{k: prior[k] for k in kept}, **data}
+    out_p.write_text(json.dumps(data, default=float))
     print("wrote docs/granite_xl_data.json", flush=True)
 
 
