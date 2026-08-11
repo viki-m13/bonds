@@ -436,10 +436,53 @@ median, PLUS (G4) the bond's own dislocation ≥2pts deeper than the median of
 lagged-mid recovery exits, depth weights.* Everything else tested was killed
 by its own pre-registered gate and is documented above.
 
-Before any live capital or page publication, BEDROCK-V still owes the
-XL_AUDIT-standard finishing pass: live-protocol replay (position-based
-lockouts), censoring/regime splits, and slippage haircuts — the same
-discipline that cut GRANITE-XL's headline honestly.
+## 8c. BEDROCK-V finishing pass (XL_AUDIT standard) — ALL GATES GREEN
+
+Run after the OOS admission, `corps/research/bedrock_v_final.py`:
+
+- **Live-protocol replay** (chronological admission, issuer capacity against
+  ACTUAL open positions, limit filter before capacity, gates at signal time,
+  real coupons): position-lock full **+13.33% / Sharpe(m) 0.81** (OOS
+  **+13.32% / 0.73**, n=3,056 — retention 85% of pipeline OOS CAGR, passing
+  the pre-registered ≥60% gate); tight-lock full +14.79%/0.86 (OOS
+  +10.14%/0.58). Compare GRANITE-XL's own replays (+10.7–11.5% / 0.59–0.74):
+  **BEDROCK-V beats the incumbent by ~+2pp CAGR at equal-or-better Sharpe
+  under identical live accounting**, and the replay book is 2.4× the pipeline
+  book (5,983 fills) — more capacity, not less.
+- **Slippage grid** (full-window pipeline): h=0 → +18.07%/1.04; h=0.125 →
+  +17.38%/1.00; h=0.25 → +16.70%/0.96; h=0.5 → +15.37%/0.88. Budget the
+  0.125–0.25 row.
+- **Era decomposition**: positive in all six eras; best vintages are the
+  crises (2008–09 +13.87%, 2020 +12.86%); weakest 2004–07 (+0.46%, 73% win);
+  2021–23 rate shock +4.63%/79% — no new failure mode vs GRANITE.
+- **Gate perturbations (robustness, not tuning)**: CAGR 17.8–18.6% and
+  Sharpe 1.04–1.05 across G1 at the ~40th/50th/60th cross-sectional
+  percentile and G4 gap ∈ {1,2,3} pts — **no knife-edge anywhere**.
+
+**Live planning numbers for BEDROCK-V** (the honest row): OOS CAGR ≈ **+13%**,
+Sharpe(m) ≈ 0.73 (annual-frequency lower, per the stale-mark caveat), maxDD
+≈ −40%, with slippage already graceful and capacity ~2× GRANITE-XL's.
+
+## 8d. Two further event studies (both honest nulls — not adopted)
+
+- **Muni seasonality** (`munis/research/bedrock_s_event.py`): MUB summer
+  premium May–Jul vs Sep–Oct **+47bp/mo (t=1.71)** and vs Mar–Apr +56bp/mo
+  (t=1.83) — right sign, marginal significance on 15 years; KEYSTONE
+  entry-vintage spring-vs-summer +0.49pp (t=1.22, ns); and the tape shows
+  **no** Dec/April seller-imbalance wave (sell share flat 46.5–47.9% across
+  months — the mechanism signature is absent at our resolution). Calendar
+  overlay **not adopted**; a zero-cost timing *preference* at most.
+- **Issuance pressure** (`corps/research/bedrock_i_event.py`, Helwege-Wang
+  replication; 34,953 new-issue events, 54,786 sibling observations, 2,560
+  issuers): event-window sibling cheapening **+1.1bp all / +2.3bp large
+  deals (t≤1.6)** vs the literature's ~9bp, and no reversion signature.
+  Below our data's noise floor and any cost floor. **Killed.**
+
+The program's box score across two research rounds: **8 ideas taken to
+evidence, 2 adopted** (BEDROCK-V core upgrade; A as capacity satellite),
+**6 killed or shelved by their own pre-registered tests** (X, D-overlay,
+V-4-gate, spread-momentum gate, stress gate, calendar overlay, issuance
+pressure). The kills are the reason the survivors can be believed.
 
 ## 9. Bibliography (primary sources)
 
