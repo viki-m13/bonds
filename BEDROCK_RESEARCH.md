@@ -385,7 +385,61 @@ Admitted: **V2** (corp, 2016–2024, paired vs baseline + hold-matched excess),
 **A** (corp, 2016–2024, real-coupon matched control), **D** (muni, 2023-01-01
 → 2025-04-08 censor-safe, cliff vs complement + cap-matched control).
 Scripts: `corps/research/bedrock_oos.py`, `munis/research/bedrock_d_oos.py`.
-Results will be appended below exactly as printed, pass or fail.
+
+### One-shot OOS results (reported as printed)
+
+**V2 — PASSED, decisively (the new recommended operating point):**
+
+| OOS 2016–2024, real coupons + lagged recovery exits | n | mean/tr | win | CAGR | Sharpe(m) | maxDD |
+|---|--:|--:|--:|--:|--:|--:|
+| baseline (audited GRANITE-XL conventions) | 2,729 | +5.98% | 79% | +14.77% | 0.89 | −35.1% |
+| **BEDROCK-V (G1 spread-value + G4 issuer-curve)** | **1,499** | **+8.13%** | **86%** | **+16.65%** | **0.96** | −37.0% |
+
+Hold-matched 1y entry-excess vs real-coupon cap-matched control: baseline
+**+5.17%** (p<1e-4), BEDROCK-V **+7.32%** (p<1e-4) — the gates add +2.2pp of
+OOS entry quality with **no IS→OOS decay** (IS +6.88% → OOS +7.32%), on 55%
+of the trades (fewer, better fills — capacity-friendlier). Both gates are the
+signal family the replication-crisis literature blesses, doing exactly what
+the literature said they would.
+
+**A — per-trade alpha CONFIRMED; standalone book weak; no diversification:**
+OOS n=3,227, mean **+19.41%**, win 95%, excess **+7.01%** (p<1e-4) — the
+ratings-free fallen-angel proxy's timing alpha is real out-of-sample. But the
+standalone MTM book earns only +6.65% CAGR / Sharpe 0.45 (events are
+episodic; capital idles between crisis clusters), and its monthly correlation
+with BEDROCK-V is **0.725** — blending dilutes (80/20 → +14.48%/0.92 vs V
+alone +16.65%/0.96), replicating this repo's earlier finding that all
+surviving credit sleeves share one factor. **Role: capacity-extension
+satellite** (a second entry trigger with +7pp/trade alpha when the V book
+cannot absorb capital), not a default allocation.
+
+**D — REJECTED at the strategy level:** OOS cliff-zone entries n=47, excess
++1.39% (p=0.20), *underperforming* the complement (+5.82%, p<1e-4). The
+de-minimis discontinuity is real (event study), but conditioned on a
+dislocation entry the cliff tilt adds duration/rate exposure rather than
+extra reversion — KEYSTONE cannot monetize it as an overlay. (A standalone
+tax-indifferent discount-muni buyer is a different mandate; the event-study
+finding stands as knowledge.)
+
+**X — killed at identification** (§ above). **v1 4-gate stack — rejected.**
+
+## 8b. Final verdict
+
+**BEDROCK-V beats GRANITE-XL out-of-sample on every axis that survived the
+audit**: +16.65% vs +14.77% CAGR, 0.96 vs 0.89 Sharpe(m), +8.13% vs +5.98%
+per trade, 86% vs 79% win, +7.32% vs +5.17% entry-excess — same engine, same
+honesty rules, two literature-blessed gates. Definition of the upgrade, in
+full: *GRANITE-XL entries (≥3pt dislocation, ≤5y, issuer cap, limit entry)
+PLUS (G1) signal-day credit spread at-or-above its same-day maturity-bucket
+median, PLUS (G4) the bond's own dislocation ≥2pts deeper than the median of
+≥2 sibling CUSIP6 bonds (pass-through when <2 siblings), with real coupons,
+lagged-mid recovery exits, depth weights.* Everything else tested was killed
+by its own pre-registered gate and is documented above.
+
+Before any live capital or page publication, BEDROCK-V still owes the
+XL_AUDIT-standard finishing pass: live-protocol replay (position-based
+lockouts), censoring/regime splits, and slippage haircuts — the same
+discipline that cut GRANITE-XL's headline honestly.
 
 ## 9. Bibliography (primary sources)
 
