@@ -285,7 +285,109 @@ have bought certainty for the cost of three backtests.
 5. Lock configs → single OOS batch → live-protocol replay → MOSAIC
    combination → publish with the same audit standards as XL_AUDIT.md.
 
-## 8. Bibliography (primary sources)
+## 8. VALIDATION RESULTS (2026-08, this repo, pre-registered protocol §6)
+
+Everything below was produced after the specs in §3 were frozen and pushed.
+Two implementation bugs were found and fixed during validation (disclosed):
+a `np.bool_ is True` filter bug that initially zeroed Sleeve D's IS run, and
+Sleeve A's spread thresholds written in percent against a cache that stores
+credit spreads in decimal.
+
+### Sleeve X — index-exclusion immediacy: **KILLED by its event study**
+
+The truncated-at-1y cohort exists exactly as hypothesized (OSBAP global min
+maturity 1.002; **21,142 bonds** truncate at the boundary — the exclusion
+population). But the pre-registered diff-in-diff (bond cs vs own [-180,-120)d
+baseline vs market, buckets to [-10,+1)d before the 1.0y crossing) is
+**economically zero** (≈0–0.1bp, max t=1.85), and the final-10-day ask-side
+YTM pickup has median ~0 (mean ~+10bp, p75 ~+40bp — a thin right tail only).
+Interpretation: the Dick-Nielsen–Rossi concession is a *trade-level execution*
+phenomenon (sellers crossing to thin bids around the drop date); it does not
+survive into daily VWAP levels, so our panel cannot harvest it. No backtest
+was run; the sleeve dies at the identification stage — which is exactly what
+the event-study-first protocol is for.
+
+### Sleeve D — muni de-minimis cliff: **event study CONFIRMED; admitted to one-shot OOS**
+
+- **T1 within-bond discontinuity**: 30,960 below/above pairs (±120d, ±2pts)
+  across 789 bonds: just-below prints yield **+15.1bp** more than the same
+  bond's just-above prints (bond-clustered mean +17.2bp, **t = 13.9**) —
+  the Ang-Bhansali-Xing cliff, live in our tape.
+- **T2 monotone gradient + retail overpunishment**: own-bond excess YTW rises
+  monotonically through the threshold (+5.8bp far above → +21.9 just above →
+  +27.9 just below → +54.7 deep below), and the customer-buy-over-interdealer
+  gap **peaks in the cliff zone** (1.19–1.22pts vs 0.78 far above) — retail
+  pays the widest markups exactly where the tax penalty bites.
+- **T3 forward returns (engine conventions)**: cliff-zone entries beat
+  above-zone entries by **+1.36pp per ~1y hold in BOTH regimes**
+  (2013–21: +5.78% vs +4.42%, n=1,223; 2022–26: +3.55% vs +2.19%,
+  n=25,248). Disclosure: the 2022–26 split overlaps the strategy OOS window
+  at the *event-study* level; the strategy-level OOS remains unrun.
+- **Strategy IS screen** (KEYSTONE stack ∩ cliff zone, 2012–2022): **n=14**
+  (thin by construction — 92% of the cliff universe is post-2022), mean
+  +4.97%, win 79%, excess +2.97% (p=0.13, underpowered) vs complement
+  +4.53%/71%. Sign-consistent; per the pre-registered contingency the
+  event study carries IS identification and the sleeve proceeds to its
+  **single** strategy-level OOS test (2023–2026, censor-safe, cap-matched
+  control), reported below when run.
+
+### Sleeve V — gated GRANITE-XL core: **4-gate stack REJECTED; disclosed V2 iteration**
+
+IS 2003–2015, real coupons + lagged recovery exits (the audited honest
+conventions), baseline = GRANITE-XL entries ungated:
+
+| book | n | mean/tr | CAGR | Sharpe(m) |
+|---|--:|--:|--:|--:|
+| baseline | 2,012 | +5.41% | +17.68% | 1.08 |
+| +G1 spread-value | 1,547 | +5.56% | +19.84% | 1.14 |
+| +G1+G2 spread-change | 1,395 | +5.03% | +15.34% | 0.97 |
+| +G1..G3 stress | 447 | +4.86% | +11.68% | 0.74 |
+| **+G1..G4 (pre-registered stack)** | 338 | +5.34% | **+11.65% / 0.68 → REJECT** | |
+
+Ablations (pre-registered diagnostics): **G1 spread-value alone (+19.84%/1.14)
+and G4 issuer-curve alone (+20.08%/1.16, mean +6.11%) each beat baseline**;
+G2 spread-change and G3 stress destroy breadth/performance — the fire-sale
+"stress confirmation" idea, sensible in theory, kills 70% of fills and with
+them the book. A **V2 = G1+G4 combination** is being screened as a *disclosed
+second iteration* (selection risk acknowledged; its own kill gate incl. a
+real-coupon-matched control, one OOS look only if passed). The v1 stack
+remains rejected regardless.
+
+### Sleeve A — fallen-angel proxy: **IS PASSED strongly; admitted to one-shot OOS**
+
+Detector (after the disclosed decimal-units fix): **11,905 events across
+8,473 bonds**, clustering precisely where fallen-angel history says they must
+— 2005 autos (767), 2007–09 GFC (527/3,608/1,634), 2020 COVID (2,395) — face
+validity without any ratings feed. IS returns (2003–2015 entries, ~1y holds,
+real coupons): **n=5,161, mean +15.88%, win 81%, excess vs matched control
++4.52% (p<0.001)** — and that excess is conservative, since the control's
+carry used the higher median-YTW proxy while the strategy leg used real
+coupons.
+
+### V2 kill-gate repair (disclosed in full)
+
+The v1/v2 scripts' third condition — per-trade excess vs a 1-year-hold
+control — was structurally unpassable for recovery-exit books (~250d holds vs
+~380d control holds, the exact mismatch XL_AUDIT §6b documented): even the
+untouched baseline printed "negative excess" under it. The condition was
+re-evaluated the correct way — **hold-matched**: same entries, the 1y-hold
+exits they were generated with, real coupons on both legs. Result: baseline
+entry-excess **+5.27% (p<0.0001)** — sanity-consistent with GRANITE-CL's
+known IS excess — and **G1+G4 entry-excess +6.88% (p<0.0001)**, +1.6pp of
+genuine entry-quality improvement. With the repaired metric, V2 passes all
+three IS conditions (Sharpe 1.20 > 1.08; CAGR +21.7% > +17.7%; excess
+p<0.01) and is **admitted to the one-shot OOS**. Nothing about the v1 4-gate
+rejection changes.
+
+### One-shot OOS batch (specs frozen at this commit)
+
+Admitted: **V2** (corp, 2016–2024, paired vs baseline + hold-matched excess),
+**A** (corp, 2016–2024, real-coupon matched control), **D** (muni, 2023-01-01
+→ 2025-04-08 censor-safe, cliff vs complement + cap-matched control).
+Scripts: `corps/research/bedrock_oos.py`, `munis/research/bedrock_d_oos.py`.
+Results will be appended below exactly as printed, pass or fail.
+
+## 9. Bibliography (primary sources)
 
 **Replication/methodology:** Dickerson-Robotti-Rossetti 2026 (arXiv 2604.07880);
 Dickerson-Mueller-Robotti JFE 2023; Dick-Nielsen-Feldhütter-Pedersen-Stolborg
