@@ -766,7 +766,36 @@ CAGR give-up ≤2pp, Sharpe(m) not lower. Survivors get ONE OOS look
 (2016+, frozen params): adopt iff ≥60% of the IS DD improvement holds and
 the OOS CAGR/Sharpe conditions pass.
 
-**Results:** (to be filled after the run; committed before testing.)
+**Round-4 IS results (`bedrock_dd_screen4.json`):** the capitalized
+convention UNLOCKS the trigger mechanism — first material DD movement of
+the program — but no variant passed all three gates:
+
+| K | book | CAGR | Sharpe(m) | maxDD | verdict |
+|---|---|---|---|---|---|
+| 50 | base | +9.50% | 0.76 | −41.8% | — |
+| 50 | T1 q90&rising | +7.96% | 0.63 | −41.6% | reject (+0.2pp) |
+| 50 | T2 q75&rising | +8.61% | 0.73 | −36.4% | reject (+5.4pp) |
+| 50 | T3 equity −10% | +7.49% | 0.68 | **−31.4%** | reject (+10.4pp; CAGR −2.01pp, Sharpe) |
+| 100 | base | +5.60% | 0.51 | −32.1% | — |
+| 100 | T2 q75&rising | +5.65% | **0.70** | −27.6% | reject (+4.5pp < 8pp; CAGR/Sharpe PASS) |
+| 100 | T3 equity −10% | +3.91% | 0.38 | −29.8% | reject |
+
+Reading: T3 finds the DD (+10.4pp) but stays halted through the whole
+recovery (NAV is still >10% under its high long after the trough), missing
+the post-trough entries that §8f showed earn +8%/trade — hence the CAGR and
+Sharpe misses. T2 at K=100 is a free +4.5pp (CAGR up, Sharpe 0.51→0.70).
+
+**Addendum 4b (2026-08-12, BEFORE testing):** one mechanism-derived repair
+of T3 plus its union with T2 — both defined from the already-confirmed
+fall-phase mechanism, not from a parameter sweep:
+- **T4 (equity slope):** halt new entries while NAV < 90% of trailing 1y
+  high AND NAV < NAV 20 days ago (own equity underwater AND still
+  deteriorating); resume as soon as the slope flattens, even if still
+  underwater. All state lagged 1 day.
+- **T2∪T4:** halt when either condition holds.
+Same gates, same K ∈ {50, 100}; survivors get the ONE OOS look.
+
+**Results 4b:** (to be filled after the run; committed before testing.)
 
 ## 9. Bibliography (primary sources)
 
