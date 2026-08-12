@@ -539,8 +539,84 @@ One lever is therefore ADDED before any lever backtest:
   constant), require own dislocation ≤ −4 (variant: ≤ −5) at the signal row
   instead of −3. Normal tape unchanged. Same kill gates as the others.
 
-**Results:** (to be filled after the tests run — this section was committed
-before any lever was evaluated.)
+**Second addendum (2026-08-12, after the IS screen, BEFORE testing):** all
+five levers (H, VT, TR, ST, AD ×2 depths) FAILED the IS kill gates — none
+moved maxDD by even 3pp in the right direction; ST worsened it to −56% and
+cut Sharpe (`bedrock_dd_screen.json`). One final lever family is added,
+qualitatively different because it changes portfolio construction across two
+ALREADY-validated books rather than either book's signals:
+- **BL (cross-market blend):** monthly-rebalanced KEYSTONE-XL (muni) +
+  BEDROCK-V (corp) at fixed weights {50/50, 60/40, 70/30 corp share},
+  evaluated on the published monthly NAV series, common window 2012-06+.
+  Rationale: the books' crises differ (muni 2013 taper vs corp 2014-16
+  energy / 2020), correlation is the only new estimate, and no signal or
+  parameter is fitted. Judged against 100% BEDROCK-V on the same window with
+  the same three gates (monthly-resolution maxDD, disclosed). A reference
+  row of BEDROCK-V diluted with T-bills at equal CAGR give-up is reported so
+  the blend must beat trivial de-risking, not just the undiluted book.
+
+**RESULTS (2026-08-12; scripts `bedrock_dd_diag.py`, `bedrock_dd_screen.py`,
+`bedrock_dd_blend.py`; JSONs alongside):**
+
+*Anatomy.* The drawdown is a mark-to-market trough, not a permanent loss:
+open-at-peak cohorts are small (17–87 positions) and realize −2% to −13%,
+in-fall entries realize positive, and 68% of all trades — carrying ~76% of
+total return at a HIGHER per-trade mean (+8.6% vs +6.2%) — enter inside
+episode windows. The worst episode is the 2014-08→2016-02 energy bust
+(−44.4%), not the GFC (−41.0%); COVID −37.0%; 2022 only −13.9%. Monthly
+correlation to LQD is 0.32 (R²=0.10), alpha ≈ +1.2%/mo.
+
+*Within-book levers: ALL KILLED on the IS screen.* H (LQD hedge at IS beta
+0.57): DD unchanged-to-worse, CAGR −2 to −3pp. VT (10–12% vol target): DD
+unchanged (vol is coincident with the fall, not leading — stale marks). TR
+(LQD −5% trend de-risk): −2.8pp DD, short of the 8pp gate; and this family
+already failed OOS once before. ST (4/mo entry cap): DD WORSENS to −56.1%
+with Sharpe 1.07 < 1.20 — throttling entries removes the diversifying crisis
+vintages, confirming the anatomy. AD (require −4/−5pt depth when tape stress
+> IS-q90 13.6%): DD −45.2/−45.7% vs −44.8% base — deeper entries in stress
+still mark down with the tape. The conclusion the four families point at:
+**the drawdown IS the risk premium** — the book is paid ~+7pp/trade of
+entry excess precisely for holding dislocated bonds through crisis marks
+(Duffie 2010 slow-moving-capital, exactly as the literature says).
+
+*BL cross-market blend: ADMITTED — the one lever that works.* On the common
+published-NAV window (2012-07..2025-02, 152 mo), KEYSTONE-XL × BEDROCK-V
+monthly correlation is **+0.02** (−0.24 in corp-down months), and it is
+window-stable (+0.09 in 2016+, +0.14 in 2020+ and 2023+). Monthly
+rebalanced, vs 100% BEDROCK-V (CAGR +10.53%, Sharpe 0.69, maxDD −40.7% on
+this window):
+
+| book | CAGR | Sharpe(m) | maxDD | vs gates |
+|---|---|---|---|---|
+| 50/50 corp/muni | +9.62% | 1.13 | **−16.8%** | ADMIT (+23.9pp, −0.9pp CAGR) |
+| 60/40 corp/muni | +9.85% | 0.99 | **−22.1%** | ADMIT (+18.6pp, −0.7pp CAGR) |
+| 70/30 corp/muni | +10.06% | 0.88 | **−27.2%** | ADMIT (+13.5pp, −0.5pp CAGR) |
+| 50% BV + T-bills (ref) | +6.21% | 0.69 | −22.6% | dominated by every blend |
+
+The blend beats T-bill dilution at every risk level (50/50 has both a
+shallower DD than 50% dilution AND +3.4pp more CAGR), so the effect is real
+diversification, not de-risking. In the corp-OOS decade the 50/50 DD is
+−14.3% vs −33.6% for corp alone.
+
+*Disclosures.* (1) maxDD here is monthly-resolution on the published NAV
+series; daily DD runs ~4–6pp deeper (corp full-window: −44.4% daily vs
+−40.7% monthly-common-window). (2) The common window overlaps both books'
+IS periods; the correlation — the only estimated quantity — was checked on
+the OOS sub-windows above and holds. (3) The muni series' smoothness partly
+reflects stale odd-lot marks; its economic DD is somewhat understated, so
+the blend DD is a floor estimate — but even doubling the muni book's DD
+leaves the blend far ahead. (4) A 50/50 at scale is bounded by KEYSTONE's
+odd-lot capacity (~$2–4M/yr deployable per the audit); at larger AUM the
+feasible muni weight shrinks toward 70/30 or the muni sleeve saturates.
+
+**Verdict:** no within-book lever can cut BEDROCK-V's drawdown without
+paying for it — six families tried across two rounds, all killed by their
+own pre-registered gates. The adopted answer is portfolio-level: run
+KEYSTONE-XL and BEDROCK-V as ONE blended book at 50/50–70/30 (corp weight
+by capacity), monthly rebalanced. Expected: ~keep the corp book's CAGR
+within ~1pp while cutting maxDD by roughly half to two-thirds, Sharpe up.
+This also matches the deployment plan already on the table (KEYSTONE live
+via EMMA now, BEDROCK-V pending the TRACE feed).
 
 ## 9. Bibliography (primary sources)
 
