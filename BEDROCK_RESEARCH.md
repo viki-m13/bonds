@@ -817,7 +817,35 @@ the own-equity-deteriorating halt: IS +6.8pp DD, CAGR −0.55pp, Sharpe
 (unchanged): retain ≥60% of the IS DD gain with the same CAGR/Sharpe
 conditions holding OOS.
 
-**Results 4c (one-shot OOS):** (to be filled after the run.)
+**Results 4c (one-shot OOS, `bedrock_dd_oos4.json`): BOTH KILLED — 0%
+retention.** OOS 2016+ at K=100: base +6.08%/0.40/−33.1%; T2
++5.04%/0.32/−33.3% (ddGain −0.3pp = −6% of IS gain); T2∪T4
++4.74%/0.30/−33.2% (−1% of IS gain). The mechanism of failure is
+instructive: the OOS's dominant episode is COVID — a 28-day crash that is
+OVER before any halt-and-runoff can de-risk (holds are ~250-380d; runoff
+needs months) — while the halts (715 of 1,382 OOS fills skipped across
+2016, 2018Q4, 2020, 2022) missed the post-trough entries that earn
++9.7%/trade. The triggers were fitted, structurally, to the slow grinding
+IS crises (2007-09, 2014-16) and are worthless against fast ones. This
+replicates the program's earlier market-regime-gate kill (OOS +0.94% vs
++1.63%): regime-conditioned trading in this strategy does not survive
+out-of-sample. THE NO-TRADE-TRIGGER FAMILY IS CLOSED.
+
+**Program verdict after four rounds (12 lever families, ~40 variants, every
+one killed by pre-registered gates or the one-shot OOS):** BEDROCK-V's
+maximum drawdown cannot be materially reduced from inside the strategy —
+not by entry selection (changes earnings, not marks), not by hedging (stale
+slow marks vs fast liquid instruments), not by exposure overlays (vol is
+coincident, not leading), and not by no-trade triggers (slow-crisis logic
+dies in fast crises; halts forfeit the post-trough harvest). The drawdown
+is the priced risk. The implementable menu is unchanged and now
+exhaustively evidenced: (1) allocation sizing — x% BEDROCK-V + (1−x)
+T-bills scales DD linearly and is the ONLY lever that survives every test;
+(2) capital structure — the DD is mark-to-market (open-at-peak cohorts
+realize −2% to −13%), so capital that cannot be forced to sell at the
+trough bears it on paper only; (3) tail options — untestable on our data,
+flagged for live pricing only, with the caveat that they pay in fast
+crashes, not the grinding busts that are this book's worst case.
 
 ## 9. Bibliography (primary sources)
 
