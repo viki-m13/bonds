@@ -618,6 +618,52 @@ within ~1pp while cutting maxDD by roughly half to two-thirds, Sharpe up.
 This also matches the deployment plan already on the table (KEYSTONE live
 via EMMA now, BEDROCK-V pending the TRACE feed).
 
+*Owner decision 2026-08-12: KEYSTONE will run separately — the blend is NOT
+the accepted mitigation. Round 3 below searches within BEDROCK-V only.*
+
+## 8f. Drawdown round 3 — phase-selective entries (PRE-REGISTERED 2026-08-12)
+
+**Hypothesis from the round-2 anatomy:** the drawdown is built by entries
+made during the FALLING phase of a stress episode (tape stress share rising)
+— they keep marking down before recovering, and in grinding busts they also
+realize the weakest returns (2014-16 fall cohort +1.5%/trade vs book mean
++6-8%). Trough/recovery-phase entries carry strong returns. So: keep trading
+crises, but only once the tape has stopped deteriorating.
+
+**Stress state (frozen):** tape stress = 20d-smoothed share of customer-ask
+prints ≥3pts under med60 (round-2 series); CRISIS = stress > IS-q90
+(13.58%, frozen); RISING = stress today > stress 20 calendar days ago.
+
+**Levers (all evaluated on the IS pipeline book, params frozen from IS):**
+- **SS (stress-slope entry filter):** skip entries when CRISIS AND RISING
+  (variant SS75: same with q75 threshold). Entries resume the moment the
+  20d stress slope turns non-positive — no forecast, pure state.
+- **FK (falling-knife, bond level):** in CRISIS, require the bond's own mid
+  to have stabilized: mid(sig row) ≥ mid 5 prints earlier (variant: 3).
+- **DE (deferred entry):** signals fired in CRISIS enter at the first ask
+  print 30-44d later instead, only if still ≥3pts under the CURRENT med60
+  and the limit rule (ask ≤ prior mid + 0.25) still passes. Normal-tape
+  signals unchanged.
+- **CC (distress cap):** in CRISIS, skip bonds whose value-gap
+  log(cs) − bucket-median exceeds the IS-q90 of pipeline entries (drop the
+  deepest-distress tail whose marks fall furthest).
+- **MS (maturity shorten):** in CRISIS, require mat ≤ 3 (less spread
+  duration = less mark-to-market per unit of tape widening).
+- **SO (stress overlay):** portfolio overlay 0.5x exposure while CRISIS AND
+  RISING, 1.0x otherwise (the TR idea but with the tape-native state).
+
+**Diagnostic (IS only, printed before levers):** per-trade returns of IS
+in-episode entries split by RISING vs not at entry, and by value-gap
+quartile — confirms or kills the mechanism before the levers run.
+
+**Kill gates:** identical to §8e (IS maxDD ≥8pp better, CAGR give-up ≤2pp,
+Sharpe(m) not lower; survivors get ONE OOS look, adopt only if ≥60% of the
+IS DD improvement holds with the OOS CAGR/Sharpe conditions met). The
+known failure mode — regime gates overfitting the GFC and dying OOS — is
+exactly what the one-shot OOS is for.
+
+**Results:** (to be filled after the tests run; committed before testing.)
+
 ## 9. Bibliography (primary sources)
 
 **Replication/methodology:** Dickerson-Robotti-Rossetti 2026 (arXiv 2604.07880);
