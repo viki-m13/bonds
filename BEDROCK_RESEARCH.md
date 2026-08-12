@@ -731,6 +731,43 @@ vs matched controls; Duffie 2010). What remains implementable:
    experiment post-hoc — but registered as a candidate RETURN-enhancement
    round with its own IS/OOS discipline if the owner wants it.
 
+## 8g. Drawdown round 4 — no-trade trigger on a CAPITALIZED book
+(PRE-REGISTERED 2026-08-12, before results)
+
+**Why this can work where §8f could not.** All prior rounds scored levers on
+the fully-invested NAV (daily-renormalized across open positions). Under
+that convention a no-trade trigger cannot lift the trough: whatever remains
+held still marks down together. A REAL portfolio is different: positions
+are sized against fixed capital, cash earns T-bills, and if entries halt
+during the deteriorating phase the book RUNS OFF into cash (holds are
+~250–380d), so the trough is hit holding cash — which then redeploys into
+the post-trough entries that §8f showed earn +8.0%/trade vs +3.2% in the
+fall phase. The renormalized convention structurally hides this effect;
+this round evaluates it with an explicit capital simulation.
+
+**Capital simulation (convention, frozen):** capital starts at 1.0; a new
+position is sized at NAV/K on its entry day and taken only if cash covers
+it (chronological admission; skipped-for-cash entries reported); position
+values follow the same honest mark path as `mtm_nav` (entry ask → mids,
+stale flat, daily coupon accrual → exit bid); cash earns the 3M T-bill.
+K ∈ {50, 100} — two capitalizations reported side by side; each trigger is
+judged against the SAME-K no-trigger base. IS concurrency stats printed.
+
+**Triggers (state lagged 1 day; thresholds frozen from IS):**
+- **T1:** no new entries while tape stress > q90 AND rising (§8f state).
+- **T2:** same at q75 (earlier, longer halts).
+- **T3 (own-equity):** no new entries while portfolio NAV is >10% below
+  its trailing 1-year high (needs no external data; the desk-native rule).
+Runoff is passive — no forced sales, exits unchanged; halted-period
+signals are NOT queued (missed, not deferred).
+
+**Kill gates (same as §8e/§8f):** on IS at the same K: maxDD ≥8pp better,
+CAGR give-up ≤2pp, Sharpe(m) not lower. Survivors get ONE OOS look
+(2016+, frozen params): adopt iff ≥60% of the IS DD improvement holds and
+the OOS CAGR/Sharpe conditions pass.
+
+**Results:** (to be filled after the run; committed before testing.)
+
 ## 9. Bibliography (primary sources)
 
 **Replication/methodology:** Dickerson-Robotti-Rossetti 2026 (arXiv 2604.07880);
