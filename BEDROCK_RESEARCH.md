@@ -681,7 +681,55 @@ index short is executable without selling bonds at crisis bids):
   is killed by construction). Same §8e kill gates; survivors get the same
   ONE OOS look.
 
-**Results:** (to be filled after the tests run; committed before testing.)
+**RESULTS (2026-08-12; `bedrock_dd_screen2.py`, `bedrock_dd_screen3.py`):**
+
+*Mechanism: CONFIRMED.* IS in-episode entries made while tape stress is
+RISING earn +3.22%/trade (win 76%); once the slope turns, +8.02% (win 73%);
+normal tape +7.73% (win 91%). By value-gap quartile the deepest-distress
+entries are weakest (Q3 +1.34%, Q4 +3.02% vs Q1 +9.54%).
+
+*Entry-side levers: ALL FAIL THE DD GATE — and the failure is structural.*
+SS (skip crisis&rising): CAGR +23.53% but DD −46.3%. SS75: +24.25%/−43.3%.
+FK (bond stabilized): −46/−47%. DE (defer crisis entries 30-44d): CAGR
++25.66% — the best return book of the whole program — but DD −46.3%. CC
+(drop deep distress): DD unchanged. MS (mat≤3 in crisis): −45.9%. The
+lesson: **selection changes what the book earns, not what its marks do.**
+In a systemic episode every held bond marks down together; skimming the
+weak cohort shrinks and concentrates the book without lifting the trough.
+On a fully-invested mark-to-market NAV, no entry filter can cut the
+crisis drawdown.
+
+*SH state-contingent hedge: DEAD BY CONSTRUCTION.* The coverage diagnostic
+shows the states cover only 7.2% (q90) to 31.7% (q75&rising) of the
+2014-16 fall and 30-55% of the GFC fall — grinding busts never hold tape
+stress above the trigger for long. All 12 variants moved DD by at most
++0.9pp; LQD h=1.0 at crisis-level made it WORSE (−49.3%: LQD rallies with
+rates inside credit crises while stale book marks keep falling). Slow stale
+marks vs fast liquid hedges is a structural mismatch no state gate fixes.
+
+**Round-3 verdict.** With KEYSTONE excluded by owner decision, the program
+has now tested nine lever families (~30 variants) across three
+pre-registered rounds: H, VT, TR, ST, AD, SS/SS75, FK, DE, CC, MS, SO, SH
+— every one killed by its own gates. The consistent physics: the drawdown
+is the mark-to-market trough of a fully-invested book of dislocated bonds;
+its depth is a property of what is HELD in a systemic episode, invariant
+to entry selection, and unhedgeable with liquid instruments against stale
+marks. The −40%+ maxDD is the risk being paid for (entry excess ~+7pp/trade
+vs matched controls; Duffie 2010). What remains implementable:
+1. **Allocation sizing** (linear, always works): x% of capital in
+   BEDROCK-V, rest T-bills, scales both CAGR-minus-rf and DD by ~x.
+2. **The DD is not realized loss**: open-at-peak cohorts realize −2% to
+   −13%; capital that cannot be forced to liquidate at the trough
+   (no-redemption structure) experiences it on paper only.
+3. **Tail options** (HYG puts / CDX payer options, small premium budget)
+   are the one untested family — we have NO options data, so any backtest
+   claim would be fabricated; flagged for live consideration only, with
+   the caveat that they pay in fast crashes (2008/2020), not grinding
+   busts (2014-16), which is our worst episode type.
+4. *(Future, separate mandate)* SS/DE raised IS CAGR by +2-4pp with fewer,
+   better trades. NOT adopted here — that would be repurposing a failed DD
+   experiment post-hoc — but registered as a candidate RETURN-enhancement
+   round with its own IS/OOS discipline if the owner wants it.
 
 ## 9. Bibliography (primary sources)
 
