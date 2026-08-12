@@ -662,6 +662,25 @@ IS DD improvement holds with the OOS CAGR/Sharpe conditions met). The
 known failure mode — regime gates overfitting the GFC and dying OOS — is
 exactly what the one-shot OOS is for.
 
+**Addendum (2026-08-12, after the §8f IS screen, BEFORE testing):** the
+mechanism CONFIRMED ([F]: crisis&rising entries +3.2%/trade vs +8.0%
+not-rising; deep value-gap quartiles weakest) but ALL entry-side levers
+failed the DD gate — selection raises CAGR (SS +23.5%, DE +25.7%) yet
+leaves the trough at −43% to −47%, because in a systemic episode every
+held bond marks down together: entry selection changes what the book earns,
+not what its marks do at the trough. The remaining implementable family is
+therefore hedge-side, state-contingent (the constant hedge of §8e failed
+by bleeding through recoveries; the state gate removes the bleed, and an
+index short is executable without selling bonds at crisis bids):
+- **SH (state-contingent index hedge):** short h × notional of HYG (or
+  LQD) while CRISIS & RISING (state lagged 1 day; variants: crisis-only,
+  q75 threshold), flat otherwise. h ∈ {0.5, 1.0}. Borrow cost ~1-3%/yr
+  while on (state on ≪10% of days — negligible, disclosed); switch count
+  reported. Diagnostic printed first: the share of each episode's fall
+  that occurs state-ON (if the fall precedes the state, SH cannot work and
+  is killed by construction). Same §8e kill gates; survivors get the same
+  ONE OOS look.
+
 **Results:** (to be filled after the tests run; committed before testing.)
 
 ## 9. Bibliography (primary sources)
