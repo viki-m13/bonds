@@ -522,6 +522,23 @@ Survivors get ONE OOS look (2016–2023.12 censor-safe) reported as-is; an OOS
 result that keeps ≥ 60% of the IS drawdown improvement and passes the same
 CAGR/Sharpe conditions OOS is adopted; otherwise killed and reported.
 
+**Addendum (2026-08-12, after the anatomy diagnostic, BEFORE any lever
+backtest):** the diagnostic (`bedrock_dd_diag.json`) found (i) the worst
+episode is 2014-08→2016-02 (−44.4%, energy bust), not the GFC; (ii) the
+drawdown is a mark-to-market trough (open-at-peak cohorts small, realized
+−2% to −13%; in-fall entries realize positive); (iii) 68% of trades enter
+inside episode windows and carry ~76% of total return — ST is near-certainly
+upside-destroying; (iv) monthly corr to LQD is 0.32 (R²=0.10) and every
+hedge ratio WORSENS maxDD in the full-window diagnostic — H is near-certainly
+dead; (v) vol-targeting moves nothing (vol is coincident, not leading);
+(vi) in the 2014-16 bust, −3pt crisis entries realized only +1.5%/trade vs
++9.7% in 2020 — shallow entries in grinding busts are the weak cohort.
+One lever is therefore ADDED before any lever backtest:
+- **AD (adaptive depth):** when the tape-wide dislocation share (20d-smoothed
+  share of customer-ask prints ≥3pts below med60) exceeds its IS q90 (frozen
+  constant), require own dislocation ≤ −4 (variant: ≤ −5) at the signal row
+  instead of −3. Normal tape unchanged. Same kill gates as the others.
+
 **Results:** (to be filled after the tests run — this section was committed
 before any lever was evaluated.)
 
