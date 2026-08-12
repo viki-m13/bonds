@@ -484,6 +484,47 @@ evidence, 2 adopted** (BEDROCK-V core upgrade; A as capacity satellite),
 V-4-gate, spread-momentum gate, stress gate, calendar overlay, issuance
 pressure). The kills are the reason the survivors can be believed.
 
+## 8e. Drawdown-minimization round (PRE-REGISTERED 2026-08-12, before results)
+
+**Goal:** cut BEDROCK-V pipeline maxDD (−44% full / −37% OOS; replay −48%/−41%)
+while keeping the upside (OOS pipeline ~+16.6%/0.96; replay planning ~+12.5%).
+
+**Step 0 — anatomy first** (`bedrock_dd_diag.py`, measurement only): episode
+table, open-at-peak vs entered-in-fall realized-return decomposition, upside
+attribution to crisis-window entries, monthly beta/downside-beta vs LQD/HYG,
+and full-window overlay diagnostics used ONLY to rank levers (disclosed as
+in-sample measurement, not evidence).
+
+**Candidate levers** (chosen from prior evidence before any new results):
+- **H (beta hedge):** short LQD (or duration/credit proxy) against the book.
+  Rationale: per-trade excess vs matched controls is the alpha; the controls
+  carry the beta, and beta is plausibly what draws down. Hedge ratio must be
+  estimated IS only and frozen.
+- **VT (vol targeting):** scale exposure to trailing realized vol, cap 1x
+  (no leverage), cash earns T-bill. Known risk (prior repo result [V]):
+  Sharpe up, CAGR down — the kill gate below guards this.
+- **TR (market trend de-risk):** reduce exposure when LQD sits >x% below its
+  trailing high. NOTE: a market-regime *entry gate* was already REJECTED once
+  (overfit GFC, failed OOS). This variant differs (scales the whole book, not
+  entries) but carries the same overfit risk; treated with extra suspicion.
+- **ST (staggered deployment):** cap per-month new-entry count/weight to slow
+  crisis-wave concentration. Risk: crisis entries are where the upside lives.
+
+**What is NOT on the table:** stop-losses at bid during stress (realizes the
+dislocation we're paid to hold), and any lever tuned on OOS data.
+
+**Kill gates (frozen):** a lever is ADMITTED to the one-shot OOS only if, on
+IS (2003–2015) with parameters frozen from IS data alone:
+1. maxDD improves by ≥ 8pp (e.g. −42% → −34% or better);
+2. CAGR gives up ≤ 2pp vs the unmodified BEDROCK-V IS book;
+3. Sharpe(m) does not fall.
+Survivors get ONE OOS look (2016–2023.12 censor-safe) reported as-is; an OOS
+result that keeps ≥ 60% of the IS drawdown improvement and passes the same
+CAGR/Sharpe conditions OOS is adopted; otherwise killed and reported.
+
+**Results:** (to be filled after the tests run — this section was committed
+before any lever was evaluated.)
+
 ## 9. Bibliography (primary sources)
 
 **Replication/methodology:** Dickerson-Robotti-Rossetti 2026 (arXiv 2604.07880);
