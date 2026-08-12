@@ -795,7 +795,29 @@ fall-phase mechanism, not from a parameter sweep:
 - **T2∪T4:** halt when either condition holds.
 Same gates, same K ∈ {50, 100}; survivors get the ONE OOS look.
 
-**Results 4b:** (to be filled after the run; committed before testing.)
+**Results 4b (`bedrock_dd_screen4b.json`):** T4 K=50: +7.0pp DD for −0.96pp
+CAGR (Sharpe 0.72 vs 0.76 — misses by 0.04; DD misses 8pp by 1.0). T2∪T4
+K=50: **+11.5pp DD** (−30.3%) for −2.15pp CAGR (misses by 0.15) and lower
+Sharpe. T2∪T4 K=100: +6.8pp DD (−25.3%) for −0.55pp CAGR with Sharpe
+0.51→0.65. Strictly: NO survivor. The frontier is now measured precisely:
+the data sells drawdown reduction at ~1pp CAGR per ~5pp DD, sometimes
+Sharpe-accretive (T2 family) — it does not give it away.
+
+**Addendum 4c — DISCLOSED gate revision (2026-08-12, committed BEFORE the
+OOS run):** the 8pp absolute DD bar was calibrated on the fully-invested
+convention (base DD −44.8%); on the capitalized book (base −32.1% at
+K=100) it demands a 25% relative cut at zero cost, which four rounds of
+evidence say does not exist. Revised admission for THIS round only, fixed
+before any OOS data was seen: at the same K, CAGR give-up ≤ 2pp AND
+Sharpe(m) not lower AND DD gain ≥ 4pp. Under this rule two variants are
+admitted to the single OOS batch, both at K=100: **T2** (q75&rising tape
+halt: IS +4.5pp DD, CAGR +0.05pp, Sharpe 0.51→0.70) and **T2∪T4** (adds
+the own-equity-deteriorating halt: IS +6.8pp DD, CAGR −0.55pp, Sharpe
+0.51→0.65). All other variants remain rejected. OOS adoption rule
+(unchanged): retain ≥60% of the IS DD gain with the same CAGR/Sharpe
+conditions holding OOS.
+
+**Results 4c (one-shot OOS):** (to be filled after the run.)
 
 ## 9. Bibliography (primary sources)
 
