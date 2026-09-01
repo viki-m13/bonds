@@ -12,8 +12,10 @@ name: Record HL per-account flow
 # manually any time via "Run workflow" (workflow_dispatch).
 
 on:
-  schedule:
-    - cron: '2 */6 * * *'    # 00:02, 06:02, 12:02, 18:02 UTC — chained ~5h45m jobs
+  # PAUSED 2026-09-01 (user request): all crons off except zdte-record.
+  # Re-enable by uncommenting the schedule block.
+  # schedule:
+  #   - cron: '2 */6 * * *'    # 00:02, 06:02, 12:02, 18:02 UTC — chained ~5h45m jobs
   workflow_dispatch:
     inputs:
       secs:
