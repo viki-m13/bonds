@@ -1,9 +1,11 @@
 name: Daily Dashboard Update
 
 on:
-  schedule:
-    # Run at 6:00 PM ET (23:00 UTC) every weekday (after market close)
-    - cron: '0 23 * * 1-5'
+  # PAUSED 2026-09-01 (user request): all crons off except zdte-record.
+  # Re-enable by uncommenting the schedule block.
+  # schedule:
+  #   # Run at 6:00 PM ET (23:00 UTC) every weekday (after market close)
+  #   - cron: '0 23 * * 1-5'
   workflow_dispatch:  # Allow manual trigger
 
 permissions:
