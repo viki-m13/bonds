@@ -1,9 +1,11 @@
 name: PHOENIX Live Signal
 
 on:
-  schedule:
-    # Run at 6:30 PM ET (23:30 UTC) every weekday (30 min after market close)
-    - cron: '30 23 * * 1-5'
+  # PAUSED 2026-09-01 (user request): all crons off except zdte-record.
+  # Re-enable by uncommenting the schedule block.
+  # schedule:
+  #   # Run at 6:30 PM ET (23:30 UTC) every weekday (30 min after market close)
+  #   - cron: '30 23 * * 1-5'
   workflow_dispatch:  # allow manual trigger
 
 permissions:
