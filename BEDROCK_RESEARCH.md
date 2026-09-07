@@ -953,7 +953,45 @@ committed before results:
   than 2pp worse than A. Survivors get ONE OOS look (2016+, frozen k) with
   adoption iff Sharpe and CAGR still >= A OOS and maxDD within 2pp.
 
-**Results 8i:** (to be filled after the run.)
+**Results 8i (`s4_weight.py`, `s4_weight_is.json`).**
+
+**[SZ] T3 was measuring book size, not S4.** Across 400 random 252-trade
+subsamples of cohort B, maxDD averages **−50.3%** with median **−48.7%**;
+S4's −49.4% sits at the median, and **46% of random same-size books are at
+least as deep**. A 252-trade book is mechanically drawdown-prone; S4 adds
+nothing to that. T3 as written conflated concentration with the signal — a
+defect of my gate, disclosed as such.
+
+**[W] S4 as a weight is a wash.** Tilting the full 2012-trade book toward
+S4-pass entries moves almost nothing, because S4-pass is only 253 of 2018
+entries (12.5%):
+
+| k | CAGR | ΔCAGR | Sharpe(m) | ΔSharpe | maxDD | ΔmaxDD |
+|---|---|---|---|---|---|---|
+| A (none) | 17.680% | — | 1.0840 | — | −43.57% | — |
+| 1.5 | 17.921% | +0.241pp | 1.0837 | −0.0003 | −43.86% | −0.29pp |
+| 2.0 | 18.120% | +0.440pp | 1.0767 | −0.0073 | −44.12% | −0.55pp |
+| 3.0 | 18.435% | +0.756pp | 1.0542 | −0.0299 | −44.57% | −1.00pp |
+
+Every k buys a little CAGR with a little Sharpe and a little drawdown — the
+gates reject all three (k=1.5 misses on Sharpe by 0.0003). **Reported as
+neutral, not as a win**: the differences are inside the noise, and the
+weight variant is not adopted.
+
+## 8j. DISCLOSED GATE REVISION + one-shot OOS (committed BEFORE the OOS run)
+
+[SZ] shows T3 rejected cohort C for being small rather than for being worse.
+Replacing the absolute drawdown bar with the size-matched null it should
+have been, cohort C passes T1 (mean and Sharpe above its control), T2
+(excess +9.36% vs +3.52%, p<0.001) and size-corrected T3 (maxDD at the median
+of same-size random books). **C is therefore admitted to the single OOS look
+under the §8h adoption rule**, fixed before running: retain **>=60% of the
+IS excess improvement** over the sibling-eligible baseline (5.84pp -> at
+least **+3.50pp** OOS), with OOS mean/trade and Sharpe(m) still >= that
+baseline. This is a disclosed revision made after seeing IS results; the OOS
+is the real test and is taken once.
+
+**Results 8j:** (to be filled after the single OOS run.)
 
 ## 9. Bibliography (primary sources)
 
