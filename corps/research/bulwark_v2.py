@@ -165,12 +165,14 @@ def main():
     out["baseline"] = base
 
     if oos_mode:
-        spec = json.loads((ROOT / "research" / "bulwark_is3.json").read_text())["spec"]
-        print(f"\n[ONE-SHOT OOS of frozen spec {spec}]", flush=True)
-        out["spec"] = spec
-        out["bulwark"] = stats_h(bonds, lab,
-                               pipeline(bonds, issuers, q97, amed, lo, hi, **spec),
-                               "BULWARK (frozen spec)", lo, hi, base=base)
+        specs = {"BULWARK-S4": dict(s4=True),
+                 "BULWARK-Z": dict(s1=True, s2=True, s4=True, s6=True)}
+        print("\n[ONE-SHOT OOS of the frozen specs (BULWARK-U = baseline above)]",
+              flush=True)
+        for name, sc in specs.items():
+            out[name] = stats_h(bonds, lab,
+                                pipeline(bonds, issuers, q97, amed, lo, hi, **sc),
+                                name, lo, hi, base=base)
         p = ROOT / "research" / "bulwark_oos3.json"
     else:
         print("\n[single screens, honest exits]", flush=True)

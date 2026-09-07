@@ -170,4 +170,88 @@ rule is fixed here before running:
 AND OOS bust-linked rate <= 2x its IS rate. Reported exactly as printed,
 adopted or killed.
 
-**Results:** (to be filled after the single OOS run.)
+## 5. OOS RESULTS (one shot, 2016-01-01..2024-01-01) — and the finding that matters
+
+| book | n | mean/trade | win | labelled bust | ret<-20% | CAGR | Sharpe(m) | maxDD | excess (p) |
+|---|---|---|---|---|---|---|---|---|---|
+| BULWARK-U | 3262 | +8.49% | 84% | 32 (1.0%) | 4.2% | +6.43% | 0.52 | −25.4% | **+2.23% (0.000)** |
+| BULWARK-S4 | 532 | **+11.02%** | 88% | 5 (0.9%) | 3.2% | +7.12% | 0.54 | −27.8% | **+3.85% (0.000)** |
+| BULWARK-Z | 290 | +9.49% | **92%** | **0 (0.0%)** | 2.4% | +6.48% | 0.55 | −30.2% | +2.21% (0.004) |
+
+Against the frozen adoption rule (excess>0 at p<0.05, mean/trade>0, OOS bust
+rate <= 2x IS), **S4 and Z both pass**, and Z additionally passes all three
+original gates versus the OOS baseline. IS->OOS retention of the S4 excess is
+**85%** (+4.51% -> +3.85%), with no decay in mean/trade (+11.36% -> +11.02%).
+
+### 5a. The "zero defaults" result is a MEASUREMENT ARTEFACT
+
+BULWARK-Z books **0 labelled bust-linked trades in 604 pooled trades**
+(0/325 IS, 0/290 OOS — it replicated). Taken at face value that answers the
+mandate. It does not survive contact with the returns
+(`bulwark_tail.py`):
+
+| book | n | labelled bust | ret < −50% | mean of that tail | of those, NOT labelled bust |
+|---|---|---|---|---|---|
+| BULWARK-U | 6446 | 74 (1.15%) | 138 (2.14%) | −68.0% | 68 |
+| BULWARK-S4 | 1121 | 13 (1.16%) | 30 (2.68%) | −69.3% | 13 |
+| **BULWARK-Z** | 604 | **0 (0.00%)** | **11 (1.82%)** | **−67.5%** | **10** |
+
+The "default-free" book lost more than half its money on 11 trades. Two were
+resolved by name through EDGAR: **Quicksilver Resources** (74837RAC8, bought
+2014-06-04, Chapter 11 in March 2015, **−92.5%**) and **General Motors**
+(370442BB0, bought 2008-04-04, **−76.1%**). The labeller missed them because
+it only fires when a bond *leaves the tape* below 55 with maturity left —
+bonds that default but keep printing, or whose final print falls outside the
+holding window, are invisible to it.
+
+**So the honest answer to the mandate is no.** Screening moved the >50%-loss
+rate from 2.14% to 1.82% — a ~15% reduction, not elimination. Cheap junk
+carries an irreducible fat left tail of roughly **2% of trades at about
+−68%**, dragging 1.8–2.6pp off every book's mean trade. No screen in this
+program removed it, and the one that appeared to had simply outrun the
+measuring instrument.
+
+### 5b. What the screens actually cost
+
+BULWARK-Z holds **604 trades versus U's 6446 (−91%)** and is *riskier* for
+it: **maxDD −37.9% vs −28.3%, Sharpe 0.48 vs 0.62**. Removing a ~1% credit
+loss rate by concentrating into a tenth of the book imports more
+concentration risk than it exports credit risk.
+
+### 5c. What genuinely works
+
+- **The cheap-junk carry book itself.** Buying the universe with the audited
+  limit-entry rule beats matched random entries *on the same bonds* by
+  **+2.33% IS / +2.23% OOS per trade (both p<0.001)** — the entry discipline,
+  not the credit selection, is the edge.
+- **S4, issuer-curve cheapness** — a bond cheap versus >=2 of its own
+  issuer's siblings — is the strongest selection signal the program has
+  produced: **+10.97%/trade pooled, excess +4.51% IS / +3.85% OOS
+  (p<0.001), 85% retention**, and it leaves the bust rate untouched at 1.16%.
+  It identifies *mispricing*, not *solvency*.
+- Every spec is positive in every era, best in crisis vintages (U +17.93% in
+  2008-09, +12.62% in 2020) and weakest in the 2017-2019 reach-for-yield
+  window (+1.63%, 75% win, the highest bust era at 2.8%) — cheap junk was
+  cheap for a reason there.
+- Slippage is graceful: at h=0.25pt on both legs, U +7.26%/trade
+  (CAGR +5.88%), S4 +10.37% (CAGR +6.49%).
+
+### 5d. Verdict
+
+A cheap-junk carry book is real and replicates out of sample, but at
+**Sharpe 0.5-0.6 and maxDD −25% to −40%** it is materially weaker
+risk-adjusted than the existing GRANITE-XL / BEDROCK-V books (Sharpe
+0.9-1.0). It is a different franchise — credit carry rather than liquidity
+provision — not an upgrade. The defensible version is **BULWARK-S4**
+(issuer-curve cheapness, no default screening, accept the ~2%/−68% tail and
+diversify against it), NOT BULWARK-Z, whose apparent safety is an artefact.
+
+**The mandate's premise is what failed:** in this universe defaults were
+never the main risk (1.1% of trades), the loss tail cannot be screened away,
+and trying to screen it away makes the portfolio more dangerous, not less.
+
+**Phase 2 (SEC/XBRL fundamentals) is NOT triggered.** It was conditioned on
+Phase 1 surviving, and the finding above says the binding constraint is not
+information about solvency but the irreducible tail plus concentration cost.
+Adding leverage/coverage screens would shrink the book further — the exact
+move the evidence says is counterproductive.
