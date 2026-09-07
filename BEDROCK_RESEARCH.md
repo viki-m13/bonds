@@ -896,7 +896,64 @@ gates at signal, capacity against actual open positions) before any planning
 number is quoted — pipeline ordering applies gates after capacity and is
 used for screening only.
 
-**Results:** (to be filled after the run; committed before testing.)
+**Results (2026-09-07, `s4_transfer.py`, `s4_transfer2_is.json`).** One
+methodological correction was made first and is disclosed: the initial run
+scored recovery-exit books (~250d holds) against the 365-455d control, the
+hold-mismatch defect of XL_AUDIT §6b, which made every excess column
+negative — including GRANITE-XL's own. Excess is now measured **hold-matched**
+on the 1y-hold version of the same entries; GRANITE-XL full then reproduces
+the audited **+5.27% (p<0.001)** entry excess, confirming the harness.
+
+| cohort | n | mean/trade | CAGR | Sharpe | maxDD | 1y-hold mean | excess (p) |
+|---|---|---|---|---|---|---|---|
+| A GRANITE-XL full | 2012 | +5.41% | +17.68% | 1.08 | −43.6% | +12.61% | +5.27% (0.000) |
+| B  sibling-eligible (control) | 864 | +4.14% | +13.51% | 0.74 | −39.0% | +9.21% | +3.52% (0.000) |
+| **C  + S4 pass** | 252 | +5.49% | **+22.58%** | 0.77 | **−49.4%** | **+16.42%** | **+9.36% (0.000)** |
+| D  + S4 fail (complement) | 612 | +3.59% | +6.29% | 0.49 | −38.7% | +6.24% | +2.17% (0.001) |
+| E BEDROCK-V full | 1157 | +6.21% | +21.72% | 1.20 | −44.8% | +15.64% | +5.95% (0.001) |
+| F  sibling-eligible (control) | 144 | +4.55% | +21.52% | 0.70 | −55.7% | +13.34% | +5.72% (0.050) |
+| G  + S4 pass | 103 | +5.16% | +28.62% | 0.73 | −57.2% | +15.58% | +2.14% (0.313) |
+| H  + S4 fail (complement) | 41 | +3.00% | +9.44% | 0.42 | −59.0% | +7.71% | +2.59% (0.284) |
+| I GRANITE + G4 only | 1336 | +6.11% | +20.08% | 1.16 | −44.2% | +14.76% | +5.51% (0.000) |
+| J GRANITE + G1 only | 1547 | +5.56% | +19.84% | 1.14 | −44.5% | +14.14% | +5.72% (0.000) |
+
+**Three findings.**
+
+1. **S4 transfers to GRANITE-XL as a strong return signal.** Within the same
+   sibling-eligible population it splits 1y-hold return **+16.42% (pass) vs
+   +6.24% (fail)** and nearly triples the entry excess over its own control
+   (**+9.36% vs +3.52%**, p<0.001). T1 and T2 both pass. This is the largest
+   entry-excess figure the program has produced.
+2. **It fails T3, the drawdown gate** — maxDD −49.4% vs the control's −39.0%
+   (10.4pp worse) — while cutting the book 864 -> 252 trades. Same failure
+   mode as in BULWARK, and exactly what T3 was written to catch. **REJECTED
+   under the frozen protocol; no OOS look is taken.**
+3. **S4 is redundant inside BEDROCK-V.** It produces no separation there
+   (+2.14% pass vs +2.59% fail, both insignificant on n=103/41) because G1
+   (cheap vs market bucket) and G4 (dislocated vs siblings) already carry
+   that information. BEDROCK-V's gates are not improved by adding S4.
+
+## 8i. Follow-up (PRE-REGISTERED 2026-09-07, before running)
+
+The T3 failure may be **concentration, not the signal**: a 252-trade book is
+mechanically more drawdown-prone than an 864-trade one. Two tests, both
+committed before results:
+
+- **[SZ] size-matched drawdown null.** Draw 400 random 252-trade subsamples
+  of cohort B and build the maxDD distribution. If C's −49.4% sits inside
+  that distribution (p>0.05, one-sided), T3 penalised book size rather than
+  S4, and that is reported as a defect of the gate rather than of the signal.
+- **[W] S4 as a WEIGHT, not a FILTER.** The program's recurring lesson is
+  that filtering concentrates and concentration costs more than the signal
+  earns. So instead of excluding S4-fail trades, tilt: weight S4-pass
+  entries `k` x and keep everything else at 1x, on the FULL GRANITE-XL book
+  (n=2012, diversification preserved), k in {1.5, 2, 3}, multiplied into the
+  existing depth weights and renormalised daily.
+  **Gates (frozen):** CAGR and Sharpe(m) both >= cohort A, AND maxDD no more
+  than 2pp worse than A. Survivors get ONE OOS look (2016+, frozen k) with
+  adoption iff Sharpe and CAGR still >= A OOS and maxDD within 2pp.
+
+**Results 8i:** (to be filled after the run.)
 
 ## 9. Bibliography (primary sources)
 
