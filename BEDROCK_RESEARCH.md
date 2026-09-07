@@ -847,6 +847,57 @@ trough bears it on paper only; (3) tail options — untestable on our data,
 flagged for live pricing only, with the caveat that they pay in fast
 crashes, not the grinding busts that are this book's worst case.
 
+## 8h. S4 transfer test — issuer-curve cheapness inside GRANITE/BEDROCK
+(PRE-REGISTERED 2026-09-07, committed before any result)
+
+**Origin.** The BULWARK round (BULWARK_RESEARCH.md) produced the strongest
+selection signal either program has generated: **S4, issuer-curve
+cheapness** — the bond's credit spread exceeds the median spread of >=2 of
+its own CUSIP6 siblings by >=0.5pp at the signal row. On the cheap-junk
+universe it earned +10.97%/trade pooled with excess **+4.51% IS / +3.85%
+OOS (both p<0.001, 85% retention)** over matched random entries on the same
+bonds. It has never been tested inside the dislocation books.
+
+**Spec (FROZEN from BULWARK, not re-tuned):** at the signal row, collect
+sibling CUSIP6 bonds with a finite positive `cs` within 10 days; require
+**>=2 siblings** (fail when absent — evidence is required, unlike BEDROCK's
+G4 which passes on no information); pass iff
+`cs_own >= median(cs_siblings) + 0.005`.
+
+**The control that makes or breaks this test.** S4 requires >=2 siblings,
+i.e. multi-bond (larger) issuers. Comparing S4-pass against the FULL book
+would confound the gate with a large-issuer selection effect. The primary
+comparison is therefore **S4-pass vs the SIBLING-ELIGIBLE baseline** (trades
+that have >=2 siblings, whether or not the S4 condition holds), with the
+**S4-fail complement** reported alongside as the contrast.
+
+**Cohorts (fixed list, IS 2003-2015, audited pipeline conventions — real
+coupons, lagged recovery exits, depth weights):**
+A GRANITE-XL full · B GRANITE-XL sibling-eligible · C GRANITE-XL + S4 ·
+D GRANITE-XL + S4-fail · E BEDROCK-V full · F BEDROCK-V sibling-eligible ·
+G BEDROCK-V + S4 · H BEDROCK-V + S4-fail · I GRANITE-XL + G4 only ·
+J GRANITE-XL + G1 only. (I and J locate S4 against the existing gates.)
+
+**Kill gates (frozen).** S4 is admitted to a single OOS look only if, IS,
+versus its own sibling-eligible baseline:
+- **T1** — mean/trade AND Sharpe(m) both higher;
+- **T2** — per-trade excess vs the matched control (real coupons,
+  issuer-clustered bootstrap) positive at p<0.01 AND larger than the
+  sibling-eligible baseline's own excess;
+- **T3** — maxDD not worse by more than 5pp (BULWARK's S4 concentrated the
+  book and *raised* drawdown 28.3% -> 40.5%; this gate exists because that
+  is the expected failure mode).
+
+**OOS:** one look, 2016-01-01..2025-03-31 − 455d, frozen spec. Adopt iff
+>=60% of the IS excess improvement over the sibling-eligible baseline is
+retained, with mean/trade and Sharpe(m) still >= that baseline. A surviving
+spec additionally gets a `live_replay` run (chronological admission,
+gates at signal, capacity against actual open positions) before any planning
+number is quoted — pipeline ordering applies gates after capacity and is
+used for screening only.
+
+**Results:** (to be filled after the run; committed before testing.)
+
 ## 9. Bibliography (primary sources)
 
 **Replication/methodology:** Dickerson-Robotti-Rossetti 2026 (arXiv 2604.07880);
