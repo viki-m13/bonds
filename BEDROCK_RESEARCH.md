@@ -991,7 +991,51 @@ least **+3.50pp** OOS), with OOS mean/trade and Sharpe(m) still >= that
 baseline. This is a disclosed revision made after seeing IS results; the OOS
 is the real test and is taken once.
 
-**Results 8j:** (to be filled after the single OOS run.)
+**Results 8j (one shot, OOS 2016+, `s4_transfer2_oos.json`).**
+
+| cohort | n | mean/trade | win | CAGR | Sharpe | maxDD | 1y-hold mean | excess (p) |
+|---|---|---|---|---|---|---|---|---|
+| A GRANITE-XL full | 2729 | +5.98% | 79% | +14.77% | 0.89 | −35.1% | +9.97% | +5.17% (0.000) |
+| B sibling-eligible (control) | 1258 | +3.67% | 72% | +9.72% | 0.55 | −39.5% | +6.65% | +3.31% (0.000) |
+| **C + S4 pass** | 235 | **+7.19%** | **89%** | +8.52% | **0.41** | −50.8% | **+15.40%** | **+8.94% (0.000)** |
+| D + S4 fail | 1023 | +2.86% | 68% | +10.13% | 0.66 | −33.2% | +4.64% | +1.52% (0.000) |
+| E BEDROCK-V full | 1499 | +8.13% | 86% | +16.65% | 0.96 | −37.0% | +13.08% | +6.95% (0.000) |
+| F sibling-eligible | 156 | +6.13% | 86% | +9.61% | 0.54 | −48.5% | +9.67% | +7.13% (0.000) |
+| G + S4 pass | 92 | +6.61% | 89% | +6.02% | 0.33 | −58.4% | +9.49% | +8.10% (0.001) |
+| H + S4 fail | 64 | +5.44% | 81% | +10.60% | 0.57 | −40.0% | +9.94% | +4.36% (0.077) |
+
+**The signal replicated almost perfectly. The portfolio did not.**
+
+- **Entry quality: confirmed OOS.** C's excess improvement over its control is
+  **+5.63pp OOS vs +5.84pp IS — 96% retention**, far above the 60% bar, at
+  p<0.001. S4 separates 1y-hold return **+15.40% (pass) vs +4.64% (fail)**
+  out of sample, and per-trade **+7.19% vs +3.67%** with an 89% win rate
+  versus 72%. In BEDROCK-V it now separates too (+8.10% vs F's +7.13%).
+  This is the strongest and best-replicating entry signal in the program.
+- **But C FAILS the frozen adoption rule on Sharpe: 0.41 vs the control's
+  0.55** (maxDD −50.8% vs −39.5%). G fails identically (0.33 vs 0.54).
+  **KILLED as pre-registered.**
+
+**Why, and it is the program's recurring result.** S4-pass is only ~9% of
+OOS entries: filtering to it cuts GRANITE-XL from 2,729 trades to 235
+(~29/yr). The per-trade edge is real and large, but the portfolio built from
+it is too concentrated — Sharpe 0.41 against the full book's 0.89, drawdown
+−50.8% against −35.1%. And the weight version cannot rescue it either,
+because tilting 9-12% of the book by 1.5-3x moves CAGR only +0.24 to
++0.76pp against an equal Sharpe/drawdown cost (§8i [W]).
+
+**Verdict.** S4 is a **validated alpha signal with no viable portfolio
+implementation at current coverage** — it is worth more as evidence about
+where mispricing lives (idiosyncratic cheapness on an issuer's own curve)
+than as a tradable gate. Neither GRANITE-XL nor BEDROCK-V is changed.
+
+**The one untested lever, NOT run here** (it would require re-specifying a
+frozen spec after seeing results, so it is left for explicit approval): the
+binding constraint is *coverage*, not the threshold — only ~12% of entries
+have >=2 siblings quoting within 10 days. Relaxing the sibling-staleness
+window or accepting a single sibling would widen S4-pass enough for a filter
+or tilt to matter at portfolio level. That is a coverage change, not a
+threshold tune, and would need its own pre-registration and OOS.
 
 ## 9. Bibliography (primary sources)
 
